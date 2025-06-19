@@ -1,0 +1,11 @@
+#ignore auto save files
+*.asv
+
+#ignore pngs
+*.png
+
+#ignore matab figs
+*.fig
+
+#ignore .sh.bak files
+*.sh.bak
