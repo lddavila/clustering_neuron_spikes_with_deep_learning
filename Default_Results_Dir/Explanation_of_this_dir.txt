@@ -1,0 +1,1 @@
+This directory will be the default one where all of your clustering will be saved to. If you'd like to change this please edit config struct before calling run_entire_clustering_algorithm_ver_2.m
