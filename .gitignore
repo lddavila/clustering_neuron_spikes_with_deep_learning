@@ -9,3 +9,9 @@
 
 #ignore .sh.bak files
 *.sh.bak
+
+#ignore files in the default_results_dir
+Default_Results_dir/
+
+#ignore files in the Data Directory
+Data/

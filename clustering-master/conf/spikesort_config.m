@@ -189,6 +189,8 @@ config.FP_TO_COMPLEX_MERGE_OR_DONT_NN_ON_HPC = "";
 
 config.DIR_TO_STATUS_FILE = "";
 config.FP_TO_STATUS_FILE = "";
+
+config.RECORDING_NAME = "0_100";
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
