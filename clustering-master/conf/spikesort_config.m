@@ -118,16 +118,16 @@ config.DIR_WITH_NUMBER_BASED_IMAGES = fullfile("D:\cluster_neuronspikes\Data\MUA
 config.DIR_WITH_NUMBER_BASED_IMAGES_ON_HPC = "/home/lddavila/data_from_local_server/Expand Or Dont";
 
 
-config.FP_TO_ACC_PREDICTING_NN = fullfile("D:","cluster_neuronspikes","Accuracy Based Neural Network","accuracy score 81.3078 number of acc cats 3 num layers 18 filter size 32.mat");
+config.FP_TO_ACC_PREDICTING_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_with_image_nn","accuracy score 81.3078 number of acc cats 3 num layers 18 filter size 32.mat");
 config.FP_TO_ACC_PREDICTING_NN_ON_HPC = fullfile("/home","lddavila","cluster_neuronspikes","Accuracy Based Neural Network","accuracy score 81.3078 number of acc cats 3 num layers 18 filter size 32.mat");
 
 config.FP_TO_QUALITY_PREDICTING_NN = fullfile("D:","cluster_neuronspikes","David Trained NN","accuracy score 65.3465 number of acc cats 5 num layers 18 filter size 64.mat");
 config.FP_TO_QUALITY_PREDICTING_NN_ON_HPC = fullfile("/home","lddavila","cluster_neuronspikes","David Trained NN","accuracy score 65.3465 number of acc cats 5 num layers 18 filter size 64.mat");
 
-config.FP_TO_MUA_OR_NOT_PREDICTING_NN ="D:\cluster_neuronspikes\mua_or_not_NN\accuracy score 95.0739 num layers 27 filter size 64 mua_or_not.mat" ;
+config.FP_TO_MUA_OR_NOT_PREDICTING_NN =fullfile(config.base_file_path,"Neural_Networks","mua_or_not_nn","accuracy score 95.0739 num layers 27 filter size 64 mua_or_not.mat");
 config.FP_TO_MUA_OR_NOT_PREDICTING_NN_ON_HPC ="/home/lddavila/cluster_neuronspikes/mua_or_not_NN/accuracy score 95.0739 num layers 27 filter size 64 mua_or_not.mat";
 
-config.FP_TO_EXPAND_OR_DONT_NN ="D:\cluster_neuronspikes\expand_or_dont_NN\accuracy score 94.5545 num layers 22 filter size 256 mua_or_not.mat" ;
+config.FP_TO_EXPAND_OR_DONT_NN =fullfile(config.base_file_path,"Neural_Networks","expand_or_dont_nn","accuracy score 94.5545 num layers 22 filter size 256 expand_or_dont.mat") ;
 config.FP_TO_EXPAND_OR_DONT_NN_ON_HPC = "/home/lddavila/cluster_neuronspikes/expand_or_dont_NN/accuracy score 94.5545 num layers 22 filter size 256 mua_or_not.mat";
 
 
@@ -176,7 +176,7 @@ config.DIR_TO_SAVE_UPDATED_CLUSTER_TABLE_TO_ON_HPC = fullfile(config.parent_save
 config.FP_TO_CHOOSE_BETTER_NN = "D:\cluster_neuronspikes\choose_better_nn\accuracy score 0.71695 num layers 1 num neurons per layer40 mean waveform choose better_equalize_proportions.mat";
 config.FP_TO_CHOOSE_BETTER_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/choose_better_nn/accuracy score 0.71695 num layers 1 num neurons per layer40 mean waveform choose better_equalize_proportions.mat";
 
-config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = "D:\cluster_neuronspikes\accuracy_category_based_on_mean_waveform_nn\accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat";
+config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_using_mean_waveform_nn/","accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat");
 config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/accuracy_category_based_on_mean_waveform_nn/accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat";
 
 config.DIR_TO_SAVE_RESULTS_TO = "06_19_2025_predict_accuracy_increases";

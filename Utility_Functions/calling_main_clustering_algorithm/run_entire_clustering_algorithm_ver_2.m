@@ -1,4 +1,4 @@
-function [has_been_computed] = run_entire_clustering_algorithm_ver_2(config)
+function [blind_pass_table] = run_entire_clustering_algorithm_ver_2(config)
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
@@ -151,8 +151,21 @@ for min_z_score=z_scores_to_check
 
     end
 end
-% step 10: Grade the blind pass results
-get_grades_for_nth_pass_of_clustering(dir_with_timestamps_and_rvals,dir_with_results,list_of_tetrodes,dir_to_save_grades_to,config,min_z_score,debug,relevant_grades,name_of_relevant_grades)
-% step 11: Read the results of the blind pass in an easy to read table
+
+%step 11: read the results of the blind pass into a table
+blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
+
+% step 12: Grade the blind pass results
+blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
+
+%step 13: Add The Mean Waveform column to the table
+
+%step 14: Add the cluster idx col to the table
+
+%step 15: add the neuron or MUA or not col
+
+
+
+
 
 end

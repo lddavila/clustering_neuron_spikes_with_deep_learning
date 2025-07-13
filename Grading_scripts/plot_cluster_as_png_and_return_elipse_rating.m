@@ -7,7 +7,8 @@ symmetry_score = NaN;
 circular_symmetry = NaN;
 k = boundary(compare_wire_peaks.',compare_wire_2_peaks.',1);
 % hold on;
-f =figure('Position',[2027         394         560         420]);
+f =figure;
+set(f, 'Position', [100 100 800 600]);
 fill(compare_wire_peaks(k),compare_wire_2_peaks(k),'k');
 
 axis off;
