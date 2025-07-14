@@ -189,10 +189,13 @@ config.FP_TO_PREDICTING_ACCURACY_ON_GRADES_NN_ON_HPC = "/scratch/lddavila/cluste
 config.FP_TO_COMPLEX_MERGE_OR_DONT_NN = "D:\cluster_neuronspikes\Data\06_17_2025_complex_merge_nn_with_overlap\accuracy score 0.99235 num layers 1 num neurons per layer10 complex merge checker.mat";
 config.FP_TO_COMPLEX_MERGE_OR_DONT_NN_ON_HPC = "";
 
+config.FP_TO_COMPLEX_CHOOSE_BETTER_NN = fullfile(config.base_file_path,"Neural_Networks","choose_better_nn","accuracy score 0.85031 num layers 13 num neurons per layer10 complex choose better.mat");
+
 config.DIR_TO_STATUS_FILE = "";
 config.FP_TO_STATUS_FILE = "";
 
 config.FP_TO_GRADES_ACC_PRED_WITH_RANK_NN = fullfile(config.base_file_path,"accuracy score 0.89695number of acc cats 3 num layers 15 num neurons per layer40 predict_grades_nn_with_ranking.mat");
+config.FP_TO_PRESORTED_TABLE = fullfile(config.base_file_path);
 
 
 
