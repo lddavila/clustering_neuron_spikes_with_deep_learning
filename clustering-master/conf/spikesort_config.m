@@ -6,6 +6,8 @@ config = struct();
 %get the base file path of the github directory
 config.base_file_path = get_base_filepath();
 
+config.RECORDING_NAME = ""; % by default this is empty, if you add a name then it will create a nested file path
+
 %THESE PARAMETERS WILL CHECK IF YOU have a gpu available and if you have the parallel computing toolbox available
 config.IS_PARALLEL_AVAILABLE =license('test', 'Distrib_Computing_Toolbox') && exist('parpool', 'file') ;
 config.IS_GPU_AVAILABLE = canUseGPU;
@@ -62,7 +64,7 @@ config.NUM_OF_STD_ABOVE_MEAN = 20;
 config.NUM_DIMS_TO_USE_FOR_RECLUSTERING = 3;
 config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING) +" Channels";
 config.SAVE_DIRECTORY = 'D:\cluster_neuronspikes\Data'; %where any important data will be saved to
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.base_file_path,"Default_Results_Dir"); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
+config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.base_file_path,"Default_Results_Dir",config.RECORDING_NAME); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
 config.TIMESTAMP_FP = "D:\spike_gen_data\Recordings By Channel Timestamps\0_100Neuron300SecondRecordingWithLevel3Noise\timestamps.mat";
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = "D:\spike_gen_data\Recordings By Channel\0_100Neuron300SecondRecordingWithLevel3Noise";
 config.DIR_WITH_CHANNEL_WISE_MEANS_AND_STDS = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\mean_and_std\mean_and_std.mat";
@@ -190,7 +192,10 @@ config.FP_TO_COMPLEX_MERGE_OR_DONT_NN_ON_HPC = "";
 config.DIR_TO_STATUS_FILE = "";
 config.FP_TO_STATUS_FILE = "";
 
-config.RECORDING_NAME = "0_100";
+config.FP_TO_GRADES_ACC_PRED_WITH_RANK_NN = fullfile(config.base_file_path,"accuracy score 0.89695number of acc cats 3 num layers 15 num neurons per layer40 predict_grades_nn_with_ranking.mat");
+
+
+
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

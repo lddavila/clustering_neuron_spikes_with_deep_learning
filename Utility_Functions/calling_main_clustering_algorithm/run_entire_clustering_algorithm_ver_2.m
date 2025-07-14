@@ -1,4 +1,4 @@
-function [blind_pass_table] = run_entire_clustering_algorithm_ver_2(config)
+function [blind_pass_table,fp_to_blind_pass_table] = run_entire_clustering_algorithm_ver_2(config)
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
@@ -158,14 +158,16 @@ blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
 % step 12: Grade the blind pass results
 blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
 
-%step 13: Add The Mean Waveform column to the table
-
-%step 14: Add the cluster idx col to the table
+%step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
+blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
 
 %step 15: add the neuron or MUA or not col
+blind_pass_table = add_is_neuron_col(blind_pass_table,config);
 
+%step 16: save the blind pass table to the desired file
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
+save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
 
-
-
+fp_to_blind_pass_table = fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat");
 
 end
