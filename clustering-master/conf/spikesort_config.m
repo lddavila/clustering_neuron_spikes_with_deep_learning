@@ -66,7 +66,7 @@ config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Pre
 config.SAVE_DIRECTORY = 'D:\cluster_neuronspikes\Data'; %where any important data will be saved to
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.base_file_path,"Default_Results_Dir",config.RECORDING_NAME); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
 config.TIMESTAMP_FP = "D:\spike_gen_data\Recordings By Channel Timestamps\0_100Neuron300SecondRecordingWithLevel3Noise\timestamps.mat";
-config.DIR_WITH_OG_CHANNEL_RECORDINGS = "D:\spike_gen_data\Recordings By Channel\0_100Neuron300SecondRecordingWithLevel3Noise";
+config.DIR_WITH_OG_CHANNEL_RECORDINGS = "";
 config.DIR_WITH_CHANNEL_WISE_MEANS_AND_STDS = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\mean_and_std\mean_and_std.mat";
 config.GENERIC_GRADES_DIR = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\initial_pass min z_score"; % a generic file path which can be modified to access grades of various cluster configurations
 config.GENRIC_DIR_WITH_OUTPUTS = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\initial_pass_results min z_score"; %a generic file path which can be modified to access the results of clustering
@@ -178,7 +178,7 @@ config.DIR_TO_SAVE_UPDATED_CLUSTER_TABLE_TO_ON_HPC = fullfile(config.parent_save
 config.FP_TO_CHOOSE_BETTER_NN = "D:\cluster_neuronspikes\choose_better_nn\accuracy score 0.71695 num layers 1 num neurons per layer40 mean waveform choose better_equalize_proportions.mat";
 config.FP_TO_CHOOSE_BETTER_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/choose_better_nn/accuracy score 0.71695 num layers 1 num neurons per layer40 mean waveform choose better_equalize_proportions.mat";
 
-config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_using_mean_waveform_nn/","accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat");
+config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_using_mean_waveform_nn","accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat");
 config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/accuracy_category_based_on_mean_waveform_nn/accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat";
 
 config.DIR_TO_SAVE_RESULTS_TO = "06_19_2025_predict_accuracy_increases";

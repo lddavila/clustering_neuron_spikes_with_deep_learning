@@ -31,5 +31,5 @@ parfor i=1:size(sliced_bp_table)
     accuracy_categories(i) = acc_category-1;
 end
 % Store the accuracy categories back into the blind_pass_table
-blind_pass_table.("predicted_accuracy_cat") = accuracy_categories;
+blind_pass_table.("grades_pred") = accuracy_categories;
 end
