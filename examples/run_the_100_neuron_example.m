@@ -23,7 +23,17 @@ blind_pass_table_only_neurons = blind_pass_table(blind_pass_table{:,"is_neuron"}
 blind_pass_table_only_neurons = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
 blind_pass_table_only_neurons = add_accuracy_col(config,blind_pass_table_only_neurons);
 %% Step 6: Use Accuracy Prediction Neural Network to filter out any MUA clusters that made it past the first filter
-
-%% Merge neurons into groups that represent the same underlying unit
-determine_which_blind_pass_neurons_overlap(blind_pass_table_only_neurons,config)
-%% 
+blind_pass_table_only_neurons = add_accuracy_cat_pred_from_nn(blind_pass_table,config);
+bp_table_only_neur_filtered = blind_pass_table_only_neurons(blind_pass_table{:,"predicted_accuracy_cat"}>0,:);
+%% Step 7: Merge neurons into groups that represent the same underlying unit
+clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap(bp_table_only_neur_filtered,config);
+%% Step 9: Save Results of merging
+clusters_organized_by_same_group_with_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_with_filter");
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_with_filter_fp);
+save(fullfile(clusters_organized_by_same_group,"clusters_organized_by_same_group.mat"),"clusters_organized_by_same_group");
+%% Step 10: Merge Neurons into groups without step 6 (for testing purposes)
+clusters_organized_by_same_group_without_filter = determine_which_blind_pass_neurons_overlap(blind_pass_table_only_neurons, config);
+%% step 11: Save the results of step 10 
+clusters_organized_by_same_group_without_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_without_filter");
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_without_filter_fp);
+save(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organized_by_same_group_without_filter.mat"),"");
