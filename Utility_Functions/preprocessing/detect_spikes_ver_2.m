@@ -2,7 +2,7 @@ function [spikes_matrix] = detect_spikes_ver_2(ordered_list_of_channels,dir_with
 spikes_matrix_unmapped = cell(1,size(ordered_list_of_channels,2));
 spikes_matrix = cell(1,config.max_channel_number);
 num_iterations = size(ordered_list_of_channels,2);
-status_file = fopen(config.FP_TO_STATUS_FILE,"a");
+% status_file = fopen(config.FP_TO_STATUS_FILE,"a");
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel+".mat"));
@@ -18,6 +18,6 @@ for i=1:size(length(ordered_list_of_channels))
     spikes_matrix{str2double(strrep(ordered_list_of_channels(i),"c",""))} = spikes_matrix_unmapped{i};
 end
 status_message = "\n"+print_status_iter_message("detect_spikes_ver_2.m",i,num_iterations);
-fprintf(status_file,status_message);
-fclose(status_file);
+% fprintf(status_file,status_message);
+% fclose(status_file);
 end
