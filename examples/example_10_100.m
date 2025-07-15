@@ -9,7 +9,7 @@ config.RECORDING_NAME = "10_100";
 startup;
 
 %% (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
-config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","0_100Neuron300SecondRecordingWithLevel3Noise.h5.mat");
+config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","10_100Neuron300SecondRecordingWithLevel1Noise.h5.mat");
 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
 
