@@ -78,7 +78,7 @@ for min_z_score=z_scores_to_check
 
     % step 9b: get potential spikes from continuous recordings
     if ~ismember("spikes_per_channel min_z_score "+ string(min_z_score),what_is_pre_computed)
-        spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir+"spikes_per_channel min_z_score "+string(min_z_score)));
+        spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
         spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
         has_been_computed = [has_been_computed,"spikes_per_channel min_z_score"+string(min_z_score)];
