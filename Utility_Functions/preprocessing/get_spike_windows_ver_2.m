@@ -35,7 +35,7 @@ parfor i=1:length(ordered_list_of_channels)
         end
     end
     status_message = "\n"+print_status_iter_message("get_spike_windows_ver_2.m",i,number_of_iterations);
-    fprintf(status_file,status_message);
+    % fprintf(status_file,status_message);
 
 end
 
