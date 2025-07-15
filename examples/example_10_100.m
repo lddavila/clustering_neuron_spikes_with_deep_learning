@@ -6,6 +6,7 @@ disp("Finished Adding path")
 %% step 2: Get the config Necessary for current Example
 config = spikesort_config();
 config.RECORDING_NAME = "10_100";
+config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
 startup;
 disp("Finished Setting Recording Name")
 %% (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
