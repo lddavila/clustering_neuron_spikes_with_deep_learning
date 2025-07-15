@@ -35,6 +35,8 @@ blind_pass_table_only_neurons = add_accuracy_cat_pred_from_nn(blind_pass_table_o
 %% step 7: Get Accuracy category prediction using mean waveform neural network
 blind_pass_table_only_neurons = add_mean_waveform_pred_col(blind_pass_table_only_neurons,config);
 
+%% step 8: Get Letter Grade
+blind_pass_table_only_neurons = add_letter_grade_based_on_nn(blind_pass_table_only_neurons);
 %% Step 8: Use Accuracy Prediction Neural Network to filter out any MUA clusters that made it past the first filter
 bp_table_only_neur_filtered = blind_pass_table_only_neurons(blind_pass_table{:,"grades_pred"}>0,:);
 
