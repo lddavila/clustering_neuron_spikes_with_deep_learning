@@ -5,7 +5,7 @@ cd(examples_dir);
 
 %% step 2: Get the config Necessary for current Example
 config = spikesort_config();
-config.RECORDING_NAME = "0_100";
+config.RECORDING_NAME = "10_100";
 startup;
 
 %% (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
