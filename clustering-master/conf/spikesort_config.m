@@ -6,6 +6,8 @@ config = struct();
 %get the base file path of the github directory
 config.base_file_path = get_base_filepath();
 
+config.RECORDING_NAME = ""; % by default this is empty, if you add a name then it will create a nested file path
+
 %THESE PARAMETERS WILL CHECK IF YOU have a gpu available and if you have the parallel computing toolbox available
 config.IS_PARALLEL_AVAILABLE =license('test', 'Distrib_Computing_Toolbox') && exist('parpool', 'file') ;
 config.IS_GPU_AVAILABLE = canUseGPU;
@@ -62,16 +64,16 @@ config.NUM_OF_STD_ABOVE_MEAN = 20;
 config.NUM_DIMS_TO_USE_FOR_RECLUSTERING = 3;
 config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING) +" Channels";
 config.SAVE_DIRECTORY = 'D:\cluster_neuronspikes\Data'; %where any important data will be saved to
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.base_file_path,"Default_Results_Dir"); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
+config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.base_file_path,"Default_Results_Dir",config.RECORDING_NAME); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
 config.TIMESTAMP_FP = "D:\spike_gen_data\Recordings By Channel Timestamps\0_100Neuron300SecondRecordingWithLevel3Noise\timestamps.mat";
-config.DIR_WITH_OG_CHANNEL_RECORDINGS = "D:\spike_gen_data\Recordings By Channel\0_100Neuron300SecondRecordingWithLevel3Noise";
+config.DIR_WITH_OG_CHANNEL_RECORDINGS = "";
 config.DIR_WITH_CHANNEL_WISE_MEANS_AND_STDS = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\mean_and_std\mean_and_std.mat";
 config.GENERIC_GRADES_DIR = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\initial_pass min z_score"; % a generic file path which can be modified to access grades of various cluster configurations
 config.GENRIC_DIR_WITH_OUTPUTS = "D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise\initial_pass_results min z_score"; %a generic file path which can be modified to access the results of clustering
 config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING) +" Channels";
 config.GT_FP = "D:\spike_gen_data\Recording By Channel Ground Truth\0_100Neuron300SecondRecordingWithLevel3Noise.h5.mat";
 
-config.ON_HPC = contains(pwd,"lddavila","IgnoreCase",true);
+config.ON_HPC = false;
 config.NUM_DIMS_TO_USE_FOR_RECLUSTERING_ON_HPC = [2 3 4 5 6 7];
 config.DIR_TO_SAVE_RECLUSTERING_TO_ON_HPC =fullfile("/home","lddavila","Reclusted Passs 0_100_3","Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING_ON_HPC) +" Channels");
 config.BLIND_PASS_DIR_PRECOMPUTED_ON_HPC = fullfile("/home","lddavila","spike_gen_data","0_100Neuron300SecondRecordingWithLevel3Noise"); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
@@ -118,16 +120,16 @@ config.DIR_WITH_NUMBER_BASED_IMAGES = fullfile("D:\cluster_neuronspikes\Data\MUA
 config.DIR_WITH_NUMBER_BASED_IMAGES_ON_HPC = "/home/lddavila/data_from_local_server/Expand Or Dont";
 
 
-config.FP_TO_ACC_PREDICTING_NN = fullfile("D:","cluster_neuronspikes","Accuracy Based Neural Network","accuracy score 81.3078 number of acc cats 3 num layers 18 filter size 32.mat");
+config.FP_TO_ACC_PREDICTING_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_with_image_nn","accuracy score 81.3078 number of acc cats 3 num layers 18 filter size 32.mat");
 config.FP_TO_ACC_PREDICTING_NN_ON_HPC = fullfile("/home","lddavila","cluster_neuronspikes","Accuracy Based Neural Network","accuracy score 81.3078 number of acc cats 3 num layers 18 filter size 32.mat");
 
 config.FP_TO_QUALITY_PREDICTING_NN = fullfile("D:","cluster_neuronspikes","David Trained NN","accuracy score 65.3465 number of acc cats 5 num layers 18 filter size 64.mat");
 config.FP_TO_QUALITY_PREDICTING_NN_ON_HPC = fullfile("/home","lddavila","cluster_neuronspikes","David Trained NN","accuracy score 65.3465 number of acc cats 5 num layers 18 filter size 64.mat");
 
-config.FP_TO_MUA_OR_NOT_PREDICTING_NN ="D:\cluster_neuronspikes\mua_or_not_NN\accuracy score 95.0739 num layers 27 filter size 64 mua_or_not.mat" ;
+config.FP_TO_MUA_OR_NOT_PREDICTING_NN =fullfile(config.base_file_path,"Neural_Networks","mua_or_not_nn","accuracy score 95.0739 num layers 27 filter size 64 mua_or_not.mat");
 config.FP_TO_MUA_OR_NOT_PREDICTING_NN_ON_HPC ="/home/lddavila/cluster_neuronspikes/mua_or_not_NN/accuracy score 95.0739 num layers 27 filter size 64 mua_or_not.mat";
 
-config.FP_TO_EXPAND_OR_DONT_NN ="D:\cluster_neuronspikes\expand_or_dont_NN\accuracy score 94.5545 num layers 22 filter size 256 mua_or_not.mat" ;
+config.FP_TO_EXPAND_OR_DONT_NN =fullfile(config.base_file_path,"Neural_Networks","expand_or_dont_nn","accuracy score 94.5545 num layers 22 filter size 256 expand_or_dont.mat") ;
 config.FP_TO_EXPAND_OR_DONT_NN_ON_HPC = "/home/lddavila/cluster_neuronspikes/expand_or_dont_NN/accuracy score 94.5545 num layers 22 filter size 256 mua_or_not.mat";
 
 
@@ -176,7 +178,7 @@ config.DIR_TO_SAVE_UPDATED_CLUSTER_TABLE_TO_ON_HPC = fullfile(config.parent_save
 config.FP_TO_CHOOSE_BETTER_NN = "D:\cluster_neuronspikes\choose_better_nn\accuracy score 0.71695 num layers 1 num neurons per layer40 mean waveform choose better_equalize_proportions.mat";
 config.FP_TO_CHOOSE_BETTER_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/choose_better_nn/accuracy score 0.71695 num layers 1 num neurons per layer40 mean waveform choose better_equalize_proportions.mat";
 
-config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = "D:\cluster_neuronspikes\accuracy_category_based_on_mean_waveform_nn\accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat";
+config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_using_mean_waveform_nn","accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat");
 config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/accuracy_category_based_on_mean_waveform_nn/accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat";
 
 config.DIR_TO_SAVE_RESULTS_TO = "06_19_2025_predict_accuracy_increases";
@@ -187,8 +189,16 @@ config.FP_TO_PREDICTING_ACCURACY_ON_GRADES_NN_ON_HPC = "/scratch/lddavila/cluste
 config.FP_TO_COMPLEX_MERGE_OR_DONT_NN = "D:\cluster_neuronspikes\Data\06_17_2025_complex_merge_nn_with_overlap\accuracy score 0.99235 num layers 1 num neurons per layer10 complex merge checker.mat";
 config.FP_TO_COMPLEX_MERGE_OR_DONT_NN_ON_HPC = "";
 
+config.FP_TO_COMPLEX_CHOOSE_BETTER_NN = fullfile(config.base_file_path,"Neural_Networks","choose_better_nn","accuracy score 0.85031 num layers 13 num neurons per layer10 complex choose better.mat");
+
 config.DIR_TO_STATUS_FILE = "";
 config.FP_TO_STATUS_FILE = "";
+
+config.FP_TO_GRADES_ACC_PRED_WITH_RANK_NN = fullfile(config.base_file_path,"Neural_Networks","acc_pred_using_grades_and_rank","accuracy score 0.89695number of acc cats 3 num layers 15 num neurons per layer40 predict_grades_nn_with_ranking.mat");
+config.FP_TO_PRESORTED_TABLE = fullfile(config.base_file_path,"Neural_Networks","presorted_table","presorted_table.mat");
+
+
+
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
