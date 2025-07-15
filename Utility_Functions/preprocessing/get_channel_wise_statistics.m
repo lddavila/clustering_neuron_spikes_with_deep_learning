@@ -24,7 +24,7 @@ parfor i=1:size(ordered_list_of_channels,2)
                                                                     %it should actually improve things if anything
 
     status_message = "\n"+print_status_iter_message("get_channel_wise_statistics:calculate_mean_and_std",i,num_of_iterations);
-    fprintf(status_log,status_message);
+    % fprintf(status_log,status_message);
                                                               
 
     if save_z_score
@@ -32,7 +32,7 @@ parfor i=1:size(ordered_list_of_channels,2)
         channel_wise_z_score_data = struct("channel_wize_z_score_data",channel_wise_z_score_data);
         save(fullfile(z_score_dir,current_channel+".mat"),"-fromstruct",channel_wise_z_score_data);
         status_message = "\n"+print_status_iter_message("get_channel_wise_statistics:calculate_z_score_data",i,num_of_iterations);
-        fprintf(status_log,status_message);
+        % fprintf(status_log,status_message);
 
     end
     % disp("Finished "+string(i) + "/"+string(length(ordered_list_of_channels)) )
