@@ -2,20 +2,23 @@
 examples_dir = cd("..");
 addpath(genpath(pwd));
 cd(examples_dir);
-
+disp("Finished Adding path")
 %% step 2: Get the config Necessary for current Example
 config = spikesort_config();
 config.RECORDING_NAME = "10_100";
 startup;
-
+disp("Finished Setting Recording Name")
 %% (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
 config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","10_100Neuron300SecondRecordingWithLevel1Noise.h5.mat");
 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
-
+disp("Finished Setting directories")
+disp(config.GT_FP);
+disp(config.TIMESTAMP_FP);
+disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("9c2e6016-544e-48b9-906c-474836e003fe","10.70122/FK2/BVPIJO",config,false);
-
+disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
 [blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
 

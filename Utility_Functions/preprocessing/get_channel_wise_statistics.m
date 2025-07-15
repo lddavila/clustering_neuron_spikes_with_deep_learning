@@ -1,5 +1,7 @@
-function [channel_wise_mean,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_data,dir_to_save_z_score_files_to, save_z_score,scale_factor,config)
-z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_z_score_files_to);
+function [channel_wise_mean,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_data,z_score_dir, save_z_score,scale_factor,config)
+% z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_z_score_files_to);
+% disp("Created Z Score directory")
+disp("Beginning get_channel_wise_statistics.m");
 channel_wise_mean_unmapped = nan(1,size(ordered_list_of_channels,2));
 channel_wise_std_unmapped = nan(1,size(ordered_list_of_channels,2));
 
