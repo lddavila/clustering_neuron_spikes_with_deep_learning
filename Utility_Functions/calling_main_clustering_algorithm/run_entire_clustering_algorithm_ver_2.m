@@ -40,6 +40,7 @@ else
     has_been_computed = [has_been_computed,"z_score"];
 end
 disp("Finished Creating Z Score Directory");
+disp(z_score_dir);
 
 % step 7: get the mean and std of all channels the z score is also
 % calculated here

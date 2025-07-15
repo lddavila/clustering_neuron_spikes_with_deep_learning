@@ -8,7 +8,7 @@ channel_wise_std_unmapped = nan(1,size(ordered_list_of_channels,2));
 channel_wise_mean = nan(1,config.max_channel_number);
 channel_wise_std = nan(1,config.max_channel_number);
 
-status_log = fopen(config.FP_TO_STATUS_FILE,'a');
+% status_log = fopen(config.FP_TO_STATUS_FILE,'a');
 num_of_iterations = size(ordered_list_of_channels,2);
 
 sliced_list_of_channels = num2cell(ordered_list_of_channels);
@@ -41,5 +41,5 @@ for i=1:size(ordered_list_of_channels,2)
     channel_wise_mean(sliced_channel_numbers(i)) = channel_wise_mean_unmapped(i);
     channel_wise_std(sliced_channel_numbers(i)) = channel_wise_std_unmapped(i);
 end
-fclose(status_log);
+% fclose(status_log);
 end
