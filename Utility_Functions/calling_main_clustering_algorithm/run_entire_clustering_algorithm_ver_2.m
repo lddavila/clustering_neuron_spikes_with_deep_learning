@@ -5,9 +5,11 @@ num_dps = config.NUM_DPTS_TO_SLICE;
 
 % step 1: load the timestamps into memory
 timestamps = importdata(config.TIMESTAMP_FP);
+disp("Finished Importing timestamps for recording")
 
 %step 2: read the precomputed dir from the config
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
+disp("Finished setting the blind pass directory")
 
 %step 3: read the precomputed file AKA the log file to see if any steps can
 %be skipped
@@ -41,7 +43,7 @@ end
 % step 7: get the mean and std of all channels the z score is also
 % calculated here
 if ~ismember("mean_and_std",what_is_pre_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
-    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor); %will get the mean and std of every channel and calculate z_score for data set if not yet created
+    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
     mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfiple(precomputed_dir,"mean_and_std"));
     save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
     has_been_computed = [has_been_computed,"mean_and_std"];
