@@ -11,12 +11,12 @@ precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 
 %step 3: read the precomputed file AKA the log file to see if any steps can
 %be skipped
-log_file_path = dir(config.FP_TO_STATUS_FILE);
-if log_file_path.bytes == 0
-    what_is_pre_computed = [];
-else
-    what_is_pre_computed = handle_log_file();
-end
+% log_file_path = dir(config.FP_TO_STATUS_FILE);
+% if log_file_path.bytes == 0
+%     what_is_pre_computed = [];
+% else
+%     what_is_pre_computed = handle_log_file();
+% end
 
 % Step 4: Get ordered List of Channels
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
