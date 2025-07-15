@@ -26,6 +26,8 @@ min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
 has_been_computed = [];
 
+what_is_pre_computed = [];
+
 % step 6: get or make the z_score channel data directory (only done once)
 if ~ismember("z_score",what_is_pre_computed) %means that the z_score matrix is already computed and we will skip computing it again
     z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"z_score")); %not yet computed
