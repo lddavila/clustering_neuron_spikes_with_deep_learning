@@ -1,4 +1,4 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir)
+function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
 output_array = cell(1,length(list_of_desired_tetrodes));
 aligned_array = cell(1,length(list_of_desired_tetrodes));
 reg_timestamps_array= cell(1,length(list_of_desired_tetrodes));
@@ -56,7 +56,7 @@ for i=1:length(list_of_desired_tetrodes)
     tvals = mean_of_relevant_channels + (std_dvns_of_relevant_channels * number_of_std_above_means) ;
 
 
-    config = spikesort_config(); %load the config file;
+    % config = spikesort_config(); %load the config file;
 
 
     % try

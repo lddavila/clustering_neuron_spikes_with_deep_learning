@@ -54,7 +54,7 @@ else
     load(fullfile(precomputed_dir,"mean_and_std","mean_and_std.mat"),'channel_wise_means','channel_wise_std') %loads the previously found mean and std
 end
 end_time = toc(beginning_time);
-fprintf("Finished Getting mean and std, it took %f seconds",end_time)
+fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
 %step 8: Get the channel groupings
 clc;
 art_tetr_array = config.ART_TETR_ARRAY;
@@ -89,7 +89,7 @@ for min_z_score=z_scores_to_check
         load(fullfile(precomputed_dir,"spikes_per_channel min_z_score " + string(min_z_score),"spikes_per_channel.mat"), "spikes_per_channel")
     end
     end_time = toc(beginning_time);
-    fprintf("Finished cutting spikes per channel for z score %f, it took %f seconds",min_z_score,end_time);
+    fprintf("Finished cutting spikes per channel for z score %f, it took %f seconds\n",min_z_score,end_time);
 
 
     % step 9c; Get all the data points from the potential spikes
@@ -108,7 +108,7 @@ for min_z_score=z_scores_to_check
         load(fullfile(precomputed_dir,"spike_windows min_z_score "+string(min_z_score)+" num dps "+string(num_dps),"spike_windows.mat"),"spike_windows")
     end
     end_time = toc(beginning_time);
-    fprintf("Finished getting spike windows for z score %f, it took %f seconds",min_z_score,end_time);
+    fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
 
 
     beginning_time = tic;
@@ -150,7 +150,7 @@ for min_z_score=z_scores_to_check
         dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
     end
     end_time = toc(beginning_time);
-    fprintf('Getting dictionaries took: %f',end_time)
+    fprintf('Getting dictionaries took: %f\n',end_time)
 
 
     % Step 9e: Run Clustering Algorithm
@@ -160,7 +160,7 @@ for min_z_score=z_scores_to_check
     if ~ismember("initial_pass",what_is_pre_computed)
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score" + string(min_z_score)));
-        [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir);
+        [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
         has_been_computed = [has_been_computed,"initial_pass"];
 
 
