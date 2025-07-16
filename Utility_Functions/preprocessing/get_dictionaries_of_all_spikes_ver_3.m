@@ -27,7 +27,7 @@ function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,
 
 status_file = fopen(config.FP_TO_STATUS_FILE,"a");
 
-parfor i=1:size(art_tetr_array,1)
+for i=1:size(art_tetr_array,1)
     tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
