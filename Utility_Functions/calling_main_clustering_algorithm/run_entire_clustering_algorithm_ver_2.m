@@ -44,6 +44,7 @@ disp(z_score_dir);
 
 % step 7: get the mean and std of all channels the z score is also
 % calculated here
+beginning_time = tic;
 if ~ismember("mean_and_std",what_is_pre_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
     [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
     mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"mean_and_std"));
@@ -52,7 +53,8 @@ if ~ismember("mean_and_std",what_is_pre_computed) %means that the channel wise m
 else
     load(fullfile(precomputed_dir,"mean_and_std","mean_and_std.mat"),'channel_wise_means','channel_wise_std') %loads the previously found mean and std
 end
-
+end_time = toc(beginning_time);
+fprintf("Finished Getting mean and std, it took %f seconds",end_time)
 %step 8: Get the channel groupings
 clc;
 art_tetr_array = config.ART_TETR_ARRAY;
@@ -76,6 +78,7 @@ for min_z_score=z_scores_to_check
 
 
 
+    beginning_time = tic;
     % step 9b: get potential spikes from continuous recordings
     if ~ismember("spikes_per_channel min_z_score "+ string(min_z_score),what_is_pre_computed)
         spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
@@ -85,9 +88,12 @@ for min_z_score=z_scores_to_check
     else
         load(fullfile(precomputed_dir,"spikes_per_channel min_z_score " + string(min_z_score),"spikes_per_channel.mat"), "spikes_per_channel")
     end
+    end_time = toc(beginning_time);
+    fprintf("Finished cutting spikes per channel for z score %f, it took %f seconds",min_z_score,end_time);
 
 
     % step 9c; Get all the data points from the potential spikes
+    beginning_time = tic;
     if ~ismember("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps),what_is_pre_computed)
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
         spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
@@ -101,8 +107,8 @@ for min_z_score=z_scores_to_check
     else
         load(fullfile(precomputed_dir,"spike_windows min_z_score "+string(min_z_score)+" num dps "+string(num_dps),"spike_windows.mat"),"spike_windows")
     end
-
-
+    end_time = toc(beginning_time);
+    fprintf("Finished getting spike windows for z score %f, it took %f seconds",min_z_score,end_time);
 
 
     beginning_time = tic;

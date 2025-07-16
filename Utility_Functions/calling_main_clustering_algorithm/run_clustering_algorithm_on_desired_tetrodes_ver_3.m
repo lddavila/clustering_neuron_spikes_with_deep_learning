@@ -9,7 +9,7 @@ end
 number_of_tetrodes_to_run = length(list_of_desired_tetrodes);
 
 
-parfor i=1:length(list_of_desired_tetrodes)
+for i=1:length(list_of_desired_tetrodes)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
