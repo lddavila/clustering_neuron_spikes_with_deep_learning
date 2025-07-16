@@ -20,4 +20,9 @@ end
 status_message = "\n"+print_status_iter_message("detect_spikes_ver_2.m",i,num_iterations);
 fprintf(status_file,status_message);
 fclose(status_file);
+
+% Show to UI
+% displayStatus(Config, status_message);
+
+
 end

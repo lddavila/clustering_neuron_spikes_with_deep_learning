@@ -3,6 +3,8 @@ scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
+status = parseStatusLog(config.FP_TO_STATUS_FILE);
+
 % step 1: load the timestamps into memory
 timestamps = importdata(config.TIMESTAMP_FP);
 disp("Finished Importing timestamps for recording")
@@ -21,7 +23,10 @@ disp("Finished setting the blind pass directory")
 % end
 
 % Step 4: Get ordered List of Channels
-ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
+% ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
+
+% TESTING PURPOSES
+ordered_list_of_channels = ["c1", "c2", "c97", "c98"];
 
 % Step 5: Get the Min Threshold
 min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
@@ -39,8 +44,8 @@ else
     create_z_score_matrix = 0;
     has_been_computed = [has_been_computed,"z_score"];
 end
-disp("Finished Creating Z Score Directory");
-disp(z_score_dir);
+disp("Finished Creating Z Score Directory: " + z_score_dir);
+displayStatus(config,'Z-score channel directory created');
 
 % step 7: get the mean and std of all channels the z score is also
 % calculated here
@@ -74,8 +79,6 @@ for min_z_score=z_scores_to_check
     has_been_computed = []; %will store what was successfully computed and saved
 
 
-
-
     % step 9b: get potential spikes from continuous recordings
     if ~ismember("spikes_per_channel min_z_score "+ string(min_z_score),what_is_pre_computed)
         spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir+"spikes_per_channel min_z_score "+string(min_z_score)));
@@ -103,46 +106,52 @@ for min_z_score=z_scores_to_check
     end
 
 
-
-
     % step 9d: get maps of each tetrode to its spikes
-    if ~ismember("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed)
-        clc;
-        dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
-        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir);
-        %tetrode_dictionary
-        %keys: "t" + tetrode number
-        %values: all channels which are part of the current dictionary
-        %spike_tetrode_dictionary
-        %keys: "t" + tetrode number
-        %values: the spikes for the current tetrode organized as follows
-        %[numwires, numspikes, numdp] = size(raw);
-        %numwires: number of channels
-        %numspikes: number of spikes
-        %numdp: number of datapoints
-        %timing_tetrode_dictionary
-        %channel_to_tetrode_dictionary
-        %keys: "c" + channel number
-        %values: tetrode which the current channel belongs to
-        %spiking_channel_tetrode_dictionary
-        %keys: "t"+ tetrode number
-        %values: a list of which channel was the actual spiking channel, ordered in the same way as spike_tetrode_dictionary
-        %spike_tetrode_dictionary_samples_format
-        %keys: "t"+tetrode number
-        %values: the spikes for the current tetrode organzied as follows
-        %[numdp, numspikes, numswires] = size(raw);
-        %numwires: number of channels
-        %numspikes: number of spikes
-        %numdp: number of datapoints
-        %timing_tetrode_dictionary
-        % number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
-        % disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
-        % clc;
-        has_been_computed = [has_been_computed,"dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed];
+    if ~config.CUSTOM_SPIKE_CUTTING
+        if ~ismember("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed)
+            clc;
+            dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
+            get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir);
+            %tetrode_dictionary
+            %keys: "t" + tetrode number
+            %values: all channels which are part of the current dictionary
+            %spike_tetrode_dictionary
+            %keys: "t" + tetrode number
+            %values: the spikes for the current tetrode organized as follows
+            %[numwires, numspikes, numdp] = size(raw);
+            %numwires: number of channels
+            %numspikes: number of spikes
+            %numdp: number of datapoints
+            %timing_tetrode_dictionary
+            %channel_to_tetrode_dictionary
+            %keys: "c" + channel number
+            %values: tetrode which the current channel belongs to
+            %spiking_channel_tetrode_dictionary
+            %keys: "t"+ tetrode number
+            %values: a list of which channel was the actual spiking channel, ordered in the same way as spike_tetrode_dictionary
+            %spike_tetrode_dictionary_samples_format
+            %keys: "t"+tetrode number
+            %values: the spikes for the current tetrode organzied as follows
+            %[numdp, numspikes, numswires] = size(raw);
+            %numwires: number of channels
+            %numspikes: number of spikes
+            %numdp: number of datapoints
+            %timing_tetrode_dictionary
+            % number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
+            % disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
+            % clc;
+            has_been_computed = [has_been_computed,"dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed];
+        else
+            dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
+        end
     else
-        dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
+        directory_list = config.CUSTOM_DICTIONARIES_DIRECTORY_LIST;
+        idx = find(z_scores_to_check == min_z_score, 1);
+        if isempty(idx)
+            error('No custom-directory specified for z-score = %g', min_z_score);
+        end
+        dictionaries_dir = directory_list(idx);
     end
-
 
     % Step 9e: Run Clustering Algorithm
     % close all;
@@ -151,9 +160,8 @@ for min_z_score=z_scores_to_check
     if ~ismember("initial_pass",what_is_pre_computed)
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score" + string(min_z_score)));
-        [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir);
+        [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
         has_been_computed = [has_been_computed,"initial_pass"];
-
 
     end
 end

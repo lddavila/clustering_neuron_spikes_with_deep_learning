@@ -1,8 +1,12 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir)
+function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir, config)
 output_array = cell(1,length(list_of_desired_tetrodes));
 aligned_array = cell(1,length(list_of_desired_tetrodes));
 reg_timestamps_array= cell(1,length(list_of_desired_tetrodes));
 filenames = repelem("",1,length(list_of_desired_tetrodes));
+
+% New added status file
+status_file = fopen(config.FP_TO_STATUS_FILE,"a");
+
 for j=1:length(list_of_desired_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_desired_tetrodes(j)+".mat");
 end
@@ -85,7 +89,15 @@ for i=1:length(list_of_desired_tetrodes)
         continue;
     end
     disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
+    
+    status_message = "\n"+print_status_iter_message("run_clustering_algorithm_on_desired_tetrodes_ver_3", i, length(number_of_tetrodes_to_run));
 
+    % Added writing to status file
+    fprintf(status_file,status_message);
+    fclose(status_file);
+
+    % Display to UI
+    % displayStatus(config, status_message);
 
 end
 end

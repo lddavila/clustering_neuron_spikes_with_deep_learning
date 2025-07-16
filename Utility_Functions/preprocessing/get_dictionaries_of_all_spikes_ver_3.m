@@ -71,6 +71,9 @@ parfor i=1:size(art_tetr_array,1)
     
     status_message ="\n"+print_status_iter_message("get_dicationaries_of_all_spikes_ver_3.m");
     fwrite(status_file,status_message);
+
+    % Show to UI
+    % displayStatus(Config, status_message);
 end
 fclose(status_file);
 end
