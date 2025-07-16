@@ -10,6 +10,7 @@ number_of_tetrodes_to_run = length(list_of_desired_tetrodes);
 
 
 parfor i=1:length(list_of_desired_tetrodes)
+    beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
@@ -86,8 +87,8 @@ parfor i=1:length(list_of_desired_tetrodes)
 
         continue;
     end
-    disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
-
-
+    % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
+    end_time = toc(beginning_time);
+    fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %d seconds",i,length(number_of_tetrodes_to_run),end_time)
 end
 end

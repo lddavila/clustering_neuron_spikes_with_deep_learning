@@ -105,6 +105,7 @@ for min_z_score=z_scores_to_check
 
 
 
+    beginning_time = tic;
     % step 9d: get maps of each tetrode to its spikes
     if ~ismember("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed)
         clc;
@@ -142,6 +143,8 @@ for min_z_score=z_scores_to_check
     else
         dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
     end
+    end_time = toc(beginning_time);
+    fprintf('Getting dictionaries took: %f',end_time)
 
 
     % Step 9e: Run Clustering Algorithm
