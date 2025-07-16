@@ -25,7 +25,7 @@ function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,
 %numdp: number of datapoints
 %timing_tetrode_dictionary
 
-status_file = fopen(config.FP_TO_STATUS_FILE,"a");
+% status_file = fopen(config.FP_TO_STATUS_FILE,"a");
 
 for i=1:size(art_tetr_array,1)
     tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
@@ -69,8 +69,8 @@ for i=1:size(art_tetr_array,1)
     save(fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat"),"-fromstruct",sorted_spike_windows_for_current_tetrode_dictionary);
 
     
-    status_message ="\n"+print_status_iter_message("get_dicationaries_of_all_spikes_ver_3.m");
-    fwrite(status_file,status_message);
+    % status_message ="\n"+print_status_iter_message("get_dicationaries_of_all_spikes_ver_3.m");
+    % fwrite(status_file,status_message);
 end
-fclose(status_file);
+% fclose(status_file);
 end
