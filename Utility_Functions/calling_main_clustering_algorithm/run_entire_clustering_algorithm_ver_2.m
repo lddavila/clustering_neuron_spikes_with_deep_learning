@@ -28,7 +28,7 @@ min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
 has_been_computed = [];
 
-what_is_pre_computed = ["mean_and_std","spikes_per_channel min_z_score 3"];
+what_is_pre_computed = ["mean_and_std","spikes_per_channel min_z_score 3","spike_windows min_z_score 3 num dps " + string(num_dps),"dictionaries min_z_score 3  num_dps " + string(num_dps)];
 
 % step 6: get or make the z_score channel data directory (only done once)
 if ~ismember("z_score",what_is_pre_computed) %means that the z_score matrix is already computed and we will skip computing it again
