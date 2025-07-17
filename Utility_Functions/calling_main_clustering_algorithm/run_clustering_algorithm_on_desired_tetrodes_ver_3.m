@@ -6,10 +6,10 @@ filenames = repelem("",1,length(list_of_desired_tetrodes));
 for j=1:length(list_of_desired_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_desired_tetrodes(j)+".mat");
 end
-number_of_tetrodes_to_run = size(list_of_desired_tetrodes,1);
+number_of_tetrodes_to_run = size(list_of_desired_tetrodes,2);
 
 
-for i=1:length(list_of_desired_tetrodes)
+parfor i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");

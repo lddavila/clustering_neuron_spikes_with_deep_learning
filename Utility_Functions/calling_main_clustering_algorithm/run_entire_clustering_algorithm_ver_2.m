@@ -157,7 +157,7 @@ for min_z_score=z_scores_to_check
     % close all;
     clc;
     array_of_desired_tetrodes = strcat("t",string(1:size(art_tetr_array,1)));
-    disp(size(array_of_desired_tetrodes));
+    % disp(size(array_of_desired_tetrodes));
     if ~ismember("initial_pass",what_is_pre_computed)
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score" + string(min_z_score)));
