@@ -11,6 +11,8 @@ function downsampled = downsample_spikes(s, num_original, ir, config)
     
     for wire = 1:numwires
         waves = shiftdim(s(wire, :, :), 1)';
+        disp("waves")
+        disp(size(waves));
 
         smoothwaves = interp1(1:numdp, waves, smoothrange);
 %         numchunks = floor(numspikes/chunksize);
