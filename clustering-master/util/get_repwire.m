@@ -11,6 +11,9 @@ function repwire = get_repwire(raw, tvals, ir)
     display(tvals);
     disp("size of peaks")
     display(size(peaks))
+    disp("Size of max vals")
+    disp(size(maxvals))
+    disp(maxvals)
     peaks(peaks >= maxvals) = -inf;
     
     [~, ind] = sort(peaks, 'descend');
