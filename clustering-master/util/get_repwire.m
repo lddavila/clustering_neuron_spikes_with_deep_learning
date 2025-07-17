@@ -5,6 +5,10 @@ function repwire = get_repwire(raw, tvals, ir)
     numdp = size(raw, 3);
     [peaks, pks_idx] = max(raw, [], 3);
     maxvals = repmat(ir, 1, numspikes) - 0.1;
+    disp("in get_repwire")
+    disp("size of t_vals")
+    disp(size(tvals));
+    display(tvals);
     peaks(peaks >= maxvals) = -inf;
     
     [~, ind] = sort(peaks, 'descend');
