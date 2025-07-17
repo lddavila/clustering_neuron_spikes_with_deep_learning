@@ -18,7 +18,7 @@ for i=1:size(list_of_desired_tetrodes,2)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 
-parfor i=1:size(list_of_desired_tetrodes,2)
+for i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
