@@ -51,9 +51,11 @@ for i=1:length(list_of_desired_tetrodes)
 
     timestamps_for_current_tetrode = timing_tetrode_dictionary(current_tetrode);
     ir = calculate_input_range_for_raw_by_channel_ver_3(channels_in_current_tetrode,dir_with_channel_recordings);
+    ir = ir.';
 
     %ir = ir(:,1) - ir(:,2);
     tvals = mean_of_relevant_channels + (std_dvns_of_relevant_channels * number_of_std_above_means) ;
+    
 
 
     % config = spikesort_config(); %load the config file;
