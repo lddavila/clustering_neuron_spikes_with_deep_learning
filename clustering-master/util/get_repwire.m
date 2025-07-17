@@ -9,6 +9,8 @@ function repwire = get_repwire(raw, tvals, ir)
     disp("size of t_vals")
     disp(size(tvals));
     display(tvals);
+    disp("size of peaks")
+    display(peaks)
     peaks(peaks >= maxvals) = -inf;
     
     [~, ind] = sort(peaks, 'descend');
