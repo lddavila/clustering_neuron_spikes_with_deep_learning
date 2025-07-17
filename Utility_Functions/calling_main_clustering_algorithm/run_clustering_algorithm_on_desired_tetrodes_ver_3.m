@@ -18,7 +18,7 @@ for i=1:size(list_of_desired_tetrodes,2)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 
-for i=1:size(list_of_desired_tetrodes,2)
+parfor i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
@@ -102,7 +102,7 @@ for i=1:size(list_of_desired_tetrodes,2)
     catch ME
         end_time = toc(beginning_time);
         fprintf("%s crashed for some reason and will be skipped it took %f seconds to fail\n",current_tetrode,end_time);
-        fprintf('%s',ME.cause);
+        % fprintf('%s',ME.cause);
         continue;
     end
     % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
