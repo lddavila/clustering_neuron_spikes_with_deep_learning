@@ -9,7 +9,7 @@ end
 number_of_tetrodes_to_run = size(list_of_desired_tetrodes,2);
 
 
-parfor i=1:size(list_of_desired_tetrodes,2)
+for i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
@@ -34,8 +34,7 @@ parfor i=1:size(list_of_desired_tetrodes,2)
 
 
     raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
-    disp("size of spikes")
-    disp(size(raw_in_samples_format));
+   
 
 
     mean_of_relevant_channels = channel_wise_means(channels_in_current_tetrode) ;
