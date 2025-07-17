@@ -91,6 +91,6 @@ parfor i=1:size(list_of_desired_tetrodes,2)
     end
     % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
     end_time = toc(beginning_time);
-    fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %d seconds\n",i,length(number_of_tetrodes_to_run),end_time)
+    fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %f seconds\n",i,number_of_tetrodes_to_run,end_time)
 end
 end
