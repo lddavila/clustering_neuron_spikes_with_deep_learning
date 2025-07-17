@@ -40,7 +40,7 @@ parfor i=1:size(ordered_list_of_channels,2)
 end
 
 spike_windows = cell(1,config.max_channel_number);
-for i=1:size(ordered_list_of_channels)
+for i=1:size(ordered_list_of_channels,2)
     spike_windows{channel_numbers(i)} = spike_windows_unmapped{i};
 end
 end
