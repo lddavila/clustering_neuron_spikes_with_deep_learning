@@ -23,8 +23,6 @@ function pmv = compute_snr_statistic(aligned, raw, tvals, ir)
 %   'tvals' are the threshold values for each wire in microvolts.
 %
 %   'ir' are the input range values for each wire in microvolts.
-    disp("size of tvals");
-    display(size(tvals));
     p = get_peaks(aligned, true)';
     nv = get_peaks(raw * (-1), false, tvals, ir)'; % Valleys
     
