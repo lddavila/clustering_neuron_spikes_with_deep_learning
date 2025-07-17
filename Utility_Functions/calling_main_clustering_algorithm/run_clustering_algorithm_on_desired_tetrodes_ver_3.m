@@ -6,7 +6,7 @@ filenames = repelem("",1,length(list_of_desired_tetrodes));
 for j=1:length(list_of_desired_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_desired_tetrodes(j)+".mat");
 end
-number_of_tetrodes_to_run = length(list_of_desired_tetrodes);
+number_of_tetrodes_to_run = size(list_of_desired_tetrodes,2);
 
 
 for i=1:length(list_of_desired_tetrodes)
@@ -91,6 +91,6 @@ for i=1:length(list_of_desired_tetrodes)
     end
     % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
     end_time = toc(beginning_time);
-    fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %d seconds",i,length(number_of_tetrodes_to_run),end_time)
+    fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %d seconds\n",i,length(number_of_tetrodes_to_run),end_time)
 end
 end
