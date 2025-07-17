@@ -21,7 +21,7 @@ disp("Finished Setting directories")
 c = parcluster('local');
 c.JobStorageLocation = '/scratch/lddavila/matlab_job_storage';
 saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', 40); 
+parpool('local_scratch', 37); 
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("9c2e6016-544e-48b9-906c-474836e003fe","10.70122/FK2/BVPIJO",config,false);
 disp("Finished Downloading Data");
