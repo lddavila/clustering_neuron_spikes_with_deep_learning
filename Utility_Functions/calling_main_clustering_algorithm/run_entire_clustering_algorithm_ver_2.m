@@ -28,7 +28,7 @@ min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
 has_been_computed = [];
 
-what_is_pre_computed = ["mean_and_std"];
+what_is_pre_computed = ["mean_and_std","spikes_per_channel min_z_score 3"];
 
 % step 6: get or make the z_score channel data directory (only done once)
 if ~ismember("z_score",what_is_pre_computed) %means that the z_score matrix is already computed and we will skip computing it again
@@ -46,7 +46,7 @@ disp(z_score_dir);
 % calculated here
 beginning_time = tic;
 if ~ismember("mean_and_std",what_is_pre_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
-    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,false,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
+    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
     mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"mean_and_std"));
     save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
     has_been_computed = [has_been_computed,"mean_and_std"];
