@@ -11,7 +11,9 @@ sliced_channel_wise_means = cell(size(list_of_desired_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_desired_tetrodes,2),1);
 for i=1:size(list_of_desired_tetrodes,2)
     current_tetrode = list_of_desired_tetrodes(i);
+    display(current_tetrode);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
+    tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
