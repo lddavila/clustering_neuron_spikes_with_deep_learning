@@ -11,7 +11,6 @@ sliced_channel_wise_means = cell(size(list_of_desired_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_desired_tetrodes,2),1);
 for i=1:size(list_of_desired_tetrodes,2)
     current_tetrode = list_of_desired_tetrodes(i);
-    display(current_tetrode);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
@@ -44,7 +43,7 @@ parfor i=1:size(list_of_desired_tetrodes,2)
 
 
     raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
-   
+
 
 
     mean_of_relevant_channels =sliced_channel_wise_means{i};
@@ -66,38 +65,44 @@ parfor i=1:size(list_of_desired_tetrodes,2)
 
     %ir = ir(:,1) - ir(:,2);
     tvals = mean_of_relevant_channels + (std_dvns_of_relevant_channels * number_of_std_above_means) ;
-    
+
 
 
     % config = spikesort_config(); %load the config file;
 
 
-    % try
-    %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
-    [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
-    %   - the first column contains the timestamps of the spikes in seconds
-    %   - the second column contains the cluster classification of the spikes
-    %       E.g., a value of '3' means that the spike belongs to cluster 3.
-    if ~isempty(output) && ~isempty(aligned) && ~isempty(reg_timestamps)
-        output_array{i} = output;
-        aligned_array{i} = aligned;
-        reg_timestamps_array{i} = reg_timestamps;
+    try
+        %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
+        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
+        %   - the first column contains the timestamps of the spikes in seconds
+        %   - the second column contains the cluster classification of the spikes
+        %       E.g., a value of '3' means that the spike belongs to cluster 3.
+        if ~isempty(output) && ~isempty(aligned) && ~isempty(reg_timestamps)
+            output_array{i} = output;
+            aligned_array{i} = aligned;
+            reg_timestamps_array{i} = reg_timestamps;
 
-        output = struct("output",output);
-        aligned = struct("aligned",aligned);
-        reg_timestamps = struct("reg_timestamps",reg_timestamps);
-        reg_timestamps_of_the_spikes = struct("reg_timestamps_of_the_spikes",reg_timestamps_of_the_spikes);
+            output = struct("output",output);
+            aligned = struct("aligned",aligned);
+            reg_timestamps = struct("reg_timestamps",reg_timestamps);
+            reg_timestamps_of_the_spikes = struct("reg_timestamps_of_the_spikes",reg_timestamps_of_the_spikes);
 
-        save(fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat"),"-fromstruct",output)
-        save(fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat"),"-fromstruct",aligned)
-        save(fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat"),"-fromstruct",reg_timestamps)
-        save(fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat"),"-fromstruct",reg_timestamps_of_the_spikes)
+            save(fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat"),"-fromstruct",output)
+            save(fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat"),"-fromstruct",aligned)
+            save(fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat"),"-fromstruct",reg_timestamps)
+            save(fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat"),"-fromstruct",reg_timestamps_of_the_spikes)
 
-    else
-        output_array{i} = NaN;
-        aligned_array{i} = NaN;
-        reg_timestamps_array{i} = NaN;
+        else
+            output_array{i} = NaN;
+            aligned_array{i} = NaN;
+            reg_timestamps_array{i} = NaN;
 
+            continue;
+        end
+    catch ME
+        end_time = toc(beginning_time);
+        fprintf("%s crashed for some reason and will be skipped it took %f seconds to fail\n",current_tetrode,end_time);
+        fprintf('%s',ME.cause);
         continue;
     end
     % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
