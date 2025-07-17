@@ -21,8 +21,10 @@ disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 %run_me_to_download_data("9c2e6016-544e-48b9-906c-474836e003fe","10.70122/FK2/BVPIJO",config,false);
 disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
+very_beginning_time = tic;
 [blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
-
+end_time = toc(very_beginning_time);
+fprintf("Finished running blind pass it took %f seconds",end_time)
 %% Step 5: select the neurons from the blind pass
 blind_pass_table_only_neurons = blind_pass_table(blind_pass_table{:,"is_neuron"},:);
 
@@ -30,12 +32,16 @@ blind_pass_table_only_neurons = blind_pass_table(blind_pass_table{:,"is_neuron"}
 %This is only possible if your recording is simulated and the ground truth
 %is provided
 %in this example the data is simulated and the ground truth is available
+beginning_time = tic;
 blind_pass_table_only_neurons = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table_only_neurons,config);
 blind_pass_table_only_neurons = add_accuracy_col(config,blind_pass_table_only_neurons);
-
+end_time = toc(beginning_time);
+fprintf("Finished adding overlap and accuracy columns it took %f seconds",end_time)
 %% Step 6: Get accuracy category prediction using grades + universal rank neural network 
+beginning_time = tic;
 blind_pass_table_only_neurons = add_accuracy_cat_pred_from_nn(blind_pass_table_only_neurons,config);
-
+end_time = toc(beginning_time);
+fprintf("Finished adding accuracy cat predictions it took %f seconds",end_time)
 %% step 7: Get Accuracy category prediction using mean waveform neural network
 blind_pass_table_only_neurons = add_mean_waveform_pred_col(blind_pass_table_only_neurons,config);
 
@@ -45,8 +51,10 @@ blind_pass_table_only_neurons = add_letter_grade_based_on_nn(blind_pass_table_on
 bp_table_only_neur_filtered = blind_pass_table_only_neurons(blind_pass_table{:,"grades_pred"}>0,:);
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
+beginning_time = tic;
 clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap(bp_table_only_neur_filtered,config);
-
+end_time = toc(beginning_time);
+fprintf("Finished merging clusters it took %f seconds",end_time)
 %% Step 10: Save Results of merging
 clusters_organized_by_same_group_with_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_with_filter");
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_with_filter_fp);
@@ -62,7 +70,8 @@ save(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organ
 
 %% step 13: Sort the Results of step 9
 sorted_cluster_groups = use_choose_better_to_sort_groups(clusters_organized_by_same_group,config);
-
+very_end_time = toc(very_beginning_time);
+fprintf("Finished entire algorithm it took %f seconds",very_end_time)
 %% Step 13a: Save the sorted groups cell array
 fp_to_sorted_groups = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"Sorted Only Neurons Filtered");
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(fp_to_sorted_groups);
