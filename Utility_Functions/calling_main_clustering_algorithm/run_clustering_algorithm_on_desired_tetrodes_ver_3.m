@@ -34,6 +34,8 @@ parfor i=1:size(list_of_desired_tetrodes,2)
 
 
     raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
+    disp("size of spikes")
+    disp(size(raw_in_samples_format));
 
 
     mean_of_relevant_channels = channel_wise_means(channels_in_current_tetrode) ;

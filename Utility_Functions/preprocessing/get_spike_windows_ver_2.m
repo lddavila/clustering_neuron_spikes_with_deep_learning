@@ -1,9 +1,9 @@
 function [spike_windows] = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,desired_z_score,desired_number_of_data_points,dir_with_channel_z_scores,config)
 spike_windows_unmapped = cell(1,config.max_channel_number);
-number_of_iterations = length(ordered_list_of_channels);
+number_of_iterations = size(ordered_list_of_channels,2);
 channel_numbers = str2double(strrep(ordered_list_of_channels,"c",""));
-status_file = config.FP_TO_STATUS_FILE;
-parfor i=1:length(ordered_list_of_channels)
+% status_file = config.FP_TO_STATUS_FILE;
+parfor i=1:size(ordered_list_of_channels,2)
     current_channel = ordered_list_of_channels(i);
     spike_windows_unmapped{i} = cell(size(spikes_per_channel,1),1);
     channel_wise_z_score = importdata(fullfile(dir_with_channel_z_scores,current_channel+".mat"));
@@ -40,7 +40,7 @@ parfor i=1:length(ordered_list_of_channels)
 end
 
 spike_windows = cell(1,config.max_channel_number);
-for i=1:length(ordered_list_of_channels)
+for i=1:size(ordered_list_of_channels)
     spike_windows{channel_numbers(i)} = spike_windows_unmapped{i};
 end
 end
