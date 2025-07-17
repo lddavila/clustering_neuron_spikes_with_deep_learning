@@ -30,7 +30,7 @@ config.TEMPLATE_CLUSTER_FP_ON_HPC =[fullfile("/scratch/lddavila/cluster_neuronsp
     fullfile("/scratch/lddavila/cluster_neuronspikes","Shape Template PNGs","Vertical Elipse.png")
     fullfile("/scratch/lddavila/cluster_neuronspikes","Shape Template PNGs","circle.png")];
 % Prints extra output
-config.DEBUG = false;
+% config.DEBUG = false;
 
 
 
