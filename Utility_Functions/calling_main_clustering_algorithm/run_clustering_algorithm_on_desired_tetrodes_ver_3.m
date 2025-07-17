@@ -7,9 +7,17 @@ for j=1:length(list_of_desired_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_desired_tetrodes(j)+".mat");
 end
 number_of_tetrodes_to_run = size(list_of_desired_tetrodes,2);
-
-
+sliced_channel_wise_means = cell(size(list_of_desired_tetrodes,2),1);
+sliced_channel_stds = cell(size(list_of_desired_tetrodes,2),1);
 for i=1:size(list_of_desired_tetrodes,2)
+    current_tetrode = list_of_desired_tetrodes(i);
+    tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
+    channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
+    sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
+    sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
+end
+
+parfor i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
@@ -37,8 +45,8 @@ for i=1:size(list_of_desired_tetrodes,2)
    
 
 
-    mean_of_relevant_channels = channel_wise_means(channels_in_current_tetrode) ;
-    std_dvns_of_relevant_channels = channel_wise_std(channels_in_current_tetrode);
+    mean_of_relevant_channels =sliced_channel_wise_means{i};
+    std_dvns_of_relevant_channels = sliced_channel_stds{i};
 
     wire_filter = find_live_wires(raw);
     % wire_filter = [1 2 3 4];
