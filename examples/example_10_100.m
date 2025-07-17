@@ -14,9 +14,9 @@ config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"grou
 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
 disp("Finished Setting directories")
-disp(config.GT_FP);
-disp(config.TIMESTAMP_FP);
-disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
+% disp(config.GT_FP);
+% disp(config.TIMESTAMP_FP);
+% disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("9c2e6016-544e-48b9-906c-474836e003fe","10.70122/FK2/BVPIJO",config,false);
 disp("Finished Downloading Data");
