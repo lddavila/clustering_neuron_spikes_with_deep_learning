@@ -69,7 +69,7 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes] = run_sp
     % plot_the_spikes(aligned,"Aligned",1,channels);
 
     % plot_the_cf(cf,aligned,"Called by run_spikesort_ntt_core_ver2");
-    if config.ALIGN_OUTPUT && size(reg_aligned,2)~=0
+    if config.ALIGN_OUTPUT && size(reg_interp_raw,2)~=0
         reg_aligned = align_to_peak(reg_interp_raw, tvals, ir);
         num_sample_points = size(raw, 3);
         reg_raw = downsample_spikes(reg_aligned, num_sample_points, ir, config);
