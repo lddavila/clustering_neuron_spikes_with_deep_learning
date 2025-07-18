@@ -173,7 +173,7 @@ end
 
 %step 11: read the results of the blind pass into a table
 blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
-
+display(blind_pass_table);
 % step 12: Grade the blind pass results
 blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
 
