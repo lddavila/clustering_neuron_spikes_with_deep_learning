@@ -24,7 +24,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     end
 
     try
-        timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+        timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
     catch
         disp("Failed to load timestamps of spikes");
         disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
