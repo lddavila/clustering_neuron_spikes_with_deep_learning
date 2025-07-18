@@ -31,7 +31,7 @@ very_beginning_time = tic;
 end_time = toc(very_beginning_time);
 fprintf("Finished running blind pass it took %f seconds",end_time)
 %% Step 5: select the neurons from the blind pass
-blind_pass_table_only_neurons = blind_pass_table(blind_pass_table{:,"is_neuron"},:);
+blind_pass_table_only_neurons = blind_pass_table(boolean(blind_pass_table{:,"is_neuron"}),:);
 
 %% (OPTIONAL STEP 5 CONTINUED) Get max overlap unit and accuracy cols for the neurons 
 %This is only possible if your recording is simulated and the ground truth
