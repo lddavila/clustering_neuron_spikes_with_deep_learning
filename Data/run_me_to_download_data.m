@@ -1,4 +1,4 @@
-function [] = run_me_to_download_data(api_key,doi,config,use_real,recording_name)
+function [] = run_me_to_download_data(doi,config,use_real,recording_name)
 
 
 
@@ -14,7 +14,7 @@ get_command = "curl -sL -X GET " + ...
 
 [~, output] = system(get_command);
 
-
+disp(output);
 decoded_json = jsondecode(output);
 
 file_table = struct2table(decoded_json.data.latestVersion.files);
