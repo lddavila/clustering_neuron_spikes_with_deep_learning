@@ -1,4 +1,4 @@
-function [] = run_me_to_download_data(api_key,doi,config,use_real)
+function [] = run_me_to_download_data(api_key,doi,config,use_real,recording_name)
 
 
 
@@ -9,30 +9,37 @@ else
 end
 
 %get list of all files in the dataset
-get_command = "curl -X GET " + ...
+get_command = "curl -sL -X GET " + ...
     '"' + char(demo_or_real) + "/api/datasets/:persistentId?persistentId=doi:" + char(doi) + '"';
 
-[output, status] = system(get_command, "-echo");
+[~, output] = system(get_command);
 
-command_to_run = sprintf('curl -L -O -J -H "X-Dataverse-key:%s" "%s/api/access/dataset/:persistentId/?persistentId=doi:%s"', char(api_key), char(demo_or_real), char(doi));
 
-disp("Downloading dataset to "+fullfile(config.base_file_path,"Data",config.RECORDING_NAME));
-disp("This Could Take a Moment ...")
+decoded_json = jsondecode(output);
 
-file_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Data",config.RECORDING_NAME));
+file_table = struct2table(decoded_json.data.latestVersion.files);
 
-[output, something] = system(command_to_run,"-echo");
-if ~contains(output,'ok')
-    disp("Couldn't download the data. Please ensure your doi and api key are valid");
-    display(output);
-    display(something);
-    return
+%create the directories as they are needed
+unique_directory_names = unique(string(file_table{:,"directoryLabel"}));
+unique_directory_names = split(unique_directory_names,recording_name);
+unique_directory_names = unique_directory_names(:,end);
+unique_directory_names = strrep(unique_directory_names,"/","");
+unique_directory_names = strrep(unique_directory_names,"\","");
+for i=1:size(unique_directory_names,1)
+    create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Data",recording_name,unique_directory_names(i)));
 end
 
-disp("Finished Download, now unzipping")
-command_to_run = ['powershell -Command "Expand-Archive -Path \"',char(pwd),'\dataverse_files.zip\" -DestinationPath \"',file_to_save_to,'\""'];
-system(command_to_run)
-delete(fullfile(pwd,"dataverse_files.zip"));
-disp("Finished Restoring, your files are ready to view")
 
+for i=1:size(file_table,1)
+    file_name = file_table{i,"label"}{1};
+    file_id = file_table{i,"dataFile"}.id;
+    directory_label = file_table{i,"directoryLabel"};
+    fixed_dir_label = strrep(directory_label,"data/"+recording_name+"/","");
+    dir_to_save_to = fullfile(config.base_file_path,"Data",recording_name,fixed_dir_label);
+    % Download each file
+    url = sprintf('https://dataverse.harvard.edu/api/access/datafile/%d', file_id);
+    download_command = sprintf('curl -L -o  "%s" "%s"',fullfile(dir_to_save_to,file_name),url);
+    fprintf("Downloading %s ...\n",file_name);
+    system(download_command);
+end
 end
