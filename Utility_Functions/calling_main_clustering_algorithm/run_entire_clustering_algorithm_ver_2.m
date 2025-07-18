@@ -3,6 +3,9 @@ scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
+%create the directory for the template files
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Shape_Template_PNGs"))
+
 % step 1: load the timestamps into memory
 timestamps = importdata(config.TIMESTAMP_FP);
 disp("Finished Importing timestamps for recording")
@@ -28,7 +31,7 @@ min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
 has_been_computed = [];
 
-what_is_pre_computed = [""];
+what_is_pre_computed = ["initial_pass","z_score","mean_and_std"];
 
 % step 6: get or make the z_score channel data directory (only done once)
 if ~ismember("z_score",what_is_pre_computed) %means that the z_score matrix is already computed and we will skip computing it again
