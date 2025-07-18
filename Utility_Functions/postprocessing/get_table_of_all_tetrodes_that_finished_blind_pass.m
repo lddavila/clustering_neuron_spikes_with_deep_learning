@@ -10,7 +10,7 @@ all_files_in_precomputed_dir = all_files_in_precomputed_dir(~all_files_in_precom
 only_files_with_output = all_files_in_precomputed_dir(contains(string(all_files_in_precomputed_dir{:,"name"}),"output"),:);
 output_table = table(nan(size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),...
     'VariableNames', ...
-    ["Z Score","Tetrode","fp_to_aligned","fp_to_output","fp_to_reg_timestamps_of_spikes","fp_to_reg_timestamps","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"]);
+    ["Z Score","Tetrode","fp_to_aligned","fp_to_output","fp_to_reg_timestamps_of_the_spikes","fp_to_reg_timestamps","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"]);
 
 unique_z_score_dirs = unique(string(only_files_with_output{:,"folder"}));
 output_table_counter = 1;
