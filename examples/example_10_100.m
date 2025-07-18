@@ -23,7 +23,7 @@ c.JobStorageLocation = '/scratch/lddavila/matlab_job_storage';
 saveAsProfile(c, 'local_scratch');
 parpool('local_scratch', 37); 
 %% Step 3: Download Necessary Data
-run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
+%run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
 disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
 very_beginning_time = tic;
