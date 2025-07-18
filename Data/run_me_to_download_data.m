@@ -12,8 +12,8 @@ end
 get_command = "curl -sL -X GET " + ...
     '"' + char(demo_or_real) + "/api/datasets/:persistentId?persistentId=doi:" + char(doi) + '"';
 
-[~, output] = system(get_command);
-
+[status, output] = system(get_command,"-echo");
+display(status);
 display(output);
 decoded_json = jsondecode(output);
 
