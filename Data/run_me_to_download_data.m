@@ -14,7 +14,7 @@ get_command = "curl -sL -X GET " + ...
 
 [~, output] = system(get_command);
 
-disp(output);
+display(output);
 decoded_json = jsondecode(output);
 
 file_table = struct2table(decoded_json.data.latestVersion.files);
