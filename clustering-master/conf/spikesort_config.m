@@ -186,7 +186,7 @@ config.DIR_TO_SAVE_RESULTS_TO = "06_19_2025_predict_accuracy_increases";
 config.FP_TO_PREDICTING_ACCURACY_ON_GRADES_NN  = "D:\cluster_neuronspikes\Predict_accuracy_cat_using_grades_nn\accuracy score 0.86357number of acc cats 3 num layers 6 num neurons per layer40 grades neural network.mat";
 config.FP_TO_PREDICTING_ACCURACY_ON_GRADES_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/Predict_accuracy_cat_using_grades_nn/accuracy score 0.86357number of acc cats 3 num layers 6 num neurons per layer40 grades neural network.mat";
 
-config.FP_TO_COMPLEX_MERGE_OR_DONT_NN = "D:\cluster_neuronspikes\Data\06_17_2025_complex_merge_nn_with_overlap\accuracy score 0.99235 num layers 1 num neurons per layer10 complex merge checker.mat";
+config.FP_TO_COMPLEX_MERGE_OR_DONT_NN = fullfile(config.base_file_path,"Neural_Networks","complex_merge_or_dont_nn",);
 config.FP_TO_COMPLEX_MERGE_OR_DONT_NN_ON_HPC = "";
 
 config.FP_TO_COMPLEX_CHOOSE_BETTER_NN = fullfile(config.base_file_path,"Neural_Networks","choose_better_nn","accuracy score 0.85031 num layers 13 num neurons per layer10 complex choose better.mat");
