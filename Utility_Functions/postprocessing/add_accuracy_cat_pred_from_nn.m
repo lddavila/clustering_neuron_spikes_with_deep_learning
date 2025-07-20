@@ -22,7 +22,7 @@ end
 
 accuracy_categories = nan(size(blind_pass_table,1),1);
 %now predict the accuracy category for the current neural network
-parfor i=1:size(sliced_bp_table)
+parfor i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     current_data_grades_unformatted = current_data{1,"grades"}{1};
     current_data_grades = cell2mat(current_data_grades_unformatted(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
