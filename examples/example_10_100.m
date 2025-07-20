@@ -27,7 +27,9 @@ parpool('local_scratch', 37);
 disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
 very_beginning_time = tic;
-[blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
+%[blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
+fp_to_bp_table = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
+blind_pass_table = importdata(fp_to_bp_table);
 end_time = toc(very_beginning_time);
 fprintf("Finished running blind pass it took %f seconds",end_time)
 %% Step 5: select the neurons from the blind pass
