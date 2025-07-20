@@ -1,4 +1,4 @@
-function [] = add_mean_waveform_pred_col(blind_pass_table,config)
+function [blind_pass_table] = add_mean_waveform_pred_col(blind_pass_table,config)
 mean_waveform_pred_struct = importdata(config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN);
 mean_wave_pred_nn = mean_waveform_pred_struct.net;
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
