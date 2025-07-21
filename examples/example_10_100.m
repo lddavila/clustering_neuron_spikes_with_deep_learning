@@ -55,7 +55,7 @@ blind_pass_table_only_neurons = add_mean_waveform_pred_col(blind_pass_table_only
 %% step 8: Get Letter Grade
 blind_pass_table_only_neurons = add_letter_grade_based_on_nn(blind_pass_table_only_neurons);
 %% Step 8: Use Accuracy Prediction Neural Network to filter out any MUA clusters that made it past the first filter
-disp(blind_pass_table.Properties.VariableNames);
+disp(blind_pass_table.Properties.VariableNames.');
 bp_table_only_neur_filtered = blind_pass_table_only_neurons(blind_pass_table{:,"grades_pred"}>0,:);
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
