@@ -40,41 +40,41 @@ blind_pass_table_only_neurons = blind_pass_table(boolean(blind_pass_table{:,"is_
 %is provided
 %in this example the data is simulated and the ground truth is available
 beginning_time = tic;
-blind_pass_table_only_neurons = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table_only_neurons,config);
-blind_pass_table_only_neurons = add_accuracy_col(config,blind_pass_table_only_neurons);
+% blind_pass_table_only_neurons = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table_only_neurons,config);
+% blind_pass_table_only_neurons = add_accuracy_col(config,blind_pass_table_only_neurons);
 end_time = toc(beginning_time);
 fprintf("Finished adding overlap and accuracy columns it took %f seconds",end_time)
 %% Step 6: Get accuracy category prediction using grades + universal rank neural network 
 beginning_time = tic;
-blind_pass_table_only_neurons = add_accuracy_cat_pred_from_nn(blind_pass_table_only_neurons,config);
+% blind_pass_table_only_neurons = add_accuracy_cat_pred_from_nn(blind_pass_table_only_neurons,config);
 end_time = toc(beginning_time);
 fprintf("Finished adding accuracy cat predictions it took %f seconds",end_time)
 %% step 7: Get Accuracy category prediction using mean waveform neural network
-blind_pass_table_only_neurons = add_mean_waveform_pred_col(blind_pass_table_only_neurons,config);
+% blind_pass_table_only_neurons = add_mean_waveform_pred_col(blind_pass_table_only_neurons,config);
 
 %% step 8: Get Letter Grade
-blind_pass_table_only_neurons = add_letter_grade_based_on_nn(blind_pass_table_only_neurons);
+% blind_pass_table_only_neurons = add_letter_grade_based_on_nn(blind_pass_table_only_neurons);
 %% Step 8: Use Accuracy Prediction Neural Network to filter out any MUA clusters that made it past the first filter
-bp_table_only_neur_filtered = blind_pass_table_only_neurons(blind_pass_table_only_neurons{:,"grades_pred"}>0,:);
+% bp_table_only_neur_filtered = blind_pass_table_only_neurons(blind_pass_table_only_neurons{:,"grades_pred"}>0,:);
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
 beginning_time = tic;
-clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap(bp_table_only_neur_filtered,config);
+% clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap(bp_table_only_neur_filtered,config);
 end_time = toc(beginning_time);
 fprintf("Finished merging clusters it took %f seconds",end_time)
 %% Step 10: Save Results of merging
-clusters_organized_by_same_group_with_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_with_filter");
-create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_with_filter_fp);
-save(fullfile(clusters_organized_by_same_group_with_filter_fp,"clusters_organized_by_same_group.mat"),"clusters_organized_by_same_group");
-
+% clusters_organized_by_same_group_with_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_with_filter");
+% create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_with_filter_fp);
+% save(fullfile(clusters_organized_by_same_group_with_filter_fp,"clusters_organized_by_same_group.mat"),"clusters_organized_by_same_group");
+load(fullfile(clusters_organized_by_same_group_with_filter_fp,"clusters_organized_by_same_group.mat"))
 %% Step 11: Merge Neurons into groups without step (for testing purposes)
-clusters_organized_by_same_group_without_filter = determine_which_blind_pass_neurons_overlap(blind_pass_table_only_neurons, config);
+% clusters_organized_by_same_group_without_filter = determine_which_blind_pass_neurons_overlap(blind_pass_table_only_neurons, config);
 
 %% step 12 : Save the results of step 11 
-clusters_organized_by_same_group_without_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_without_filter");
-create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_without_filter_fp);
-save(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organized_by_same_group_without_filter.mat"),"clusters_organized_by_same_group_without_filter");
-
+% clusters_organized_by_same_group_without_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_without_filter");
+% create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_without_filter_fp);
+% save(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organized_by_same_group_without_filter.mat"),"clusters_organized_by_same_group_without_filter");
+load(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organized_by_same_group_without_filter.mat"));
 %% step 13: Sort the Results of step 9
 sorted_cluster_groups = use_choose_better_to_sort_groups(clusters_organized_by_same_group,config);
 very_end_time = toc(very_beginning_time);
