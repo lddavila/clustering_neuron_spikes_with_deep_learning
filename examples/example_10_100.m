@@ -18,10 +18,10 @@ disp("Finished Setting directories")
 % disp(config.TIMESTAMP_FP);
 % disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
-c = parcluster('local');
-c.JobStorageLocation = '/scratch/lddavila/matlab_job_storage';
-saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', 37); 
+% c = parcluster('local');
+% c.JobStorageLocation = '/scratch/lddavila/matlab_job_storage';
+% saveAsProfile(c, 'local_scratch');
+% parpool('local_scratch', 37); 
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
 disp("Finished Downloading Data");
