@@ -13,7 +13,7 @@ grades_array = all_grades(:,indexes_of_grades_were_looking_for);
 cluster_group_counter = 1;
 for i=1:size(blind_pass_table,1)
     if already_merged(i)
-        print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",i,sum(~already_merged));
+        % print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",i,sum(~already_merged));
         continue;
     end
     clusters_organized_by_same_group{cluster_group_counter} = blind_pass_table(i,:);
@@ -61,7 +61,7 @@ for i=1:size(blind_pass_table,1)
             clusters_organized_by_same_group{cluster_group_counter} = [clusters_organized_by_same_group{cluster_group_counter};blind_pass_table(j,:)];
             already_merged(j) = 1;
         end
-        print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",[i,j],sum(~already_merged));
+        % print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",[i,j],sum(~already_merged));
 
     end
     cluster_group_counter = cluster_group_counter+1;
