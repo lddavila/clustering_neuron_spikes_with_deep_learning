@@ -5,5 +5,5 @@
 #SBATCH -o output.txt 
 #SBATCH -e error.txt 
 #SBATCH -N 1
-module load matlab/R2023b
+module load matlab/R2024b
 matlab -batch "example_10_100; exit;"
