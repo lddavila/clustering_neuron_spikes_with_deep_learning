@@ -18,29 +18,33 @@ disp("Finished Setting directories")
 % disp(config.TIMESTAMP_FP);
 % disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
-% c = parcluster('local');
-% c.JobStorageLocation = '/scratch/lddavila/matlab_job_storage';
-% saveAsProfile(c, 'local_scratch');
-% parpool('local_scratch', 37); 
+c = parcluster('local');
+c.JobStorageLocation = '/scratch/lddavila/matlab_job_storage';
+saveAsProfile(c, 'local_scratch');
+parpool('local_scratch', 37); 
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
 disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
 very_beginning_time = tic;
-[blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
+% [blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
+fp_to_bp_table = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
+lod(fp_to_bp_table);
 end_time = toc(very_beginning_time);
 fprintf("Finished running blind pass it took %f seconds\n",end_time)
 %% Step 5: select the neurons from the blind pass
-blind_pass_table_only_neurons = blind_pass_table(boolean(blind_pass_table{:,"is_neuron"}),:);
+% blind_pass_table_only_neurons = blind_pass_table(boolean(blind_pass_table{:,"is_neuron"}),:);
 
 %% (OPTIONAL STEP 5 CONTINUED) Get max overlap unit and accuracy cols for the neurons 
 %This is only possible if your recording is simulated and the ground truth
 %is provided
 %in this example the data is simulated and the ground truth is available
 beginning_time = tic;
-blind_pass_table_only_neurons = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table_only_neurons,config);
-blind_pass_table_only_neurons = add_accuracy_col(config,blind_pass_table_only_neurons);
+blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
+blind_pass_table= add_accuracy_col(config,blind_pass_table);
+blind_pass_table_only_neurons = blind_pass_table(boolean(blind_pass_table{:,"is_neuron"}),:);
 end_time = toc(beginning_time);
+save(fp_to_bp_table,"blind_pass_table");
 fprintf("Finished adding overlap and accuracy columns it took %f seconds\n",end_time)
 %% Step 6: Get accuracy category prediction using grades + universal rank neural network 
 beginning_time = tic;

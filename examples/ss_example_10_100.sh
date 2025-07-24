@@ -1,6 +1,6 @@
 #!/bin/bash 
-#SBATCH -n 144
-#SBATCH -p gg
+#SBATCH -n 37
+#SBATCH -p medium
 #SBATCH -t 15:00:00
 #SBATCH -o output.txt 
 #SBATCH -e error.txt 
