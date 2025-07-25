@@ -50,8 +50,8 @@ fprintf("Finished running blind pass it took %f seconds\n",end_time)
 % fprintf("Finished adding overlap and accuracy columns it took %f seconds\n",end_time)
 %% Step 6: Get accuracy category prediction using grades + universal rank neural network 
 fp_to_bp_table = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
-load(fp_to_bp_table);
 beginning_time = tic;
+blind_pass_table_only_neurons =importdata(fp_to_bp_table);
 blind_pass_table_only_neurons = add_accuracy_cat_pred_from_nn(blind_pass_table_only_neurons,config);
 end_time = toc(beginning_time);
 fprintf("Finished adding accuracy cat predictions it took %f seconds\n",end_time)
