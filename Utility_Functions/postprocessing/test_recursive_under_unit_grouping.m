@@ -1,7 +1,7 @@
 function [] = test_recursive_under_unit_grouping()
 fp_to_cluster_groups = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
 blind_pass_table = importdata(fp_to_cluster_groups);
-disp("Finished Loading Cluster Groups")
+disp("Finished Loading Blind Pass Table ")
 
 home_dir = cd("..");
 cd("..")
@@ -17,9 +17,10 @@ parpool('local_scratch', 37);
 
 config.RECORDING_NAME = "10_100";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
-c1 = blind_pass_table(:,"is_neuron")==1;
-c2 = blind_pass_table(:,"grades_pred") >0;
+c1 = blind_pass_table{:,"is_neuron"}==1;
+c2 = blind_pass_table{:,"grades_pred"} >0;
 blind_pass_table_only_neur_filtered = blind_pass_table(boolean(c1)& boolean(c2),:);
+disp("Finsihed filtering")
 
 final_cluster_groups = recursive_under_unit_grouping(blind_pass_table_only_neur_filtered,config);
 
