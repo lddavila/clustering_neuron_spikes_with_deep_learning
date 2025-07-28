@@ -1,7 +1,7 @@
-function [expanded_groups] = check_cluster_groups_for_consistent_overlap(cell_array_of_cluster_groups,config)
+function [cell_array_of_cluster_groups,ungrouped_clusters] = check_cluster_groups_for_consistent_overlap(cell_array_of_cluster_groups,config)
 nn_struct = importdata(config.FP_TO_COMPLEX_MERGE_OR_DONT_NN);
 nn = nn_struct.net;
-expanded_groups = {};
+ungrouped_clusters = [];
 for i=1:size(cell_array_of_cluster_groups,2)
     current_group = cell_array_of_cluster_groups{i};
 
@@ -65,20 +65,16 @@ for i=1:size(cell_array_of_cluster_groups,2)
     %navigate your same_underlying_unit_matrix
     %any units that do not have at least 90% same underlying units will
     %be removed from the current group and added to another possible group
-    groups_to_add = {[]};
     indexes_to_remove = [];
     for j=1:size(same_underlying_unit,1)
         if sum(same_underlying_unit(j,:),"all") / size(same_underlying_unit,1) < 0.8
-            groups_to_add = {[groups_to_add{1};current_group(j,:)]};
+            ungrouped_clusters = [ungrouped_clusters;current_group(j,:)];
             indexes_to_remove = [indexes_to_remove;j];
         end
     end
     
     current_group(indexes_to_remove, :) = []; % Remove non-overlapping units from the current group
-
-    close all;
-    expanded_groups{end+1} = current_group;
-    expanded_groups{end+1} = groups_to_add{1};
+    cell_array_of_cluster_groups{i} = current_group;
 end
 
 end
