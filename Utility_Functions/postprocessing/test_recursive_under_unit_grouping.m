@@ -19,7 +19,7 @@ config.RECORDING_NAME = "10_100";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
 c1 = blind_pass_table(:,"is_neuron")==1;
 c2 = blind_pass_table(:,"grades_pred") >0;
-blind_pass_table_only_neur_filtered = blind_pass_table(c1 & c2,:);
+blind_pass_table_only_neur_filtered = blind_pass_table(boolean(c1)& boolean(c2),:);
 
 final_cluster_groups = recursive_under_unit_grouping(blind_pass_table_only_neur_filtered,config);
 
