@@ -20,8 +20,6 @@ config.RECORDING_NAME = "10_100";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
 
 
-
-
 abs_path = create_a_file_if_doesnt_exist_and_return_abs_path("/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table_organized_into_same_groups_with_filter/expanded");
 disp("Finished creating save dir")
 save(fullfile(abs_path,"expanded_cluster_groups.mat"), 'expanded_cluster_groups');
