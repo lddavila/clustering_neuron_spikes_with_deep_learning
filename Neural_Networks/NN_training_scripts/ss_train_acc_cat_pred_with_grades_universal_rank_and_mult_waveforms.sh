@@ -4,4 +4,4 @@
 #SBATCH -o output.txt 
 #SBATCH -e error.txt 
 module load matlab/R2024b
-matlab -batch "train_acc_cat_pred_with_grades_universal_rank_and_mult_waveforms();exit;"
+matlab -batch "acc_cat_pred_with_gr_univ_rank_and_mult_waves();exit;"
