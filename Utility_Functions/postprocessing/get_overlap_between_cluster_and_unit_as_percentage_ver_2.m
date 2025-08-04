@@ -1,4 +1,5 @@
 function [array_of_overlap_with_unit,unit_of_max_overlap,max_overlap_percentage] = get_overlap_between_cluster_and_unit_as_percentage_ver_2(timestamps_of_cluster,ground_truth,timestamps,time_delta)
+
 array_of_overlap_with_unit = zeros(1,length(ground_truth));
 max_overlap_percentage = 0;
 unit_of_max_overlap = NaN;

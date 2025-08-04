@@ -27,7 +27,7 @@ parpool('local_scratch', 37);
 disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
 very_beginning_time = tic;
-% [blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
+[blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
 end_time = toc(very_beginning_time);
 fp_to_bp_table = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
 blind_pass_table = importdata(fp_to_bp_table);
@@ -37,7 +37,7 @@ fprintf("Finished running blind pass it took %f seconds\n",end_time)
 % is provided
 % in this example the data is simulated and the ground truth is available
 beginning_time = tic;
-% blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
+blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
 % blind_pass_table= add_accuracy_col(config,blind_pass_table);
 % disp(blind_pass_table(:,"accuracy"))
 % save(fp_to_bp_table,"blind_pass_table");

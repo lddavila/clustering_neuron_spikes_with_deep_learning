@@ -198,6 +198,8 @@ config.FP_TO_GRADES_ACC_PRED_WITH_RANK_NN = fullfile(config.base_file_path,"Neur
 config.FP_TO_PRESORTED_TABLE = fullfile(config.base_file_path,"Neural_Networks","presorted_table","presorted_table.mat");
 
 
+config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"Neural_Networks","multi_under_units_predictor","acc_score_0.92163_num_layers_5_n_n_per_layer30_multi_under_units_27.1735_seconds_used_mean_waveform.mat");
+
 
 % ORIGINAL BEGINS HERE
 
