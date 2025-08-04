@@ -45,16 +45,21 @@ for i=1:size(acc_cat_dividers,2)-1
     end 
 end
 
+fprintf("actual terminal state: %i \n random starting point: %i\n##################\n",row_of_terminal_state,random_starting_point)
 
-initial_state = cell_array_of_grades{random_starting_point};
-
+%ensure that the agent's starting point will never be on the actual
+%stopping point
+%done to encourage the agent to explore
+possible_initial_states = setdiff(1:size(cell_array_of_grades,1),row_of_terminal_state);
+other_random_starting_point = possible_initial_states(randi(size(possible_initial_states,2)));
+initial_state = cell_array_of_grades{other_random_starting_point};
 
 initial_observation = initial_state;
 
 info.initial_state = initial_state;
 info.random_sample_index = random_sample_index;
 info.row_of_terminal_state= row_of_terminal_state;
-info.loc_of_current_step = random_starting_point;
+info.loc_of_current_step = other_random_starting_point;
 info.all_possible_permutations_of_grades = cell_array_of_grades;
 
 end

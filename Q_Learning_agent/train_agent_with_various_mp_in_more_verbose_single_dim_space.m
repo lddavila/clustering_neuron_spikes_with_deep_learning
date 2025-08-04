@@ -27,14 +27,14 @@ config = spikesort_config();
 parent_save_dir = config.parent_save_dir;
 blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 
-c = parcluster('local');
-if ~any(contains(string(parallel.listProfiles),'local_scratch'))
-    
-    c.JobStorageLocation = config.parent_save_dir;
-    saveAsProfile(c, 'local_scratch');
-end
-
-parpool('local_scratch', c.NumWorkers);
+% c = parcluster('local');
+% if ~any(contains(string(parallel.listProfiles),'local_scratch'))
+% 
+%     c.JobStorageLocation = config.parent_save_dir;
+%     saveAsProfile(c, 'local_scratch');
+% end
+% 
+% parpool('local_scratch', c.NumWorkers);
 disp("Finished setting job directory")
 
 blind_pass_table.OG_IDX = (1:size(blind_pass_table,1)).';
@@ -91,12 +91,12 @@ for num_acc_cats=possible_number_of_acc_cats
 
     number_of_layers = 10:1:1005;
     filter_sizes = 50:1:100;
-    possible_eps = [0.2 0.1 0.01 0.3 0.4 0.5];
+    possible_eps = [0.1 0.01 ];
 
     possible_illegal_move_penalties = [-2,-3];
     possible_rewards_for_correct_stop = [100,90,80];
-    possible_penalty_for_incorrect_stop = [-3,-20,-30];
-    possible_rewards_for_moving_towards_terminal_row = [1 2 3 4 5];
+    possible_penalty_for_incorrect_stop = [-100];
+    possible_rewards_for_moving_towards_terminal_row = [0 1 2 3 4 5];
     possible_penalties_for_moving_away_from_terminal_rows = [0 -1 -2 -3 -4 -5];
     %how to read meta data_string
     %1st number: illegal move penalty
