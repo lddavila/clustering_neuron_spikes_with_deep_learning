@@ -95,7 +95,7 @@ for num_acc_cats=possible_number_of_acc_cats
 
     possible_illegal_move_penalties = [-2,-3];
     possible_rewards_for_correct_stop = [100,90,80];
-    possible_penalty_for_incorrect_stop = [-10,-20,-30];
+    possible_penalty_for_incorrect_stop = [-3,-20,-30];
     possible_rewards_for_moving_towards_terminal_row = [1 2 3 4 5];
     possible_penalties_for_moving_away_from_terminal_rows = [0 -1 -2 -3 -4 -5];
     %how to read meta data_string
@@ -110,7 +110,9 @@ for num_acc_cats=possible_number_of_acc_cats
     opt = rlTrainingOptions(MaxEpisodes=size(training_idxs,2), ...
         MaxStepsPerEpisode=500, ...,
         Verbose=1,...
-        SaveAgentCriteria="AverageReward");
+        SaveAgentCriteria="AverageReward", ...
+        StopTrainingCriteria="None",...
+        StopOnError="off");
     for illegal_move_penalty =possible_illegal_move_penalties
         for reward_for_correct_stop = possible_rewards_for_correct_stop
             for penalty_for_incorrect_stop = possible_penalty_for_incorrect_stop

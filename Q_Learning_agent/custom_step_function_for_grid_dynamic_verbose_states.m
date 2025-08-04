@@ -27,7 +27,7 @@ terminal_state_2_index= size(all_possible_permutations_of_grades,1);
 if action==0 %stay
     if loc_of_current_step == terminal_state_row %staying on the correct accuracy
         reward = reward_for_correct_stop;
-        is_done = true;
+        
         next_observation = state;
     else %stopping on the incorrect row, a dynamic penalty which is calculated based off distance from terminal row
         reward = penalty_for_incorrect_stop;
@@ -37,7 +37,7 @@ if action==0 %stay
         %info.loc_of_current_step = soft_reset_loc;
         next_observation = state;
     end
-
+    is_done = true;
     info.initial_state = next_observation;
 
 elseif action==1 %move down
