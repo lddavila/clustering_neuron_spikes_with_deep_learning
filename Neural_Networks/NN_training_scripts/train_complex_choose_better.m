@@ -1,6 +1,7 @@
 function [] = train_complex_choose_better()
 num_samples = 100000;
 home_dir = cd("..");
+cd("..");
 addpath(genpath(pwd));
 cd(home_dir);
 config = spikesort_config();
