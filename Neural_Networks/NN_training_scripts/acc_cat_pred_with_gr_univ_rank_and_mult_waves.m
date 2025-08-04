@@ -1,4 +1,4 @@
-function [] = train_acc_cat_pred_with_grades_universal_rank_and_mult_waveforms()
+function [] = acc_cat_pred_with_gr_univ_rank_and_mult_waves()
 home_dir =cd("..");
 cd("..");
 addpath(genpath(pwd));
