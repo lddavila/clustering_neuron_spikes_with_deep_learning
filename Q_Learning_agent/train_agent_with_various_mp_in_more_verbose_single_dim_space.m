@@ -27,12 +27,14 @@ config = spikesort_config();
 parent_save_dir = config.parent_save_dir;
 blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 
-
-
 c = parcluster('local');
-c.JobStorageLocation = config.parent_save_dir;
-saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', 37);
+if ~any(contains(string(parallel.listProfiles),'local_scratch'))
+    
+    c.JobStorageLocation = config.parent_save_dir;
+    saveAsProfile(c, 'local_scratch');
+end
+
+parpool('local_scratch', c.NumWorkers);
 disp("Finished setting job directory")
 
 blind_pass_table.OG_IDX = (1:size(blind_pass_table,1)).';
@@ -106,7 +108,7 @@ for num_acc_cats=possible_number_of_acc_cats
     %7th number: number of layers
     %8th number: time in seconds it took to train
     opt = rlTrainingOptions(MaxEpisodes=size(training_idxs,2), ...
-        MaxStepsPerEpisode=50, ...,
+        MaxStepsPerEpisode=500, ...,
         Plots='none',...
         Verbose=1,...
         SaveAgentCriteria="AverageReward");
