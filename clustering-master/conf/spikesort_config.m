@@ -148,7 +148,7 @@ config.twin_nn_training_data_on_hpc = "/home/lddavila/data_from_local_server/tra
 config.twin_nn_test_data = "D:\cluster_neuronspikes\Data\Cluster Plots Sorted Into Number Categories Test";
 config.twin_nn_test_data_on_hpc = "/home/lddavila/data_from_local_server/test_twin_nn_data";
 
-config.parent_save_dir = "D:\cluster_neuronspikes\Data";
+config.parent_save_dir = fullfile(config.base_file_path,"Default_Results_Dir");
 config.parent_save_dir_ON_HPC = '/scratch/lddavila/data_to_copy_to_local_machine';
 
 
