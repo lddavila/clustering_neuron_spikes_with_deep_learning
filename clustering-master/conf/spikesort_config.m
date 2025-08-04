@@ -181,7 +181,7 @@ config.FP_TO_CHOOSE_BETTER_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/c
 config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN = fullfile(config.base_file_path,"Neural_Networks","accuracy_predict_using_mean_waveform_nn","accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat");
 config.FP_TO_PREDICT_ACC_CAT_USING_MEAN_WAVEFORM_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/accuracy_category_based_on_mean_waveform_nn/accuracy score 0.69231num accuracy cats 3 num layers 2 num neurons per layer30 accuracy_category_based_on_mean_waveform.mat";
 
-config.DIR_TO_SAVE_RESULTS_TO = "06_19_2025_predict_accuracy_increases";
+config.DIR_TO_SAVE_RESULTS_TO = "08_04_2025_acc_cats_with_multiple_waveforms";
 
 config.FP_TO_PREDICTING_ACCURACY_ON_GRADES_NN  = "D:\cluster_neuronspikes\Predict_accuracy_cat_using_grades_nn\accuracy score 0.86357number of acc cats 3 num layers 6 num neurons per layer40 grades neural network.mat";
 config.FP_TO_PREDICTING_ACCURACY_ON_GRADES_NN_ON_HPC = "/scratch/lddavila/cluster_neuronspikes/Predict_accuracy_cat_using_grades_nn/accuracy score 0.86357number of acc cats 3 num layers 6 num neurons per layer40 grades neural network.mat";
