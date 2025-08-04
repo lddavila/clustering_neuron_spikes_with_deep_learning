@@ -5,8 +5,7 @@ function [initial_observation,info] =custom_reset_function_for_grid_verbose_stat
 
 %choose a random grade set for the agent to bring into the environment 
 training_set_idx = randi([1,size(array_of_training_idxs,2)],1,1);
-disp("rest new index")
-disp(array_of_training_idxs(training_set_idx));
+
 random_sample_index = blind_pass_table{array_of_training_idxs(training_set_idx),"OG_IDX"};
 
 %get the accuracy of the random sample to determine the terminal state
