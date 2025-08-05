@@ -63,23 +63,25 @@ options = trainingOptions("adam", ...
 options = trainingOptions("adam", ...
     MiniBatchSize=mini_batch_size, ...
     Shuffle="every-epoch", ...
-    ValidationData=validation_data, ...
+    ValidationData={table2array(validation_data(:,1:end-1)),table2array(validation_data(:,end))},...
     Plots="none",...
     Metrics="accuracy", ...
     Verbose=true, ...
     maxEpochs=50);
+%disp(training_data);
+net = trainnet(table2array(training_data(:,1:end-1)),table2array(training_data(:,end)),layers,"crossentropy",options);
 
-net = trainnet(training_data,layers,"crossentropy",options);
+scores = predict(net,table2array(testing_data(:,1:end-1)));
 
-scores = minibatchpredict(net,testing_data,MiniBatchSize=mini_batch_size);
-YPred = scores2label(scores,class_names);
+[~,YPred] = max(scores,[],2); 
+YPred = YPred-1;
 
 YTest = testing_data{:,label_name};
-accuracy = sum(YPred == YTest)/numel(YTest);
+accuracy = sum(categorical(YPred)== YTest)/numel(YTest);
 % disp("accuracy:"+string(accuracy));
 
 % figure
 % confusionchart(YTest,YPred)
 % disp("Finished Training NN")
-close all;
+%close all;
 end

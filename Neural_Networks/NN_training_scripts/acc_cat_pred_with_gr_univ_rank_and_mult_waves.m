@@ -67,32 +67,38 @@ for i=1:1:100
 end
 
 presorted_table = vertcat(presorted_table{:});
-presorted_grade_rows = grades_array(presorted_table_rows,:);
-for i=1:size(blind_pass_table,1)
-    estimated_rank_col(i) = add_universal_rank(blind_pass_table{i,"Mean Waveform"}{1},grades_array(i,:),size(blind_pass_table{i,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, blind_pass_table{i,"timestamps"}{1},config);
-    %                       add_universal_rank(current_data_waveform,                 current_data_grades,current_data_size,                        presorted_table,choose_better_nn, presorted_grade_rows,current_ts,config)
-    print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",i,size(blind_pass_table,1));
+list_of_files_in_current_directory = struct2table(dir(pwd));
+if ~any(contains(string(list_of_files_in_current_directory{:,"name"}),"blind_pass_table_with_rank.mat"))
+    presorted_grade_rows = grades_array(presorted_table_rows,:);
+    sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
+    num_iterations = size(sliced_bp_table,1);
+    parfor i=1:size(blind_pass_table,1)
+        current_data = sliced_bp_table{i};
+        estimated_rank_col(i) = add_universal_rank(current_data{1,"Mean Waveform"}{1},grades_array(i,:),size(current_data{1,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, current_data{1,"timestamps"}{1},config);
+        print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",i,num_iterations);
+    end
+
+
+    blind_pass_table.rank = estimated_rank_col;
+
+    save("blind_pass_table_with_rank.mat","blind_pass_table");
+else
+    blind_pass_table = importdata("blind_pass_table_with_rank.mat");
 end
 
 
-blind_pass_table.rank = estimated_rank_col;
 
 
-
-use_mean_waveform_possibilities = [1,0];
-for use_mean_waveform=use_mean_waveform_possibilities
+possible_number_of_mean_waveforms_to_use = [2,3,4];
+for number_of_mw_to_use=possible_number_of_mean_waveforms_to_use
     for i=1:size(number_of_accuracy_categories,2)
         number_of_accuracy_cats = number_of_accuracy_categories(i);
 
-        
+
         table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table,number_of_accuracy_cats);
-        if use_mean_waveform
-            table_of_nn_data =array2table([grades_array(:,:),all_mean_waveforms(:,:),estimated_rank_col./100,table_with_accuracy{:,"accuracy_category"}]);
-            to_add = "_used_mean_waves";
-        else
-            table_of_nn_data =array2table([grades_array(:,:),estimated_rank_col./100,table_with_accuracy{:,"accuracy_category"}]);
-            to_add = "";
-        end
+        table_of_nn_data =array2table([grades_array(:,:),all_mean_waveforms(:,1:(number_of_mw_to_use*150)),blind_pass_table{:,"rank"}./100,table_with_accuracy{:,"accuracy_category"}]);
+        to_add = "_used_"+string(number_of_mw_to_use)+"mw";
+
         table_of_nn_data = rmmissing(table_of_nn_data);
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
