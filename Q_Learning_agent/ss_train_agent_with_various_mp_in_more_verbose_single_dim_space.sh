@@ -5,5 +5,5 @@
 #SBATCH -o output.txt 
 #SBATCH -e error.txt 
 #SBATCH -t 48:00:00
-module load matlab/R2023b
+module load matlab/2023b
 matlab -batch "train_agent_with_various_mp_in_more_verbose_single_dim_space();exit;"
