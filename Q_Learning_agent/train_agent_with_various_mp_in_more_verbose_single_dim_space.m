@@ -1,4 +1,5 @@
 function [] = train_agent_with_various_mp_in_more_verbose_single_dim_space()
+clc;
 %avg_dist_from_correct_accuracy: An absolute distance measurement from the terminal row to the actual stopping row
 %a scalar between 1-100
 %smaller is better as it indicates you are near the correct row
@@ -82,7 +83,7 @@ rng(0);
 training_idxs = randperm(round(size(blind_pass_table,1)/2));
 testing_idxs = setdiff(1:size(blind_pass_table,1),training_idxs).';
 
-possible_number_of_acc_cats = [10, 3,9,4];
+possible_number_of_acc_cats = [6 7 8 9 10];
 for num_acc_cats=possible_number_of_acc_cats
     [~,number_of_features,cell_array_of_grades,acc_cat_dividers] = get_environment_and_nn_dims(num_acc_cats,presorted_table,size(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST,2),grades_array);
 
@@ -91,13 +92,13 @@ for num_acc_cats=possible_number_of_acc_cats
 
     number_of_layers = 10:1:1005;
     filter_sizes = 50:1:100;
-    possible_eps = [0.1 0.01 ];
+    possible_eps = [0.01 0.1];
 
-    possible_illegal_move_penalties = [-2,-3];
+    possible_illegal_move_penalties = [0 -2,-3];
     possible_rewards_for_correct_stop = [100,90,80];
-    possible_penalty_for_incorrect_stop = [-100];
-    possible_rewards_for_moving_towards_terminal_row = [0 1 2 3 4 5];
-    possible_penalties_for_moving_away_from_terminal_rows = [0 -1 -2 -3 -4 -5];
+    possible_penalty_for_incorrect_stop = [-1];
+    possible_rewards_for_moving_towards_terminal_row = [1 2 3 4 5];
+    possible_penalties_for_moving_away_from_terminal_rows = [ -2 -3 -4 -5];
     %how to read meta data_string
     %1st number: illegal move penalty
     %2nd number: correct stop reward
@@ -109,7 +110,8 @@ for num_acc_cats=possible_number_of_acc_cats
     %8th number: time in seconds it took to train
     opt = rlTrainingOptions(MaxEpisodes=size(training_idxs,2), ...
         MaxStepsPerEpisode=500, ...,
-        Verbose=1,...
+        Verbose=0,...
+        plots = "none",...
         SaveAgentCriteria="AverageReward", ...
         StopTrainingCriteria="None",...
         StopOnError="off");
@@ -118,6 +120,7 @@ for num_acc_cats=possible_number_of_acc_cats
             for penalty_for_incorrect_stop = possible_penalty_for_incorrect_stop
                 for reward_for_moving_towards_terminal_row = possible_rewards_for_moving_towards_terminal_row
                     for penalty_for_moving_away_from_terminal_row = possible_penalties_for_moving_away_from_terminal_rows
+
 
                         StepHandle = @(Action,Info) custom_step_function_for_grid_dynamic_verbose_states(Action,Info, ...
                             illegal_move_penalty, ...
@@ -135,6 +138,8 @@ for num_acc_cats=possible_number_of_acc_cats
                                     [agent,~,obs_info,action_info] = get_agent_and_critique_net_for_verbose_states(number_of_features,num_neurons,num_layers,current_eps);
 
                                     env = rlFunctionEnv(obs_info,action_info,StepHandle,ResetHandle);
+
+                                    
 
                                     train(agent,env,opt);
 
@@ -154,7 +159,7 @@ for num_acc_cats=possible_number_of_acc_cats
                                         true_class(test_idx) = info.row_of_terminal_state;
                                         while ~is_done && step_counter <= max_num_steps
                                             [action,idx_act] = getAction(agent,observation);
-                                            disp(action);
+                                            % disp(action);
                                             % disp(idx_act);
                                             % disp(info.loc_of_current_step)
 

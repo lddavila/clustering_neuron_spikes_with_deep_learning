@@ -25,37 +25,38 @@ terminal_state_2_index= size(all_possible_permutations_of_grades,1);
 
 %first we must ask what action is being performed
 if action==0 %stay
+    distance_from_correct_row = abs(loc_of_current_step - terminal_state_row)+1; 
     if loc_of_current_step == terminal_state_row %staying on the correct accuracy
-        reward = reward_for_correct_stop;
-        
+        reward = reward_for_correct_stop * distance_from_correct_row;
+        is_done = true;
         next_observation = state;
     else %stopping on the incorrect row, a dynamic penalty which is calculated based off distance from terminal row
-        reward = penalty_for_incorrect_stop;
+        reward = penalty_for_incorrect_stop * distance_from_correct_row;
         %randomly jump to another state as a kind of soft reset
         %soft_reset_loc = randi([1,size(all_possible_permutations_of_grades,1)],1,1);
         %next_observation = all_possible_permutations_of_grades{soft_reset_loc};
         %info.loc_of_current_step = soft_reset_loc;
         next_observation = state;
     end
-    is_done = true;
+    
     info.initial_state = next_observation;
 
 elseif action==1 %move down
 
     staying = false;
-
+    distance_from_correct_row = abs(loc_of_current_step+1 - terminal_state_row)+1; 
     if loc_of_current_step == terminal_state_2_index %have reached the bottom boundry of your world and are trying to move down, cannot be done
-        reward = penalty_for_illegal_move;
+        reward = penalty_for_illegal_move * distance_from_correct_row;
         next_observation = state;
         info.initial_state = next_observation;
         info.loc_of_current_step = loc_of_current_step;
         staying = true;
     elseif loc_of_current_step < terminal_state_row %move down, towards the correct terminal row
-        reward = reward_for_moving_towards_terminal_row;
+        reward = reward_for_moving_towards_terminal_row * distance_from_correct_row;
     elseif loc_of_current_step > terminal_state_row %move down, away from correct terminal row
-        reward = penalty_for_moving_away_from_terminal_row;
+        reward = penalty_for_moving_away_from_terminal_row* distance_from_correct_row;
     elseif loc_of_current_step == terminal_state_row %trying to move off the correct row will cause further penalties
-        reward = penalty_for_moving_away_from_terminal_row;
+        reward = penalty_for_moving_away_from_terminal_row * distance_from_correct_row;
     end
     if ~staying
         next_observation = all_possible_permutations_of_grades{loc_of_current_step+1};
@@ -63,20 +64,20 @@ elseif action==1 %move down
         info.loc_of_current_step = loc_of_current_step+1;
     end
 elseif action==-1 %move up
-    
+    distance_from_correct_row = abs(loc_of_current_step-1 - terminal_state_row)+1; 
     staying = false;
     if loc_of_current_step == 1 %trying to move up while already at the top, is impossible
-        reward = penalty_for_illegal_move;
+        reward = penalty_for_illegal_move * distance_from_correct_row;
         next_observation = state;
         info.initial_state = next_observation;
         info.loc_of_current_step =loc_of_current_step;
         staying = true;
     elseif loc_of_current_step < terminal_state_row %moving up, away from your terminal row is penalized
-        reward = penalty_for_moving_away_from_terminal_row;
+        reward = penalty_for_moving_away_from_terminal_row * distance_from_correct_row;
     elseif loc_of_current_step > terminal_state_row %moving up, toward your terminal row is rewarded
-        reward = reward_for_moving_towards_terminal_row;
+        reward = reward_for_moving_towards_terminal_row * distance_from_correct_row;
     elseif loc_of_current_step == terminal_state_row %trying to move off the correct row will cause further penalties
-        reward = penalty_for_moving_away_from_terminal_row;
+        reward = penalty_for_moving_away_from_terminal_row* distance_from_correct_row;
     end
     if ~staying
         next_observation = all_possible_permutations_of_grades{loc_of_current_step-1};

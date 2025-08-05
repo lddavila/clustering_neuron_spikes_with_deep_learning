@@ -53,7 +53,7 @@ end
 possible_initial_states = setdiff(1:size(cell_array_of_grades,1),row_of_terminal_state);
 other_random_starting_point = possible_initial_states(randi(size(possible_initial_states,2)));
 initial_state = cell_array_of_grades{other_random_starting_point};
-fprintf("actual terminal state: %i \n random starting point: %i\n##################\n",row_of_terminal_state,other_random_starting_point)
+% fprintf("actual terminal state: %i \n random starting point: %i\n##################\n",row_of_terminal_state,other_random_starting_point)
 
 initial_observation = initial_state;
 
