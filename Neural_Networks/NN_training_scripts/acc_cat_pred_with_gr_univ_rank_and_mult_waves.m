@@ -102,7 +102,7 @@ for number_of_mw_to_use=possible_number_of_mean_waveforms_to_use
         table_of_nn_data = rmmissing(table_of_nn_data);
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
-            for k=1:size(filter_sizes,2)
+            parfor k=1:size(filter_sizes,2)
                 num_neurons = filter_sizes(k);
 
                 beginning_time = tic;
@@ -117,7 +117,7 @@ for number_of_mw_to_use=possible_number_of_mean_waveforms_to_use
                 net_struct.Layers = net.Layers;
                 net_struct.Connections = net.Connections;
                 net_struct.net = net;
-                save(name_to_save_under+".mat","-fromstruct",net_struct)
+                par_save(name_to_save_under,net_struct);
             end
         end
     end
