@@ -1,5 +1,6 @@
 function [] = train_nn_to_predict_over_1_percent_overlap()
 home_dir =cd("..");
+cd("..");
 addpath(genpath(pwd));
 cd(home_dir);
 number_of_layers = 1:1:50;
