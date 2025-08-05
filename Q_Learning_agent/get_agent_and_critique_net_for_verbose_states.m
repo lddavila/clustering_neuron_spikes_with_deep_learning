@@ -28,7 +28,7 @@ common_path = [concatenationLayer(1,2,Name="cct")
     leakyReluLayer
     fullyConnectedLayer(1,Name="output")];
 
-net = dlnetwork;
+net = dlnetwork(layerGraph());
 net= addLayers(net,obs_path);
 net= addLayers(net,act_path);
 net = addLayers(net,common_path);
