@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH -N 1
-#SBATCH -p flex**
+#SBATCH -p flex
 #SBATCH -J q_learning_agent
 #SBATCH -o output.txt 
 #SBATCH -e error.txt 
