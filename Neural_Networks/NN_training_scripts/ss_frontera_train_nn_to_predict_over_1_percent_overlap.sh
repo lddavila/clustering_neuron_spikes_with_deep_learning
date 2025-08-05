@@ -1,0 +1,9 @@
+#!/bin/bash 
+#SBATCH -N 1
+#SBATCH -p normal
+#SBATCH -J predict_num_under_units
+#SBATCH -o under_unit_output.txt 
+#SBATCH -e under_unit_output_error.txt 
+#SBATCH -t 4:00:00
+module load matlab/2023b
+matlab -batch "train_nn_to_predict_over_1_percent_overlap();exit;"
