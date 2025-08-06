@@ -3,7 +3,7 @@
 #SBATCH -p medium
 #SBATCH -t 15:00:00
 #SBATCH -o output.txt 
-#SBATCH -e error.txt 
+#SBATCH -e output.txt 
 #SBATCH -N 1
 module load matlab/R2024b
 matlab -batch "example_10_100; exit;"
