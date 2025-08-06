@@ -35,7 +35,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
     all_peaks = get_peaks(aligned, true);
     idx_cell_array = cell(size(current_data,1),1);
-    mean_waveform_cell_array = cell(size(current_data,1),1);
+    mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
     timestamp_cell_array = cell(size(current_data,1),1);
     for j=1:length(idx_b4_filt)
         cluster_filter = idx_b4_filt{j};
