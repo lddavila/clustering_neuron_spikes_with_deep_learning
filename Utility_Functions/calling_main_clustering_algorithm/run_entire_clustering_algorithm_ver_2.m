@@ -14,14 +14,12 @@ disp("Finished Importing timestamps for recording")
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 disp("Finished setting the blind pass directory")
 
-%step 3: read the precomputed file AKA the log file to see if any steps can
-%be skipped
-% log_file_path = dir(config.FP_TO_STATUS_FILE);
-% if log_file_path.bytes == 0
-%     what_is_pre_computed = [];
-% else
-%     what_is_pre_computed = handle_log_file();
-% end
+%step 3: get list of existing files in the precomputed dir
+        %doing this enables us to tell which parts of the algorithm can be
+        %skipped as to avoid repetition
+list_of_existing_files =struct2table(dir(fullfile(precomputed_dir,"**",".")));
+rows_to_exclude = string(list_of_existing_files{:,"name"}) == "." | string(list_of_existing_files{:,"name"})=="..";
+list_of_existing_files(rows_to_exclude,:) = [];
 
 % Step 4: Get ordered List of Channels
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
@@ -29,18 +27,18 @@ ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
 % Step 5: Get the Min Threshold
 min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
-has_been_computed = [];
+what_is_computed = [];
 
-what_is_pre_computed = [""];
+what_is_computed = string(list_of_existing_files{:,"name"});
 
 % step 6: get or make the z_score channel data directory (only done once)
-if ~ismember("z_score",what_is_pre_computed) %means that the z_score matrix is already computed and we will skip computing it again
+if ~ismember("z_score",what_is_computed) %means that the z_score matrix is already computed and we will skip computing it again
     z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"z_score")); %not yet computed
     create_z_score_matrix = 1;
 else
     z_score_dir = fullfile(precomputed_dir,"z_score"); %in this case it already exists
     create_z_score_matrix = 0;
-    has_been_computed = [has_been_computed,"z_score"];
+    what_is_computed = [what_is_computed,"z_score"];
 end
 disp("Finished Creating Z Score Directory");
 % disp(z_score_dir);
@@ -48,12 +46,13 @@ disp("Finished Creating Z Score Directory");
 % step 7: get the mean and std of all channels the z score is also
 % calculated here
 beginning_time = tic;
-if ~ismember("mean_and_std",what_is_pre_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
+if ~ismember("mean_and_std.mat",what_is_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
     [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
     mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"mean_and_std"));
     save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
-    has_been_computed = [has_been_computed,"mean_and_std"];
+    what_is_computed = [what_is_computed,"mean_and_std"];
 else
+    disp("mean and Std file has been detected in your precomputed directory. If you'd like it recalculated then delete it or change your precomputed directory. ")
     load(fullfile(precomputed_dir,"mean_and_std","mean_and_std.mat"),'channel_wise_means','channel_wise_std') %loads the previously found mean and std
 end
 end_time = toc(beginning_time);
@@ -70,25 +69,15 @@ for min_z_score=z_scores_to_check
     % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
     %   each element of "what_is_precomputed" is a string telling you what is already done
 
-    %step 9a: create the directory to save results to if it doesn't alreay exist so you can save anything you need to it
-    if isempty(what_is_pre_computed)
-        precomputed_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(precomputed_dir,config.RECORDING_NAME);
-    end
-
-
-    has_been_computed = []; %will store what was successfully computed and saved
-
-
-
-
     beginning_time = tic;
     % step 9b: get potential spikes from continuous recordings
-    if ~ismember("spikes_per_channel min_z_score "+ string(min_z_score),what_is_pre_computed)
+    if ~ismember("spikes_per_channel min_z_score "+ string(min_z_score),what_is_computed)
         spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
         spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
-        has_been_computed = [has_been_computed,"spikes_per_channel min_z_score"+string(min_z_score)];
     else
+        disp("spikes_per_channel min_z_score "+ string(min_z_score)+ " has been detected and will be skipped.")
+        disp("To recalculate delete the original or change your precomputed directory.")
         load(fullfile(precomputed_dir,"spikes_per_channel min_z_score " + string(min_z_score),"spikes_per_channel.mat"), "spikes_per_channel")
     end
     end_time = toc(beginning_time);
@@ -97,17 +86,18 @@ for min_z_score=z_scores_to_check
 
     % step 9c; Get all the data points from the potential spikes
     beginning_time = tic;
-    if ~ismember("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps),what_is_pre_computed)
+    if ~ismember("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps),what_is_computed)
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
         spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
-        has_been_computed = [has_been_computed,"spike_windows min_z_score" + string(min_z_score) + " num dps " + string(num_dps),what_is_pre_computed];
         %each array is made up of 4 numbers:
         %the first is the beginning of the spike window
         %the second is the end of the spike_window
         %the third is the original channel of the spike
-        %the fourth is the original the peak of the spike according to find_peaks
+        %the fourth is the original the peak of the spike according to find_peaks'
         save(fullfile(spike_windows_dir,"spike_windows.mat"),"spike_windows");
     else
+        disp("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps) + " has been detected and will be skipped.")
+        disp("To recalculate delete the original or change your precomputed directory.")
         load(fullfile(precomputed_dir,"spike_windows min_z_score "+string(min_z_score)+" num dps "+string(num_dps),"spike_windows.mat"),"spike_windows")
     end
     end_time = toc(beginning_time);
@@ -116,7 +106,7 @@ for min_z_score=z_scores_to_check
 
     beginning_time = tic;
     % step 9d: get maps of each tetrode to its spikes
-    if ~ismember("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed)
+    if ~ismember("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_computed)
         clc;
         dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
         get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
@@ -148,8 +138,10 @@ for min_z_score=z_scores_to_check
         % number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
         % disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
         % clc;
-        has_been_computed = [has_been_computed,"dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed];
+        
     else
+        disp("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps) +" has been detected and will not be recreated.");
+        disp("To recalculate delete the original or change your precomputed directory.")
         dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
     end
     end_time = toc(beginning_time);
@@ -162,11 +154,10 @@ for min_z_score=z_scores_to_check
     array_of_desired_tetrodes = strcat("t",string(1:size(art_tetr_array,1)));
     % disp(size(array_of_desired_tetrodes));
     beginning_time = tic;
-    if ~ismember("initial_pass",what_is_pre_computed)
+    if ~ismember("initial_pass",what_is_computed)
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
         [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
-        has_been_computed = [has_been_computed,"initial_pass"];
     end
     end_time = toc(beginning_time);
     fprintf("Core Clustering for z score %f finished, it took %f seconds",min_z_score,end_time);
