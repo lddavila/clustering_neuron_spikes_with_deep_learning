@@ -27,7 +27,6 @@ ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
 % Step 5: Get the Min Threshold
 min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
-what_is_computed = [];
 
 what_is_computed = string(list_of_existing_files{:,"name"});
 
@@ -38,7 +37,8 @@ if ~ismember("z_score",what_is_computed) %means that the z_score matrix is alrea
 else
     z_score_dir = fullfile(precomputed_dir,"z_score"); %in this case it already exists
     create_z_score_matrix = 0;
-    what_is_computed = [what_is_computed,"z_score"];
+    disp("Z score directory already exists.")
+    disp("To Have it recomputed please delete exisiting z score directory or change precomputed dir.")
 end
 disp("Finished Creating Z Score Directory");
 % disp(z_score_dir);
