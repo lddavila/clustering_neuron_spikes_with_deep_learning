@@ -37,11 +37,11 @@ for i=1:size(cell_array_of_cluster_groups,2)
     parfor j=1:size(lower_diag_row,1)
         current_data = cell_array_of_cluster_checks{j};
         row_ts = current_data{1,"timestamps"}{1};
-        row_mean_waveform = current_data{1,"Mean Waveform"}{1};
+        row_mean_waveform = current_data{1,"mean_waveform_rep_wire_1"}{1};
         row_grades = cell2mat(current_data{1,"grades"}{1}(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
 
         col_ts = current_data{2,"timestamps"}{1};
-        col_mean_waveform = current_data{2,"Mean Waveform"}{1};
+        col_mean_waveform = current_data{2,"mean_waveform_rep_wire_1"}{1};
         col_grades = cell2mat(current_data{2,"grades"}{1}(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
 
         current_overlap_percentage = get_overlap_percentage_between_2_cluster_ts(row_ts,col_ts,config);

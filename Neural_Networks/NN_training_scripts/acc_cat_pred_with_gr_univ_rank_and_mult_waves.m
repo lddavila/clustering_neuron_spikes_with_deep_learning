@@ -74,7 +74,7 @@ if ~any(contains(string(list_of_files_in_current_directory{:,"name"}),"blind_pas
     num_iterations = size(sliced_bp_table,1);
     parfor i=1:size(blind_pass_table,1)
         current_data = sliced_bp_table{i};
-        estimated_rank_col(i) = add_universal_rank(current_data{1,"Mean Waveform"}{1},grades_array(i,:),size(current_data{1,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, current_data{1,"timestamps"}{1},config);
+        estimated_rank_col(i) = add_universal_rank(current_data{1,"mean_waveform_rep_wire_1"}{1},grades_array(i,:),size(current_data{1,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, current_data{1,"timestamps"}{1},config);
         print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",i,num_iterations);
     end
 

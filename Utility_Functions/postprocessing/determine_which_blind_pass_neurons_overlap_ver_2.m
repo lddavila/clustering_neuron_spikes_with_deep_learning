@@ -24,14 +24,14 @@ for i=1:size(blind_pass_table,1)
         checks_that_must_be_passed = zeros(1,size(current_cluster_group,1));
         for k=1:size(clusters_organized_by_same_group{cluster_group_counter},1)
             current_neuron_ts = current_cluster_group{k,"timestamps"}{1};
-            current_neuron_waveform = current_cluster_group{k,"Mean Waveform"}{1};
+            current_neuron_waveform = current_cluster_group{k,"mean_waveform_rep_wire_1"}{1};
             current_neuron_grades = vertcat(current_cluster_group{k,"grades"}{1}{config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST}).';
             if already_merged(j)
                 print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",[i,j],sum(~already_merged));
                 continue;
             end
             compare_neuron_ts = blind_pass_table{j,"timestamps"}{1};
-            compare_neuron_waveform = blind_pass_table{i,"Mean Waveform"}{1};
+            compare_neuron_waveform = blind_pass_table{i,"mean_waveform_rep_wire_1"}{1};
             compare_neuron_grades = grades_array(i,:);
 
             [~,index_of_larger ]= max([length(compare_neuron_ts),length(current_neuron_ts)]);

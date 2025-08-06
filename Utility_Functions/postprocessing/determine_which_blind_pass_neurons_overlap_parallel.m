@@ -17,7 +17,7 @@ for i=1:size(blind_pass_table,1)
     end
     current_neuron_ts = blind_pass_table{i,"timestamps"}{1};
     already_merged(i) = 1;
-    current_neuron_waveform = blind_pass_table{i,"Mean Waveform"}{1};
+    current_neuron_waveform = blind_pass_table{i,"mean_waveform_rep_wire_1"}{1};
     current_neuron_grades = grades_array(i,:);
 
     still_mergable_data = blind_pass_table(~already_merged,:);
@@ -28,7 +28,7 @@ for i=1:size(blind_pass_table,1)
     parfor j=1:size(sliced_still_mergable_data,1)
         current_data = sliced_still_mergable_data{j};
         compare_neuron_ts = current_data{1,"timestamps"}{1};
-        compare_neuron_waveform = current_data{1,"Mean Waveform"}{1};
+        compare_neuron_waveform = current_data{1,"mean_waveform_rep_wire_1"}{1};
         compare_neuron_grades = cell2mat(current_data{1,"grades"}{1}(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
 
         current_overlap_percentage = get_overlap_percentage_between_2_cluster_ts(compare_neuron_ts,current_neuron_ts,config);

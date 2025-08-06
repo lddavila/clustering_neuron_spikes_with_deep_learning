@@ -29,7 +29,7 @@ grades_array = all_grades(:,indexes_of_grades_were_looking_for);
 disp("Finished Flattening Grades")
 
 %get the mean waveform from each row
-mean_waveform_array = cell2mat(blind_pass_table{:,"Mean Waveform"});
+mean_waveform_array = cell2mat(blind_pass_table{:,"mean_waveform_rep_wire_1"});
 
 disp("Finished Getting Mean Waveform Array")
 
