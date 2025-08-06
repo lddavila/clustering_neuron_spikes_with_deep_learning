@@ -6,13 +6,10 @@ addpath(genpath(pwd));
 cd(home_dir);
 config = spikesort_config();
 which_nn = "mergable_or_not_verbose_waveforms";
-if config.ON_HPC
-    blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS_ON_HPC);
-    parent_save_dir = config.DIR_TO_SAVE_ACC_RESULTS_TO_ON_HPC;
-else
-    blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
-    parent_save_dir = config.parent_save_dir_ON_HPC;
-end
+
+blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
+parent_save_dir = config.parent_save_dir;
+
 disp("Finished Loading Data")
 dir_to_save_results_to = fullfile(parent_save_dir,config.DIR_TO_SAVE_RESULTS_TO);
 if ~exist(dir_to_save_results_to,"dir")
@@ -97,7 +94,7 @@ for j=1:size(number_of_layers,2)
 
         disp("The last iteration took "+string(end_time)+" seconds")
         name_to_save_under = "accuracy score "+string(accuracy_score)+" num layers "+string(num_layers)+ " num neurons per layer"+string(num_neurons)+ " "+which_nn;
-        
+
         net_struct = struct();
         net_struct.Layers = net.Layers;
         net_struct.Connections = net.Connections;
