@@ -19,7 +19,8 @@ for i=1:size(blind_pass_table,1)
     clusters_organized_by_same_group{cluster_group_counter} = blind_pass_table(i,:);
     current_neuron_ts = blind_pass_table{i,"timestamps"}{1};
     already_merged(i) = 1;
-    current_neuron_waveform = blind_pass_table{i,"mean_waveform_rep_wire_1"}{1};
+    cols_with_mean_waveform = contains(string(blind_pass_table.Properties.VariableNames),"mean_waveform_rep_wire");
+    current_neuron_waveforms = cell2mat(blind_pass_table{:,cols_with_mean_waveform});
     current_neuron_grades = grades_array(i,:);
     for j=i+1:size(blind_pass_table,1)
         if already_merged(j)
@@ -27,7 +28,8 @@ for i=1:size(blind_pass_table,1)
             continue;
         end
         compare_neuron_ts = blind_pass_table{j,"timestamps"}{1};
-        compare_neuron_waveform = blind_pass_table{i,"mean_waveform_rep_wire_1"}{1};
+        cols_with_mean_waveform = contains(string(blind_pass_table.Properties.VariableNames),"mean_waveform_rep_wire");
+        compare_neuron_waveforms = cell2mat(blind_pass_table{:,cols_with_mean_waveform});
         compare_neuron_grades = grades_array(i,:);
 
         [~,index_of_larger ]= max([length(compare_neuron_ts),length(current_neuron_ts)]);
@@ -53,7 +55,7 @@ for i=1:size(blind_pass_table,1)
         % grades_array(all_possible_combos(random_indexes,2),:),...
         % random_sample_indexes,...
         % combinable_or_not_col];
-        data_for_nn =[current_neuron_waveform,compare_neuron_waveform,current_neuron_grades,compare_neuron_grades,current_overlap_percentage] ;
+        data_for_nn =[current_neuron_waveforms,compare_neuron_waveforms,current_neuron_grades,compare_neuron_grades,current_overlap_percentage] ;
         mergable_or_not_probabilities = predict(nn,data_for_nn);
         [~,index_of_max] = max(mergable_or_not_probabilities);
         is_mergable = index_of_max-1;
