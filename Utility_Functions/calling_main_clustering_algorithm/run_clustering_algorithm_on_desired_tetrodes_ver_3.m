@@ -7,7 +7,8 @@ filenames = repelem("",1,length(list_of_desired_tetrodes));
 for j=1:length(list_of_desired_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_desired_tetrodes(j)+".mat");
 end
-number_of_tetrodes_to_run = size(list_of_desired_tetrodes,2);
+
+
 sliced_channel_wise_means = cell(size(list_of_desired_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_desired_tetrodes,2),1);
 for i=1:size(list_of_desired_tetrodes,2)
@@ -22,6 +23,22 @@ end
 parfor i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
+    output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
+    aligned_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
+    reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
+    reg_ts_of_spikes_file_name =fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat")
+
+    c1 = ismember(output_file_name,config.ALREADY_DONE_FILES);
+    c2 = ismember(aligned_file_name,config.ALREADY_DONE_FILES);
+    c3 = ismember(reg_ts_file_name,config.ALREADY_DONE_FILES);
+    c4 = ismember(reg_ts_of_spikes_file_name,config.ALREADY_DONE_FILES);
+    if all(c1,c2,c3,c4)
+        disp("Skipping Tetrode as it has already been run");
+        continue;
+    end
+
+
+
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
     spike_tetrode_dictionary =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"),"spike_tetrode_dictionary");
@@ -88,10 +105,10 @@ parfor i=1:size(list_of_desired_tetrodes,2)
             reg_timestamps = struct("reg_timestamps",reg_timestamps);
             reg_timestamps_of_the_spikes = struct("reg_timestamps_of_the_spikes",reg_timestamps_of_the_spikes);
 
-            save(fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat"),"-fromstruct",output)
-            save(fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat"),"-fromstruct",aligned)
-            save(fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat"),"-fromstruct",reg_timestamps)
-            save(fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat"),"-fromstruct",reg_timestamps_of_the_spikes)
+            par_save(output_file_name,output)
+            par_save(aligned_file_name,aligned)
+            par_save(reg_ts_file_name,reg_timestamps)
+            par_save(reg_ts_of_spikes_file_name,reg_timestamps_of_the_spikes)
 
         else
             output_array{i} = NaN;
@@ -100,14 +117,11 @@ parfor i=1:size(list_of_desired_tetrodes,2)
 
             continue;
         end
-    catch ME
+    catch 
         end_time = toc(beginning_time);
         fprintf("%s crashed for some reason and will be skipped it took %f seconds to fail\n",current_tetrode,end_time);
         % fprintf('%s',ME.cause);
         continue;
     end
-    % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
-    end_time = toc(beginning_time);
-    % fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %f seconds\n",i,number_of_tetrodes_to_run,end_time)
 end
 end
