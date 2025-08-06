@@ -20,7 +20,7 @@ for i=1:size(list_of_desired_tetrodes,2)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 
-for i=1:size(list_of_desired_tetrodes,2)
+parfor i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
@@ -33,7 +33,7 @@ for i=1:size(list_of_desired_tetrodes,2)
     c3 = ismember(reg_ts_file_name,config.ALREADY_DONE_FILES);
     c4 = ismember(reg_ts_of_spikes_file_name,config.ALREADY_DONE_FILES);
     if all([c1,c2,c3,c4])
-        disp("Skipping Tetrode as it has already been run");
+        disp("Skipping Tetrode "+current_tetrode+" as it has already been run");
         continue;
     end
 
