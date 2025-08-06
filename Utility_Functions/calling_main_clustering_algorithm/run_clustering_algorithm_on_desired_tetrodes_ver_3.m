@@ -20,13 +20,13 @@ for i=1:size(list_of_desired_tetrodes,2)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 
-parfor i=1:size(list_of_desired_tetrodes,2)
+for i=1:size(list_of_desired_tetrodes,2)
     beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
     aligned_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
     reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
-    reg_ts_of_spikes_file_name =fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat")
+    reg_ts_of_spikes_file_name =fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
 
     c1 = ismember(output_file_name,config.ALREADY_DONE_FILES);
     c2 = ismember(aligned_file_name,config.ALREADY_DONE_FILES);
