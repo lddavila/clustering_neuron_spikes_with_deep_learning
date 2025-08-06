@@ -72,7 +72,7 @@ for min_z_score=z_scores_to_check
     beginning_time = tic;
     % step 9b: get potential spikes from continuous recordings
     spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
-    if ~ismember(fullfile(precomputed_dir,spikes_per_chan_dir,"spikes_per_channel min_z_score "+ string(min_z_score)),what_is_computed)
+    if ~ismember(spikes_per_chan_dir,what_is_computed)
         spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
     else
@@ -86,8 +86,8 @@ for min_z_score=z_scores_to_check
 
     % step 9c; Get all the data points from the potential spikes
     beginning_time = tic;
-     spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-    if ~ismember(fullfile(precomputed_dir,spike_windows_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps)),what_is_computed)
+    spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
+    if ~ismember(spike_windows_dir,what_is_computed)
         spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
         %each array is made up of 4 numbers:
         %the first is the beginning of the spike window
@@ -107,7 +107,7 @@ for min_z_score=z_scores_to_check
     beginning_time = tic;
     dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
     % step 9d: get maps of each tetrode to its spikes
-    if ~ismember(fullfile(precomputed_dir,dictionaries_dir,"dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps)),what_is_computed)
+    if ~ismember(dictionaries_dir,what_is_computed)
         clc;
         get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
         %tetrode_dictionary
@@ -142,7 +142,7 @@ for min_z_score=z_scores_to_check
     else
         disp("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps) +" has been detected and will not be recreated.");
         disp("To recalculate delete the original or change your precomputed directory.")
-        dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
+       
     end
     end_time = toc(beginning_time);
     fprintf('Getting dictionaries took: %f\n',end_time)
