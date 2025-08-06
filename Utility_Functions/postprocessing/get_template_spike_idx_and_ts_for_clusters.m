@@ -6,7 +6,7 @@ sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[
 
 parfor i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
-
+    num_of_channels = size(current_data{:,"grades"}{1}{49},2);
     try
         aligned = importdata(current_data{1,"fp_to_aligned"});
     catch
@@ -41,21 +41,28 @@ parfor i=1:size(sliced_blind_pass_table,1)
         cluster_filter = idx_b4_filt{j};
         spikes = aligned(:, cluster_filter, :);
         peaks = all_peaks(:, cluster_filter);
-        % Set up the representative wire for the cluster
-        [~, max_wire] = max(peaks, [], 1);
-        poss_wires = unique(max_wire);
-        n = histc(max_wire, poss_wires);
-        [~, max_n] = max(n);
-        compare_wire = poss_wires(max_n);
-        mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
-        mean_waveform = mean_waveform - mean(mean_waveform);
-        mean_waveform_cell_array{j} = mean_waveform;
+        for k=1:num_of_channels
+            % Set up the representative wire for the cluster
+            [~, max_wire] = max(peaks, [], 1);
+            poss_wires = unique(max_wire);
+            n = histc(max_wire, poss_wires);
+            [~, max_n] = max(n);
+            compare_wire = poss_wires(max_n);
+            peaks(compare_wire,:) = nan;
+            mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
+            mean_waveform = mean_waveform - mean(mean_waveform);
+            mean_waveform_cell_array{j,k} = mean_waveform;
+        end
         idx_cell_array{j} = cluster_filter;
         timestamp_cell_array{j} = timestamps(cluster_filter);
     end
+
     current_data.("cluster_idx") = idx_cell_array;
-    current_data.("Mean Waveform") = mean_waveform_cell_array;
     current_data.("timestamps") = timestamp_cell_array;
+
+    for k=1:num_of_channels
+        current_data.("mean_waveform_rep_wire_"+string(k)) = mean_waveform_cell_array(:,k);
+    end
     disp("Finished "+string(i)+"/"+string(number_of_iterations))
     sliced_blind_pass_table{i} = current_data;
 end
