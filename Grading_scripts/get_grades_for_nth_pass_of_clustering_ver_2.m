@@ -64,7 +64,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     for j=1:size(grades,2)
         grade_struct.("Grade_"+string(j)) = grades(:,j);
     end
-    save(fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat"),'-fromstruct',grade_struct);
+    par_save(fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat"),'-fromstruct',grade_struct);
     
 
     grades_and_grades_fp_table = table(nan(size(grades,1),1),cell(size(grades,1),1),repelem("",size(grades,1),1),'VariableNames',["Cluster","grades","fp_to_grades"]);
