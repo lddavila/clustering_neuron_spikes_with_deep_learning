@@ -8,6 +8,10 @@ debug = 0;
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 num_iterations = size(sliced_blind_pass_table,1);
 grades_table = cell(size(blind_pass_table,1),1);
+
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+print_message_using_dataqueue(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
 parfor i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
@@ -74,7 +78,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         grades_and_grades_fp_table.(variables_from_original_data(k)) = repelem(current_data{1, variables_from_original_data(k)},size(grades_and_grades_fp_table,1),1);
     end
     grades_table{i} = grades_and_grades_fp_table;
-    disp(string(current_z_score)+" Finished "+string(i)+"/"+string(num_iterations));
+    send(q,[])
 
 end
 blind_pass_table = [];
