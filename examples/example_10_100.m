@@ -27,7 +27,7 @@ parpool('local_scratch', c.NumWorkers);
 disp("Finished Downloading Data");
 %% Step 4: run the blind pass with a various min_z_score (cut threshold) 
 very_beginning_time = tic;
-[blind_pass_table,fp_to_bp_table] = run_entire_clustering_algorithm_ver_2(config);
+[blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
 end_time = toc(very_beginning_time);
 fprintf("Finished running blind pass it took %f seconds\n",end_time)
 %% (OPTIONAL STEP 5 CONTINUED) Get max overlap unit and accuracy cols for the neurons 
@@ -35,23 +35,38 @@ fprintf("Finished running blind pass it took %f seconds\n",end_time)
 % is provided
 % in this example the data is simulated and the ground truth is available
 beginning_time = tic;
-blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
-blind_pass_table= add_accuracy_col(config,blind_pass_table);
-save(fp_to_bp_table,"blind_pass_table");
+if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"),config.ALREADY_DONE_FILES)
+    blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
+    blind_pass_table= add_accuracy_col(config,blind_pass_table);
+    save(fp_to_bp_table,"blind_pass_table");
+else
+    disp("Overlap are already in your table.")
+    disp("To recompute delete finished_adding_overlap_and_accuracy.txt");
+end
 disp("Finished Saving Accuracy");
 end_time = toc(beginning_time);
 fprintf("Finished adding overlap and accuracy columns it took %f seconds\n",end_time)
 %% Step 6: Get accuracy category prediction using grades + universal rank neural network 
 beginning_time = tic;
-blind_pass_table = add_accuracy_cat_pred_from_nn(blind_pass_table,config);
-end_time = toc(beginning_time);
-save(fp_to_bp_table,"blind_pass_table");
+if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_predictions.txt"),config.ALREADY_DONE_FILES)
+    blind_pass_table = add_accuracy_cat_pred_from_nn(blind_pass_table,config);
+    end_time = toc(beginning_time);
+    save(fp_to_bp_table,"blind_pass_table");
+else
+    disp("Accuracy category and mean waveform already exist. Will skip adding them again.")
+    disp("To repredict delete finished_adding_accuracy_cat_predictions.txt")
+end
 fprintf("Finished adding accuracy cat predictions based on grades and universal rank it took %f seconds\n",end_time)
 %% step 7: Get Accuracy category prediction using mean waveform neural network
 beginning_time = tic;
-blind_pass_table = add_mean_waveform_pred_col(blind_pass_table,config);
-end_time=toc(beginning_time);
-save(fp_to_bp_table,"blind_pass_table");
+if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_based_on_wf.txt"),config.ALREADY_DONE_FILES)
+    blind_pass_table = add_mean_waveform_pred_col(blind_pass_table,config);
+    end_time=toc(beginning_time);
+    save(fp_to_bp_table,"blind_pass_table");
+else
+    disp("Accuracy category based on waveform predictions already exist. Skipping.")
+    disp("To repredict delete finished_adding_accuracy_cat_based_on_wf.txt");
+end
 fprintf("Finished adding accuracy cat predictions based on mean waveform it took %f seconds\n",end_time)
 %% step 8: Get Letter Grade
 beginning_time = tic;

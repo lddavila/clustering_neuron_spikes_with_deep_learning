@@ -1,4 +1,4 @@
-function [blind_pass_table,fp_to_blind_pass_table] = run_entire_clustering_algorithm_ver_2(config)
+function [blind_pass_table,fp_to_blind_pass_table,config] = run_entire_clustering_algorithm_ver_2(config)
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
