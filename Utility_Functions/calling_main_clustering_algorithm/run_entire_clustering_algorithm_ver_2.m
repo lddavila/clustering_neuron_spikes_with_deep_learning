@@ -163,20 +163,49 @@ for min_z_score=z_scores_to_check
 end
 
 %step 11: read the results of the blind pass into a table
-blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
-
+if ~ismember(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),what_is_computed)
+    blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
+else
+    blind_pass_table = importdata(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"));
+    disp("A Blind Pass Table Has Been Found in your precomputed directory and will be loaded.")
+    disp("If you wish to recreate the blind pass table please specficy different directory or delete existing blind pass table.")
+end
 % step 12: Grade the blind pass results
 beginning_time = tic;
 disp("Beginning Grading")
-blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
+if ~ismember(fullfile(precomputed_dir,"finished_grading.txt"),what_is_computed)
+    blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
+    file_name = "finished_grading.txt";
+    file_id = fopen(fullfile(precomputed_dir,file_name),'w');
+    fclose(file_id);
+else
+    disp("Grades have already been added to your blind pass table. Skipping Grading");
+    disp("To regrade, delete finished_grading.txt");
+end
 end_time = toc(beginning_time);
 fprintf("Finished grading, it took %f seconds",end_time);
+
 %step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
-blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
+if ~ismember(fullfile(precomputed_dir,"finished_adding_mw.txt"),what_is_computed)
+    blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
+    file_name = "finished_adding_mw.txt";
+    file_id = fopen(fullfile(precomputed_dir,file_name),'w');
+    fclose(file_id);
+else
+    disp("Mean waveforms have already been added to your blind pass table. Skipping getting.");
+    disp("To regrade, delete finished_adding_mw.txt");
+end
 
 %step 15: add the neuron or MUA or not col
-blind_pass_table = add_is_neuron_col(blind_pass_table,config);
-
+if ~ismember(fullfile(precomputed_dir,"finished_adding_mua_or_not_col.txt"),what_is_computed)
+    blind_pass_table = add_is_neuron_col(blind_pass_table,config);
+    file_name = "finished_adding_mua_or_not_col.txt";
+    file_id = fopen(fullfile(precomputed_dir,file_name),'w');
+    fclose(file_id);
+else
+    disp("is neuron or not column exists. Skipping.")
+    disp("To readd the column, delete inished_adding_mua_or_not_col.txt")
+end
 %step 16: save the blind pass table to the desired file
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
 save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
