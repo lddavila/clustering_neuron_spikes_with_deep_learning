@@ -89,7 +89,7 @@ end
 
 
 
-possible_number_of_mean_waveforms_to_use = [2,3,4];
+possible_number_of_mean_waveforms_to_use = [3,4];
 for number_of_mw_to_use=possible_number_of_mean_waveforms_to_use
     for i=1:size(number_of_accuracy_categories,2)
         number_of_accuracy_cats = number_of_accuracy_categories(i);
