@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH -N 1
-#SBATCH -p normal
+#SBATCH -p flex
 #SBATCH -J gen_acc
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
