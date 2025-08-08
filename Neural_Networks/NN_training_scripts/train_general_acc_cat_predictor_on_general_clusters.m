@@ -25,7 +25,7 @@ mean_waveform_var_names = contains(blind_pass_table.Properties.VariableNames,"me
 all_mean_waveforms = cell2mat(blind_pass_table{:,mean_waveform_var_names});
 
 cd(dir_to_save_accuracy_cat_to);
-which_nn = config.WHICH_NEURAL_NET;
+which_nn = "gen_clust_acc_cat";
 
 [grade_names,all_grades]= flatten_grades_cell_array(blind_pass_table{:,"grades"},config);
 [indexes_of_grades_were_looking_for,~] = find(ismember(grade_names,config.NAMES_OF_CURR_GRADES(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST)));
@@ -67,7 +67,7 @@ if ~any(contains(string(list_of_files_in_current_directory{:,"name"}),"blind_pas
     presorted_grade_rows = grades_array(presorted_table_rows,:);
     sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
     num_iterations = size(sliced_bp_table,1);
-    parfor i=1:size(blind_pass_table,1)
+    for i=1:size(blind_pass_table,1)
         current_data = sliced_bp_table{i};
         estimated_rank_col(i) = add_universal_rank(current_data{1,"Mean Waveform"}{1},grades_array(i,:),size(current_data{1,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, current_data{1,"timestamps"}{1},config);
         print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",i,num_iterations);
@@ -84,7 +84,7 @@ end
 
 
 
-possible_number_of_mean_waveforms_to_use = [3,4];
+possible_number_of_mean_waveforms_to_use = [4,3,2];
 for number_of_mw_to_use=possible_number_of_mean_waveforms_to_use
     for i=1:size(number_of_accuracy_categories,2)
         number_of_accuracy_cats = number_of_accuracy_categories(i);
@@ -97,7 +97,7 @@ for number_of_mw_to_use=possible_number_of_mean_waveforms_to_use
         table_of_nn_data = rmmissing(table_of_nn_data);
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
-            parfor k=1:size(filter_sizes,2)
+            for k=1:size(filter_sizes,2)
                 num_neurons = filter_sizes(k);
 
                 beginning_time = tic;

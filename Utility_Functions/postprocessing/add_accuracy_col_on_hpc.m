@@ -16,7 +16,7 @@ for i=1:size(table_of_clusters,1)
 end
 
 
-parfor i=1:size(table_of_clusters,1)
+for i=1:size(table_of_clusters,1)
     % gt_ts = sliced_ground_truth_ts{i};
     % cluster_spike_ts = ts_array{i};
     % accuracy_array(i) = calculate_accuracy(gt_ts,{cluster_spike_ts},config) * 100;
