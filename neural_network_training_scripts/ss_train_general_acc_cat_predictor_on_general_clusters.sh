@@ -1,7 +1,7 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -p normal
-#SBATCH -J q_learning_agent
+#SBATCH -J gen_acc
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 #SBATCH -t 4:00:00
