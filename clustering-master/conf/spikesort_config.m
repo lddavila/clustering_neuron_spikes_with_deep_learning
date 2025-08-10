@@ -109,7 +109,7 @@ config.IDXS_OF_GRADES_THAT_ARE_BETTER_SMALLER = [2 23 54 12 36 18 13 17 16 14 5 
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO ="D:\cluster_neuronspikes\Data\limited_cluster_plots_pngs";
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO_ON_HPC ="/scratch/lddavila/data_from_local_machine/100_by_100_cluster_pngs";
 
-config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS= fullfile(config.base_file_path,"Data","final_table_with_overlap_only_neurons.mat");
+config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS= fullfile(config.base_file_path,"Data","blind_pass_table.mat");
 config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS_ON_HPC = "/scratch/lddavila/data_from_local_machine/final_overlap_table/final_table_with_overlap_only_neurons.mat";
 
 %
@@ -199,8 +199,9 @@ config.FP_TO_GRADES_ACC_PRED_WITH_RANK_NN = fullfile(config.base_file_path,"Neur
 config.FP_TO_PRESORTED_TABLE = fullfile(config.base_file_path,"Neural_Networks","presorted_table","presorted_table.mat");
 
 
-config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"Neural_Networks","multi_under_units_predictor","acc_score_0.92163_num_layers_5_n_n_per_layer30_multi_under_units_27.1735_seconds_used_mean_waveform.mat");
+config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"Neural_Networks","predict_num_under_units","acc_score_0.96429_numbins_1_num_layers_46_n_n_per_layer25_num_und_unts_14.7392_seconds_used_mean_waveform.mat");
 
+config.FP_TO_4_accuracy_cats_predictor = fullfile(config.base_file_path,"Neural_Networks","four_accuracy_cats_with_mw","accuracy_score 0.76633num_acc_cats_4_num_layers 9_num_neur_layer20_used_mean_waves.mat");
 
 % ORIGINAL BEGINS HERE
 

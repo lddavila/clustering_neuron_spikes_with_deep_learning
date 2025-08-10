@@ -24,7 +24,7 @@ end_of_range = size(presorted_table,1);
 beginning_of_range = 1;
 last_five_compare_ranks = nan(1,5);
 while abs(class_predictions(1) - class_predictions(2)) > 0.05 && num_iterations<1000
-    compare_waveform = presorted_table{compare_position,"Mean Waveform"}{1};
+    compare_waveform = presorted_table{compare_position,"mean_waveform_rep_wire_1"}{1};
     compare_grades = presorted_grade_rows(compare_position,:);
     compare_size = size(presorted_table{compare_position,"timestamps"}{1},1);
 
