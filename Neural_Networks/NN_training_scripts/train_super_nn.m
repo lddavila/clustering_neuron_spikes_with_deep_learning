@@ -213,8 +213,8 @@ for i=1:size(number_of_accuracy_categories,2)
                 net_struct.Layers = net.Layers;
                 net_struct.Connections = net.Connections;
                 net_struct.net = net;
-                par_save(name_to_save_under,net_struct);
-                par_save(name_to_save_under,list_of_features{table_counter})
+                par_save(name_to_save_under+".mat",net_struct);
+                par_save(name_to_save_under+".txt",list_of_features{table_counter})
             end
         end
     end
