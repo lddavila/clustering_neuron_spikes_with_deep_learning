@@ -203,6 +203,7 @@ config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"N
 
 config.FP_TO_4_accuracy_cats_predictor = fullfile(config.base_file_path,"Neural_Networks","four_accuracy_cats_with_mw","accuracy_score 0.76633num_acc_cats_4_num_layers 9_num_neur_layer20_used_mean_waves.mat");
 
+config.FP_TO_super_nn = fullfile(config.base_file_path,"Neural_Networks","super_nn","accuracy_score 0.81608_num_layers 6_num_neur_layer50_super_nn_tbl_24.mat");
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

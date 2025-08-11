@@ -1,6 +1,6 @@
 function [statistics_per_group,is_in_table] = analyze_grouped_clusters(cell_array_of_grouped_clusters,ground_truth_cell_array)
 
-group_names = string(1:size(cell_array_of_grouped_clusters,2)).';
+group_names = (1:size(cell_array_of_grouped_clusters,2)).';
 group_unit_composition = cell(size(cell_array_of_grouped_clusters,2),1);
 is_made_up_of_single = zeros(size(cell_array_of_grouped_clusters,2),1);
 majority_percentage = zeros(size(cell_array_of_grouped_clusters,2),1);
@@ -24,11 +24,12 @@ statistics_per_group = table(group_names,dominant_unit,majority_percentage,group
 ground_truth_units_list = 1:size(ground_truth_cell_array,2);
 is_in_matrix = nan(1,size(ground_truth_units_list,2));
 for i=ground_truth_units_list
-    if ismember(i,statistics_per_group{:,"Dominant Unit"})
-        is_in_matrix(i) = 1;
+    idx_of_dominant_unit = find(statistics_per_group{:,"Dominant Unit"}==i);
+    if ismember(i,statistics_per_group{:,"Dominant Unit"}) && any(statistics_per_group{:,"Max Percentage"}>90)
+        is_in_matrix(i) = sum(statistics_per_group{:,"Dominant Unit"}==i & statistics_per_group{:,"Max Percentage"}>90) ;
     end
 end
-
+% statistics_per_group = sortrows(statistics_per_group,["Dominant Unit","Group Number",],"ascend");
 is_in_table = array2table(is_in_matrix,'VariableNames',strcat("Unit ",string(ground_truth_units_list)).');
 
 end

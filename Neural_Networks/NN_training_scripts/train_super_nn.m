@@ -200,7 +200,7 @@ for i=1:size(number_of_accuracy_categories,2)
 
         list_of_files_in_current_directory = struct2table(dir(fullfile(pwd,"*.mat")));
         list_of_files_in_current_directory = string(list_of_files_in_current_directory{:,"name"});
-
+        table_of_nn_data = feature_tables{table_counter};
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
             for k=1:size(filter_sizes,2)

@@ -74,8 +74,10 @@ blind_pass_table = add_letter_grade_based_on_nn(blind_pass_table);
 end_time = toc(beginning_time);
 save(fp_to_bp_table,"blind_pass_table");
 fprintf("Finished Adding Letter Grade based on mean waveform and grades and universal rank prediction. It took %f seconds\n",end_time);
-%% Step 8: Use Accuracy Prediction Neural Network to filter out any MUA clusters that made it past the first filter
-bp_table_only_neur_filtered = blind_pass_table(blind_pass_table{:,"grades_pred"}>0,:);
+%% add super neural network predictions
+blind_pass_table = add_super_nn_prediction(blind_pass_table,config);
+%% Step 9: filter neurons by super nn results
+bp_table_only_neur_filtered = blind_pass_table(blind_pass_table{:,"super_pred"}>0,:);
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
 beginning_time = tic;
