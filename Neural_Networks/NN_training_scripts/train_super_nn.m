@@ -196,7 +196,7 @@ for i=1:size(number_of_accuracy_categories,2)
     end
 
 
-    for table_counter=1:size(feature_tables,2)
+    parfor table_counter=1:size(feature_tables,2)
 
         list_of_files_in_current_directory = struct2table(dir(fullfile(pwd,"*.mat")));
         list_of_files_in_current_directory = string(list_of_files_in_current_directory{:,"name"});
