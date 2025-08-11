@@ -1,7 +1,6 @@
 #!/bin/bash 
 #SBATCH -n 37
 #SBATCH -p medium
-#SBATCH -t 15:00:00
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 #SBATCH -N 1
