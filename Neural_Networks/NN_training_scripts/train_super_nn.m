@@ -89,40 +89,12 @@ for i=1:1:100
 end
 
 presorted_table = vertcat(presorted_table{:});
-list_of_files_in_current_directory = struct2table(dir(pwd));
-
-%get the predicted rank for each row in the blind pass table
-if ~any(contains(string(list_of_files_in_current_directory{:,"name"}),"blind_pass_table_with_rank.mat"))
-    presorted_grade_rows = grades_array(presorted_table_rows,:);
-    sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
-    num_iterations = size(sliced_bp_table,1);
-    for i=1:size(blind_pass_table,1)
-        current_data = sliced_bp_table{i};
-        estimated_rank_col(i) = add_universal_rank(current_data{1,"mean_waveform_rep_wire_1"}{1},grades_array(i,:),size(current_data{1,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, current_data{1,"timestamps"}{1},config);
-        print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",i,num_iterations);
-    end
 
 
-    blind_pass_table.rank = estimated_rank_col;
 
-    save("blind_pass_table_with_rank.mat","blind_pass_table");
-else
-    blind_pass_table = importdata("blind_pass_table_with_rank.mat");
-end
 
-%for each row in the blind pass table get the accuracy category prediction
 
-%add the class predictions for the 4 accuracy categories based on rank and
-%all waveforms
-accuracy_cat_pred = nan(size(blind_pass_table,1),1);
-for i=1:size(blind_pass_table,1)
-    %table_of_nn_data =array2table([grades_array(:,:),all_mean_waveforms(:,1:(number_of_mw_to_use*150)),blind_pass_table{:,"rank"}./100,table_with_accuracy{:,"accuracy_category"}]);
-    nn_data = [grades_array(i,:),all_mean_waveforms(i,:),blind_pass_table{i,"rank"}./100];
-    nn_pred = predict(nn_4_accuracy_cats,nn_data);
-    [~,class] = max(nn_pred);
-    accuracy_cat_pred(i) = class-1;
-end
-number_of_mw_to_use =4;
+
 
 for i=1:size(number_of_accuracy_categories,2)
     number_of_accuracy_cats = number_of_accuracy_categories(i);
@@ -131,6 +103,35 @@ for i=1:size(number_of_accuracy_categories,2)
         dir_to_save_accuracy_cat_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_accuracy_cat_to);
     end
     cd(dir_to_save_accuracy_cat_to);
+    list_of_files_in_current_directory = struct2table(dir(pwd));
+    %get the predicted rank for each row in the blind pass table
+    if ~any(contains(string(list_of_files_in_current_directory{:,"name"}),"blind_pass_table_with_rank.mat"))
+        presorted_grade_rows = grades_array(presorted_table_rows,:);
+        sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
+        num_iterations = size(sliced_bp_table,1);
+        parfor sliced_counter=1:size(blind_pass_table,1)
+            current_data = sliced_bp_table{sliced_counter};
+            estimated_rank_col(sliced_counter) = add_universal_rank(current_data{1,"mean_waveform_rep_wire_1"}{1},grades_array(sliced_counter,:),size(current_data{1,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, current_data{1,"timestamps"}{1},config);
+            print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",sliced_counter,num_iterations);
+        end
+        blind_pass_table.rank = estimated_rank_col;
+        save("blind_pass_table_with_rank.mat","blind_pass_table");
+    else
+        blind_pass_table = importdata("blind_pass_table_with_rank.mat");
+    end
+
+    %for each row in the blind pass table get the accuracy category prediction
+
+    %add the class predictions for the 4 accuracy categories based on rank and
+    %all waveforms
+    accuracy_cat_pred = nan(size(blind_pass_table,1),1);
+    parfor acc_cat_counter=1:size(blind_pass_table,1)
+        %table_of_nn_data =array2table([grades_array(:,:),all_mean_waveforms(:,1:(number_of_mw_to_use*150)),blind_pass_table{:,"rank"}./100,table_with_accuracy{:,"accuracy_category"}]);
+        nn_data = [grades_array(acc_cat_counter,:),all_mean_waveforms(acc_cat_counter,:),blind_pass_table{acc_cat_counter,"rank"}./100];
+        nn_pred = predict(nn_4_accuracy_cats,nn_data);
+        [~,class] = max(nn_pred);
+        accuracy_cat_pred(acc_cat_counter) = class-1;
+    end
 
     table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table,number_of_accuracy_cats);
     data_for_nn = [grades_array(:,:),...
@@ -194,27 +195,34 @@ for i=1:size(number_of_accuracy_categories,2)
         extra_feautre_counter = extra_feautre_counter+1;
     end
 
-    parfor table_counter=1:size(feature_tables,2)
+
+    for table_counter=1:size(feature_tables,2)
+
+        list_of_files_in_current_directory = struct2table(dir(fullfile(pwd,"*.mat")));
+        list_of_files_in_current_directory = string(list_of_files_in_current_directory{:,"name"});
 
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
             for k=1:size(filter_sizes,2)
                 num_neurons = filter_sizes(k);
-
                 beginning_time = tic;
+                final_parts_of_save_name ="_num_layers "+string(num_layers)+ "_num_neur_layer"+string(num_neurons)+ "_"+which_nn +"_tbl_"+string(table_counter);
+                if any(contains(list_of_files_in_current_directory,final_parts_of_save_name))
+                    continue;
+                end
                 [accuracy_score,net,~]=predict_acc_cat_using_leaky_relu(table_of_nn_data,num_neurons,num_layers);
                 end_time = toc(beginning_time);
                 % disp("Projected end time:"+string(currentDateTime+end_time));
 
                 disp("The last iteration took "+string(end_time)+" seconds")
-                name_to_save_under = "accuracy_score "+string(accuracy_score)+"_num_layers "+string(num_layers)+ "_num_neur_layer"+string(num_neurons)+ "_"+which_nn;
+                name_to_save_under = "accuracy_score "+string(accuracy_score)+final_parts_of_save_name;
 
                 net_struct = struct();
                 net_struct.Layers = net.Layers;
                 net_struct.Connections = net.Connections;
                 net_struct.net = net;
+                net_struct.feature_names = {list_of_features{table_counter}};
                 par_save(name_to_save_under+".mat",net_struct);
-                par_save(name_to_save_under+".txt",list_of_features{table_counter})
             end
         end
     end
