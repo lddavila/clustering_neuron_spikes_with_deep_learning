@@ -16,4 +16,9 @@ for i=1:size(counts_by_class,1)
 end
 equalized_nn_data = vertcat(equalized_nn_data{:});
 
+randomized_order = randperm(size(equalized_nn_data,1));
+
+equalized_nn_data = equalized_nn_data(randomized_order,:);
+
+
 end

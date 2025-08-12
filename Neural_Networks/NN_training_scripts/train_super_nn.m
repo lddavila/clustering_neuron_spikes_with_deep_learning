@@ -154,6 +154,7 @@ for i=1:size(number_of_accuracy_categories,2)
 
     table_of_nn_data =array2table(data_for_nn);
 
+    table_of_nn_data = equalize_classes(table_of_nn_data(table_of_nn_data{:,end}>0,:));
     table_of_nn_data = rmmissing(table_of_nn_data);
     feature_names = [config.NAMES_OF_CURR_GRADES(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST),...
         "mean_waveform_1",...
@@ -185,12 +186,16 @@ for i=1:size(number_of_accuracy_categories,2)
     feature_tables = {};
     list_of_features = {};
     extra_feautre_counter = 1;
+    min_normalizer = {};
+    max_normalizer = {};
     for k=19:size(feature_names,2)-1
         all_possible_combos_of_extra_features= nchoosek(19:size(feature_names,2)-1,extra_feautre_counter);
         all_possible_combos_of_extra_features = [repmat(1:18,size(all_possible_combos_of_extra_features,1),1),all_possible_combos_of_extra_features];
         for j=1:size(all_possible_combos_of_extra_features,1)
             feature_tables{end+1} =table_of_nn_data(:,[cell2mat(columns_belonging_to_features(all_possible_combos_of_extra_features(j,:))),626]) ;
             list_of_features{end+1} = feature_names(all_possible_combos_of_extra_features(j,:));
+            min_normalizer{end+1} = col_min(all_possible_combos_of_extra_features(j,:));
+            max_normalizer{end+1} = col_max(all_possible_combos_of_extra_features(j,:));
         end
         extra_feautre_counter = extra_feautre_counter+1;
     end
@@ -222,6 +227,9 @@ for i=1:size(number_of_accuracy_categories,2)
                 net_struct.Connections = net.Connections;
                 net_struct.net = net;
                 net_struct.feature_names = {list_of_features{table_counter}};
+                net_struct.min_normalizer = min_normalizer{table_counter};
+                net_struct.max_normalizer = max_normalizer{table_counter};
+                
                 par_save(name_to_save_under+".mat",net_struct);
             end
         end
