@@ -2,7 +2,7 @@ function [] = test_parallel_vs_non_parallel()
 
 home_dir = cd("..");
 cd("..");
-cd("..");
+
 addpath(genpath(pwd));
 cd(home_dir);
 
