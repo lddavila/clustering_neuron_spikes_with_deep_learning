@@ -44,7 +44,7 @@ for i=granularity_levels
     use_mean_waveform_or_dont = [1 0];
 
     for use_mean_waveform=use_mean_waveform_or_dont
-        parfor j=1:size(number_of_layers,2)
+        for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
             for k=1:size(filter_sizes,2)
                 num_neurons = filter_sizes(k);
