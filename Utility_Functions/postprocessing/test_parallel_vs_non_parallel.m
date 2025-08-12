@@ -7,6 +7,7 @@ addpath(genpath(pwd));
 cd(home_dir);
 
 config = spikesort_config();
+disp(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 disp("Finished importing blind pass table ")
 
