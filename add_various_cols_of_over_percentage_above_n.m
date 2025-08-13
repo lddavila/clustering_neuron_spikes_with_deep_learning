@@ -3,7 +3,7 @@ sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
 table_of_gradience_and_threshold = cell2table({});
 for i=1:size(gradience_levels_to_add,2)
     actual_under_unit_class = zeros(size(blind_pass_table,1),1);
-    % q = parallel.pool.DataQueue;
+    q = parallel.pool.DataQueue;
     afterEach(q,@print_message_using_dataqueue)
     num_iterations = size(actual_under_unit_class,1);
     print_message_using_dataqueue(num_iterations,"add_various_cols_of_over_percentage_above_n.m")
@@ -21,7 +21,7 @@ for i=1:size(gradience_levels_to_add,2)
             else
                 actual_under_unit_class(j) =over_min_count ;
             end
-            % send(q,[])
+            send(q,[])
         end
         table_of_gradience_and_threshold.(gradience_levels_to_add(i)+"_gradience_levels_overlap_threshold"+string(overlap_thresholds_to_try(ov_th_counter))) = actual_under_unit_class;
     end
