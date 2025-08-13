@@ -109,7 +109,7 @@ for j=1:size(number_of_layers,2)
         net_struct.Layers = net.Layers;
         net_struct.Connections = net.Connections;
         net_struct.net = net;
-        save(name_to_save_under+".mat","-fromstruct",net_struct)
+        par_save(name_to_save_under+".mat",net_struct)
 
     end
 end

@@ -27,7 +27,7 @@ for i=1:size(blind_pass_table,1)
 
     mergable_clusters = [blind_pass_table(i,:)];
     indexes_to_merge = [];
-    for j=1:size(sliced_still_mergable_data,1)
+    parfor j=1:size(sliced_still_mergable_data,1)
         current_data = sliced_still_mergable_data{j};
         compare_neuron_ts = current_data{1,"timestamps"}{1};
         compare_neuron_waveform = current_data{1,"mean_waveform_rep_wire_1"}{1};
@@ -48,7 +48,7 @@ for i=1:size(blind_pass_table,1)
             mergable_clusters = [mergable_clusters;current_data];
             indexes_to_merge = [indexes_to_merge;current_data{1,"orig_index"}];
         end
-        print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",[cluster_group_counter,j],sum(~already_merged));
+        print_status_iter_message("parallel.m",[cluster_group_counter,j],sum(~already_merged));
 
     end
     clusters_organized_by_same_group{cluster_group_counter} = mergable_clusters;
