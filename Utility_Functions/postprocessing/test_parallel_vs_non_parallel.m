@@ -20,7 +20,7 @@ all_files_in_dir = string(all_files_in_dir{:,"name"});
 if contains(all_files_in_dir,"results_of_non_parallel_grouping.mat")
     results_of_non_parallel_grouping = importdata(fullfile(dir_to_save_results_to,"results_of_non_parallel_grouping.mat"));
 else
-    results_of_non_parallel_grouping = determine_which_blind_pass_neurons_overlap(blind_pass_table);
+    results_of_non_parallel_grouping = determine_which_blind_pass_neurons_overlap(blind_pass_table,config);
     save("results_of_non_parallel_grouping.mat","results_of_non_parallel_grouping")
 end
 disp("Finished getting non parallel results")
