@@ -19,7 +19,7 @@ for i=1:size(blind_pass_table,1)
     clusters_organized_by_same_group{cluster_group_counter} = blind_pass_table(i,:);
     current_neuron_ts = blind_pass_table{i,"timestamps"}{1};
     already_merged(i) = 1;
-    current_neuron_waveform = blind_pass_table{i,"Mean Waveform"}{1};
+    current_neuron_waveform = blind_pass_table{i,"mean_waveform_rep_wire_1"}{1};
     current_neuron_grades = grades_array(i,:);
     for j=i+1:size(blind_pass_table,1)
         if already_merged(j)
@@ -27,8 +27,8 @@ for i=1:size(blind_pass_table,1)
             continue;
         end
         compare_neuron_ts = blind_pass_table{j,"timestamps"}{1};
-        compare_neuron_waveform = blind_pass_table{i,"Mean Waveform"}{1};
-        compare_neuron_grades = grades_array(i,:);
+        compare_neuron_waveform = blind_pass_table{j,"mean_waveform_rep_wire_1"}{1};
+        compare_neuron_grades = grades_array(j,:);
 
         [~,index_of_larger ]= max([length(compare_neuron_ts),length(current_neuron_ts)]);
         [smaller_cluster_size,~ ]= min([length(compare_neuron_ts),length(current_neuron_ts)]);
