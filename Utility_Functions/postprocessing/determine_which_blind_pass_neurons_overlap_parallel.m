@@ -27,6 +27,7 @@ for i=1:size(blind_pass_table,1)
 
     mergable_clusters = [blind_pass_table(i,:)];
     indexes_to_merge = [];
+    
     parfor j=1:size(sliced_still_mergable_data,1)
         current_data = sliced_still_mergable_data{j};
         compare_neuron_ts = current_data{1,"timestamps"}{1};
