@@ -79,7 +79,7 @@ bp_table_only_neur_filtered = blind_pass_table(blind_pass_table{:,"grades_pred"}
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
 beginning_time = tic;
-clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap(bp_table_only_neur_filtered,config);
+clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap_parallel(bp_table_only_neur_filtered,config);
 end_time = toc(beginning_time);
 fprintf("Finished merging clusters it took %f seconds\n",end_time)
 %% Step 10: Save Results of merging
@@ -87,7 +87,7 @@ clusters_organized_by_same_group_with_filter_fp = fullfile(config.BLIND_PASS_DIR
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_with_filter_fp);
 save(fullfile(clusters_organized_by_same_group_with_filter_fp,"clusters_organized_by_same_group.mat"),"clusters_organized_by_same_group");
 %% Step 11: Merge Neurons into groups without step (for testing purposes)
-clusters_organized_by_same_group_without_filter = determine_which_blind_pass_neurons_overlap(blind_pass_table_only_neurons, config);
+clusters_organized_by_same_group_without_filter = determine_which_blind_pass_neurons_overlap_parallel(blind_pass_table_only_neurons, config);
 
 %% step 12 : Save the results of step 11 
 clusters_organized_by_same_group_without_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_without_filter");
