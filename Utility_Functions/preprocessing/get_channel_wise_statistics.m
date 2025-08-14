@@ -30,7 +30,7 @@ parfor i=1:size(ordered_list_of_channels,2)
     if save_z_score
         channel_wise_z_score_data = zscore(channel_data * scale_factor);
         channel_wise_z_score_data = struct("channel_wize_z_score_data",channel_wise_z_score_data);
-        save(fullfile(z_score_dir,current_channel+".mat"),"-fromstruct",channel_wise_z_score_data);
+        par_save(fullfile(z_score_dir,current_channel+".mat"),"-fromstruct",channel_wise_z_score_data);
         % status_message = "\n"+print_status_iter_message("get_channel_wise_statistics:calculate_z_score_data",i,num_of_iterations);
         % fprintf(status_log,status_message);
 
