@@ -20,7 +20,7 @@ gradience_levels_to_add = [1,2,3,4,5,6,7,8,9,10];
 overlap_thresholds_to_try = [3,4,5,6,7,8,9,10];
 status_table = [];
 
-dir_to_save_to = fullfile(config.base_file_path,"under_unit_gradient_test");
+dir_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"under_unit_gradient_test"));
 cd(dir_to_save_to)
 for i=1:size(gradience_levels_to_add,2)
     curr_gr_lvl = gradience_levels_to_add(i);

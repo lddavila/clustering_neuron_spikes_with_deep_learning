@@ -8,7 +8,7 @@ for i=1:size(cluster_groups,2)
     current_group_brkdwn = sortrows(current_group_brkdwn,"GroupCount","ascend");
     % disp(current_group_brkdwn);
     current_max_overlap_unit = current_group_brkdwn{end,"Max Overlap Unit"};
-    if current_group_brkdwn{end,"Percent"} > 50
+    if current_group_brkdwn{end,"Percent"} > 70
         has_dominant_group(current_max_overlap_unit) = has_dominant_group(current_max_overlap_unit)+1;
     end
     cell_array_of_groupcounts{i} = current_group_brkdwn;
