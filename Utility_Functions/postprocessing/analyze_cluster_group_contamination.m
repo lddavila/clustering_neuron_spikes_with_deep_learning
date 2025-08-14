@@ -1,4 +1,4 @@
-function [row] = analyze_cluster_group_contamination(cell_array_of_grouped_clusters,config,ground_truth)
+function [row] = analyze_cluster_group_contamination(cell_array_of_grouped_clusters,config,ground_truth,curr_gr_lvl,curr_over_thresh,filtered_levels)
 group_size = size(cell_array_of_grouped_clusters,2);
 dominant_group_counts = zeros(1,size(ground_truth,2));
 for i=1:size(cell_array_of_grouped_clusters,2)
@@ -10,5 +10,5 @@ for i=1:size(cell_array_of_grouped_clusters,2)
     end
 end
 number_of_units_with_dominant_group = sum(dominant_group_counts>0);
-row = table(number_of_units_with_dominant_group);
+row = table(curr_gr_lvl,curr_over_thresh,number_of_units_with_dominant_group,filtered_levels,'VariableNames',["gr_lvl","predic_thre","num_units_with_dom_group","filtered_levels"]);
 end
