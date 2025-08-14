@@ -69,7 +69,7 @@ end
 presorted_table = vertcat(presorted_table{:});
 presorted_grade_rows = grades_array(presorted_table_rows,:);
 for i=1:size(blind_pass_table,1)
-    estimated_rank_col(i) = add_universal_rank(blind_pass_table{i,"Mean Waveform"}{1},grades_array(i,:),size(blind_pass_table{i,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, blind_pass_table{i,"timestamps"}{1},config);
+    estimated_rank_col(i) = add_universal_rank(blind_pass_table{i,"mean_waveform_rep_wire_1"}{1},grades_array(i,:),size(blind_pass_table{i,"timestamps"}{1},1),presorted_table,choose_better_nn, presorted_grade_rows, blind_pass_table{i,"timestamps"}{1},config);
     %                       add_universal_rank(current_data_waveform,                 current_data_grades,current_data_size,                        presorted_table,choose_better_nn, presorted_grade_rows,current_ts,config)
     print_status_iter_message("train_accuracy_cat_prediction_nn_with_grades_and_universal_rank.m",i,size(blind_pass_table,1));
 end
