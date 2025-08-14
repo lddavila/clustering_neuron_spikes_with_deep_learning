@@ -7,6 +7,7 @@ disp("Finished Setting Path");
 
 config = spikesort_config();
 config.GT_FP = fullfile(config.base_file_path,"Data","10_100","ground_truth","10_100Neuron300SecondRecordingWithLevel1Noise.h5.mat");
+disp(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 is_neuron_cond = blind_pass_table{:,"is_neuron"}==1;
 blind_pass_table = blind_pass_table(is_neuron_cond,:);
@@ -40,7 +41,7 @@ for i=1:size(gradience_levels_to_add,2)
             new_row = analyze_cluster_group_contamination(results_of_grouping,config,ground_truth,curr_gr_lvl,curr_over_thresh,levels_to_filter);
             status_table =[status_table;new_row];
             disp(status_table);
-            
+
             writetable(status_table,'filename.txt','WriteMode','append');
         end
     end
