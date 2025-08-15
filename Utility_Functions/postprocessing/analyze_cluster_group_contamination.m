@@ -5,7 +5,7 @@ for i=1:size(cell_array_of_grouped_clusters,2)
     current_group = cell_array_of_grouped_clusters{i};
     under_unit_counts = groupcounts(current_group,"Max Overlap Unit");
     [max_count,index_of_max] = max(under_unit_counts{:,"Percent"});
-    if max_count > 90 && size(current_group) ~=1
+    if max_count > 90 && size(current_group,1) ~=1
         dominant_group_counts(under_unit_counts{index_of_max,"Max Overlap Unit"}) = dominant_group_counts(under_unit_counts{index_of_max,"Max Overlap Unit"})+1; 
     end
 end
