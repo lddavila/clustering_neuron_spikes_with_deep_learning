@@ -14,7 +14,7 @@ num_of_iterations = size(ordered_list_of_channels,2);
 sliced_list_of_channels = num2cell(ordered_list_of_channels);
 sliced_channel_numbers = str2double(strrep(ordered_list_of_channels,"c",""));
 
-parfor i=1:size(ordered_list_of_channels,2)
+for i=1:size(ordered_list_of_channels,2)
     current_channel = sliced_list_of_channels{i};
     current_file = fullfile(dir_with_channel_data,current_channel+".mat");
     channel_data = importdata(current_file);

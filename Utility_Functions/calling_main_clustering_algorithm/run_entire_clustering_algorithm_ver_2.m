@@ -48,6 +48,7 @@ disp("Finished Creating Z Score Directory");
 % calculated here
 beginning_time = tic;
 if ~ismember(fullfile(precomputed_dir,"mean_and_std","mean_and_std.mat"),what_is_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
+    %                                       get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_data,z_score_dir, save_z_score,scale_factor,config)
     [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
     mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"mean_and_std"));
     save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
