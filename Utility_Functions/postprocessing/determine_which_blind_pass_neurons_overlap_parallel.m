@@ -27,6 +27,9 @@ for i=1:size(blind_pass_table,1)
 
     mergable_clusters = [blind_pass_table(i,:)];
     indexes_to_merge = [];
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_message_using_dataqueue)
+    print_message_using_dataqueue(sum(still_mergable_data,"all"),"determine_which_blind_pass_neurons_overlap_parallel.m")
     
     parfor j=1:size(sliced_still_mergable_data,1)
         current_data = sliced_still_mergable_data{j};
@@ -49,8 +52,8 @@ for i=1:size(blind_pass_table,1)
             mergable_clusters = [mergable_clusters;current_data];
             indexes_to_merge = [indexes_to_merge;current_data{1,"orig_index"}];
         end
-        print_status_iter_message("parallel.m",[cluster_group_counter,j],sum(~already_merged));
-
+        % print_status_iter_message("determine_which_blind_pass_neurons_overlap_parallel.m",[cluster_group_counter,j],sum(~already_merged));
+        send(q,[])
     end
     clusters_organized_by_same_group{cluster_group_counter} = mergable_clusters;
     already_merged(indexes_to_merge) = 1;
