@@ -103,25 +103,42 @@ for gradience_level = possible_gradience_levels
         table_of_nn_data = array2table(array_of_nn_data(:,end-1),table_of_gradience_and_threshold{:,gradience_key},array_of_nn_data(:,end));
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
-            parfor k=1:size(filter_sizes,2)
-                num_neurons = filter_sizes(k);
-                disp("About to begin Training");
-                beginning_time = tic;
-                [accuracy_score,net,~]= merge_or_dont_nn(table_of_nn_data,spikesort_config,num_neurons,num_layers);
-                end_time = toc(beginning_time);
+            for k=1:size(filter_sizes,2)
+                normalize_features = [0,1];
+                for normalize_or_dont = normalize_features
+                    if normalize_or_dont
+                        array_of_nn_data = table2array(table_of_nn_data);
+                        class_col_preserverd = array_of_nn_data(:,end);
+                        col_min = min(array_of_nn_data(:,1:end-1));
+                        col_max = max(array_of_nn_data(:,1:end-1));
+                        to_add = "_normalized";
+                        array_of_nn_data = rescale(array_of_nn_data(:,1:end-1),-1,1,"InputMax",col_max,"InputMin",col_min);
+                        table_of_nn_data = array2table([array_of_nn_data,class_col_preserverd]);
+                    else
+                        to_add = "";
+                    end
+                    num_neurons = filter_sizes(k);
+                    disp("About to begin Training");
+                    beginning_time = tic;
+                    [accuracy_score,net,~]= merge_or_dont_nn(table_of_nn_data,spikesort_config,num_neurons,num_layers);
+                    end_time = toc(beginning_time);
 
-                disp("The last iteration took "+string(end_time)+" seconds")
-                name_to_save_under = "accuracy score "+string(accuracy_score)+" num layers "+string(num_layers)+ " num neurons per layer"+string(num_neurons)+ " "+which_nn;
-                fileID = fopen(name_to_save_under+ ".txt",'w');
-                fclose(fileID);
-                net_struct = struct();
-                net_struct.Layers = net.Layers;
-                net_struct.Connections = net.Connections;
-                net_struct.net = net;
-                net_struct.gradience_level = gradience_level;
-                net_struct.threshold_level = threshold_level;   
-                par_save(name_to_save_under+".mat",net_struct)
+                    disp("The last iteration took "+string(end_time)+" seconds")
+                    name_to_save_under = "accuracy_score+"+string(accuracy_score)+"_num_layers_"+string(num_layers)+ "_num_neur_per_lay_"+string(num_neurons)+ " "+which_nn + to_add;
+                    net_struct = struct();
+                    net_struct.Layers = net.Layers;
+                    net_struct.Connections = net.Connections;
+                    net_struct.net = net;
+                    net_struct.gradience_level = gradience_level;
+                    net_struct.threshold_level = threshold_level;
 
+                    if normalize_or_dont
+                        net.rescale_bounds = [-1 1];
+                        net.rescale_col_min = col_min;
+                        net.rescale_col_max = col_max;
+                    end
+                    par_save(name_to_save_under+".mat",net_struct)
+                end
             end
         end
     end
