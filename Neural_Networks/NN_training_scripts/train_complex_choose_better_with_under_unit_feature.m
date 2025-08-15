@@ -99,8 +99,8 @@ possible_threshold_levels = 1:30;
 for gradience_level = possible_gradience_levels
     for threshold_level = possible_threshold_levels
         table_of_gradience_and_threshold = add_various_cols_of_over_percentage_above_n(blind_pass_table(remaining_idxs,:),gradience_level,threshold_level);
-        gradience_key = string(table_of_gradience_and_threshold.Properties.VariableNames);
-        table_of_nn_data = array2table(array_of_nn_data(:,end-1),table_of_gradience_and_threshold{:,gradience_key},array_of_nn_data(:,end));
+        disp(table_of_gradience_and_threshold);
+        table_of_nn_data = array2table(array_of_nn_data(:,end-1),table_of_gradience_and_threshold{:,1},array_of_nn_data(:,end));
         for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
             for k=1:size(filter_sizes,2)
