@@ -29,7 +29,7 @@ for i=1:size(blind_pass_table,1)
     indexes_to_merge = [];
     q = parallel.pool.DataQueue;
     afterEach(q,@print_message_using_dataqueue)
-    print_message_using_dataqueue(sum(still_mergable_data,"all"),"determine_which_blind_pass_neurons_overlap_parallel.m")
+    print_message_using_dataqueue(size(still_mergable_data,1),"determine_which_blind_pass_neurons_overlap_parallel.m")
     
     parfor j=1:size(sliced_still_mergable_data,1)
         current_data = sliced_still_mergable_data{j};
