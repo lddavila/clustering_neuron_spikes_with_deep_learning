@@ -10,13 +10,12 @@ for i=1:size(lower_triangular_indexes,1)
     current_row = current_row_and_col(1);
     current_col = current_row_and_col(2);
     sliced_table{i} = [blind_pass_table(current_row,"timestamps");blind_pass_table(current_col,"timestamps")];
-    if mod(i,1000)==0
-        print_status_iter_message("get_overlap_percentage_for_nn_training_data.m: slicing table",i,size(lower_triangular_indexes,1));
-    end
 end
 
-num_iters = size(lower_triangular_indexes,1);
 array_of_overlap_percentages = [];
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+print_message_using_dataqueue(size(lower_triangular_indexes,1),"get_overlap_percentage_for_nn_training_data.m")
 parfor i=1:size(lower_triangular_indexes,1)
     current_data = sliced_table{i};
     current_neuron_ts = current_data{1,"timestamps"}{1};
@@ -38,9 +37,7 @@ parfor i=1:size(lower_triangular_indexes,1)
         number_of_timestamps_in_common=0;
     end
     array_of_overlap_percentages = [array_of_overlap_percentages;(number_of_timestamps_in_common / smaller_cluster_size) * 100];
-    if mod(i,1000) == 0
-        print_status_iter_message("get_overlap_percentage_for_nn_training_data.m",i,num_iters);
-    end
+    send(q,[])
 end
 
 
