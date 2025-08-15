@@ -12,7 +12,7 @@ cluster_group_counter = 1;
 blind_pass_table.("orig_index") = (1:size(blind_pass_table,1)).';
 for i=1:size(blind_pass_table,1)
     if already_merged(i)
-        print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",cluster_group_counter,sum(~already_merged));
+        %print_status_iter_message("determine_which_blind_pass_neurons_overlap.m",cluster_group_counter,sum(~already_merged));
         continue;
     end
     current_neuron_ts = blind_pass_table{i,"timestamps"}{1};
