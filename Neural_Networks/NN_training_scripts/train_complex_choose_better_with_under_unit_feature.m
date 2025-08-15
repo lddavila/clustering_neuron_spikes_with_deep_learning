@@ -10,7 +10,7 @@ which_nn = "choose_better_with_under_unit";
 
 
 blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
-parent_save_dir = config.parent_save_dir_ON_HPC;
+parent_save_dir = config.parent_save_dir;
 
 disp("Finished Loading Data")
 dir_to_save_results_to = fullfile(parent_save_dir,"choose_better_with_under_unit_feature");
