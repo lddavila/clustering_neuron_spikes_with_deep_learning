@@ -14,7 +14,7 @@ num_of_iterations = size(ordered_list_of_channels,2);
 sliced_list_of_channels = num2cell(ordered_list_of_channels);
 sliced_channel_numbers = str2double(strrep(ordered_list_of_channels,"c",""));
 
-for i=1:size(ordered_list_of_channels,2)
+parfor i=1:size(ordered_list_of_channels,2)
     current_channel = sliced_list_of_channels{i};
     current_file = fullfile(dir_with_channel_data,current_channel+".mat");
     channel_data = importdata(current_file);
@@ -30,7 +30,7 @@ for i=1:size(ordered_list_of_channels,2)
     if save_z_score
         channel_wise_z_score_data = zscore(channel_data * scale_factor);
         channel_wise_z_score_data = struct("channel_wize_z_score_data",channel_wise_z_score_data);
-        par_save(fullfile(z_score_dir,current_channel+".mat"),"-fromstruct",channel_wise_z_score_data);
+        par_save(fullfile(z_score_dir,current_channel+".mat"),channel_wise_z_score_data);
         % status_message = "\n"+print_status_iter_message("get_channel_wise_statistics:calculate_z_score_data",i,num_of_iterations);
         % fprintf(status_log,status_message);
 
