@@ -90,6 +90,7 @@ if ~ismember("array_with_overlap.mat",list_of_files)
 
     %get the overlap percentage
     overlap_col = get_overlap_percentage_for_nn_training_data(blind_pass_table,remaining_idxs,config);
+    save("array_with_overlap.mat","overlap_col");
 else
     overlap_col = importdata("array_with_overlap.mat");
 end
