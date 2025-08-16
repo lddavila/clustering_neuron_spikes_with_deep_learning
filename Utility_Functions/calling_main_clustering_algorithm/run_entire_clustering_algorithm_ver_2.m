@@ -65,7 +65,7 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %step 9 use a for loop to cycle through all z-scores listed in the config
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
-if ~ismember("blind_pass.txt",what_is_computed)
+if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
     for min_z_score=z_scores_to_check
         % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
         %   each element of "what_is_precomputed" is a string telling you what is already done
