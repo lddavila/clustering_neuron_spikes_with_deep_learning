@@ -65,6 +65,7 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %step 9 use a for loop to cycle through all z-scores listed in the config
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
+if ~ismember("blind_pass.txt",what_is_computed)
 for min_z_score=z_scores_to_check
     % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
     %   each element of "what_is_precomputed" is a string telling you what is already done
@@ -160,6 +161,10 @@ for min_z_score=z_scores_to_check
     [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
     end_time = toc(beginning_time);
     fprintf("Core Clustering for z score %f finished, it took %f seconds",min_z_score,end_time);
+end
+else
+    disp("Blind pass has already been found.")
+    disp("If you'd like it to be recomputed then delete blind_pass.txt or change the save directory")
 end
 
 %step 11: read the results of the blind pass into a table
