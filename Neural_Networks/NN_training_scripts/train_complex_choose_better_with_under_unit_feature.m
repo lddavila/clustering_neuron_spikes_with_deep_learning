@@ -80,17 +80,23 @@ number_of_layers = 1:1:50;
 filter_sizes = [5 10 15 20 25 30 35 40 50];
 
 
-
-remaining_idxs = shuffled_data_for_nn(:,[end-2,end-1]);
-shuffled_data_for_nn(:,end-2:end-1) = [];
-
-%get the overlap percentage
-overlap_col = get_overlap_percentage_for_nn_training_data(blind_pass_table,remaining_idxs,config);
-disp("Finished getting overlap percentage array")
-
-array_of_nn_data = array2table([shuffled_data_for_nn(:,1:end-1),overlap_col,shuffled_data_for_nn(:,end)]);
-
 home_dir = cd(dir_to_save_results_to);
+list_of_files = struct2table(dir(pwd));
+list_of_files = string(list_of_files{:,"name"});
+
+if ~ismember("array_with_overlap.mat",list_of_files)
+    remaining_idxs = shuffled_data_for_nn(:,[end-2,end-1]);
+    shuffled_data_for_nn(:,end-2:end-1) = [];
+
+    %get the overlap percentage
+    overlap_col = get_overlap_percentage_for_nn_training_data(blind_pass_table,remaining_idxs,config);
+else
+    overlap_col = importdata("array_with_overlap.mat");
+end
+disp("Finished getting overlap percentage array")
+array_of_nn_data = [shuffled_data_for_nn(:,1:end-1),overlap_col,shuffled_data_for_nn(:,end)];
+
+
 
 % train the neural networks
 disp(pwd)
