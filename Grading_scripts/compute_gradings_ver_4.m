@@ -60,7 +60,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
     "likeliness of burst","compare wire","2nd compare wire","avg compare wire cluster z score","SNR by dimensions","SNR based on 2 Compare Wires", "Mean Spike Amplitude Per Channel","Mean Z Score Per Channel Cluster Only","Channels",...
     "Mean Z Score Per Channel all spikes in config","compare wire Mean z score Cluster Only","Compare Mean Z Score All Spikes In Config","Compare Wire Mean Amp"];  
     num_clusters = length(clusters);
-    grades = cell(num_clusters, 63);
+    grades = cell(num_clusters, 64);
     total_raw_spikes = 1:size(aligned, 2);
     all_peaks = get_peaks(aligned, true);
     temp = load('template.mat');
@@ -389,6 +389,9 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             end
             %NO LONGER USED predict_accuracy_using_twin_nn(compare_wire,second_compare_wire,all_peaks,config_struct,cluster_filter);
 
+            %grade 64 will be the bin counts of a histogram
+            grades{k,64} = get_bin_counts_per_rep_wire(peaks,size(channels,2));
+            
            
 
     end
