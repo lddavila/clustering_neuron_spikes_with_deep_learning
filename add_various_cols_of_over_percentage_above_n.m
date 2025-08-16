@@ -10,7 +10,7 @@ for i=1:size(gradience_levels_to_add,2)
     levels_of_granularity = gradience_levels_to_add(i);
     for ov_th_counter =1: size(overlap_thresholds_to_try,2)
         minimum_overlap_threshold = overlap_thresholds_to_try(ov_th_counter);
-        parfor j=1:size(actual_under_unit_class,1)
+        for j=1:size(actual_under_unit_class,1)
             current_data = sliced_bp_table{j};
             overlaps_with_all_units = current_data{1,"overlap % with all units"}{1};
             over_min_count = sum(overlaps_with_all_units>minimum_overlap_threshold,"all");
@@ -21,7 +21,7 @@ for i=1:size(gradience_levels_to_add,2)
             else
                 actual_under_unit_class(j) =over_min_count ;
             end
-            send(q,[])
+            %send(q,[])
         end
         table_of_gradience_and_threshold.(gradience_levels_to_add(i)+"_gradience_levels_overlap_threshold"+string(overlap_thresholds_to_try(ov_th_counter))) = actual_under_unit_class;
     end
