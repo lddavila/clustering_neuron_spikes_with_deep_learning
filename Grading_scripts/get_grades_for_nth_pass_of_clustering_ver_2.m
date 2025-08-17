@@ -12,7 +12,7 @@ grades_table = cell(size(blind_pass_table,1),1);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 print_message_using_dataqueue(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
     tetrode_number = split(current_tetrode,"t");
@@ -71,9 +71,6 @@ for i=1:size(sliced_blind_pass_table,1)
     grades_and_grades_fp_table = table(nan(size(grades,1),1),cell(size(grades,1),1),repelem("",size(grades,1),1),'VariableNames',["Cluster","grades","fp_to_grades"]);
     for k=1:size(grades_and_grades_fp_table,1)
         grades_and_grades_fp_table{k,"Cluster"} = k;
-        disp("grades");
-        disp(grades(k,:));
-        disp(grades(k,64));
         grades_and_grades_fp_table{k,"grades"} = {grades(k,:)};
         grades_and_grades_fp_table{k,"fp_to_grades"} = fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
     end
