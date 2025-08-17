@@ -82,7 +82,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         grades_and_grades_fp_table.(variables_from_original_data(k)) = repelem(current_data{1, variables_from_original_data(k)},size(grades_and_grades_fp_table,1),1);
     end
     grades_table{i} = grades_and_grades_fp_table;
-    disp(grades_and_grades_fp_table);
+    disp(grades_and_grades_fp_table{:,"grades"});
     send(q,[])
 
 end
