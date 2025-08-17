@@ -62,11 +62,12 @@ parfor i=1:size(sliced_blind_pass_table,1)
     grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config);
     grade_struct = struct();
     disp(grades);
-    disp("Size of grades");
-    disp(size(grades));
+
     for j=1:size(grades,2)
         grade_struct.("Grade_"+string(j)) = grades(:,j);
     end
+    disp("grade_struct");
+    disp(grade_struct.("Grade_64"));
     par_save(fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat"),grade_struct);
     
 
