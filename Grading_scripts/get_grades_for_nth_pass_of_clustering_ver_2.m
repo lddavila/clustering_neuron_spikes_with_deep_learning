@@ -12,7 +12,7 @@ grades_table = cell(size(blind_pass_table,1),1);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 print_message_using_dataqueue(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
     tetrode_number = split(current_tetrode,"t");
