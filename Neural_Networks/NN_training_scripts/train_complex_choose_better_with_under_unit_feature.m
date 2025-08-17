@@ -125,7 +125,7 @@ for gradience_level = possible_gradience_levels
                     num_neurons = filter_sizes(k);
                     disp("About to begin Training");
                     beginning_time = tic;
-                    [accuracy_score,net,~]= predict_acc_cat_using_leaky_relu(table_of_nn_data,spikesort_config,num_neurons,num_layers);
+                    [accuracy_score,net,~]= predict_acc_cat_using_leaky_relu(table_of_nn_data,num_neurons,num_layers);
                     end_time = toc(beginning_time);
 
                     disp("The last iteration took "+string(end_time)+" seconds")
