@@ -138,9 +138,9 @@ for gradience_level = possible_gradience_levels
                     net_struct.threshold_level = threshold_level;
 
                     if normalize_or_dont
-                        net.rescale_bounds = [-1 1];
-                        net.rescale_col_min = col_min;
-                        net.rescale_col_max = col_max;
+                        net_struct.rescale_bounds = [-1 1];
+                        net_struct.rescale_col_min = col_min;
+                        net_struct.rescale_col_max = col_max;
                     end
                     par_save(name_to_save_under+".mat",net_struct)
                 end
