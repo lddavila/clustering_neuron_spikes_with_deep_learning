@@ -166,7 +166,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         fclose(file_id);
     end
 else
-    disp("Blind pass has already been found.")
+    disp("Blind pass has already been run.")
     disp("If you'd like it to be recomputed then delete blind_pass.txt or change the save directory")
 end
 
@@ -178,6 +178,8 @@ else
     disp("A Blind Pass Table Has Been Found in your precomputed directory and will be loaded.")
     disp("If you wish to recreate the blind pass table please specficy different directory or delete existing blind pass table.")
 end
+disp("blind_pass_table size")
+disp(size(blind_pass_table));
 % step 12: Grade the blind pass results
 beginning_time = tic;
 disp("Beginning Grading")
