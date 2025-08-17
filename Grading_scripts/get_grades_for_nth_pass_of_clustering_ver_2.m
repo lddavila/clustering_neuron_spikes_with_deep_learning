@@ -61,6 +61,9 @@ parfor i=1:size(sliced_blind_pass_table,1)
     dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
     grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config);
     grade_struct = struct();
+    disp(grades);
+    disp("Size of grades");
+    disp(size(grades));
     for j=1:size(grades,2)
         grade_struct.("Grade_"+string(j)) = grades(:,j);
     end
