@@ -1,6 +1,6 @@
 function [bin_counts] = get_bin_counts_per_rep_wire(peaks,num_channels)
 
-bin_counts = cell(1,num_channels);
+bin_counts = [];
 for i=1:num_channels
     % Set up the representative wire for the cluster
     [~, max_wire] = max(peaks, [], 1);
@@ -9,7 +9,8 @@ for i=1:num_channels
     [~, max_n] = max(n);
     compare_wire = poss_wires(max_n);
     compare_peaks = peaks(compare_wire, :);
-    [bin_counts{i},~] = histcounts(compare_peaks,'BinEdges',[-200:1:199,200]);
+    [bin_counts_current,~] = histcounts(compare_peaks,'BinEdges',[-200:1:199,200]);
+    bin_counts = [bin_counts;bin_counts_current];
     peaks(compare_wire,:) = nan;
 end
 
