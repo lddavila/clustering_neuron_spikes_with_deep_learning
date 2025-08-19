@@ -98,6 +98,8 @@ possible_permutations ={};
 for i=1:size(all_hists{1},1)
     possible_permutations{end+1} =nchoosek(1:size(all_hists{1},1),i);
 end
+normalize_or_dont_possibilities = [1,0];
+
 for current_perm =1:size(possible_permutations,1)
     for which_hists =1:size(possible_permutations{current_perm},1)
         hists_to_use = possible_permutations{current_perm}(which_hists,:);
@@ -109,22 +111,39 @@ for current_perm =1:size(possible_permutations,1)
         parfor j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
             for k=1:size(filter_sizes,2)
-                num_neurons = filter_sizes(k);
-                disp("About to begin Training");
-                beginning_time = tic;
-                [accuracy_score,net,~]= predict_acc_cat_using_leaky_relu(table_of_nn_data,num_neurons,num_layers);
-                end_time = toc(beginning_time);
+                for normalize_or_dont =normalize_or_dont_possibilities
+                    if normalize_or_dont
+                        to_add = "_normalized";
+                        data_for_nn = table2array(table_of_nn_data);
+                        col_min = min(data_for_nn);
+                        col_max = max(data_for_nn);
+                        data_for_nn = rescale(array_of_nn_data,-1,1,"InputMax",col_max,"InputMin",col_min)
+                        final_nn_data = array2table(data_for_nn);
+                    else
+                        final_nn_data = table_of_nn_data;
+                        to_add = "";
+                    end
+                    num_neurons = filter_sizes(k);
+                    disp("About to begin Training");
+                    beginning_time = tic;
+                    [accuracy_score,net,~]= predict_acc_cat_using_leaky_relu(final_nn_data,num_neurons,num_layers);
+                    end_time = toc(beginning_time);
 
-                disp("The last iteration took "+string(end_time)+" seconds")
-                name_to_save_under = "accuracy score "+string(accuracy_score)+" num layers "+string(num_layers)+ " num neurons per layer"+string(num_neurons)+ " "+which_nn;
-                fileID = fopen(name_to_save_under+ ".txt",'w');
-                fclose(fileID);
-                net_struct = struct();
-                net_struct.Layers = net.Layers;
-                net_struct.Connections = net.Connections;
-                net_struct.net = net;
-                par_save(name_to_save_under+".mat",net_struct)
+                    disp("The last iteration took "+string(end_time)+" seconds")
+                    name_to_save_under = "acc_sc "+string(accuracy_score)+"_num_lay_ "+string(num_layers)+ "_num_neur_per_lay_"+string(num_neurons)+ " "+which_nn+to_add;
+                    net_struct = struct();
+                    net_struct.Layers = net.Layers;
+                    net_struct.Connections = net.Connections;
+                    net_struct.net = net;
+                    net_struct.hists = hists_to_use;
+                    if normalize_or_dont
+                        net_struct.feature_min = col_min;
+                        net_struct.feature_max = col_max;
+                        net_struct.bounds = [-1,1];
+                    end
+                    par_save(name_to_save_under+".mat",net_struct)
 
+                end
             end
         end
     end
