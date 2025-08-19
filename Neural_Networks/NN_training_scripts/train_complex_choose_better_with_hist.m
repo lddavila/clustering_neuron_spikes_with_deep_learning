@@ -108,7 +108,7 @@ for current_perm =1:size(possible_permutations,1)
         sample_right_hists = all_hists(remaining_idxs(:,2));
         sample_right_hists = cell2mat(cellfun(@(m) reshape(m(hists_to_use,:),1,[]),sample_right_hists, 'UniformOutput', false));
         table_of_nn_data= array2table([array_of_nn_data(:,1:end-1),sample_left_hists,sample_right_hists,array_of_nn_data(:,end)]);
-        parfor j=1:size(number_of_layers,2)
+        for j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
             for k=1:size(filter_sizes,2)
                 for normalize_or_dont =normalize_or_dont_possibilities
@@ -117,7 +117,7 @@ for current_perm =1:size(possible_permutations,1)
                         data_for_nn = table2array(table_of_nn_data);
                         col_min = min(data_for_nn);
                         col_max = max(data_for_nn);
-                        data_for_nn = rescale(array_of_nn_data,-1,1,"InputMax",col_max,"InputMin",col_min)
+                        data_for_nn = rescale(data_for_nn,-1,1,"InputMax",col_max,"InputMin",col_min);
                         final_nn_data = array2table(data_for_nn);
                     else
                         final_nn_data = table_of_nn_data;
