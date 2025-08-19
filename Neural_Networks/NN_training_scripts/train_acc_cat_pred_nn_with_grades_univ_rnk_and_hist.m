@@ -61,6 +61,14 @@ for i=1:1:100
     presorted_table{i}= blind_pass_table(presorted_table_rows(i),:);
 end
 
+%get the histograms for each row of blind pass table
+all_hists = vertcat(blind_pass_table{:,"grades"}{:});
+all_hists = all_hists(:,64);
+possible_permutations ={};
+for i=1:size(all_hists{1},1)
+    possible_permutations{end+1} =nchoosek(1:size(all_hists{1},1),i);
+end
+
 presorted_table = vertcat(presorted_table{:});
 presorted_grade_rows = grades_array(presorted_table_rows,:);
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
@@ -78,46 +86,54 @@ end
 blind_pass_table.rank = estimated_rank_col;
 
 
-for i=1:size(number_of_accuracy_categories,2)
-    number_of_accuracy_cats = number_of_accuracy_categories(i);
-    table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table,number_of_accuracy_cats);
-    table_of_nn_data =array2table([grades_array(:,:),estimated_rank_col./100,table_with_accuracy{:,"accuracy_category"}]);
-    table_of_nn_data = rmmissing(table_of_nn_data);
-    for j=1:size(number_of_layers,2)
-        num_layers = number_of_layers(j);
-        for k=1:size(filter_sizes,2)
-            normalize_or_dont_possibilities = [1,0];
-            for normalize_or_dont=normalize_or_dont_possibilities
-                if normalize_or_dont
-                    to_add = "_normalized";
-                    altered_data = table2array(table_of_nn_data);
-                    col_min = min(altered_data);
-                    col_max = max(altered_data);
-                    altered_data = rescale(altered_data,-1,1,"InputMax",col_max,"InputMin",col_min);
-                    final_nn_data = array2table(altered_data);
-                else
-                    to_add = "";
-                    final_nn_data = table_of_nn_data;
-                end
-                num_neurons = filter_sizes(k);
+for current_perm =1:size(possible_permutations,1)
+    for which_hists =1:size(possible_permutations{current_perm},1)
+        hists_to_use = possible_permutations{current_perm}(which_hists,:);
+        sample_left_hists = all_hists;
+        hist_data = cell2mat(cellfun(@(m) reshape(m(hists_to_use,:),1,[]),sample_left_hists, 'UniformOutput', false));
+        for i=1:size(number_of_accuracy_categories,2)
+            number_of_accuracy_cats = number_of_accuracy_categories(i);
+            table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table,number_of_accuracy_cats);
+            table_of_nn_data =array2table([grades_array(:,:),estimated_rank_col./100,hist_data,table_with_accuracy{:,"accuracy_category"}]);
+            table_of_nn_data = rmmissing(table_of_nn_data);
+            for j=1:size(number_of_layers,2)
+                num_layers = number_of_layers(j);
+                for k=1:size(filter_sizes,2)
+                    normalize_or_dont_possibilities = [1,0];
+                    for normalize_or_dont=normalize_or_dont_possibilities
+                        if normalize_or_dont
+                            to_add = "_normalized";
+                            altered_data = table2array(table_of_nn_data);
+                            col_min = min(altered_data);
+                            col_max = max(altered_data);
+                            altered_data = rescale(altered_data,-1,1,"InputMax",col_max,"InputMin",col_min);
+                            final_nn_data = array2table(altered_data);
+                        else
+                            to_add = "";
+                            final_nn_data = table_of_nn_data;
+                        end
+                        num_neurons = filter_sizes(k);
 
-                beginning_time = tic;
-                [accuracy_score,net,~]=predict_acc_cat_using_leaky_relu(final_nn_data,num_neurons,num_layers);
-                end_time = toc(beginning_time);
-                % disp("Projected end time:"+string(currentDateTime+end_time));
+                        beginning_time = tic;
+                        [accuracy_score,net,~]=predict_acc_cat_using_leaky_relu(final_nn_data,num_neurons,num_layers);
+                        end_time = toc(beginning_time);
+                        % disp("Projected end time:"+string(currentDateTime+end_time));
 
-                disp("The last iteration took "+string(end_time)+" seconds")
-                name_to_save_under = "acc_sc_"+string(accuracy_score)+"_num_acc_cats_" +string(number_of_accuracy_cats)+"_num_lay_"+string(num_layers)+ "_num_neur_per_lay"+string(num_neurons)+ "_"+which_nn+to_add;
-                net_struct = struct();
-                net_struct.Layers = net.Layers;
-                net_struct.Connections = net.Connections;
-                net_struct.net = net;
-                if normalize_or_dont
-                    net_struct.feature_min = col_min;
-                    net_struct.feature_max = col_max;
-                    net_struct.feature_bounds = [-1,1];
+                        disp("The last iteration took "+string(end_time)+" seconds")
+                        name_to_save_under = "acc_sc_"+string(accuracy_score)+"_num_acc_cats_" +string(number_of_accuracy_cats)+"_num_lay_"+string(num_layers)+ "_num_neur_per_lay"+string(num_neurons)+ "_"+which_nn+to_add;
+                        net_struct = struct();
+                        net_struct.Layers = net.Layers;
+                        net_struct.Connections = net.Connections;
+                        net_struct.net = net;
+                        net_struct.which_hists = hists_to_use;
+                        if normalize_or_dont
+                            net_struct.feature_min = col_min;
+                            net_struct.feature_max = col_max;
+                            net_struct.feature_bounds = [-1,1]; 
+                        end
+                        par_save(name_to_save_under+".mat",net_struct)
+                    end
                 end
-                par_save(name_to_save_under+".mat",net_struct)
             end
         end
     end
