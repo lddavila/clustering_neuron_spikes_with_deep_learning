@@ -105,10 +105,10 @@ for current_perm =1:size(possible_permutations,1)
         sample_left_hists = cell2mat(cellfun(@(m) reshape(m(hists_to_use,:),1,[]),sample_left_hists, 'UniformOutput', false));
         sample_right_hists = all_hists(remaining_idxs(:,2));
         sample_right_hists = cell2mat(cellfun(@(m) reshape(m(hists_to_use,:),1,[]),sample_right_hists, 'UniformOutput', false));
-        table_of_nn_data= [array_of_nn_data(:,1:end-1),sample_left_hists,sample_right_hists,array_of_nn_data(:,end)];
-        for j=1:size(number_of_layers,2)
+        table_of_nn_data= array2table([array_of_nn_data(:,1:end-1),sample_left_hists,sample_right_hists,array_of_nn_data(:,end)]);
+        parfor j=1:size(number_of_layers,2)
             num_layers = number_of_layers(j);
-            parfor k=1:size(filter_sizes,2)
+            for k=1:size(filter_sizes,2)
                 num_neurons = filter_sizes(k);
                 disp("About to begin Training");
                 beginning_time = tic;
