@@ -99,7 +99,7 @@ for i=1:size(all_hists{1},1)
     possible_permutations{end+1} =nchoosek(1:size(all_hists{1},1),i);
 end
 for current_perm =1:size(possible_permutations,1)
-    for which_hists =1:size(possible_permutations{current_perm})
+    for which_hists =1:size(possible_permutations{current_perm},1)
         hists_to_use = possible_permutations{current_perm}(which_hists,:);
         sample_left_hists = all_hists(remaining_idxs(:,1));
         sample_left_hists = cell2mat(cellfun(@(m) reshape(m(hists_to_use,:),1,[]),sample_left_hists, 'UniformOutput', false));
