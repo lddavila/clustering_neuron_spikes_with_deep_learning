@@ -2,6 +2,6 @@
 #SBATCH -n 40 
 #SBATCH -p medium 
 #SBATCH -o output.txt 
-#SBATCH -e error.txt 
+#SBATCH -e output.txt 
 module load matlab/R2024b
 matlab -batch "train_complex_choose_better_with_hist();exit;"
