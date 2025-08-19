@@ -109,7 +109,7 @@ config.IDXS_OF_GRADES_THAT_ARE_BETTER_SMALLER = [2 23 54 12 36 18 13 17 16 14 5 
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO ="D:\cluster_neuronspikes\Data\limited_cluster_plots_pngs";
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO_ON_HPC ="/scratch/lddavila/data_from_local_machine/100_by_100_cluster_pngs";
 
-config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS= fullfile(config.base_file_path,"Data","final_table_with_overlap_only_neurons.mat");
+config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS= fullfile(config.base_file_path,"Data","blind_pass_table.mat");
 config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS_ON_HPC = "/scratch/lddavila/data_from_local_machine/final_overlap_table/final_table_with_overlap_only_neurons.mat";
 
 %

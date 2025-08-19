@@ -6,18 +6,13 @@ cd(home_dir);
 number_of_accuracy_categories = [3];
 number_of_layers = 1:1:50;
 filter_sizes = [5 10 15 20 25 30 35 40 50];
-accuracy_array = cell(length(number_of_accuracy_categories),1);
 config = spikesort_config();
 
-if config.ON_HPC
-    parent_save_dir = config.parent_save_dir_ON_HPC;
-    blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS_ON_HPC);
-    choose_better_nn_struct = config.FP_TO_COMPLEX_CHOOSE_BETTER_NN_ON_HPC;
-else
-    parent_save_dir = config.parent_save_dir;
-    blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
-    choose_better_nn_struct = importdata(config.FP_TO_COMPLEX_CHOOSE_BETTER_NN);
-end
+
+parent_save_dir = config.parent_save_dir;
+blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
+choose_better_nn_struct = importdata(config.FP_TO_COMPLEX_CHOOSE_BETTER_NN);
+
 
 choose_better_nn = choose_better_nn_struct.net;
 disp("Finished loading the updated table of overlap")
