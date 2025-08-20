@@ -13,12 +13,13 @@ saveAsProfile(c, 'local_scratch');
 parpool('local_scratch', 40); 
 
 config.RECORDING_NAME = "10_100";
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
+fp_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"recursive_under_unit_grouping_results"));
+home_dir = cd(fp_to_save_to);
 
 
 final_cluster_groups = recursive_under_unit_grouping(blind_pass_table,config);
 
-fp_to_save_to = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"recursive_under_unit_grouping_results");
-save(final_cluster_groups, fp_to_save_to);
+
+save("final_results.mat","final_cluster_groups");
 disp("Finished saving recursive under unit grouping results");
 end

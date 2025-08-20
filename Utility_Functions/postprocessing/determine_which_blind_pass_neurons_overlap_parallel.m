@@ -23,13 +23,14 @@ for i=1:size(blind_pass_table,1)
     still_mergable_data = blind_pass_table(~already_merged,:);
 
     sliced_still_mergable_data = slice_table_for_parallel_processing(still_mergable_data,[]);
+    sliced_grades_array = slice_table_for_parallel_processing(grades_array(~already_merged,:),[]);
     mergable_clusters = [blind_pass_table(i,:)];
     indexes_to_merge = [];
     parfor j=1:size(sliced_still_mergable_data,1)
-        current_data = sliced_still_mergable_data{j};
+        current_data = sliced_still_mergable_data{j};   
         compare_neuron_ts = current_data{1,"timestamps"}{1};
         compare_neuron_waveform = current_data{1,"Mean Waveform"}{1};
-        compare_neuron_grades = cell2mat(current_data{1,"grades"}{1}(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
+        compare_neuron_grades = sliced_grades_array{j};
 
         current_overlap_percentage = get_overlap_percentage_between_2_cluster_ts(compare_neuron_ts,current_neuron_ts,config);
 
