@@ -26,8 +26,12 @@ for i=1:size(blind_pass_table,1)
     sliced_grades_array = slice_table_for_parallel_processing(grades_array(~already_merged,:),[]);
     mergable_clusters = [blind_pass_table(i,:)];
     indexes_to_merge = [];
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_message_using_dataqueue)
+    print_message_using_dataqueue(sum(~already_merged),"Created "+string(cluster_group_counter)+" so far "+" determine_which_blind_pass_neurons_overlap_parallel.m")
+
     parfor j=1:size(sliced_still_mergable_data,1)
-        current_data = sliced_still_mergable_data{j};   
+        current_data = sliced_still_mergable_data{j};
         compare_neuron_ts = current_data{1,"timestamps"}{1};
         compare_neuron_waveform = current_data{1,"Mean Waveform"}{1};
         compare_neuron_grades = sliced_grades_array{j};

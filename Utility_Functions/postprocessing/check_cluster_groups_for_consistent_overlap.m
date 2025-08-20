@@ -31,27 +31,36 @@ for i=1:size(cell_array_of_cluster_groups,2)
         cell_array_of_cluster_checks{j} = [current_group(lower_diag_row(j),:);current_group(lower_diag_col(j),:)];
     end
 
+    
+
     to_be_updated = zeros(1,size(lower_diag_row,1));
     number_of_its = size(lower_diag_row,1);
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_message_using_dataqueue)
+    print_message_using_dataqueue(number_of_its,string(i)+"/"+string(size(cell_array_of_cluster_groups,2))+" check_cluster_groupds_for_cosistent_overlap.m")
 
     parfor j=1:size(lower_diag_row,1)
         current_data = cell_array_of_cluster_checks{j};
         row_ts = current_data{1,"timestamps"}{1};
         row_mean_waveform = current_data{1,"Mean Waveform"}{1};
-        row_grades = cell2mat(current_data{1,"grades"}{1}(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
+
+        [grade_names,all_grades]= flatten_grades_cell_array(current_data{:,"grades"},config);
+        [indexes_of_grades_were_looking_for,~] = find(ismember(grade_names,config.NAMES_OF_CURR_GRADES(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST)));
+        grades_array = all_grades(:,indexes_of_grades_were_looking_for);
+        grades =reshape(grades_array.',1,[]);
 
         col_ts = current_data{2,"timestamps"}{1};
         col_mean_waveform = current_data{2,"Mean Waveform"}{1};
-        col_grades = cell2mat(current_data{2,"grades"}{1}(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
+ 
 
         current_overlap_percentage = get_overlap_percentage_between_2_cluster_ts(row_ts,col_ts,config);
 
-        data_for_nn =[row_mean_waveform,col_mean_waveform,row_grades,col_grades,current_overlap_percentage] ;
+        data_for_nn =[row_mean_waveform,col_mean_waveform,grades,current_overlap_percentage] ;
 
         mergable_or_not_probabilities = predict(nn,data_for_nn);
         [~,index_of_max] = max(mergable_or_not_probabilities);
         to_be_updated(j) = index_of_max-1;
-        print_status_iter_message("check_cluster_groups_for_consistent_overlap.m",[i,j],number_of_its);
+        send(q,[])
     end
     
     %now we update our overlap matrix 
