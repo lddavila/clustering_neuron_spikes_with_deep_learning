@@ -1,6 +1,10 @@
 function [] = test_recursive_under_unit_grouping()
-fp_to_cluster_groups = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
-blind_pass_table = importdata(fp_to_cluster_groups);
+home_dir = cd("..");
+cd("..");
+addpath(genpath(pwd));
+cd(home_dir);
+config = spikesort_config();
+blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 disp("Finished Loading Blind Pass Table ")
 
 home_dir = cd("..");
@@ -13,7 +17,7 @@ cd(home_dir);
 c = parcluster('local');
 c.JobStorageLocation = config.BLIND_PASS_DIR_PRECOMPUTED;
 saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', 37); 
+parpool('local_scratch', 40); 
 
 config.RECORDING_NAME = "10_100";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);

@@ -3,6 +3,12 @@ function [normalized_data,cell_array_of_col_min,cell_array_of_col_max] = normali
 %it's structure should match the structure of
 %assemble_data_for_neural_net.m
 %every item will be scaled between the specified intervals
+if isempty(data_to_normalize)
+    normalized_data = nan;
+    cell_array_of_col_min = nan;
+    cell_array_of_col_max = nan;
+    return;
+end
 normalized_data = cell(1,size(data_to_normalize,2));
 cell_array_of_col_min = cell(1,size(data_to_normalize,2));
 cell_array_of_col_max = cell(1,size(data_to_normalize,2));

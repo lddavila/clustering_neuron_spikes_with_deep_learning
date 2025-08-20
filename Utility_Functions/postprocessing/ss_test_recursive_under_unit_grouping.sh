@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH -n 37
+#SBATCH -n 40
 #SBATCH -p medium
 #SBATCH -o output.txt 
 #SBATCH -e error.txt 
