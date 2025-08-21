@@ -110,7 +110,7 @@ config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO ="D:\cluster_neuronspikes\Data\limited_
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO_ON_HPC ="/scratch/lddavila/data_from_local_machine/100_by_100_cluster_pngs";
 
 
-config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS= fullfile(config.base_file_path,"Data","blind_pass_table.mat");
+config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS= fullfile(config.base_file_path,"Data","blind_pass_table_with_all_mean_waveforms_new_grades.mat");
 
 config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS_ON_HPC = "/scratch/lddavila/data_from_local_machine/final_overlap_table/final_table_with_overlap_only_neurons.mat";
 
