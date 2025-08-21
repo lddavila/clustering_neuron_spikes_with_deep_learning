@@ -17,13 +17,14 @@ for i=1:size(blind_pass_table,1)
     end
     current_neuron_ts = blind_pass_table{i,"timestamps"}{1};
     already_merged(i) = 1;
-    current_neuron_waveform = blind_pass_table{i,"Mean Waveform"}{1};
+    current_neuron_waveform = blind_pass_table{i,"mean_waveform_rep_wire_1"}{1};
     current_neuron_grades = grades_array(i,:);
 
     still_mergable_data = blind_pass_table(~already_merged,:);
 
     sliced_still_mergable_data = slice_table_for_parallel_processing(still_mergable_data,[]);
     sliced_grades_array = slice_table_for_parallel_processing(grades_array(~already_merged,:),[]);
+
     mergable_clusters = [blind_pass_table(i,:)];
     indexes_to_merge = [];
     q = parallel.pool.DataQueue;
@@ -35,6 +36,7 @@ for i=1:size(blind_pass_table,1)
         compare_neuron_ts = current_data{1,"timestamps"}{1};
         compare_neuron_waveform = current_data{1,"Mean Waveform"}{1};
         compare_neuron_grades = sliced_grades_array{j};
+
 
         current_overlap_percentage = get_overlap_percentage_between_2_cluster_ts(compare_neuron_ts,current_neuron_ts,config);
 
@@ -52,7 +54,7 @@ for i=1:size(blind_pass_table,1)
             mergable_clusters = [mergable_clusters;current_data];
             indexes_to_merge = [indexes_to_merge;current_data{1,"orig_index"}];
         end
-        
+
 
     end
     clusters_organized_by_same_group{cluster_group_counter} = mergable_clusters;

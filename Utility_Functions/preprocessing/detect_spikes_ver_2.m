@@ -8,6 +8,9 @@ parfor i=1:length(ordered_list_of_channels)
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel+".mat"));
     channel_data = channel_data * scale_factor;
     z_score_data = importdata(fullfile(dir_with_z_scores,current_channel+".mat"));
+    if class(z_score_data) == "struct"
+        z_score_data = z_score_data.channel_wize_z_score_data;
+    end
 
     channel_data(abs(z_score_data) < min_z_score) = 0;
 

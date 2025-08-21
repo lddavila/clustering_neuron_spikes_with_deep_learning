@@ -36,7 +36,7 @@ end
 [indexes_of_grades_were_looking_for,~] = find(ismember(grade_names,config.NAMES_OF_CURR_GRADES(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST)));
 grades_array = all_grades(:,indexes_of_grades_were_looking_for);
 disp("Finished Flattening Grades")
-mean_waveform_array = cell2mat(blind_pass_table{:,"Mean Waveform"});
+mean_waveform_array = cell2mat(blind_pass_table{:,"mean_waveform_rep_wire_1"});
 for i=granularity_levels
     blind_pass_table = add_number_of_overlap_percentages_above_one_col(blind_pass_table,i);
     cd(dir_to_save_accuracy_cat_to);   

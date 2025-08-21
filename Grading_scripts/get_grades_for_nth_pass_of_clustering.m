@@ -55,7 +55,7 @@ parfor i=1:length(list_of_tetrodes)
 
 
 
-    save(current_tetrode+" Grades.mat",'-fromstruct',grade_struct);
+    par_save(current_tetrode+" Grades.mat",grade_struct);
 
 
     disp(string(min_z_score)+" Finished "+string(i)+"/"+string(number_of_tetrodes));

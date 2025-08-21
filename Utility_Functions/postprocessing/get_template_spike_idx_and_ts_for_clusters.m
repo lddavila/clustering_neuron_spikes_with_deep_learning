@@ -54,7 +54,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         timestamp_cell_array{j} = timestamps(cluster_filter);
     end
     current_data.("cluster_idx") = idx_cell_array;
-    current_data.("Mean Waveform") = mean_waveform_cell_array;
+    current_data.("mean_waveform_rep_wire_1") = mean_waveform_cell_array;
     current_data.("timestamps") = timestamp_cell_array;
     disp("Finished "+string(i)+"/"+string(number_of_iterations))
     sliced_blind_pass_table{i} = current_data;

@@ -42,6 +42,7 @@ for i=1:size(cell_array_of_cluster_groups,2)
     parfor j=1:size(lower_diag_row,1)
         current_data = cell_array_of_cluster_checks{j};
         row_ts = current_data{1,"timestamps"}{1};
+
         row_mean_waveform = current_data{1,"Mean Waveform"}{1};
 
         [grade_names,all_grades]= flatten_grades_cell_array(current_data{:,"grades"},config);
@@ -52,6 +53,7 @@ for i=1:size(cell_array_of_cluster_groups,2)
         col_ts = current_data{2,"timestamps"}{1};
         col_mean_waveform = current_data{2,"Mean Waveform"}{1};
  
+
 
         current_overlap_percentage = get_overlap_percentage_between_2_cluster_ts(row_ts,col_ts,config);
 

@@ -5,12 +5,12 @@ cd(examples_dir);
 disp("Finished Adding path")
 %% step 2: Get the config Necessary for current Example
 config = spikesort_config();
-config.RECORDING_NAME = "10_100";
+config.RECORDING_NAME = "100Neuron300SecondRecordingWithLevel4Noise";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
 startup;
 disp("Finished Setting Recording Name")
 %% (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
-config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","10_100Neuron300SecondRecordingWithLevel1Noise.h5.mat");
+config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
 disp("Finished Setting directories")

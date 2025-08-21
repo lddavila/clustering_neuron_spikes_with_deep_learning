@@ -29,7 +29,7 @@ grades_array = all_grades(:,indexes_of_grades_were_looking_for);
 disp("Finished Flattening Grades")
 
 %get the mean waveform from each row
-mean_waveform_array = cell2mat(blind_pass_table{:,"Mean Waveform"});
+mean_waveform_array = cell2mat(blind_pass_table{:,"mean_waveform_rep_wire_1"});
 
 disp("Finished Getting Mean Waveform Array")
 
@@ -109,7 +109,7 @@ for j=1:size(number_of_layers,2)
         net_struct.Layers = net.Layers;
         net_struct.Connections = net.Connections;
         net_struct.net = net;
-        save(name_to_save_under+".mat","-fromstruct",net_struct)
+        par_save(name_to_save_under+".mat",net_struct)
 
     end
 end
