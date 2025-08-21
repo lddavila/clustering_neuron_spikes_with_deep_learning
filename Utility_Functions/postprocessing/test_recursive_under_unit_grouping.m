@@ -1,30 +1,25 @@
 function [] = test_recursive_under_unit_grouping()
-fp_to_cluster_groups = "/scratch/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/10_100/blind_pass_table/blind_pass_table.mat";
-blind_pass_table = importdata(fp_to_cluster_groups);
-disp("Finished Loading Blind Pass Table ")
-
 home_dir = cd("..");
-cd("..")
+cd("..");
 addpath(genpath(pwd));
-disp("Finished adding path")
-config = spikesort_config();
 cd(home_dir);
+config = spikesort_config();
+blind_pass_table = importdata(fullfile(config.base_file_path,"Data","final_table_with_overlap_only_neurons.mat"));
+disp("Finished Loading Blind Pass Table ")
 
 c = parcluster('local');
 c.JobStorageLocation = config.BLIND_PASS_DIR_PRECOMPUTED;
 saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', 37); 
+parpool('local_scratch', 40); 
 
 config.RECORDING_NAME = "10_100";
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
-c1 = blind_pass_table{:,"is_neuron"}==1;
-c2 = blind_pass_table{:,"grades_pred"} >0;
-blind_pass_table_only_neur_filtered = blind_pass_table(boolean(c1)& boolean(c2),:);
-disp("Finsihed filtering")
+fp_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"recursive_under_unit_grouping_results"));
+home_dir = cd(fp_to_save_to);
 
-final_cluster_groups = recursive_under_unit_grouping(blind_pass_table_only_neur_filtered,config);
 
-fp_to_save_to = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"recursive_under_unit_grouping_results");
-save(final_cluster_groups, fp_to_save_to);
+final_cluster_groups = recursive_under_unit_grouping(blind_pass_table,config);
+
+
+save("final_results.mat","final_cluster_groups");
 disp("Finished saving recursive under unit grouping results");
 end

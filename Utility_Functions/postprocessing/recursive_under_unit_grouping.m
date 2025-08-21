@@ -1,19 +1,22 @@
 function [surviving_groups] = recursive_under_unit_grouping(blind_pass_table,config)
 ungrouped_clusters = blind_pass_table;
-new_groups = determine_which_blind_pass_neurons_overlap(ungrouped_clusters,config);
+new_groups = determine_which_blind_pass_neurons_overlap_parallel(ungrouped_clusters,config);
 disp("Finished Getting First Set Of Groups")
+save("results_of_first_pass.mat","new_groups");
 disp(size(new_groups));
 surviving_groups = {}; 
-while size(ungrouped_clusters,1) ~=0
+iterations_counter = 1;
+while size(ungrouped_clusters,1) ~=0 && iterations_counter<10
     disp("Beginning ungrouping process")
     [new_groups,ungrouped_clusters] = check_cluster_groups_for_consistent_overlap(new_groups,config);
+    save("Results of phase"+string(iterations_counter)+".mat","ungrouped_clusters","new_groups");
     disp("Finished ungrouping")
     disp("Number of ungrouped clusters:"+string(size(ungrouped_clusters,1)));
     for i=1:size(new_groups,2)
         surviving_groups{end+1} = new_groups{i};
     end
-
-    new_groups = determine_which_blind_pass_neurons_overlap(ungrouped_clusters,config);
+    new_groups = determine_which_blind_pass_neurons_overlap_parallel(ungrouped_clusters,config);
+    iterations_counter = iterations_counter+1;
 end
 
 end

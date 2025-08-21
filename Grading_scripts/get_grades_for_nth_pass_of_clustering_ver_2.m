@@ -61,10 +61,11 @@ parfor i=1:size(sliced_blind_pass_table,1)
     dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
     grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config);
     grade_struct = struct();
+
     for j=1:size(grades,2)
         grade_struct.("Grade_"+string(j)) = grades(:,j);
     end
-    par_save(fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat"),'-fromstruct',grade_struct);
+    par_save(fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat"),grade_struct);
     
 
     grades_and_grades_fp_table = table(nan(size(grades,1),1),cell(size(grades,1),1),repelem("",size(grades,1),1),'VariableNames',["Cluster","grades","fp_to_grades"]);
@@ -78,6 +79,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         grades_and_grades_fp_table.(variables_from_original_data(k)) = repelem(current_data{1, variables_from_original_data(k)},size(grades_and_grades_fp_table,1),1);
     end
     grades_table{i} = grades_and_grades_fp_table;
+    %disp(grades_and_grades_fp_table{:,"grades"});
     send(q,[])
 
 end
