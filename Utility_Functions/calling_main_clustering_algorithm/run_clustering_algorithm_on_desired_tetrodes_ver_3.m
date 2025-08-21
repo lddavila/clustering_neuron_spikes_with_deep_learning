@@ -12,7 +12,7 @@ sliced_channel_wise_means = cell(size(list_of_available_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_available_tetrodes,2),1);
 
 filenames = repelem("",1,length(list_of_available_tetrodes));
-for j=1:length(list_of_desired_tetrodes)
+for j=1:length(list_of_available_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_available_tetrodes(j)+".mat");
 end
 for i=1:length(list_of_available_tetrodes)
