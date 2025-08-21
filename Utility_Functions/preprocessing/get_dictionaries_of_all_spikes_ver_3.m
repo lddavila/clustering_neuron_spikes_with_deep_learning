@@ -25,16 +25,26 @@ function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,
 %numdp: number of datapoints
 %timing_tetrode_dictionary
 
-% status_file = fopen(config.FP_TO_STATUS_FILE,"a");
+
+list_of_available_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
+list_of_available_channels = string(list_of_available_channels{:,"name"});
+list_of_available_channels = strrep(list_of_available_channels,".mat","");
+list_of_available_channels = strrep(list_of_available_channels,"c","");
+list_of_available_channels = str2double(list_of_available_channels);
 
 parfor i=1:size(art_tetr_array,1)
+    channels_in_current_tetrode = art_tetr_array(i,:);
+    all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
+    if ~all(any(all_channels_are_available))
+        continue;
+    end
     tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
     timing_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     channel_to_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spiking_channel_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
-    channels_in_current_tetrode = art_tetr_array(i,:);
+    
     tetrode_dictionary("t"+string(i)) = channels_in_current_tetrode;
     sorted_spike_windows_for_current_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     for j=1:length(channels_in_current_tetrode)
@@ -60,13 +70,13 @@ parfor i=1:size(art_tetr_array,1)
     sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
     
 
-    save(fullfile(dictionaries_dir,"t"+string(i)+" tetrode_dictionary.mat"),"-fromstruct",tetrode_dictionary);
-    save(fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictonary.mat"),"-fromstruct",spike_tetrode_dictionary)
-    save(fullfile(dictionaries_dir,"t"+string(i)+" timing_tetrode_dictionary.mat"),"-fromstruct",timing_tetrode_dictionary)
-    save(fullfile(dictionaries_dir,"t"+string(i)+" channel_to_tetrode_dictionary.mat"),"-fromstruct",channel_to_tetrode_dictionary)
-    save(fullfile(dictionaries_dir,"t"+string(i)+" spiking_channel_tetrode_dictionary.mat"),"-fromstruct",spiking_channel_tetrode_dictionary)
-    save(fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictionary_samples_format.mat"),"-fromstruct",spike_tetrode_dictionary_samples_format);
-    save(fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat"),"-fromstruct",sorted_spike_windows_for_current_tetrode_dictionary);
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" tetrode_dictionary.mat"),tetrode_dictionary);
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictonary.mat"),spike_tetrode_dictionary)
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" timing_tetrode_dictionary.mat"),timing_tetrode_dictionary)
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" channel_to_tetrode_dictionary.mat"),channel_to_tetrode_dictionary)
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" spiking_channel_tetrode_dictionary.mat"),spiking_channel_tetrode_dictionary)
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictionary_samples_format.mat"),spike_tetrode_dictionary_samples_format);
+    par_save(fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat"),sorted_spike_windows_for_current_tetrode_dictionary);
 
     
     % status_message ="\n"+print_status_iter_message("get_dicationaries_of_all_spikes_ver_3.m");

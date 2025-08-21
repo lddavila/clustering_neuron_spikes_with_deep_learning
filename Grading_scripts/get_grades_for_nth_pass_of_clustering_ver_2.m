@@ -27,7 +27,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     aligned_fp = current_data{1,"fp_to_aligned"};
     output_fp = current_data{1,"fp_to_output"};
     try
-        ts_r_tvals_cc_struct = load(ts_and_r_vals_fp ,"timestamps","r_tvals","cleaned_clusters");
+        ts_r_tvals_cc_struct = importdata(ts_and_r_vals_fp ,"timestamps","r_tvals","cleaned_clusters");
         timestamps = ts_r_tvals_cc_struct.timestamps;
         r_tvals = ts_r_tvals_cc_struct.r_tvals;
         cleaned_clusters = ts_r_tvals_cc_struct.cleaned_clusters;
@@ -37,7 +37,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         continue;
     end
     try
-        aligned_struct = load(aligned_fp,"aligned");
+        aligned_struct = importdata(aligned_fp,"aligned");
         aligned = aligned_struct.aligned;
     catch
         disp("failed to load");
@@ -45,7 +45,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         continue;
     end
     try
-        output_struct = load(output_fp,"output");
+        output_struct = importdata(output_fp,"output");
         output = output_struct.output;
     catch
         disp("failed to load");

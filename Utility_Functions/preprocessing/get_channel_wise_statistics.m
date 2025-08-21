@@ -1,12 +1,11 @@
-function [channel_wise_mean,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_data,z_score_dir,scale_factor,config,what_is_computed)
+function [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_data,z_score_dir,scale_factor,config,what_is_computed)
 % z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_z_score_files_to);
 % disp("Created Z Score directory")
 disp("Beginning get_channel_wise_statistics.m");
 channel_wise_mean_unmapped = nan(1,size(ordered_list_of_channels,2));
 channel_wise_std_unmapped = nan(1,size(ordered_list_of_channels,2));
 
-channel_wise_mean = nan(1,config.max_channel_number);
-channel_wise_std = nan(1,config.max_channel_number);
+
 
 % status_log = fopen(config.FP_TO_STATUS_FILE,'a');
 num_of_iterations = size(ordered_list_of_channels,2);
@@ -39,14 +38,16 @@ parfor i=1:length(ordered_list_of_channels)
 end
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),what_is_computed)
     create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std"));
+    channel_wise_means = nan(1,config.max_channel_number);
+    channel_wise_std = nan(1,config.max_channel_number);
     for i=1:length(ordered_list_of_channels)
-        channel_wise_mean(sliced_channel_numbers(i)) = channel_wise_mean_unmapped(i);
+        channel_wise_means(sliced_channel_numbers(i)) = channel_wise_mean_unmapped(i);
         channel_wise_std(sliced_channel_numbers(i)) = channel_wise_std_unmapped(i);
     end
-    save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),"channel_wise_mean","channel_wise_std");
+    save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),"channel_wise_means","channel_wise_std");
 else
     disp("mean and Std file has been detected in your precomputed directory. If you'd like it recalculated then delete it or change your precomputed directory.")
-    load(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),'channel_wise_mean','channel_wise_std') %loads the previously found mean and std
+    load(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),'channel_wise_means','channel_wise_std') %loads the previously found mean and std
 end
 
 end

@@ -11,18 +11,22 @@ end
 
 sliced_channel_wise_means = cell(size(list_of_desired_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_desired_tetrodes,2),1);
-for i=1:size(list_of_desired_tetrodes,2)
+
+list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
+list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
+for i=1:length(list_of_available_dictionaries)
     current_tetrode = list_of_desired_tetrodes(i);
-    tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
+    tetrode_dictionary = importdata(fullfile(dictionaries_dir,list_of_available_dictionaries(i)));
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
+list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
 
-parfor i=1:size(list_of_desired_tetrodes,2)
+parfor i=1:length(list_of_available_tetrodes)
     beginning_time = tic;
-    current_tetrode = list_of_desired_tetrodes(i);
+    current_tetrode = list_of_available_tetrodes(i);
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
     aligned_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
     reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
@@ -39,19 +43,19 @@ parfor i=1:size(list_of_desired_tetrodes,2)
 
 
 
-    tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
+    tetrode_dictionary = importdata(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
-    spike_tetrode_dictionary =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"),"spike_tetrode_dictionary");
+    spike_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     spike_tetrode_dictionary = spike_tetrode_dictionary.spike_tetrode_dictionary;
-    timing_tetrode_dictionary =load(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"),"timing_tetrode_dictionary");
+    timing_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
     timing_tetrode_dictionary =timing_tetrode_dictionary.timing_tetrode_dictionary;
-    sorted_spike_windows_dictionary = load(fullfile(dictionaries_dir,current_tetrode+" sorted_spike_windows.mat"),"sorted_spike_windows_for_current_tetrode_dictionary");
+    sorted_spike_windows_dictionary = importdata(fullfile(dictionaries_dir,current_tetrode+" sorted_spike_windows.mat"));
     sorted_spike_windows_dictionary = sorted_spike_windows_dictionary.sorted_spike_windows_for_current_tetrode_dictionary;
     sorted_spike_windows = sorted_spike_windows_dictionary(current_tetrode);
 
 
 
-    spike_tetrode_dictionary_samples_format =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"),"spike_tetrode_dictionary_samples_format");
+    spike_tetrode_dictionary_samples_format =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     raw = spike_tetrode_dictionary(current_tetrode);

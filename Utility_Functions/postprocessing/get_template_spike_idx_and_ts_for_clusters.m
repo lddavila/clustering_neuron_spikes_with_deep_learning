@@ -4,11 +4,12 @@ number_of_iterations =size(unique_aligned_fps,1);
 
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
 
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
 
     try
         aligned = importdata(current_data{1,"fp_to_aligned"});
+        aligned = aligned.aligned;
     catch
         disp("Failed to load aligned file")
         disp(current_data{1,"fp_to_aligned"})
@@ -17,6 +18,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
     try
         output = importdata(current_data{1,"fp_to_output"});
+        output = output.output;
     catch
         disp("Failed to load output file")
         disp(current_data{1,"fp_to_output"})
@@ -25,6 +27,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
     try
         timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
+        timestamps = timestamps.reg_timestamps_of_the_spikes;
     catch
         disp("Failed to load timestamps of spikes");
         disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});

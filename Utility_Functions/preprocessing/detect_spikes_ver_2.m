@@ -17,8 +17,10 @@ parfor i=1:length(ordered_list_of_channels)
     [~,pk_locs] = findpeaks(channel_data);
     spikes_matrix_unmapped{i} = pk_locs;
 end
-for i=1:size(ordered_list_of_channels,2)
-    spikes_matrix{str2double(strrep(ordered_list_of_channels(i),"c",""))} = spikes_matrix_unmapped{i};
+channels = strrep(ordered_list_of_channels,"c","");
+channels = strrep(channels,".mat","");
+for i=1:length(channels)
+    spikes_matrix{str2double(channels(i))} = spikes_matrix_unmapped{i};
 end
 % status_message = "\n"+print_status_iter_message("detect_spikes_ver_2.m",i,num_iterations);
 % fprintf(status_file,status_message);

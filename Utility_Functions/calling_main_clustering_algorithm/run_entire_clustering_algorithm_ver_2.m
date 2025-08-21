@@ -50,7 +50,7 @@ save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel
 end_time = toc(beginning_time);
 fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
 %step 8: Get the channel groupings
-clc;
+% clc;
 art_tetr_array = config.ART_TETR_ARRAY;
 
 
@@ -81,7 +81,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         % step 9c; Get all the data points from the potential spikes
         beginning_time = tic;
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-        if ~ismember(spike_windows_dir,what_is_computed)
+        if ~ismember(fullfile(spike_windows_dir,"spike_windows.mat"),what_is_computed)
             spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
             %each array is made up of 4 numbers:
             %the first is the beginning of the spike window
@@ -102,7 +102,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
         % step 9d: get maps of each tetrode to its spikes
         if ~ismember(dictionaries_dir,what_is_computed)
-            clc;
+            % clc;
             get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
             %tetrode_dictionary
             %keys: "t" + tetrode number
@@ -145,7 +145,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         % Step 9e: Run Clustering Algorithm
         % close all;
 
-        clc;
+        % clc;
         array_of_desired_tetrodes = strcat("t",string(1:size(art_tetr_array,1)));
         % disp(size(array_of_desired_tetrodes));
         beginning_time = tic;
@@ -154,7 +154,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
         [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
         end_time = toc(beginning_time);
-        fprintf("Core Clustering for z score %f finished, it took %f seconds",min_z_score,end_time);
+        fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
         file_name = "blind_pass.txt";
         file_id = fopen(fullfile(precomputed_dir,file_name),'w');
         fclose(file_id);
@@ -165,8 +165,10 @@ else
 end
 
 %step 11: read the results of the blind pass into a table
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
 if ~ismember(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),what_is_computed)
     blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
+    save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
 else
     blind_pass_table = importdata(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"));
     disp("A Blind Pass Table Has Been Found in your precomputed directory and will be loaded.")
@@ -179,6 +181,7 @@ beginning_time = tic;
 disp("Beginning Grading")
 if ~ismember(fullfile(precomputed_dir,"finished_grading.txt"),what_is_computed)
     blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
+    save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
     file_name = "finished_grading.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');
     fclose(file_id);
@@ -187,11 +190,12 @@ else
     disp("To regrade, delete finished_grading.txt");
 end
 end_time = toc(beginning_time);
-fprintf("Finished grading, it took %f seconds",end_time);
+fprintf("Finished grading, it took %f seconds\n",end_time);
 
 %step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
 if ~ismember(fullfile(precomputed_dir,"finished_adding_mw.txt"),what_is_computed)
     blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
+    save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
     file_name = "finished_adding_mw.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');
     fclose(file_id);
@@ -203,15 +207,15 @@ end
 %step 15: add the neuron or MUA or not col
 if ~ismember(fullfile(precomputed_dir,"finished_adding_mua_or_not_col.txt"),what_is_computed)
     blind_pass_table = add_is_neuron_col(blind_pass_table,config);
+    save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
     file_name = "finished_adding_mua_or_not_col.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');
     fclose(file_id);
 else
     disp("is neuron or not column exists. Skipping.")
-    disp("To readd the column, delete inished_adding_mua_or_not_col.txt")
+    disp("To read the column, delete inished_adding_mua_or_not_col.txt")
 end
 %step 16: save the blind pass table to the desired file
-create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
 save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
 
 fp_to_blind_pass_table = fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat");
