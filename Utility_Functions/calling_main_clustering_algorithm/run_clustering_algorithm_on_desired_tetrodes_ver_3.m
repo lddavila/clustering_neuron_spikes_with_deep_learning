@@ -1,4 +1,4 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
+function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
 disp("Beginning Core Clustering Algorithm")
 output_array = cell(1,length(list_of_desired_tetrodes));
 aligned_array = cell(1,length(list_of_desired_tetrodes));
@@ -14,19 +14,17 @@ sliced_channel_stds = cell(size(list_of_desired_tetrodes,2),1);
 
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
-for i=1:length(list_of_available_dictionaries)
-    current_tetrode = list_of_desired_tetrodes(i);
+list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
+for i=1:length(list_of_available_tetrodes)
+    current_tetrode = list_of_available_tetrodes(i);
     tetrode_dictionary = importdata(fullfile(dictionaries_dir,list_of_available_dictionaries(i)));
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
-    disp("current_tetrode")
-    disp(current_tetrode)
-    disp("avilable_keys")
-    disp(keys(tetrode_dictionary))
+
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
-list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
+
 
 parfor i=1:length(list_of_available_tetrodes)
     beginning_time = tic;
