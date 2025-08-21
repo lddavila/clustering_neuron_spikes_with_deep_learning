@@ -61,6 +61,7 @@ permutations_table = get_table_of_all_permutations_for_nn_training(["num_acc_cat
 filter_sizes_cell_array =  cell(size(permutations_table,1),1);
 num_layers_cell_array =  cell(size(permutations_table,1),1);
 training_sets = cell(size(permutations_table,1),1);
+num_acc_cats_as_cell_array = cell(size(permutations_table,1),1);
 place_counter = 1;
 for j=number_of_accuracy_categories
     %get the accuracy category according to permutations
@@ -78,13 +79,22 @@ for j=number_of_accuracy_categories
         %now add the accuracy category
 
         training_sets{place_counter} = array2table([hist_data,table_with_accuracy{:,"accuracy_category"}]);
+        num_acc_cats_as_cell_array{place_counter} = j;
         disp(place_counter)
         place_counter = place_counter+1;
     end
 end
 
 %now train various neural networks based off of those datasets to detect which permutation of training data produced the highest accuracy
+cd(dir_to_save_results_to);
 parfor i=1:size(training_sets,1)
-    predict_acc_cat_using_leaky_relu(training_sets{i},filter_sizes_cell_array{i},num_layers_cell_array{i});
+    [accuracy,net,layers] = predict_acc_cat_using_leaky_relu(training_sets{i},filter_sizes_cell_array{i},num_layers_cell_array{i});
+    net_struct = struct();
+    net_struct.net = net;
+    net_struct.layers = layers;
+    num_acc_cats = num_acc_cats_as_cell_array{i};
+    save_name = sprintf('%.4f_accurate_%i_acc_cats_num_layers_%i_num_neur_pr_lyer_%i dataset %i',accuracy,num_acc_cats,num_layers_cell_array{i},filter_sizes_cell_array{i},i);
+    par_save(save_name+".mat",net_struct);
 end
+cd(home_dir)
 end
