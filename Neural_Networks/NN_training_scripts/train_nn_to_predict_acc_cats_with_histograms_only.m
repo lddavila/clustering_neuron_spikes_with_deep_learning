@@ -67,6 +67,7 @@ for j=number_of_accuracy_categories
     %get the accuracy category according to permutations
     table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table(:,"accuracy"),j);
     subset_of_perms_table = permutations_table(permutations_table{:,"num_acc_cats"}==j,:);
+   
     for i=1:size(subset_of_perms_table,1)
         %first check which histograms should be used
         which_hists_row = subset_of_perms_table{i,"which_hists"};
@@ -78,7 +79,10 @@ for j=number_of_accuracy_categories
         filter_sizes_cell_array{place_counter} = subset_of_perms_table{i,"filter_sizes"};
         %now add the accuracy category
 
-        training_sets{place_counter} = array2table([hist_data,table_with_accuracy{:,"accuracy_category"}]);
+        training_set_data = array2table([hist_data,table_with_accuracy{:,"accuracy_category"}]);
+        %now remove any rows that may have produced nans
+        training_set_data(isnan(training_set_data{:,end}),:) = [];
+        training_sets{place_counter} = training_set_data;
         num_acc_cats_as_cell_array{place_counter} = j;
         disp(place_counter)
         place_counter = place_counter+1;
