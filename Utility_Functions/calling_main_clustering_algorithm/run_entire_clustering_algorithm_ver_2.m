@@ -34,12 +34,6 @@ config.ALREADY_DONE_FILES = what_is_computed;
 % step 6: get or make the z_score channel data directory (only done once)
 if ~ismember(fullfile(precomputed_dir,"z_score"),what_is_computed) %means that the z_score matrix is already computed and we will skip computing it again
     z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"z_score")); %not yet computed
-    create_z_score_matrix = 1;
-else
-    z_score_dir = fullfile(precomputed_dir,"z_score"); %in this case it already exists
-    create_z_score_matrix = 0;
-    disp("Z score directory already exists.")
-    disp("To Have it recomputed please delete exisiting z score directory or change precomputed dir.")
 end
 disp("Finished Creating Z Score Directory");
 % disp(z_score_dir);
@@ -49,7 +43,7 @@ disp("Finished Creating Z Score Directory");
 beginning_time = tic;
 if ~ismember(fullfile(precomputed_dir,"mean_and_std","mean_and_std.mat"),what_is_computed) %means that the channel wise mean and standard deviation are already computed so we will skip computing them again
     %                                       get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_data,z_score_dir, save_z_score,scale_factor,config)
-    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,create_z_score_matrix,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
+    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,scale_factor,config); %will get the mean and std of every channel and calculate z_score for data set if not yet created
     mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"mean_and_std"));
     save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
 else
