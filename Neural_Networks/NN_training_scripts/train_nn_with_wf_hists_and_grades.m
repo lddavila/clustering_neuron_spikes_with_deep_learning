@@ -98,7 +98,9 @@ for j=number_of_accuracy_categories
         grades_data = normalize_data(assembled_data(contains(list_of_features_to_add,"grades")),-1,1);
         grades_data = grades_data{1};
 
-        training_set_data = array2table([waveform_data,hist_data,grades_data,table_with_accuracy{:,"accuracy_category"}]);
+        size_data =assembled_data{contains(list_of_features_to_add,"size")}; 
+
+        training_set_data = array2table([waveform_data,hist_data,grades_data,size_data,table_with_accuracy{:,"accuracy_category"}]);
         %now remove any rows that may have produced nans
         training_set_data(isnan(training_set_data{:,end}),:) = [];
         training_sets{place_counter} = training_set_data;
