@@ -16,7 +16,7 @@ sliced_channel_numbers = str2double(strrep(ordered_list_of_channels,"c",""));
 
 parfor i=1:size(ordered_list_of_channels,2)
     current_channel = sliced_list_of_channels{i};
-    current_file = fullfile(dir_with_channel_data,current_channel+".mat");
+    current_file = fullfile(dir_with_channel_data,current_channel);
     channel_data = importdata(current_file);
     channel_wise_mean_unmapped(i) = mean(channel_data*scale_factor);
     channel_wise_std_unmapped(i) = std(channel_data * scale_factor,0,"all"); %possible error in that I didn't multiply channel data by scale_factor when calculating std
