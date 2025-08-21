@@ -12,8 +12,8 @@ for i=1:size(list_of_features_to_add,2)
     current_feature = list_of_features_to_add(i);
     if current_feature== "grades"
         assembled_data{i} =  flatten_grades_caller(blind_pass_table,config);
-    elseif contains(current_feature,"mean waveform")
-        assembled_data{i} = get_mean_waveform_from_table(blind_pass_table);
+    elseif contains(current_feature,"mean_waveform")
+        assembled_data{i} = get_mean_waveform_from_table(blind_pass_table,current_feature);
     elseif contains(current_feature,"histogram")
         assembled_data{i} = get_histograms_from_bp_table(blind_pass_table,current_feature);
     elseif current_feature== "universal_rank"

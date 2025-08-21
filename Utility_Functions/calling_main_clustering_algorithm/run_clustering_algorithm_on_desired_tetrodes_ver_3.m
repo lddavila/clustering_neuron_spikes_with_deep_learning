@@ -18,6 +18,10 @@ for i=1:length(list_of_available_dictionaries)
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = importdata(fullfile(dictionaries_dir,list_of_available_dictionaries(i)));
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
+    disp("current_tetrode")
+    disp(current_tetrode)
+    disp("avilable_keys")
+    disp(keys(tetrode_dictionary))
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
