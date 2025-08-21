@@ -69,6 +69,7 @@ num_layers_cell_array =  cell(size(permutations_table,1),1);
 training_sets = cell(size(permutations_table,1),1);
 num_acc_cats_as_cell_array = cell(size(permutations_table,1),1);
 place_counter = 1;
+disp("Beginning training set assembly");
 for j=number_of_accuracy_categories
     %get the accuracy category according to permutations
     table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table(:,"accuracy"),j);
