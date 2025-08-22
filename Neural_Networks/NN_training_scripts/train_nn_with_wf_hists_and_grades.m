@@ -111,7 +111,7 @@ for k=1:number_of_batches_required_to_run_all_permutations
         %now remove any rows that may have produced nans
         training_set_data(isnan(training_set_data{:,end}),:) = [];
         training_sets{place_counter} = training_set_data;
-        num_acc_cats_as_cell_array{place_counter} = permutations_table{place_counter,"num_acc_cats"};
+        num_acc_cats_as_cell_array{place_counter} = permutations_table{i,"num_acc_cats"};
         if mod(place_counter,40)==0
             disp("Finished Data Assembly")
         end
