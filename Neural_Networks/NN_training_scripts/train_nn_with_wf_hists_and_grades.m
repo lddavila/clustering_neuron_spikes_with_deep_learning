@@ -115,8 +115,8 @@ for k=1:number_of_batches_required_to_run_all_permutations
         if mod(place_counter,40)==0
             disp("Finished Data Assembly")
         end
+        which_row_in_perms_table{place_counter} = permutations_table_counter;
         place_counter = place_counter+1;
-        which_row_in_perms_table{i} = permutations_table_counter;
         permutations_table_counter = permutations_table_counter+1;
     end
 
