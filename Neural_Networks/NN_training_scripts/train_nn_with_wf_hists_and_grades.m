@@ -14,7 +14,7 @@ blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 parent_save_dir = config.parent_save_dir;
 disp("Finished Loading Data")
 
-dir_to_save_results_to = fullfile(parent_save_dir,"waves_hists_and_scaling");
+dir_to_save_results_to = fullfile(parent_save_dir,"acc_cat_prediction_using_wf_hists_and_norm_grades");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);
 end
@@ -67,11 +67,13 @@ number_of_batches_required_to_run_all_permutations = ceil(size(permutations_tabl
 
 disp("Beginning training set assembly");
 cd(dir_to_save_results_to);
+permutations_table_counter = 1;
 for k=1:number_of_batches_required_to_run_all_permutations
     place_counter = 1;
     filter_sizes_cell_array =  cell(40,1);
     num_layers_cell_array =  cell(40,1);
     num_acc_cats_as_cell_array = cell(40,1);
+    which_row_in_perms_table = cell(40,1);
 
     training_sets = cell(40,1);
     for i=(k-1)*40 + 1:min(k*40, height(permutations_table))
@@ -99,7 +101,7 @@ for k=1:number_of_batches_required_to_run_all_permutations
         filter_sizes_cell_array{place_counter} = permutations_table{i,"filter_sizes"};
 
         %now normalize the grade data
-        grades_data = normalize_data(assembled_data(contains(list_of_features_to_add,"grades")),-1,1);
+        [grades_data,cell_array_of_col_min,cell_array_of_col_max]= normalize_data(assembled_data(contains(list_of_features_to_add,"grades")),-1,1);
         grades_data = grades_data{1};
 
         size_data =assembled_data{contains(list_of_features_to_add,"size")};
@@ -114,6 +116,8 @@ for k=1:number_of_batches_required_to_run_all_permutations
             disp("Finished Data Assembly")
         end
         place_counter = place_counter+1;
+        which_row_in_perms_table{i} = permutations_table_counter;
+        permutations_table_counter = permutations_table_counter+1;
     end
 
     %now train various neural networks based off of those datasets to detect which permutation of training data produced the highest accuracy
@@ -122,8 +126,11 @@ for k=1:number_of_batches_required_to_run_all_permutations
         net_struct = struct();
         net_struct.net = net;
         net_struct.layers = layers;
+        net_struct.normalization_col_min =cell_array_of_col_min;
+        net_struct.normalization_col_max = cell_array_of_col_max;
+        net_struct.normalization_bounds = [-1 1];
         num_acc_cats = num_acc_cats_as_cell_array{j};
-        save_name = sprintf('%.4f_accurate_%i_acc_cats_num_layers_%i_num_neur_pr_lyer_%i dataset %i',accuracy,num_acc_cats,num_layers_cell_array{j},filter_sizes_cell_array{j},j);
+        save_name = sprintf('%.4f_accurate_%i_acc_cats_num_layers_%i_num_neur_pr_lyer_%i dataset %i',accuracy,num_acc_cats,num_layers_cell_array{j},filter_sizes_cell_array{j},which_row_in_perms_table{j});
         par_save(save_name+".mat",net_struct);
     end
     clear("training_sets");
