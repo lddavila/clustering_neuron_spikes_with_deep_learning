@@ -62,21 +62,23 @@ permutations_table = get_table_of_all_permutations_for_nn_training(["num_acc_cat
     number_of_accuracy_categories,number_of_layers,filter_sizes,num_mean_wave_and_hist_combos);
 
 
-
+number_of_batches_required_to_run_all_permutations = ceil(size(permutations_table,1) / 40); %where 40 is the number of workers available AKA how many neural networks can be trained at once
 %now assemble your training data sets based off of your desired permutations
 filter_sizes_cell_array =  cell(size(permutations_table,1),1);
 num_layers_cell_array =  cell(size(permutations_table,1),1);
-training_sets = cell(size(permutations_table,1),1);
+
 num_acc_cats_as_cell_array = cell(size(permutations_table,1),1);
 disp("Beginning training set assembly");
 cd(dir_to_save_results_to);
 for k=1:number_of_batches_required_to_run_all_permutations
     place_counter = 1;
-    for j=((k-1)*40)+1:min(k*40, size(permutations_table,1))
+
+    for j=number_of_accuracy_categories
         %get the accuracy category according to permutations
         table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table(:,"accuracy"),j);
         subset_of_perms_table = permutations_table(permutations_table{:,"num_acc_cats"}==j,:);
-        for i=1:size(subset_of_perms_table,1)
+        training_sets = cell(40,1);
+        for i=((k-1)*40)+1:min(k*40, size(permutations_table,1))
             %first get the row which determines which waveform and histogram
             %combination will be used
             which_waveform_and_histogram= subset_of_perms_table{i,"which_hists_and_waves"};
@@ -113,19 +115,20 @@ for k=1:number_of_batches_required_to_run_all_permutations
             end
             place_counter = place_counter+1;
         end
+        parfor i=1:size(training_sets,1)
+            [accuracy,net,layers] = predict_acc_cat_using_leaky_relu(training_sets{i},filter_sizes_cell_array{i},num_layers_cell_array{i});
+            net_struct = struct();
+            net_struct.net = net;
+            net_struct.layers = layers;
+            num_acc_cats = num_acc_cats_as_cell_array{i};
+            save_name = sprintf('%.4f_accurate_%i_acc_cats_num_layers_%i_num_neur_pr_lyer_%i dataset %i',accuracy,num_acc_cats,num_layers_cell_array{i},filter_sizes_cell_array{i},i);
+            par_save(save_name+".mat",net_struct);
+        end
+        clear("training_sets");
     end
     %now train various neural networks based off of those datasets to detect which permutation of training data produced the highest accuracy
 
-    parfor i=1:size(training_sets,1)
-        [accuracy,net,layers] = predict_acc_cat_using_leaky_relu(training_sets{i},filter_sizes_cell_array{i},num_layers_cell_array{i});
-        net_struct = struct();
-        net_struct.net = net;
-        net_struct.layers = layers;
-        num_acc_cats = num_acc_cats_as_cell_array{i};
-        save_name = sprintf('%.4f_accurate_%i_acc_cats_num_layers_%i_num_neur_pr_lyer_%i dataset %i',accuracy,num_acc_cats,num_layers_cell_array{i},filter_sizes_cell_array{i},i);
-        par_save(save_name+".mat",net_struct);
-    end
-    clear("training_sets");
+
 end
 cd(home_dir)
 end
