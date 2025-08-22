@@ -48,8 +48,8 @@ end
 array_of_all_mean_wf_and_hist_combos = combvec(1:size(table_of_all_waveforms,1),1:size(table_of_all_hists,1)).';
 
 %set some hyperparameters for the series of trainings we will be doing
-number_of_accuracy_categories = [3,4,5];
-number_of_layers = 1:15;
+number_of_accuracy_categories = [3];
+number_of_layers = 1:8;
 filter_sizes = 5:5:20;
 num_mean_wave_and_hist_combos = 1:size(array_of_all_mean_wf_and_hist_combos);
 
@@ -106,7 +106,7 @@ for j=number_of_accuracy_categories
         training_set_data(isnan(training_set_data{:,end}),:) = [];
         training_sets{place_counter} = training_set_data;
         num_acc_cats_as_cell_array{place_counter} = j;
-        if mod(place_counter,1000)==0
+        if mod(place_counter,100)==0
             disp(place_counter)
         end
         place_counter = place_counter+1;
