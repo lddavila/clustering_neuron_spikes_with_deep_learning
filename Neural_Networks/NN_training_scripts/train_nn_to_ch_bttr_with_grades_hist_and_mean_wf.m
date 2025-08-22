@@ -116,7 +116,7 @@ for k=1:number_of_batches_required_to_run_all_permutations
         random_is_left_better = is_left_better_col(rand_indexes,:);
 
         %now assemble all the data
-        training_set_data = [training_set_array(random_training_data_idxs(:,1),:),training_set_array(random_training_data_idxs(:,2),:),random_is_left_better];
+        training_set_data = array2table([training_set_array(random_training_data_idxs(:,1),:),training_set_array(random_training_data_idxs(:,2),:),random_is_left_better]);
 
         %now remove any rows that may have produced nans
         training_set_data(isnan(training_set_data{:,end}),:) = [];
