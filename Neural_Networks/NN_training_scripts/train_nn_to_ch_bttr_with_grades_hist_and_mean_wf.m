@@ -69,9 +69,6 @@ is_left_better_col = blind_pass_table{all_possible_ways_to_select_two_clusters(:
 
 
 %now assemble your training data sets based off of your desired permutations
-filter_sizes_cell_array =  cell(size(permutations_table,1),1);
-num_layers_cell_array =  cell(size(permutations_table,1),1);
-training_sets = cell(size(permutations_table,1),1);
 
 disp("Beginning training set assembly");
 rng(0);
@@ -80,6 +77,9 @@ number_of_batches_required_to_run_all_permutations = ceil(size(permutations_tabl
 cd(dir_to_save_results_to);
 for k=1:number_of_batches_required_to_run_all_permutations
     place_counter = 1;
+    training_sets = cell(40,1);
+    filter_sizes_cell_array =  cell(40,1);
+    num_layers_cell_array =  cell(40,1);
     for i=((k-1)*40)+1:min(k*40, size(permutations_table,1))
         %first get the row which determines which waveform and histogram
         %combination will be used
