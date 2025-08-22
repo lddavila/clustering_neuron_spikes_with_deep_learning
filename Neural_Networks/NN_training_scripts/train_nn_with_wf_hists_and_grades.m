@@ -78,7 +78,7 @@ for k=1:number_of_batches_required_to_run_all_permutations
         table_with_accuracy = add_accuracy_col_on_hpc([],spikesort_config(),blind_pass_table(:,"accuracy"),j);
         subset_of_perms_table = permutations_table(permutations_table{:,"num_acc_cats"}==j,:);
         training_sets = cell(40,1);
-        for i=((k-1)*40)+1:min(k*40, size(permutations_table,1))
+        for i=(k-1)*40 + 1:min(k*40, height(subset_of_perms_table))
             %first get the row which determines which waveform and histogram
             %combination will be used
             which_waveform_and_histogram= subset_of_perms_table{i,"which_hists_and_waves"};
