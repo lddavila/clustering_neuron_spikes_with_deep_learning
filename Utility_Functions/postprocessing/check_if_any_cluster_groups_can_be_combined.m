@@ -3,7 +3,8 @@ recombined_groups = [];
 %get the highest percentile example within each group
 best_per_group = [];
 original_group = [];
-parfor i =1:size(cell_array_of_cluster_groups,2)
+for i =1:size(cell_array_of_cluster_groups,2)
+    disp(i)
     current_data = cell_array_of_cluster_groups{i}; 
     current_data = sortrows(current_data,"Percentile");
     best_example = current_data(end,:);
