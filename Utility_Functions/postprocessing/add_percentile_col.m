@@ -10,9 +10,11 @@ for i=1:size(cell_array_of_cluster_groups,2)
     grades_array = all_grades(:,indexes_of_grades_were_looking_for);
     
     %now get a list of all possible ways to select 2 clusters at a time
-    all_combos_of_2_clusters = nchoosek(1:height(current_data),2);
+    all_combos_of_2_clusters = nchoosek(1:height(current_data),min([height(current_data),2]));
 
-    
+    if size(all_combos_of_2_clusters,1) == size(all_combos_of_2_clusters,2) && size(all_combos_of_2_clusters,1)==1
+        continue;
+    end
     %remove any rows where a cluster is compared to itself
     all_combos_of_2_clusters(all_combos_of_2_clusters(:,1)==all_combos_of_2_clusters(:,2)) = [];
     
