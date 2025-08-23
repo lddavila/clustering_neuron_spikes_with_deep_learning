@@ -1,4 +1,4 @@
-function [] = add_percentile_col(cell_array_of_cluster_groups,config)
+function [cell_array_of_cluster_groups] = add_percentile_col(cell_array_of_cluster_groups,config)
 nn_struct = importdata(config.FP_TO_COMPLEX_CHOOSE_BETTER_NN);
 choose_better_nn = nn_struct.net;
 for i=1:size(cell_array_of_cluster_groups,2)
@@ -21,7 +21,7 @@ for i=1:size(cell_array_of_cluster_groups,2)
     cell_array_of_grades= cell(size(all_combos_of_2_clusters,1),1);
     cell_array_of_is_left_better_counts= cell(size(all_combos_of_2_clusters,1),1);
     for j=1:size(cell_array_of_comparisons,1)
-        cell_array_of_comparisons{j} = current_data([all_combos_of_2_clusters(j,1),all_combos_of_2_clusters(j,2)],:);
+        cell_array_of_comparisons{j} = current_data([all_combos_of_2_clusters(j,1),all_combos_of_2_clusters(j,2)],["mean_waveform_rep_wire_1","timestamps"]);
         cell_array_of_grades{j} = grades_array([all_combos_of_2_clusters(j,1),all_combos_of_2_clusters(j,2)],:);
         cell_array_of_is_left_better_counts{j} = 0;
     end
@@ -68,6 +68,6 @@ for i=1:size(cell_array_of_cluster_groups,2)
     percentile = 100 *(sum(matrix_of_counts,2) ./ (size(matrix_of_counts,2)-1));
     current_data.("Percentile") = percentile;
    cell_array_of_cluster_groups{i} = current_data; 
-   disp("finished"+string(i));
+   disp("finished "+string(i));
 end
 end
