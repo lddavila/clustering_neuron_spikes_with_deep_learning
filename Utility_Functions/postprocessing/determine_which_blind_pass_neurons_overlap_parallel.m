@@ -27,7 +27,7 @@ for i=1:size(blind_pass_table,1)
     sliced_still_mergable_data = slice_table_for_parallel_processing(cut_down_data,[]);
     sliced_grades_array = slice_table_for_parallel_processing(grades_array(~already_merged,:),[]);
 
-    mergable_clusters = [blind_pass_table(i,:)];
+    mergable_clusters = [blind_pass_table(i,["timestamps","mean_waveform_rep_wire_1","orig_index"])];
     indexes_to_merge = [];
     q = parallel.pool.DataQueue;
     afterEach(q,@print_message_using_dataqueue)
@@ -56,10 +56,10 @@ for i=1:size(blind_pass_table,1)
             mergable_clusters = [mergable_clusters;current_data];
             indexes_to_merge = [indexes_to_merge;current_data{1,"orig_index"}];
         end
-
+        send(q,[]);
 
     end
-    clusters_organized_by_same_group{cluster_group_counter} = mergable_clusters;
+    clusters_organized_by_same_group{cluster_group_counter} = blind_pass_table(mergable_clusters{:,"orig_index"},:);
     already_merged(indexes_to_merge) = 1;
     cluster_group_counter = cluster_group_counter+1;
 
