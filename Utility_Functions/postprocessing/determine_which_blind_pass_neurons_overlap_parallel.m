@@ -22,7 +22,9 @@ for i=1:size(blind_pass_table,1)
 
     still_mergable_data = blind_pass_table(~already_merged,:);
 
-    sliced_still_mergable_data = slice_table_for_parallel_processing(still_mergable_data,[]);
+    cut_down_data = still_mergable_data(:,["timestamps","mean_waveform_rep_wire_1","orig_index"]);
+
+    sliced_still_mergable_data = slice_table_for_parallel_processing(cut_down_data,[]);
     sliced_grades_array = slice_table_for_parallel_processing(grades_array(~already_merged,:),[]);
 
     mergable_clusters = [blind_pass_table(i,:)];
