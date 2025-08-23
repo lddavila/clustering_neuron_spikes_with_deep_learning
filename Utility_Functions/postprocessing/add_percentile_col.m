@@ -13,6 +13,7 @@ for i=1:size(cell_array_of_cluster_groups,2)
     all_combos_of_2_clusters = nchoosek(1:height(current_data),min([height(current_data),2]));
 
     if size(all_combos_of_2_clusters,1) == size(all_combos_of_2_clusters,2) && size(all_combos_of_2_clusters,1)==1
+        current_data.("Percentile") = 1;
         continue;
     end
     %remove any rows where a cluster is compared to itself
