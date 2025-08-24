@@ -1,4 +1,5 @@
 function [] = test_add_percentile_col()
+clc;
 home_dir = cd("..");
 cd("..")
 addpath(genpath(pwd));
