@@ -18,8 +18,9 @@ for i=1:size(list_of_features_to_add,2)
         assembled_data{i} = get_histograms_from_bp_table(blind_pass_table,current_feature);
     elseif current_feature== "universal_rank"
         assembled_data{i} = get_universal_rank_caller(blind_pass_table,config);
-    elseif current_feature== "under_unit"
-
+    elseif contains(current_feature,"under_unit")
+        assembled_data{i} = get_under_unit_info_with_n_levels_of_grad_and_min_threshold_m(blind_pass_table,current_feature);
+        %current_feature= "under_unit_gradienceLevelN_minThresholdM";
     elseif current_feature=="size"
         assembled_data{i} =  get_size_of_cluster_from_bp_table(blind_pass_table);
     end
