@@ -19,5 +19,7 @@ parfor i=1:size(blind_pass_table,1)
     end
 
 end
+disp("finished getting under unit for")
+disp(string_that_contains_gradience_and_threshold_level)
 
 end
