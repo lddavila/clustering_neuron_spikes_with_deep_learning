@@ -23,8 +23,9 @@ disp("Finished Creating directory")
 blind_pass_table_only_neurons = blind_pass_table(blind_pass_table{:,"is_neuron"}==1,:);
 blind_pass_table_only_neurons_filt = blind_pass_table_only_neurons(blind_pass_table_only_neurons{:,"grades_pred"}>0,:);
 begining =tic;
-determine_which_blind_pass_neurons_overlap_parallel(blind_pass_table_only_neurons_filt,spikesort_config)
+results_of_50_unit_grouping = determine_which_blind_pass_neurons_overlap_parallel(blind_pass_table_only_neurons_filt,spikesort_config);
 elapsed_time = toc(begining);
-
+cd(dir_to_save_results_to);
+save("results_of_50_units.mat","results_of_50_unit_grouping");
 disp("Finished it took "+string(elapsed_time)+" seconds");
 end
