@@ -50,7 +50,7 @@ config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 
 
 
-config.TIME_DELTA = 0.004;
+config.TIME_DELTA = 0.0002;
 config.IS_IDEAL_DIMS_PASS = true;
 
 config.MIN_IMPROV_THRESH = 0.1;
