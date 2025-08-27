@@ -1,9 +1,11 @@
 function [blind_pass_table] = add_ks4_score(blind_pass_table,config)
+beginning = tic;
 ground_truth_array = importdata(config.GT_FP);
 timestamps = importdata(config.TIMESTAMP_FP);
 disp("Finished importing ground truth and timestamps");
 time_delta = config.TIME_DELTA;
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,["Max Overlap Unit"]);
+
 for i=1:size(sliced_bp_table,1)
    % If an estimated spike from a detected unit was less than or equal to
    % 0.2 ms from a ground-truth spike it was counted as a positive match.
@@ -62,7 +64,7 @@ for i=1:size(sliced_bp_table,1)
        end
        
        
-       disp(string(i)+" " +string(j)+"/"+string(size(current_data,1)))
+       % disp(string(i)+" " +string(j)+"/"+string(size(current_data,1)))
 
    end
    current_data.ks4_score = ks4_score;
@@ -70,4 +72,6 @@ for i=1:size(sliced_bp_table,1)
 
 end
 blind_pass_table = vertcat(sliced_bp_table{:});
+ending = toc(beginning);
+disp("It took "+string(ending)+" seconds")
 end
