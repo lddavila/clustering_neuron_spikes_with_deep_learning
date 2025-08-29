@@ -50,7 +50,7 @@ config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 
 
 
-config.TIME_DELTA = 0.004;
+config.TIME_DELTA = 0.0002;
 config.IS_IDEAL_DIMS_PASS = true;
 
 config.MIN_IMPROV_THRESH = 0.1;
@@ -202,6 +202,9 @@ config.FP_TO_PRESORTED_TABLE = fullfile(config.base_file_path,"Neural_Networks",
 
 
 config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"Neural_Networks","multi_under_units_predictor","acc_score_0.92163_num_layers_5_n_n_per_layer30_multi_under_units_27.1735_seconds_used_mean_waveform.mat");
+
+config.ACG_THRESHOLD = 0.2; %per kilosort4 paper
+config.CCG_THRESHOLD = 0.25; %per kilosort4 paper
 
 
 % ORIGINAL BEGINS HERE
