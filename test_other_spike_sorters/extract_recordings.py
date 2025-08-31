@@ -45,8 +45,8 @@ def extract_recordings(fp_to_ephys_file,sampling_frequency=30000.0,num_channels=
     #now create read the decompresed file
     file_path = os.path.join(fp_to_ephys_file,"sim.imec0.ap.bin")
     # Confirm file existence
-    print(file_path);
-    assert file_path.is_file(), f"Error: {file_path} is not a valid file. Please check the path."
+    #print(file_path)
+    assert os.path.isfile(file_path), f"Error: {file_path} is not a valid file. Please check the path."
 
     #read the binary file into a recording object
     recording = si.read_binary(file_paths=file_path, sampling_frequency=sampling_frequency, num_channels=num_channels, dtype=dtype,gain_to_uV=gain_to_uV, offset_to_uV=offset_to_uV)
