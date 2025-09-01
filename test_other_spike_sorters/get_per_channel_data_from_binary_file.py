@@ -1,9 +1,7 @@
 from scipy.io import savemat
 import os
 def get_per_channel_data_from_binary_file(recording,dir_to_save_output,list_of_channels,dur):
-    #list_of_channels = list(range(num_channels))
-    #gain_to_uV = 0.195  # normally should be in the parameters file, but here it's hardcoded because it's the closest we could find
-    #offset_to_uV = 0   # normally in parameters file 
+    print("Getting per channel data from binary file")
     sf = recording.get_sampling_frequency()
     dur = recording.get_duration()
     t0   = 0.0        # start time (s)
