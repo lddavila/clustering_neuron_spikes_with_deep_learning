@@ -69,7 +69,7 @@ def extract_recordings(fp_to_ephys_file,sampling_frequency=30000.0,num_channels=
     #read the binary file into a recording object
     recording = si.read_binary(file_paths=file_path, sampling_frequency=sampling_frequency, num_channels=num_channels, dtype=dtype,gain_to_uV=gain_to_uV, offset_to_uV=offset_to_uV)
 
-    get_per_channel_data_from_binary_file(recording,dir_to_save_output,list(range(num_channels)),dur,gain_to_uV,offset_to_uV,sampling_frequency,dtype,num_channels)
+    get_per_channel_data_from_binary_file(recording,dir_to_save_output,list(range(num_channels)),dur)
     get_timestamps_for_recording(recording,dir_to_save_output)
     fp_to_npz_file = os.path.join(fp_to_ephys_file,"sim.imec0.ap_params.npz");
     get_gt_from_params_npz_file(fp_to_npz_file,dir_to_save_output)
