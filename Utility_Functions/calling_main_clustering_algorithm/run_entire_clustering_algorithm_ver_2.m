@@ -90,12 +90,13 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
         if ~ismember(fullfile(spike_windows_dir,"spike_windows.mat"),what_is_computed)
             spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
+            spike_windows_data = whos("spike_windows");
             %each array is made up of 4 numbers:
             %the first is the beginning of the spike window
             %the second is the end of the spike_window
             %the third is the original channel of the spike
             %the fourth is the original the peak of the spike according to find_peaks'
-            if spikes_per_channel_info.bytes >= twoGB_in_bytes
+            if spike_windows_data.bytes >= twoGB_in_bytes
                 save(fullfile(spike_windows_dir,"spike_windows.mat"),"spike_windows", '-v7.3', '-nocompression');
             else
                 save(fullfile(spike_windows_dir,"spike_windows.mat"),"spike_windows");
