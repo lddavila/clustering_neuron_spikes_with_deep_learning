@@ -58,6 +58,8 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
 
+twoGB_in_bytes = 2 * 1024^3; % 2 * (1024 * 1024 * 1024) %used to check for larger files as expected in real simulations
+
 if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
     for min_z_score=z_scores_to_check
         % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
@@ -68,7 +70,12 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
         if ~ismember(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),what_is_computed)
             spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
-            save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
+            spikes_per_channel_info = whos('spikes_per_channel');
+            if spikes_per_channel_info.bytes >= twoGB_in_bytes
+                save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"), "spikes_per_channel", '-v7.3', '-nocompression');
+            else
+                save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
+            end
         else
             disp("spikes_per_channel min_z_score "+ string(min_z_score)+ " has been detected and will be skipped.")
             disp("To recalculate delete the original or change your precomputed directory.")
@@ -88,7 +95,11 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
             %the second is the end of the spike_window
             %the third is the original channel of the spike
             %the fourth is the original the peak of the spike according to find_peaks'
-            save(fullfile(spike_windows_dir,"spike_windows.mat"),"spike_windows");
+            if spikes_per_channel_info.bytes >= twoGB_in_bytes
+                save(fullfile(spike_windows_dir,"spike_windows.mat"),"spike_windows", '-v7.3', '-nocompression');
+            else
+                save(fullfile(spike_windows_dir,"spike_windows.mat"),"spike_windows");
+            end
         else
             disp("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps) + " has been detected and will be skipped.")
             disp("To recalculate delete the original or change your precomputed directory.")
