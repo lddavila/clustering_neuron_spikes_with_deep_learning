@@ -5,7 +5,7 @@ cd(examples_dir);
 disp("Finished Adding path")
 %% step 2: Get the config Necessary for current Example
 config = spikesort_config();
-config.RECORDING_NAME = "sim_no_drift_our_algorithm_compat";
+config.RECORDING_NAME = "sim_no_drift_decompressed";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
 startup;
 disp("Finished Setting Recording Name")
