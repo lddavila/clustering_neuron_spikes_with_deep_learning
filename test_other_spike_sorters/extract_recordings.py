@@ -28,6 +28,7 @@ def extract_recordings(fp_to_ephys_file,sampling_frequency=30000.0,num_channels=
             for start in range(0, n_samples, chunk):
                 end = min(start + chunk, n_samples)
                 mm[start:end, :] = arr[start:end, :].astype(dtype_np, copy=False)
+                print(f"Decompressed samples {start} to {end} / {n_samples}")
             mm.flush()
             print("Decompression complete: wrote sim.imec0.ap.bin")
         finally:
