@@ -16,4 +16,4 @@ def get_per_channel_data_from_binary_file(recording,dir_to_save_output,list_of_c
         return_in_uV=True,).squeeze();
         mat_dict = {f"c_{i+1}": channel_data}
         savemat(os.path.join(dir_to_save_output,"recordings_by_channel",f"c{i+1}.mat"), mat_dict)
-        #print(f"Saved channel {i} data to {os.path.join(dir_to_save_output,'recordings_by_channel',f'channel_{i}.mat')}")
+        print("Finished channel ",i+1, " out of ",len(list_of_channels))
