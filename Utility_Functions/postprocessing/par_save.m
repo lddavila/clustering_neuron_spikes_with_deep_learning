@@ -7,7 +7,9 @@ twoGB_in_bytes = 2 * 1024^3; % 2 * (1024 * 1024 * 1024) %used to check for large
 data_to_save_data = whos("data_to_save");
 %check if the file is too large to save in normal format
 if data_to_save_data.bytes >= twoGB_in_bytes
+    disp("Made it into -v7.3 save condition")
     save(file_save_name,"data_to_save", '-v7.3', '-nocompression');
+    disp("Finished -v7.3 save")
 else
     save(file_save_name,"data_to_save");
 end
