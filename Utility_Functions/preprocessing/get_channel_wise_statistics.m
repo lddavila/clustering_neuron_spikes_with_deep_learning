@@ -8,12 +8,14 @@ channel_wise_std_unmapped = nan(1,size(ordered_list_of_channels,2));
 
 
 % status_log = fopen(config.FP_TO_STATUS_FILE,'a');
-num_of_iterations = size(ordered_list_of_channels,2);
+num_iterations = size(ordered_list_of_channels,2);
 
 sliced_list_of_channels = num2cell(ordered_list_of_channels);
 ordered_list_of_channels = strrep(ordered_list_of_channels,".mat","");
 sliced_channel_numbers = str2double(strrep(ordered_list_of_channels,"c",""));
-
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+print_message_using_dataqueue(num_iterations,"get_channel_wise_statistics.m")
 parfor i=1:length(ordered_list_of_channels)
     current_channel = sliced_list_of_channels{i};
     if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),what_is_computed) || ~exist(fullfile(z_score_dir,current_channel),"file")
