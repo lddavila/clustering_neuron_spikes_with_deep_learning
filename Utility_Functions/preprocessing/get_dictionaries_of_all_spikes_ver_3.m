@@ -31,7 +31,10 @@ list_of_available_channels = string(list_of_available_channels{:,"name"});
 list_of_available_channels = strrep(list_of_available_channels,".mat","");
 list_of_available_channels = strrep(list_of_available_channels,"c","");
 list_of_available_channels = str2double(list_of_available_channels);
-
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+num_iterations = size(art_tetr_array,1);
+print_message_using_dataqueue(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 parfor i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
@@ -81,6 +84,7 @@ parfor i=1:size(art_tetr_array,1)
     
     % status_message ="\n"+print_status_iter_message("get_dicationaries_of_all_spikes_ver_3.m");
     % fwrite(status_file,status_message);
+    send(q,[]);
 end
 % fclose(status_file);
 end
