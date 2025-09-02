@@ -59,7 +59,7 @@ idxs_of_under_unit = find(contains(list_of_features_to_add,"under_unit"));
 array_of_all_mean_wf_and_hist_combos = combvec(1:size(table_of_all_waveforms,1),1:size(table_of_all_hists,1)).';
 
 %set some hyperparameters for the series of trainings we will be doing
-number_of_accuracy_categories = [3];
+number_of_accuracy_categories = [4];
 number_of_layers = 1:15;
 filter_sizes = 5:5:20;
 num_mean_wave_and_hist_combos = 1:size(array_of_all_mean_wf_and_hist_combos);
