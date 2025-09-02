@@ -35,10 +35,8 @@ for i=1:length(ordered_list_of_channels)
                 spike_windows_unmapped{i}{j} = int32([0,0,0,0]);
             end
         end
+        print_status_iter_message("get_spike_windows_ver_2.m",[i,j],number_of_iterations);
     end
-    % status_message = "\n"+print_status_iter_message("get_spike_windows_ver_2.m",i,number_of_iterations);
-    % fprintf(status_file,status_message);
-
 end
 
 spike_windows = cell(1,config.max_channel_number);
