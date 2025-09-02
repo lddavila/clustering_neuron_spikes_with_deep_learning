@@ -1,4 +1,4 @@
-function [spike_windows] = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,desired_z_score,desired_number_of_data_points,dir_with_channel_z_scores,config)
+function [spike_windows] = get_spike_windows_ver_2(ordered_list_of_channels,fp_to_spikes_per_channel,desired_z_score,desired_number_of_data_points,dir_with_channel_z_scores,config)
 spike_windows_unmapped = cell(1,config.max_channel_number);
 number_of_iterations = length(ordered_list_of_channels);
 channel_numbers = strrep(ordered_list_of_channels,"c","");
@@ -8,6 +8,8 @@ channel_numbers = str2double(channel_numbers);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 print_message_using_dataqueue(number_of_iterations,"get_spike_windows_ver_2.m")
+
+spikes_per_channel_ds = arrayDatastore(fp_to_spikes_per_channel);
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     spike_windows_unmapped{i} = cell(size(spikes_per_channel,1),1);

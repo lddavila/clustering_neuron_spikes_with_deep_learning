@@ -68,7 +68,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         beginning_time = tic;
         % step 9b: get potential spikes from continuous recordings
         spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
-        detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
+        fp_to_spikes_per_channel = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         end_time = toc(beginning_time);
         fprintf("Finished cutting spikes per channel for z score %f, it took %f seconds\n",min_z_score,end_time);
 
@@ -77,7 +77,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         beginning_time = tic;
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
         if ~ismember(fullfile(spike_windows_dir,"spike_windows.mat"),what_is_computed)
-            spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
+            spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,fp_to_spikes_per_channel,min_z_score,num_dps,z_score_dir,config);
             spike_windows_data = whos("spike_windows");
             %each array is made up of 4 numbers:
             %the first is the beginning of the spike window

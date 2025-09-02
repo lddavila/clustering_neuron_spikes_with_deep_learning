@@ -1,6 +1,6 @@
-function [] = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,dir_with_z_scores,min_z_score,scale_factor,config)
-
-%if the 
+function [fp_to_spikes_per_channel] = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,dir_with_z_scores,min_z_score,scale_factor,config)
+fp_to_spikes_per_channel = fullfile(spikes_per_channel_dir,"spikes_per_channel.mat");
+%if the file doesn't already exist then we must create and save it 
 if ~ismember(fullfile(spikes_per_channel_dir,"spikes_per_channel.mat"),config.ALREADY_DONE_FILES)
     spikes_matrix_unmapped = cell(1,size(ordered_list_of_channels,2));
     spikes_matrix = cell(1,config.max_channel_number);
@@ -29,8 +29,10 @@ if ~ismember(fullfile(spikes_per_channel_dir,"spikes_per_channel.mat"),config.AL
     for i=1:length(channels)
         spikes_matrix{str2double(channels(i))} = spikes_matrix_unmapped{i};
     end
-    par_save(fullfile(spikes_per_channel_dir,"spikes_per_channel.mat"),spikes_matrix);
+    
+    par_save(fp_to_spikes_per_channel,spikes_matrix);
 else
+    %if it does already exist then we skip of creating it again 
     disp("spikes_per_channel min_z_score "+ string(min_z_score)+ " has been detected and will be skipped.")
     disp("To recalculate delete the original or change your precomputed directory.")
 end
