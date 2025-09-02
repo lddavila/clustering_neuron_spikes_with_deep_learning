@@ -1,6 +1,6 @@
 function [spike_windows] = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,desired_z_score,desired_number_of_data_points,dir_with_channel_z_scores,config)
 spike_windows_unmapped = cell(1,config.max_channel_number);
-number_of_iterations = size(ordered_list_of_channels,2);
+number_of_iterations = length(ordered_list_of_channels);
 channel_numbers = strrep(ordered_list_of_channels,"c","");
 channel_numbers =strrep(channel_numbers,".mat","");
 channel_numbers = str2double(channel_numbers);
@@ -35,8 +35,9 @@ for i=1:length(ordered_list_of_channels)
                 spike_windows_unmapped{i}{j} = int32([0,0,0,0]);
             end
         end
-        print_status_iter_message("get_spike_windows_ver_2.m",[i,j],number_of_iterations);
+        
     end
+    print_status_iter_message("get_spike_windows_ver_2.m",i,number_of_iterations);
 end
 
 spike_windows = cell(1,config.max_channel_number);
