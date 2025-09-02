@@ -21,7 +21,7 @@ disp("Finished Setting directories")
 c = parcluster('local');
 c.JobStorageLocation = config.BLIND_PASS_DIR_PRECOMPUTED;
 saveAsProfile(c, 'local_scratch');
-parpool('Threads','local_scratch', c.NumWorkers); 
+parpool('local_scratch', c.NumWorkers); 
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
 disp("Finished Downloading Data");
