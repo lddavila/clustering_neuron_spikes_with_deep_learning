@@ -6,7 +6,7 @@ file_names_as_strings_split = strrep(split(string(list_of_files_in_channel_dir{:
 
 channel_names = sort(str2double(file_names_as_strings_split(:,1)),'ascend');
 
-ordered_list_of_channels = strcat(string(channel_names),".mat");
+ordered_list_of_channels = strcat("c",string(channel_names),".mat");
 
 
 end
