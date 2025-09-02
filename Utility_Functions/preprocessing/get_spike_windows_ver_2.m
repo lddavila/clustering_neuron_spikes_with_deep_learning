@@ -1,5 +1,5 @@
 function [spike_windows] = get_spike_windows_ver_2(ordered_list_of_channels,fp_to_spikes_per_channel,desired_z_score,desired_number_of_data_points,dir_with_channel_z_scores,config)
-spike_windows_unmapped = cell(1,config.max_channel_number);
+
 number_of_iterations = length(ordered_list_of_channels);
 channel_numbers = strrep(ordered_list_of_channels,"c","");
 channel_numbers =strrep(channel_numbers,".mat","");
@@ -9,14 +9,15 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 print_message_using_dataqueue(number_of_iterations,"get_spike_windows_ver_2.m")
 
-spikes_per_channel_ds = arrayDatastore(fp_to_spikes_per_channel);
-parfor i=1:length(ordered_list_of_channels)
+spikes_per_channel_ds = matfile(fp_to_spikes_per_channel);
+for i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
-    spike_windows_unmapped{i} = cell(size(spikes_per_channel,1),1);
+    spike_windows_unmapped = cell(1,config.max_channel_number);
     channel_wise_z_score = importdata(fullfile(dir_with_channel_z_scores,current_channel));
-    
-    for j=1:length(spikes_per_channel{channel_numbers(i)})
-        channel_i_peak_j = spikes_per_channel{channel_numbers(i)}(j); %get the current peak
+    tmp = spikes_per_channel_ds.data_to_save(1, channel_numbers(i));
+    tmp = tmp{1};
+    for j=1:length(tmp)
+        channel_i_peak_j = tmp(j); %get the current peak
         channel_i_peak_j_z_score = channel_wise_z_score(channel_i_peak_j); %get the z_score for current spike
         if channel_i_peak_j < fix(desired_number_of_data_points/2) || channel_i_peak_j+fix(desired_number_of_data_points/2) > length(channel_wise_z_score) %round towards zero
             %if peak is too early or too late don't use it
