@@ -104,7 +104,9 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         else
             disp("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps) + " has been detected and will be skipped.")
             disp("To recalculate delete the original or change your precomputed directory.")
+            disp("Beginning loading spike windows");
             load(fullfile(precomputed_dir,"spike_windows min_z_score "+string(min_z_score)+" num dps "+string(num_dps),"spike_windows.mat"),"spike_windows")
+            disp("Finished Loading Spike windows");
         end
         end_time = toc(beginning_time);
         fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
