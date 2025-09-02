@@ -16,45 +16,21 @@ spiking_channels = {};
 spike_slices_in_samples_format = {};
 
 %spike_windows_for_current_tetrode = [];
-number_of_rows_required = 0;
-number_of_cols_required = length(chan_of_art_tetrode);
-number_of_spikes_per_channel = zeros(1,length(chan_of_art_tetrode));
-for i=1:length(chan_of_art_tetrode)
-    current_channel = chan_of_art_tetrode(i);
-    
-    number_of_rows_required = number_of_rows_required+size(spike_windows{current_channel},2);
-    number_of_spikes_per_channel(i) = size(spike_windows{current_channel},2);
-end
-spike_windows_for_current_tetrode = zeros(number_of_rows_required,number_of_cols_required);
 
-for i=1:length(chan_of_art_tetrode)
+
+spike_windows = cell(length(chan_of_art_tetrode),1);
+for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
-    spike_windows_for_current_channel = zeros(size(spike_windows{current_channel},2),size(chan_of_art_tetrode,2));
-    for j=1:size(spike_windows{current_channel},2)
-        if isempty(spike_windows_for_current_channel)
-            continue;
-        end
-        if isempty(spike_windows{current_channel}{j})
-            continue;
-        end
-        spike_windows_for_current_channel(j,1) = spike_windows{current_channel}{j}(1);
-        spike_windows_for_current_channel(j,2) = spike_windows{current_channel}{j}(2);
-        spike_windows_for_current_channel(j,3) = spike_windows{current_channel}{j}(3);
-        spike_windows_for_current_channel(j,4) = spike_windows{current_channel}{j}(4);
-    end
-    if isempty(spike_windows_for_current_channel)
-        continue;
-    end
-    if i==1
-        spike_windows_for_current_tetrode(1:number_of_spikes_per_channel(i),:) = spike_windows_for_current_channel;
-    else
-        spike_windows_for_current_tetrode(sum(number_of_spikes_per_channel(1:i-1))+1:sum(number_of_spikes_per_channel(1:i)),:) = spike_windows_for_current_channel;
-    end
+    tmp = spike_windows_per_channel_as_mat_file.data_to_save(1,current_channel);
+    spike_windows{i} = tmp{1};
 end
+
+spike_windows_for_current_tetrode =  cell2mat(vertcat(spike_windows{:}));
 
 if isempty(spike_windows_for_current_tetrode)
     return;
 end
+
 sorted_spike_windows_for_current_tetrode = sortrows(spike_windows_for_current_tetrode,[1,3]);
 sorted_spike_windows_for_current_tetrode(any(sorted_spike_windows_for_current_tetrode==0,2),:) = []; %any rows that have a zero must be removed
                                                                                                     %this is because zero is an invalid index and indicates something went wrong
