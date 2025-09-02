@@ -1,6 +1,7 @@
-function [spike_slices,time_slices,spiking_channels,spike_slices_in_samples_format,sorted_spike_windows_for_current_tetrode] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor)
+function [spike_slices,time_slices,spiking_channels,spike_slices_in_samples_format,sorted_spike_windows_for_current_tetrode] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_fp,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor)
 
 channels_data = cell(1,length(chan_of_art_tetrode));
+spike_windows_per_channel_as_mat_file = matfile(spike_windows_fp);
 for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
     % disp(fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat"))
@@ -20,6 +21,7 @@ number_of_cols_required = length(chan_of_art_tetrode);
 number_of_spikes_per_channel = zeros(1,length(chan_of_art_tetrode));
 for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
+    
     number_of_rows_required = number_of_rows_required+size(spike_windows{current_channel},2);
     number_of_spikes_per_channel(i) = size(spike_windows{current_channel},2);
 end

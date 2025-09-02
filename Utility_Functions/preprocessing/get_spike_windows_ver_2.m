@@ -6,6 +6,7 @@ if ~ismember(fullfile(spike_windows_dir,"spike_windows.mat"),config.ALREADY_DONE
     %the second is the end of the spike_window
     %the third is the original channel of the spike
     %the fourth is the original the peak of the spike according to find_peaks'
+    spike_windows_unmapped = cell(1,config.max_channel_number);
     number_of_iterations = length(ordered_list_of_channels);
     channel_numbers = strrep(ordered_list_of_channels,"c","");
     channel_numbers =strrep(channel_numbers,".mat","");
@@ -15,13 +16,14 @@ if ~ismember(fullfile(spike_windows_dir,"spike_windows.mat"),config.ALREADY_DONE
     afterEach(q,@print_message_using_dataqueue)
     print_message_using_dataqueue(number_of_iterations,"get_spike_windows_ver_2.m")
 
-    spikes_per_channel_ds = matfile(fp_to_spikes_per_channel);
+    spikes_per_channel_as_mat_file = matfile(fp_to_spikes_per_channel);
     for i=1:length(ordered_list_of_channels)
         current_channel = ordered_list_of_channels(i);
-        spike_windows_unmapped = cell(1,config.max_channel_number);
+        
         channel_wise_z_score = importdata(fullfile(dir_with_channel_z_scores,current_channel));
-        tmp = spikes_per_channel_ds.data_to_save(1, channel_numbers(i));
+        tmp = spikes_per_channel_as_mat_file.data_to_save(1, channel_numbers(i));
         tmp = tmp{1};
+        spike_windows_unmapped{i} = cell(length(tmp),1);
         for j=1:length(tmp)
             channel_i_peak_j = tmp(j); %get the current peak
             channel_i_peak_j_z_score = channel_wise_z_score(channel_i_peak_j); %get the z_score for current spike
@@ -59,7 +61,7 @@ if ~ismember(fullfile(spike_windows_dir,"spike_windows.mat"),config.ALREADY_DONE
     end
     par_save(spike_windows_fp,spike_windows)
 else
-    disp("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps) + " has been detected and will be skipped.")
+    disp(spike_windows_fp+" has been detected and will be skipped.")
     disp("To recalculate delete the original or change your precomputed directory.")
 end
 

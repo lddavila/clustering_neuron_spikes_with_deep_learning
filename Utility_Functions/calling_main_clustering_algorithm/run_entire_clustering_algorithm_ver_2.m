@@ -58,7 +58,7 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
 
-twoGB_in_bytes = 2 * 1024^3; % 2 * (1024 * 1024 * 1024) %used to check for larger files as expected in real simulations
+
 
 if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
     for min_z_score=z_scores_to_check
@@ -87,7 +87,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         % step 9d: get maps of each tetrode to its spikes
         if ~ismember(dictionaries_dir,what_is_computed)
             % clc;
-            get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
+            get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_fp,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
             %tetrode_dictionary
             %keys: "t" + tetrode number
             %values: all channels which are part of the current dictionary
