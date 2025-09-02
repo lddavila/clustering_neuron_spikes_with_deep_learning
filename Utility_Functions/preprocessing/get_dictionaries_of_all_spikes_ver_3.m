@@ -39,6 +39,7 @@ parfor i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
+        fprintf("Tetrode %i is missing channels ... skipping",i);
         continue;
     end
     tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
