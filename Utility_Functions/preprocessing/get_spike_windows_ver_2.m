@@ -5,10 +5,15 @@ channel_numbers = strrep(ordered_list_of_channels,"c","");
 channel_numbers =strrep(channel_numbers,".mat","");
 channel_numbers = str2double(channel_numbers);
 % status_file = config.FP_TO_STATUS_FILE;
-for i=1:length(ordered_list_of_channels)
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+num_iterations = size(art_tetr_array,1);
+print_message_using_dataqueue(num_iterations,"number_of_iterations.m")
+parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     spike_windows_unmapped{i} = cell(size(spikes_per_channel,1),1);
     channel_wise_z_score = importdata(fullfile(dir_with_channel_z_scores,current_channel));
+    
     for j=1:length(spikes_per_channel{channel_numbers(i)})
         channel_i_peak_j = spikes_per_channel{channel_numbers(i)}(j); %get the current peak
         channel_i_peak_j_z_score = channel_wise_z_score(channel_i_peak_j); %get the z_score for current spike
@@ -37,7 +42,7 @@ for i=1:length(ordered_list_of_channels)
         end
         
     end
-    print_status_iter_message("get_spike_windows_ver_2.m",i,number_of_iterations);
+    send(q,[]);
 end
 
 spike_windows = cell(1,config.max_channel_number);
