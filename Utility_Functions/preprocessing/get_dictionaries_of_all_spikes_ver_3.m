@@ -39,9 +39,23 @@ parfor i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
-        fprintf("Tetrode %i is missing channels ... skipping",i);
+        fprintf("Tetrode %i has channels not found in the channels directory ... skipping",i);
+        send(q,[]);
         continue;
     end
+    fp_for_tetrode_dict =fullfile(dictionaries_dir,"t"+string(i)+" tetrode_dictionary.mat") ;
+    fp_for_spike_tetrode_dict =fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictonary.mat") ;
+    fp_for_timing_tetrode_dict =fullfile(dictionaries_dir,"t"+string(i)+" timing_tetrode_dictionary.mat");
+    fp_for_channel_to_tetrode_dict= fullfile(dictionaries_dir,"t"+string(i)+" channel_to_tetrode_dictionary.mat");
+    fp_to_spiking_channel_tetrode_dict = fullfile(dictionaries_dir,"t"+string(i)+" spiking_channel_tetrode_dictionary.mat");
+    fp_to_spike_tetrode_dictionary_samples_format = fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictionary_samples_format.mat");
+    fp_to_sorted_spike_windows = fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat");
+    if all(ismember([fp_for_tetrode_dict,fp_for_spike_tetrode_dict,fp_for_timing_tetrode_dict,fp_for_channel_to_tetrode_dict,fp_to_spiking_channel_tetrode_dict,fp_to_spike_tetrode_dictionary_samples_format,fp_to_sorted_spike_windows],config.ALREADY_DONE_FILES ))
+        disp("Already computed dictionary ... skipping")
+        send(q,[]);
+        continue;
+    end
+
     tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
     spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
@@ -74,13 +88,14 @@ parfor i=1:size(art_tetr_array,1)
     sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
     
 
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" tetrode_dictionary.mat"),tetrode_dictionary);
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictonary.mat"),spike_tetrode_dictionary)
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" timing_tetrode_dictionary.mat"),timing_tetrode_dictionary)
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" channel_to_tetrode_dictionary.mat"),channel_to_tetrode_dictionary)
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" spiking_channel_tetrode_dictionary.mat"),spiking_channel_tetrode_dictionary)
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictionary_samples_format.mat"),spike_tetrode_dictionary_samples_format);
-    par_save(fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat"),sorted_spike_windows_for_current_tetrode_dictionary);
+
+    par_save(fp_for_tetrode_dict,tetrode_dictionary);
+    par_save(fp_for_spike_tetrode_dict,spike_tetrode_dictionary)
+    par_save(fp_for_timing_tetrode_dict,timing_tetrode_dictionary)
+    par_save(fp_for_channel_to_tetrode_dict,channel_to_tetrode_dictionary)
+    par_save(fp_to_spiking_channel_tetrode_dict,spiking_channel_tetrode_dictionary)
+    par_save(fp_to_spike_tetrode_dictionary_samples_format,spike_tetrode_dictionary_samples_format);
+    par_save(fp_to_sorted_spike_windows,sorted_spike_windows_for_current_tetrode_dictionary);
 
     
     % status_message ="\n"+print_status_iter_message("get_dicationaries_of_all_spikes_ver_3.m");

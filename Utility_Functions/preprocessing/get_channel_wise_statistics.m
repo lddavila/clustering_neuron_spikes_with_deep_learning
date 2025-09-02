@@ -36,7 +36,7 @@ parfor i=1:length(ordered_list_of_channels)
 
 
     end
-    % disp("Finished "+string(i) + "/"+string(length(ordered_list_of_channels)) )
+    send(q,[]);
 end
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),what_is_computed)
     create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std"));
