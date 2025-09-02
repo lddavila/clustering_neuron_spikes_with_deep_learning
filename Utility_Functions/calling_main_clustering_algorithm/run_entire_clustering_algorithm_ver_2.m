@@ -68,19 +68,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         beginning_time = tic;
         % step 9b: get potential spikes from continuous recordings
         spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
-        if ~ismember(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),what_is_computed)
-            spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
-            spikes_per_channel_info = whos('spikes_per_channel');
-            if spikes_per_channel_info.bytes >= twoGB_in_bytes
-                save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"), "spikes_per_channel", '-v7.3', '-nocompression');
-            else
-                save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
-            end
-        else
-            disp("spikes_per_channel min_z_score "+ string(min_z_score)+ " has been detected and will be skipped.")
-            disp("To recalculate delete the original or change your precomputed directory.")
-            load(fullfile(precomputed_dir,"spikes_per_channel min_z_score " + string(min_z_score),"spikes_per_channel.mat"), "spikes_per_channel")
-        end
+        spikes_per_channel = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         end_time = toc(beginning_time);
         fprintf("Finished cutting spikes per channel for z score %f, it took %f seconds\n",min_z_score,end_time);
 
