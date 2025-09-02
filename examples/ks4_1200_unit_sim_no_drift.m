@@ -19,9 +19,12 @@ disp("Finished Setting directories")
 % disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
 c = parcluster('local');
-c.JobStorageLocation = config.BLIND_PASS_DIR_PRECOMPUTED;
-saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', c.NumWorkers); 
+c.NumWorkers = feature('numcores');
+% Put JobStorageLocation on node-local temp, NOT on GPFS
+tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
+c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
+if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
+parpool('Threads', c.NumWorkers); 
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
 disp("Finished Downloading Data");

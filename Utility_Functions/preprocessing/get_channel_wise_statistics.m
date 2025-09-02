@@ -8,7 +8,7 @@ channel_wise_std_unmapped = nan(1,size(ordered_list_of_channels,2));
 
 
 % status_log = fopen(config.FP_TO_STATUS_FILE,'a');
-num_iterations = size(ordered_list_of_channels,2);
+num_iterations = length(ordered_list_of_channels);
 
 sliced_list_of_channels = num2cell(ordered_list_of_channels);
 ordered_list_of_channels = strrep(ordered_list_of_channels,".mat","");
