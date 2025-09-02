@@ -14,7 +14,7 @@ for i=1:length(ordered_list_of_channels)
         channel_i_peak_j_z_score = channel_wise_z_score(channel_i_peak_j); %get the z_score for current spike
         if channel_i_peak_j < fix(desired_number_of_data_points/2) || channel_i_peak_j+fix(desired_number_of_data_points/2) > length(channel_wise_z_score) %round towards zero
             %if peak is too early or too late don't use it
-            spike_windows_unmapped{i}{j} = [NaN,NaN,NaN,NaN];
+            spike_windows_unmapped{i}{j} = [0,0,0,0]; %zero is used as a flag since they should never be 0
         else
             if abs(channel_i_peak_j_z_score) >= desired_z_score 
                 if channel_i_peak_j - fix(desired_number_of_data_points/2) ~= 0 && channel_i_peak_j + fix(desired_number_of_data_points/2) <= length(channel_wise_z_score)
@@ -23,7 +23,7 @@ for i=1:length(ordered_list_of_channels)
                         i,...
                         channel_i_peak_j]);
                 else
-                    spike_windows_unmapped{i}{j}=[NaN,NaN,NaN,NaN];
+                    spike_windows_unmapped{i}{j}=[0,0,0,0]; 
                 end
                 %each  is made up of 4 numbers:
                 %the first is the beginning of the spike window
