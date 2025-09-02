@@ -4,7 +4,7 @@ dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
 %create the directory for the template files
-create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Shape_Template_PNGs"))
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Shape_Template_PNGs"));
 
 % step 1: load the timestamps into memory
 timestamps = importdata(config.TIMESTAMP_FP);
