@@ -25,7 +25,9 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 
-
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+print_message_using_dataqueue(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
 parfor i=1:length(list_of_available_tetrodes)
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
@@ -129,5 +131,6 @@ parfor i=1:length(list_of_available_tetrodes)
         % fprintf('%s',ME.cause);
         continue;
     end
+    send(q,[]);
 end
 end
