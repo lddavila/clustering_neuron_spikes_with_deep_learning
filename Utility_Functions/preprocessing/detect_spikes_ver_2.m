@@ -3,6 +3,10 @@ spikes_matrix_unmapped = cell(1,size(ordered_list_of_channels,2));
 spikes_matrix = cell(1,config.max_channel_number);
 num_iterations = size(ordered_list_of_channels,2);
 % status_file = fopen(config.FP_TO_STATUS_FILE,"a");
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+num_iterations = length(ordered_list_of_channels);
+print_message_using_dataqueue(num_iterations,"detect_spikes_ver_2.m")
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel));
@@ -16,6 +20,7 @@ parfor i=1:length(ordered_list_of_channels)
 
     [~,pk_locs] = findpeaks(channel_data);
     spikes_matrix_unmapped{i} = pk_locs;
+    send(q,[]);
 end
 channels = strrep(ordered_list_of_channels,"c","");
 channels = strrep(channels,".mat","");
