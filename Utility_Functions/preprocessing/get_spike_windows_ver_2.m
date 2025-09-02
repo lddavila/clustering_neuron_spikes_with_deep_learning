@@ -18,10 +18,10 @@ for i=1:length(ordered_list_of_channels)
         else
             if abs(channel_i_peak_j_z_score) >= desired_z_score 
                 if channel_i_peak_j - fix(desired_number_of_data_points/2) ~= 0 && channel_i_peak_j + fix(desired_number_of_data_points/2) <= length(channel_wise_z_score)
-                    spike_windows_unmapped{i}{j} = [channel_i_peak_j - fix(desired_number_of_data_points/2),...
+                    spike_windows_unmapped{i}{j} = int32([channel_i_peak_j - fix(desired_number_of_data_points/2),...
                         channel_i_peak_j + fix(desired_number_of_data_points/2),...
                         i,...
-                        channel_i_peak_j];
+                        channel_i_peak_j]);
                 else
                     spike_windows_unmapped{i}{j}=[NaN,NaN,NaN,NaN];
                 end
@@ -32,7 +32,7 @@ for i=1:length(ordered_list_of_channels)
                 %the fourth is the original the peak of the spike according to 
 
             else
-                spike_windows_unmapped{i}{j} = [NaN,NaN,NaN,NaN];
+                spike_windows_unmapped{i}{j} = [0,0,0,0];
             end
         end
     end
