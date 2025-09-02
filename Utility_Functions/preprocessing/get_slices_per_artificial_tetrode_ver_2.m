@@ -54,7 +54,8 @@ if isempty(spike_windows_for_current_tetrode)
     return;
 end
 sorted_spike_windows_for_current_tetrode = sortrows(spike_windows_for_current_tetrode,[1,3]);
-sorted_spike_windows_for_current_tetrode = rmmissing(sorted_spike_windows_for_current_tetrode);
+sorted_spike_windows_for_current_tetrode(any(sorted_spike_windows_for_current_tetrode==0,2),:) = []; %any rows that have a zero must be removed
+                                                                                                    %this is because zero is an invalid index and indicates something went wrong
 
 %spike_slices: must be sorted in such a way that when you run the following code the output matches
 %[numwires, numspikes, numdp] = size(raw);
