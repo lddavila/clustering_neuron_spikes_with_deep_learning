@@ -1,4 +1,4 @@
-function [] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_fp,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor,tetrode_number,dict_fpths)
+function [] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_dir,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor,tetrode_number,dict_fpths)
 
 spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
@@ -6,27 +6,24 @@ timing_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 spiking_channel_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 sorted_spike_windows_for_current_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 disp("Finished Creationg Dictionaries");
-channels_data = cell(1,length(chan_of_art_tetrode));
-spike_windows_per_channel_as_mat_file = matfile(spike_windows_fp);
+channels_data = cell(length(chan_of_art_tetrode),1);
 for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
     % disp(fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat"))
     current_channel_recording_file_name = fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat");
-    channels_data{i} = importdata(current_channel_recording_file_name);
-    channels_data{i} = channels_data{i} * scale_factor;
+    channels_data{i} = (importdata(current_channel_recording_file_name) * scale_factor).';
 end
-channels_data = cell2mat(vertcat(channels_data{:}));
+
 disp("Finished importing data")
 
 spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
-    tmp = spike_windows_per_channel_as_mat_file.data_to_save(1,current_channel);
-    spike_windows{i} = tmp{1};
+    spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
 disp("Finsihed Getting Spike Windows")
 
-spike_windows_for_current_tetrode =  cell2mat(vertcat(spike_windows{:}));
+spike_windows_for_current_tetrode =  vertcat(spike_windows{:});
 
 if isempty(spike_windows_for_current_tetrode)
     return;

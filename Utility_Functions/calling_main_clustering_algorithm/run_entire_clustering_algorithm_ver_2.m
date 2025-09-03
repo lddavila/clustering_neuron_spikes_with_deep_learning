@@ -68,15 +68,15 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         beginning_time = tic;
         % step 9b: get potential spikes from continuous recordings
         spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
-        fp_to_spikes_per_channel = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
+        detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         end_time = toc(beginning_time);
-        fprintf("Finished cutting spikes per channel for z score %f, it took %f seconds\n",min_z_score,end_time);
+        fprintf("Finished cutting spikes per channel for z score %i, it took %f seconds\n",min_z_score,end_time);
 
 
         % step 9c; Get all the data points from the potential spikes
         beginning_time = tic;
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-        spike_windows_fp = get_spike_windows_ver_2(ordered_list_of_channels,fp_to_spikes_per_channel,min_z_score,num_dps,z_score_dir,spike_windows_dir,config);
+        get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel_dir,min_z_score,config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config);
 
         end_time = toc(beginning_time);
         fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
@@ -87,7 +87,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         % step 9d: get maps of each tetrode to its spikes
 
         % clc;
-        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_fp,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
+        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
         %tetrode_dictionary
         %keys: "t" + tetrode number
         %values: all channels which are part of the current dictionary
