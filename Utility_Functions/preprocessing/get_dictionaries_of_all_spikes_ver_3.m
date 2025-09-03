@@ -35,11 +35,10 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 num_iterations = size(art_tetr_array,1);
 print_message_using_dataqueue(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
-for i=1:size(art_tetr_array,1)
+parfor i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
-        fprintf("Tetrode %i has channels not found in the channels directory ... skipping\n",i);
         send(q,[]);
         continue;
     end
