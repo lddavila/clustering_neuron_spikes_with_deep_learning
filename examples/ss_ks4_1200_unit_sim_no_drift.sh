@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH -n 5
+#SBATCH -n 20
 #SBATCH -p medium 
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
