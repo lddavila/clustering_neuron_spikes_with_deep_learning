@@ -24,7 +24,7 @@ c.NumWorkers = feature('numcores');
 tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
 c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
 if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
-parpool('Threads', c.NumWorkers); 
+parpool("local_scratch", c.NumWorkers); 
 %% Step 3: Download Necessary Data
 %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
 disp("Finished Downloading Data");
