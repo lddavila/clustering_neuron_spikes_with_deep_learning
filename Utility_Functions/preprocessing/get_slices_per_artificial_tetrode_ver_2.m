@@ -53,6 +53,10 @@ spike_slices_in_samples_format =zeros(number_of_dps_per_slice,size(chan_of_art_t
 
 time_slices = zeros(size(sorted_spike_windows_for_current_tetrode,1),number_of_dps_per_slice);
 spiking_channels = cell(1,size(sorted_spike_windows_for_current_tetrode,1));
+
+
+
+
 for i=1:size(sorted_spike_windows_for_current_tetrode,1)
     if size(sorted_spike_windows_for_current_tetrode,2) == 0
         break;
