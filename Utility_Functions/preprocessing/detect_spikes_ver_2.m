@@ -9,6 +9,7 @@ if ~ismember(fullfile(spikes_per_channel_dir,"spikes_per_channel.mat"),config.AL
     afterEach(q,@print_message_using_dataqueue)
     num_iterations = length(ordered_list_of_channels);
     print_message_using_dataqueue(num_iterations,"detect_spikes_ver_2.m")
+    
     parfor i=1:length(ordered_list_of_channels)
         current_channel = ordered_list_of_channels(i);
         channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel));
