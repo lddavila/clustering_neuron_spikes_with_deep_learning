@@ -50,7 +50,6 @@ parfor i=1:size(art_tetr_array,1)
     fp_to_spike_tetrode_dictionary_samples_format = fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictionary_samples_format.mat");
     fp_to_sorted_spike_windows = fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat");
     if all(ismember([fp_for_tetrode_dict,fp_for_spike_tetrode_dict,fp_for_timing_tetrode_dict,fp_for_channel_to_tetrode_dict,fp_to_spiking_channel_tetrode_dict,fp_to_spike_tetrode_dictionary_samples_format,fp_to_sorted_spike_windows],config.ALREADY_DONE_FILES ))
-        disp("Already computed dictionary ... skipping")
         send(q,[]);
         continue;
     end
