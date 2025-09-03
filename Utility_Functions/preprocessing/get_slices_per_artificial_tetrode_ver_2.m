@@ -79,5 +79,6 @@ for i=1:size(sorted_spike_windows_for_current_tetrode,1)
         spike_slices_in_samples_format(:,j,i) = channels_data{j}(window_beginning:window_end-1);
     end
     spiking_channels{i} = current_window(3);
+    print_status_iter_message("get_slices_per_artificial_tetrode_ver_2.m",i,size(sorted_spike_windows_for_current_tetrode,1));
 end
 end
