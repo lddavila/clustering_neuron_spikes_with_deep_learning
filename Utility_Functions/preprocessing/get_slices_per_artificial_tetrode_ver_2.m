@@ -1,4 +1,10 @@
-function [spike_slices,time_slices,spiking_channels,spike_slices_in_samples_format,sorted_spike_windows_for_current_tetrode] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_fp,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor)
+function [] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_fp,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor,tetrode_number,dict_fpths)
+
+spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
+timing_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+spiking_channel_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+sorted_spike_windows_for_current_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 
 channels_data = cell(1,length(chan_of_art_tetrode));
 spike_windows_per_channel_as_mat_file = matfile(spike_windows_fp);
@@ -9,11 +15,8 @@ for i=1:length(chan_of_art_tetrode)
     channels_data{i} = importdata(current_channel_recording_file_name);
     channels_data{i} = channels_data{i} * scale_factor;
 end
+channels_data = cell2mat(vertcat(channels_data{:}));
 
-spike_slices = {};
-time_slices = {};
-spiking_channels = {};
-spike_slices_in_samples_format = {};
 
 %spike_windows_for_current_tetrode = [];
 
@@ -33,7 +36,7 @@ end
 
 sorted_spike_windows_for_current_tetrode = sortrows(spike_windows_for_current_tetrode,[1,3]);
 sorted_spike_windows_for_current_tetrode(any(sorted_spike_windows_for_current_tetrode==0,2),:) = []; %any rows that have a zero must be removed
-                                                                                                    %this is because zero is an invalid index and indicates something went wrong
+%this is because zero is an invalid index and indicates something went wrong
 
 %spike_slices: must be sorted in such a way that when you run the following code the output matches
 %[numwires, numspikes, numdp] = size(raw);
@@ -55,30 +58,44 @@ time_slices = zeros(size(sorted_spike_windows_for_current_tetrode,1),number_of_d
 spiking_channels = cell(1,size(sorted_spike_windows_for_current_tetrode,1));
 
 
-
+if isempty(sorted_spike_windows_for_current_tetrode)
+    return
+end
 
 for i=1:size(sorted_spike_windows_for_current_tetrode,1)
-    if size(sorted_spike_windows_for_current_tetrode,2) == 0
-        break;
-    end
-
     current_window = sorted_spike_windows_for_current_tetrode(i,:);
-    window_beginning = current_window(1);
-    window_end = current_window(2);
 
-
-    if window_beginning == window_end || length(timing_matrix(window_beginning:window_end-1)) <10
+    if sorted_spike_windows_for_current_tetrode(i,1) == sorted_spike_windows_for_current_tetrode(i,2)
         continue;
     end
-    
-    current_timing_slice = timing_matrix(window_beginning:window_end-1);
+
+    current_timing_slice = timing_matrix(sorted_spike_windows_for_current_tetrode(i,1):sorted_spike_windows_for_current_tetrode(i,2) -1);
     time_slices(i,:) = current_timing_slice;
-    
+
     for j=1:length(chan_of_art_tetrode)
-        spike_slices(j,i,:) = channels_data{j}(window_beginning:window_end-1);
-        spike_slices_in_samples_format(:,j,i) = channels_data{j}(window_beginning:window_end-1);
+        spike_slices(j,i,:) = channels_data{j}(sorted_spike_windows_for_current_tetrode(i,1) :sorted_spike_windows_for_current_tetrode(i,2) -1);
+        spike_slices_in_samples_format(:,j,i) = channels_data{j}(sorted_spike_windows_for_current_tetrode(i,1) :sorted_spike_windows_for_current_tetrode(i,2)-1);
     end
     spiking_channels{i} = current_window(3);
-    print_status_iter_message("get_slices_per_artificial_tetrode_ver_2.m",i,size(sorted_spike_windows_for_current_tetrode,1));
+    if mod(i,1000)
+        print_status_iter_message("get_slices_per_artificial_tetrode_ver_2.m",i,size(sorted_spike_windows_for_current_tetrode,1));
+    end
 end
+spike_tetrode_dictionary("t"+string(tetrode_number)) = spike_slices;
+timing_tetrode_dictionary("t"+string(tetrode_number)) = time_slices;
+spiking_channel_tetrode_dictionary("t"+string(tetrode_number)) = spiking_channels;
+spike_tetrode_dictionary_samples_format("t"+string(tetrode_number)) = spike_slices_in_samples_format;
+sorted_spike_windows_for_current_tetrode_dictionary("t"+string(tetrode_number)) = sorted_spike_windows_for_current_tetrode;
+
+spike_tetrode_dictionary = struct("spike_tetrode_dictionary",spike_tetrode_dictionary);
+timing_tetrode_dictionary = struct("timing_tetrode_dictionary",timing_tetrode_dictionary);
+spiking_channel_tetrode_dictionary = struct("spiking_channel_tetrode_dictionary",spiking_channel_tetrode_dictionary);
+spike_tetrode_dictionary_samples_format = struct("spike_tetrode_dictionary_samples_format",spike_tetrode_dictionary_samples_format);
+sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
+
+par_save(dict_fpths(2),spike_tetrode_dictionary)
+par_save(dict_fpths(3),timing_tetrode_dictionary)
+par_save(dict_fpths(5),spiking_channel_tetrode_dictionary)
+par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format);
+par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary);
 end
