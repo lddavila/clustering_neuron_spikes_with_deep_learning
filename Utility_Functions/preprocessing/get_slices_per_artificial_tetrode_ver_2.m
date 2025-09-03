@@ -92,10 +92,11 @@ timing_tetrode_dictionary = struct("timing_tetrode_dictionary",timing_tetrode_di
 spiking_channel_tetrode_dictionary = struct("spiking_channel_tetrode_dictionary",spiking_channel_tetrode_dictionary);
 spike_tetrode_dictionary_samples_format = struct("spike_tetrode_dictionary_samples_format",spike_tetrode_dictionary_samples_format);
 sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
-
+disp("Beginning Dictionary Saving")
 par_save(dict_fpths(2),spike_tetrode_dictionary)
 par_save(dict_fpths(3),timing_tetrode_dictionary)
 par_save(dict_fpths(5),spiking_channel_tetrode_dictionary)
 par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format);
 par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary);
+disp("Finished Dictionary Saving")
 end
