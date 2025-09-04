@@ -36,7 +36,15 @@ afterEach(q,@print_message_using_dataqueue)
 num_iterations = size(art_tetr_array,1);
 print_message_using_dataqueue(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 already_done = config.ALREADY_DONE_FILES;
-parfor i=1:size(art_tetr_array,1)
+% for this intensive process we want to turn off the parallel pool already
+% set for this job
+p = gcp('nocreate');
+if ~isempty(p)
+    delete(p);
+end
+%now we want to creae a threaded pool to avoid excess memory copying
+parpool("Threads");   
+for i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
@@ -71,5 +79,8 @@ parfor i=1:size(art_tetr_array,1)
     par_save(fp_for_channel_to_tetrode_dict,channel_to_tetrode_dictionary)
     send(q,[]);
 end
+%now we want to restart the normal parallel pool
+delete(gcp('nocreate'));
+parpool("local"); 
 % fclose(status_file);
 end

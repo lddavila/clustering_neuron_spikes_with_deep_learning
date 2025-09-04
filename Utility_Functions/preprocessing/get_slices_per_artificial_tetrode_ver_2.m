@@ -57,14 +57,17 @@ if isempty(sorted_spike_windows_for_current_tetrode)
     return
 end
 disp("About to getting time and spike slices")
-for i=1:size(sorted_spike_windows_for_current_tetrode,1)
-    current_window = sorted_spike_windows_for_current_tetrode(i,:);
+sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
 
-    if sorted_spike_windows_for_current_tetrode(i,1) == sorted_spike_windows_for_current_tetrode(i,2)
+
+parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
+    current_window = sliced_spike_windows{i};
+
+    if current_window(1,1) == current_window(1,2)
         continue;
     end
 
-    current_timing_slice = timing_matrix(sorted_spike_windows_for_current_tetrode(i,1):sorted_spike_windows_for_current_tetrode(i,2) -1);
+    current_timing_slice = timing_matrix(current_window(1,1):current_window(1,2) -1);
     time_slices(i,:) = current_timing_slice;
 
     for j=1:length(chan_of_art_tetrode)
@@ -72,10 +75,14 @@ for i=1:size(sorted_spike_windows_for_current_tetrode,1)
         spike_slices_in_samples_format(:,j,i) = channels_data{j}(sorted_spike_windows_for_current_tetrode(i,1) :sorted_spike_windows_for_current_tetrode(i,2)-1);
     end
     spiking_channels{i} = current_window(3);
-    if mod(i,1000)
+    if mod(i,1000) ==0
         print_status_iter_message("get_slices_per_artificial_tetrode_ver_2.m",i,size(sorted_spike_windows_for_current_tetrode,1));
     end
 end
+
+
+
+
 disp("Finished getting slices")
 spike_tetrode_dictionary("t"+string(tetrode_number)) = spike_slices;
 timing_tetrode_dictionary("t"+string(tetrode_number)) = time_slices;
