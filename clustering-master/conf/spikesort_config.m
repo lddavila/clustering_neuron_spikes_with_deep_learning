@@ -194,8 +194,7 @@ config.FP_TO_COMPLEX_MERGE_OR_DONT_NN_ON_HPC = "";
 
 config.FP_TO_COMPLEX_CHOOSE_BETTER_NN = fullfile(config.base_file_path,"Neural_Networks","choose_better_nn","accuracy score 0.85031 num layers 13 num neurons per layer10 complex choose better.mat");
 
-config.DIR_TO_STATUS_FILE = "";
-config.FP_TO_STATUS_FILE = "";
+
 
 config.FP_TO_GRADES_ACC_PRED_WITH_RANK_NN = fullfile(config.base_file_path,"Neural_Networks","acc_pred_using_grades_and_rank","accuracy score 0.89695number of acc cats 3 num layers 15 num neurons per layer40 predict_grades_nn_with_ranking.mat");
 config.FP_TO_PRESORTED_TABLE = fullfile(config.base_file_path,"Neural_Networks","presorted_table","presorted_table.mat");
@@ -206,7 +205,7 @@ config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"N
 config.ACG_THRESHOLD = 0.2; %per kilosort4 paper
 config.CCG_THRESHOLD = 0.25; %per kilosort4 paper
 
-
+config.USING_BINARY_FILES = true;
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
