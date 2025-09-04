@@ -71,8 +71,8 @@ parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
     time_slices(i,:) = current_timing_slice;
 
     for j=simple_channel_list
-        spike_slices(j,i,:) = channels_data{j}(current_window(1,1) :current_window(i,2) -1);
-        spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1) :current_window(i,2)-1);
+        spike_slices(j,i,:) = channels_data{j}(current_window(1,1) :current_window(1,2) -1);
+        spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1) :current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
     if mod(i,1000) ==0
