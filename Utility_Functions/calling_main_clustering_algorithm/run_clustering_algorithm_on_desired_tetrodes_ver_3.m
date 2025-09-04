@@ -42,7 +42,7 @@ for i=1:length(list_of_available_tetrodes)
     c3 = ismember(reg_ts_file_name,config.ALREADY_DONE_FILES);
     c4 = ismember(reg_ts_of_spikes_file_name,config.ALREADY_DONE_FILES);
     if all([c1,c2,c3,c4])
-        disp("Skipping Tetrode "+current_tetrode+" as it has already been run");
+        send(q,[]);
         continue;
     end
 
