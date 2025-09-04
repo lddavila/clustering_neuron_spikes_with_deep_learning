@@ -59,7 +59,7 @@ end
 disp("About to getting time and spike slices")
 sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
 
-
+simple_channel_list = 1:numel(chan_of_art_tetrode);
 parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
     current_window = sliced_spike_windows{i};
 
@@ -70,9 +70,9 @@ parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
     current_timing_slice = timing_matrix(current_window(1,1):current_window(1,2) -1);
     time_slices(i,:) = current_timing_slice;
 
-    for j=1:length(chan_of_art_tetrode)
-        spike_slices(j,i,:) = channels_data{j}(sorted_spike_windows_for_current_tetrode(i,1) :sorted_spike_windows_for_current_tetrode(i,2) -1);
-        spike_slices_in_samples_format(:,j,i) = channels_data{j}(sorted_spike_windows_for_current_tetrode(i,1) :sorted_spike_windows_for_current_tetrode(i,2)-1);
+    for j=1:simple_list
+        spike_slices(j,i,:) = channels_data{j}(current_window(1,1) :current_window(i,2) -1);
+        spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1) :current_window(i,2)-1);
     end
     spiking_channels{i} = current_window(3);
     if mod(i,1000) ==0
