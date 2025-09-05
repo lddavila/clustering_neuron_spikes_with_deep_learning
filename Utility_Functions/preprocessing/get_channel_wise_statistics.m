@@ -14,8 +14,8 @@ sliced_channel_numbers = str2double(strrep(ordered_list_of_channels,"c",""));
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),what_is_computed)
     create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std"));
     q = parallel.pool.DataQueue;
-    afterEach(q,@print_message_using_dataqueue)
-    print_message_using_dataqueue(num_iterations,"get_channel_wise_statistics.m")
+    afterEach(q,@print_status_bar)
+    print_status_bar(num_iterations,"get_channel_wise_statistics.m")
     using_binary = config.USING_BINARY_FILES;
     if ~using_binary
         parfor i=1:length(ordered_list_of_channels)

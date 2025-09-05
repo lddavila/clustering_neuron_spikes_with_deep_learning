@@ -3,7 +3,7 @@ function [] = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channel
 q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 num_iterations = length(ordered_list_of_channels);
-print_message_using_dataqueue(num_iterations,"detect_spikes_ver_2.m")
+print_status_bar(num_iterations,"detect_spikes_ver_2.m")
 already_done = config.ALREADY_DONE_FILES;
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);

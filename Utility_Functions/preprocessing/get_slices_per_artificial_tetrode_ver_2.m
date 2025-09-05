@@ -61,7 +61,12 @@ disp("About to getting time and spike slices")
 sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
 
 simple_channel_list = 1:numel(chan_of_art_tetrode);
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = size(art_tetr_array,1);
+print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
+
     current_window = sliced_spike_windows{i};
 
     if current_window(1,1) == current_window(1,2)
@@ -76,6 +81,7 @@ parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
         spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1) :current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
+    send(q,[]);
 
 end
 
