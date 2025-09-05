@@ -5,7 +5,7 @@ spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','Value
 timing_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 spiking_channel_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 sorted_spike_windows_for_current_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
-disp("Finished Creationg Dictionaries");
+% disp("Finished Creationg Dictionaries");
 channels_data = cell(length(chan_of_art_tetrode),1);
 for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
@@ -14,7 +14,7 @@ for i=1:length(chan_of_art_tetrode)
     channels_data{i} = (importdata(current_channel_recording_file_name) * scale_factor).';
 end
 
-disp("Finished importing data")
+% disp("Finished importing data")
 
 spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
@@ -22,7 +22,7 @@ for i=1:length(spike_windows)
     disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
     spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
-disp("Finsihed Getting Spike Windows")
+% disp("Finsihed Getting Spike Windows")
 
 spike_windows_for_current_tetrode =  vertcat(spike_windows{:});
 
@@ -88,25 +88,25 @@ end
 
 
 
-disp("Finished getting slices")
+% disp("Finished getting slices")
 spike_tetrode_dictionary("t"+string(tetrode_number)) = spike_slices;
 timing_tetrode_dictionary("t"+string(tetrode_number)) = time_slices;
 spiking_channel_tetrode_dictionary("t"+string(tetrode_number)) = spiking_channels;
 spike_tetrode_dictionary_samples_format("t"+string(tetrode_number)) = spike_slices_in_samples_format;
 sorted_spike_windows_for_current_tetrode_dictionary("t"+string(tetrode_number)) = sorted_spike_windows_for_current_tetrode;
-disp("finished putting info into dictionaries")
+% disp("finished putting info into dictionaries")
 
 spike_tetrode_dictionary = struct("spike_tetrode_dictionary",spike_tetrode_dictionary);
 timing_tetrode_dictionary = struct("timing_tetrode_dictionary",timing_tetrode_dictionary);
 spiking_channel_tetrode_dictionary = struct("spiking_channel_tetrode_dictionary",spiking_channel_tetrode_dictionary);
 spike_tetrode_dictionary_samples_format = struct("spike_tetrode_dictionary_samples_format",spike_tetrode_dictionary_samples_format);
 sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
-disp("Finished getting structs")
-disp("Beginning Dictionary Saving")
+% disp("Finished getting structs")
+% disp("Beginning Dictionary Saving")
 par_save(dict_fpths(2),spike_tetrode_dictionary)
 par_save(dict_fpths(3),timing_tetrode_dictionary)
 par_save(dict_fpths(5),spiking_channel_tetrode_dictionary)
 par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format);
 par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary);
-disp("Finished Dictionary Saving")
+% disp("Finished Dictionary Saving")
 end
