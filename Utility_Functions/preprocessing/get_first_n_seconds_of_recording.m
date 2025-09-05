@@ -4,6 +4,8 @@ new_gt_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_sa
 new_rec_by_chann_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"recordings_by_channel"));
 disp("Finished creating new directories")
 %step 1 is to get the timestamps 
+disp("About to upload timestamps")
+disp(fullfile(fp_with_recording,"timestamps","timestamps.mat"));
 timestamps = importdata(fullfile(fp_with_recording,"timestamps","timestamps.mat"));
 disp("Finished importing timestamps.")
 %now find the index where the time stamps hit n
