@@ -19,7 +19,7 @@ end
 spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
-    disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
+    %disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
     spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
 % disp("Finsihed Getting Spike Windows")
@@ -57,7 +57,7 @@ spiking_channels = cell(1,size(sorted_spike_windows_for_current_tetrode,1));
 if isempty(sorted_spike_windows_for_current_tetrode)
     return
 end
-disp("About to getting time and spike slices")
+% disp("About to getting time and spike slices")
 sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
 
 simple_channel_list = 1:numel(chan_of_art_tetrode);
