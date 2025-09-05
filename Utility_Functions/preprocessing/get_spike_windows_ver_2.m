@@ -18,6 +18,8 @@ already_done = config.ALREADY_DONE_FILES;
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
 
+    
+
     if ismember(fullfile(spike_windows_dir,current_channel),already_done)
         disp("already exists")
         send(q,[])
@@ -52,6 +54,11 @@ parfor i=1:length(ordered_list_of_channels)
             else
                 spike_windows(j,:) = int32([0,0,0,0]);
             end
+        end
+        if i == 382
+            disp("HAVE REACHED 382");
+            disp(spike_windows)
+            disp(fullfile(spike_windows_dir,current_channel))
         end
         par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
 

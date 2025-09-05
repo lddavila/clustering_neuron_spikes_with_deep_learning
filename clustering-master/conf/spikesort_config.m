@@ -166,7 +166,7 @@ config.DIR_TO_ACC_CAT_IMAGES_ON_HPC = "";
 
 config.IDENTIFY_NEURONS_USING_NN = true;
 
-config.DEFAULT_CLUSTERING_Z_SCORES = [4 5 6 7 8 9];
+config.DEFAULT_CLUSTERING_Z_SCORES = [6 7 8 9];
 
 config.FP_TO_ALREADY_DONE = "D:\cluster_neuronspikes\Data\Already Done Neural Networks\already_done_twin_nn_choose_better.mat";
 config.FP_TO_ALREADY_DONE_ON_HPC= "/scratch/lddavila/data_from_local_machine/Already Done Neural Networks/already_done_twin_nn_choose_better.mat";
