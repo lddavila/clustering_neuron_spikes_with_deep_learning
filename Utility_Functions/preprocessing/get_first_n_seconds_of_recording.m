@@ -2,14 +2,16 @@ function [] = get_first_n_seconds_of_recording(fp_with_recording,n,fp_to_save_ne
 new_ts_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"timestamps"));
 new_gt_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"ground_truth"));
 new_rec_by_chann_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"recordings_by_channel"));
+disp("Finished creating new directories")
 %step 1 is to get the timestamps 
 timestamps = importdata(fullfile(fp_with_recording,"timestamps","timestamps.mat"));
+disp("Finished importing timestamps.")
 %now find the index where the time stamps hit n
 index_of_n_seconds =  find(timestamps >= n,1);
 
 new_ts = timestamps(1:index_of_n_seconds);
 save(fullfile(new_ts_dir,"timestamps.mat"),"new_ts");
-
+disp("Finished saving timestamps")
 %now that we know where in the recording our length ends we can modify all
 %the channel and ground truth files
 
