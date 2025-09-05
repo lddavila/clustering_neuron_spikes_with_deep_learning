@@ -10,7 +10,7 @@ function [] = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channe
 number_of_iterations = length(ordered_list_of_channels);
 % status_file = config.FP_TO_STATUS_FILE;
 q = parallel.pool.DataQueue;
-afterEach(q,@print_message_using_dataqueue)
+afterEach(q,@print_status_bar)
 print_message_using_dataqueue(number_of_iterations,"get_spike_windows_ver_2.m")
 
 
