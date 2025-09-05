@@ -55,14 +55,8 @@ parfor i=1:length(ordered_list_of_channels)
                 spike_windows(j,:) = int32([0,0,0,0]);
             end
         end
-        if i == 382
-            disp("HAVE REACHED 382");
-            disp(spike_windows)
-            disp(fullfile(spike_windows_dir,current_channel))
-        end
-        par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
-
     end
+    par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
     send(q,[]);
 end
 
