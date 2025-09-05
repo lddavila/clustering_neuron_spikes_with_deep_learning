@@ -19,6 +19,8 @@ parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
 
     if ismember(fullfile(spike_windows_dir,current_channel),already_done)
+        disp("already exists")
+        send(q,[])
         continue;
     end
 
