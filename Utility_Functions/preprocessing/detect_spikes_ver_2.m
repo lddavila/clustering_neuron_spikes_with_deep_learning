@@ -1,7 +1,7 @@
 function [] = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,dir_with_z_scores,min_z_score,scale_factor,config)
 %if the file doesn't already exist then we must create and save it
 q = parallel.pool.DataQueue;
-afterEach(q,@print_message_using_dataqueue)
+afterEach(q,@print_status_bar)
 num_iterations = length(ordered_list_of_channels);
 print_status_bar(num_iterations,"detect_spikes_ver_2.m")
 already_done = config.ALREADY_DONE_FILES;

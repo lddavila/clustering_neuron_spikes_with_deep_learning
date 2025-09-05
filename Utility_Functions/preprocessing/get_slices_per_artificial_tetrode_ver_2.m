@@ -63,7 +63,7 @@ sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_
 simple_channel_list = 1:numel(chan_of_art_tetrode);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
-num_iterations = size(art_tetr_array,1);
+num_iterations = size(sorted_spike_windows_for_current_tetrode,1);
 print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
 

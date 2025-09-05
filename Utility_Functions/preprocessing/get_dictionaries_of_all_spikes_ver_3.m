@@ -77,8 +77,6 @@ for i=1:size(art_tetr_array,1)
     channel_to_tetrode_dictionary = struct("channel_to_tetrode_dictionary",channel_to_tetrode_dictionary);
     par_save(fp_for_tetrode_dict,tetrode_dictionary);
     par_save(fp_for_channel_to_tetrode_dict,channel_to_tetrode_dictionary)
-    % send(q,[]);
-    
 end
 %now we want to restart the normal parallel pool
 delete(gcp('nocreate'));
