@@ -205,7 +205,7 @@ config.FP_TO_Multi_under_units_predicting_nn = fullfile(config.base_file_path,"N
 config.ACG_THRESHOLD = 0.2; %per kilosort4 paper
 config.CCG_THRESHOLD = 0.25; %per kilosort4 paper
 
-config.USING_BINARY_FILES = true;
+config.USING_BINARY_FILES = false;
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
