@@ -5,14 +5,14 @@ if ~isempty(iterations)
     N = iterations;
     function_name = caller;
     barW = 50;  % width of the bar (chars)
-    fprintf('%s : [%s] %6.2f%%\n', function_name, repmat('-',1,barW), 0);
+    fprintf('%s : [%s] %6.2f%%', function_name, repmat('-',1,barW), 0);
 else
     count = min(count + 1, N);
     frac = count / N;
     filled = max(0, min(barW, round(frac * barW)));
 
     bar_string = [repmat('|',1,filled), repmat('-',1,barW-filled)];
-    fprintf('\r%s : [%s] %6.2f%%  %d/%d\n', function_name, bar_string, 100*frac, count, N);
+    fprintf('\r%s : [%s] %6.2f%%  %d/%d', function_name, bar_string, 100*frac, count, N);
     if count==N
         fprintf("\n");
     end
