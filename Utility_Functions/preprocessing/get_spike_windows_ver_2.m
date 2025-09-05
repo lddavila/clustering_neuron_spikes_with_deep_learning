@@ -11,7 +11,7 @@ number_of_iterations = length(ordered_list_of_channels);
 % status_file = config.FP_TO_STATUS_FILE;
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
-print_message_using_dataqueue(number_of_iterations,"get_spike_windows_ver_2.m")
+print_status_bar(number_of_iterations,"get_spike_windows_ver_2.m")
 
 
 already_done = config.ALREADY_DONE_FILES;
@@ -21,7 +21,6 @@ parfor i=1:length(ordered_list_of_channels)
     
 
     if ismember(fullfile(spike_windows_dir,current_channel),already_done)
-        disp("already exists")
         send(q,[])
         continue;
     end
