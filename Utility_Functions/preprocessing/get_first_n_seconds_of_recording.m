@@ -14,14 +14,15 @@ save(fullfile(new_ts_dir,"timestamps.mat"),"new_ts");
 %the channel and ground truth files
 
 list_of_channel_files = struct2table(dir(fullfile(fp_with_recording,"recordings_by_channel","*.mat")));
-for i=1:size(list_of_channel_files,1)
-    current_channel_data = importdata(fullfile(fp_with_recording,"recordings_by_channel",list_of_channel_files{i,"name"}{1}));
+list_of_channel_files = string(list_of_channel_files{:,"name"});
+parfor i=1:size(list_of_channel_files,1)
+    current_channel_data = importdata(fullfile(fp_with_recording,"recordings_by_channel",list_of_channel_files(i)));
     current_channel_data = current_channel_data(1:index_of_n_seconds);
-    save(fullfile(new_rec_by_chann_dir,list_of_channel_files{i,"name"}{1}),"current_channel_data");
+    par_save(fullfile(new_rec_by_chann_dir,list_of_channel_files(i)),current_channel_data);
 end
 
 ground_truth_array = importdata(fullfile(fp_with_recording,"ground_truth","ground_truth.mat"));
-for i=1:length(ground_truth_array)
+parfor i=1:length(ground_truth_array)
     current_ground_truth = ground_truth_array{i};
     current_ground_truth(current_ground_truth>index_of_n_seconds) = [];
     ground_truth_array{i} = current_ground_truth;
