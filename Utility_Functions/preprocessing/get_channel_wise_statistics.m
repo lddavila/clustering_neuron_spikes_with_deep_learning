@@ -16,18 +16,23 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and
     q = parallel.pool.DataQueue;
     afterEach(q,@print_message_using_dataqueue)
     print_message_using_dataqueue(num_iterations,"get_channel_wise_statistics.m")
-    parfor i=1:length(ordered_list_of_channels)
-        current_channel = sliced_list_of_channels{i};
-        if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and_std.mat"),what_is_computed) || ~exist(fullfile(z_score_dir,current_channel),"file")
-            current_file = fullfile(dir_with_channel_data,current_channel);
-            channel_data = importdata(current_file);
-            channel_wise_mean_unmapped(i) = mean(channel_data*scale_factor);
-            channel_wise_std_unmapped(i) = std(channel_data * scale_factor,0,"all"); %possible error in that I didn't multiply channel data by scale_factor when calculating std
-            %have fixed it now, but definitely check new iterations to ensure that this doesn't suddenly destory everything
-            channel_wise_z_score_data = zscore(channel_data * scale_factor);
-            par_save(fullfile(z_score_dir,current_channel),channel_wise_z_score_data);
+    using_binary = config.USING_BINARY_FILES;
+    if ~using_binary
+        parfor i=1:length(ordered_list_of_channels)
+            current_channel = sliced_list_of_channels{i};
+            if ~exist(fullfile(z_score_dir,current_channel+".mat"),"file")
+                current_file = fullfile(dir_with_channel_data,current_channel);
+                channel_data = importdata(current_file);
+                [channel_wise_z_score_data,channel_wise_mean_unmapped(i),channel_wise_std_unmapped(i)] = zscore(single(channel_data) * single(scale_factor));
+                par_save(fullfile(z_score_dir,current_channel),channel_wise_z_score_data);
+            end
+            send(q,[]);
         end
-        send(q,[]);
+    else
+        for i=1:length(ordered_list_of_channels)
+            current_channel = sliced_list_of_channels{i};
+            channel_data = read_channel_data_from_binary_file(dir_with_channel_data,current_channel);
+        end
     end
     channel_wise_means = nan(1,config.max_channel_number);
     channel_wise_std = nan(1,config.max_channel_number);
