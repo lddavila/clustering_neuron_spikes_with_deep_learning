@@ -19,6 +19,7 @@ disp("Finished importing data")
 spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
+    disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
     spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
 disp("Finsihed Getting Spike Windows")
@@ -75,9 +76,7 @@ parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
         spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1) :current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
-    if mod(i,1000) ==0
-        print_status_iter_message("get_slices_per_artificial_tetrode_ver_2.m",i,size(sorted_spike_windows_for_current_tetrode,1));
-    end
+
 end
 
 
