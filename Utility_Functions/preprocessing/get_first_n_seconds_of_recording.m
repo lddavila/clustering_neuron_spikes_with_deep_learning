@@ -1,4 +1,8 @@
 function [] = get_first_n_seconds_of_recording(fp_with_recording,n,fp_to_save_new_recoridng)
+home_dir = cd("..");
+cd("..")
+addpath(genpath(pwd));
+cd(home_dir);
 new_ts_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"timestamps"));
 new_gt_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"ground_truth"));
 new_rec_by_chann_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(fp_to_save_new_recoridng,"recordings_by_channel"));
