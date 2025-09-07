@@ -48,7 +48,7 @@ for i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
-        send(q,[]);
+        % send(q,[]);
         continue;
     end
     fp_for_tetrode_dict =fullfile(dictionaries_dir,"t"+string(i)+" tetrode_dictionary.mat") ;
