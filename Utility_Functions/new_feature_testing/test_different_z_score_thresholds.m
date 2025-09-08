@@ -34,7 +34,7 @@ config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data","s
 disp("Finished Setting directories")
 
 %let us get the agent and critique net that will be used
-number_of_features = 2; %to reflect the only information the agent gets to have is the z score and the last accuracy accuracy ratio we found
+number_of_features = 4; %to reflect the only information the agent gets to have is the z score and the last accuracy accuracy ratio we found
 num_neurons = 5; %a simple test value
 num_layers = 5; %a simple test value
 current_eps = 0.1; %this epsilon value encourages more random movement

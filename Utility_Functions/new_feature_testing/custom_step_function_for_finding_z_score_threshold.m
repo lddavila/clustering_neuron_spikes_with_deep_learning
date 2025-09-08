@@ -32,7 +32,7 @@ function [next_observation, reward, is_done, info] = custom_step_function_for_fi
     end
 
     % Validate action
-    if ~ismember(action, [-1, 0, 1])
+    if ~ismember(action, [-1, 1])
         % Illegal action: terminate with penalty, keep state as-is
         reward = -10;
         is_done = true;
