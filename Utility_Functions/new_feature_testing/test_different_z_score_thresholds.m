@@ -34,8 +34,9 @@ config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data","s
 disp("Finished Setting directories")
 
 %run the clustering algorithm with just the default z score first in order
-%to avoid repetitive work when registering the enviornment
-modified_run_entire_clustering_algorithm(config);
+%to avoid repetitive work when resetting function we start with the
+%baselien ratio when we perfrom a spike cutting at 3.5
+ratio0 = modified_run_entire_clustering_algorithm(config);
 %doing this here avoids work later
 
 %let us get the agent and critique net that will be used
@@ -46,7 +47,7 @@ current_eps = 0.1; %this epsilon value encourages more random movement
 [agent,~,obs_info,action_info] = get_agent_and_critique_net_for_verbose_states(number_of_features,num_neurons,num_layers,current_eps);
 
 %now get the reset handle
-ResetHandle = @() custom_reset_function_for_finding_z_score_threshold(config);
+ResetHandle = @() custom_reset_function_for_finding_z_score_threshold(config,ratio0);
 
 %now get the step function
 StepHandle = @(Action,Info) custom_step_function_for_finding_z_score_threshold(Action,Info);

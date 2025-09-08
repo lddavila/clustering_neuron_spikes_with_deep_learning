@@ -1,4 +1,4 @@
-function [initial_observation, info] = custom_reset_function_for_finding_z_score_threshold(config)
+function [initial_observation, info] = custom_reset_function_for_finding_z_score_threshold(config,ratio0)
     % Domain & starting point
     lower = 3;
     upper = 4;
@@ -7,7 +7,7 @@ function [initial_observation, info] = custom_reset_function_for_finding_z_score
     % Evaluate ratio at starting z
     cfg = config;
     cfg.DEFAULT_CLUSTERING_Z_SCORES = z0;
-    ratio0 = modified_run_entire_clustering_algorithm(cfg);
+    %ratio0 = modified_run_entire_clustering_algorithm(cfg);
 
     % Fill info
     info.z_score              = z0;
