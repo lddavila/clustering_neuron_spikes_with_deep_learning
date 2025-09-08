@@ -4,6 +4,8 @@ function [] = test_different_z_score_thresholds()
 %to accomplish this we'll build an agent to navigate the space between 3
 %and 4
 
+warning('off')
+
 % add the path
 home_dir = cd("..");
 cd("..");
