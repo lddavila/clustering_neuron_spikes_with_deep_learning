@@ -52,7 +52,7 @@ current_eps = 0.1; %this epsilon value encourages more random movement
 ResetHandle = @() custom_reset_function_for_finding_z_score_threshold(config,ratio0);
 
 %now get the step function
-StepHandle = @(Action,Info) custom_step_function_for_finding_z_score_threshold(Action,Info);
+StepHandle = @(Action,Info) custom_step_function_for_finding_z_score_threshold(Action,Info,config);
 
 %now set the training options
 opt = rlTrainingOptions(MaxEpisodes=500, ...

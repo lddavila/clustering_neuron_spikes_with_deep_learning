@@ -38,12 +38,12 @@ list_of_available_channels = str2double(list_of_available_channels);
 already_done = config.ALREADY_DONE_FILES;
 % for this intensive process we want to turn off the parallel pool already
 % set for this job
-p = gcp('nocreate');
-if ~isempty(p)
-    delete(p);
-end
+% p = gcp('nocreate');
+% if ~isempty(p)
+%     delete(p);
+% end
 %now we want to creae a threaded pool to avoid excess memory copying
-parpool("Threads");   
+% parpool("Threads");   
 for i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
@@ -79,7 +79,7 @@ for i=1:size(art_tetr_array,1)
     par_save(fp_for_channel_to_tetrode_dict,channel_to_tetrode_dictionary)
 end
 %now we want to restart the normal parallel pool
-delete(gcp('nocreate'));
-parpool("local"); 
+% delete(gcp('nocreate'));
+% parpool("local"); 
 % fclose(status_file);
 end

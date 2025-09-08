@@ -5,7 +5,7 @@ function [blind_pass_table] = add_clusters_to_bp_table(blind_pass_table)
 %we do this to save computation time for the ratio testing
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,["fp_to_output"]);
 new_data = cell(size(sliced_bp_table{1}));
-parfor i=1:size(sliced_bp_table,1)
+for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     try
         output = importdata(current_data{1,"fp_to_output"});

@@ -9,7 +9,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(sliced_bp_table,1);
 print_status_bar(num_iterations,"add_accuracy_col.m")
-parfor i=1:size(sliced_bp_table,1)
+for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     unit_that_cluster_has_max_overlap_with = current_data{1,"Max Overlap Unit"};
     gt_indexes =ground_truth{unit_that_cluster_has_max_overlap_with} ;

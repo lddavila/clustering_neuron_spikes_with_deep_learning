@@ -65,7 +65,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(sorted_spike_windows_for_current_tetrode,1);
 print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
-parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
+for i=1:size(sorted_spike_windows_for_current_tetrode,1)
 
     current_window = sliced_spike_windows{i};
 
