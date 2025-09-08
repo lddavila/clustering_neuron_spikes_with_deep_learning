@@ -30,7 +30,7 @@ new_ratio = modified_run_entire_clustering_algorithm(copy_of_config);
 diff_between_new_and_old = new_ratio - info.last_ratio;
 reward = diff_between_new_and_old * 10;
 is_done = false;
-next_observation = [current_z_score,diff_between_new_and_old];
+next_observation = [current_z_score,new_ratio];
 
 info.z_score = current_z_score;
 info.last_ratio = new_ratio;

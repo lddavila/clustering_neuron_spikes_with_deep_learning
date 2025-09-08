@@ -22,7 +22,7 @@ config.DEFAULT_CLUSTERING_Z_SCORES = linspace(3,4,100);
 
 %override the default config file to use a different save directory
 config.RECORDING_NAME = "threshold_tests";
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"sim_no_drift_first_300_seconds");
+config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"threshold_tests");
 startup;
 disp("Finished Setting Recording Name")
 
