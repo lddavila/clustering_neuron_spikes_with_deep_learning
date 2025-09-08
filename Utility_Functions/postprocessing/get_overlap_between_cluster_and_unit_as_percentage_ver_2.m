@@ -3,10 +3,10 @@ function [array_of_overlap_with_unit,unit_of_max_overlap,max_overlap_percentage]
 array_of_overlap_with_unit = zeros(1,length(ground_truth));
 max_overlap_percentage = 0;
 unit_of_max_overlap = NaN;
-num_iterations = length(ground_truth);
-q = parallel.pool.DataQueue;
-afterEach(q,@print_status_bar)
-print_status_bar(num_iterations,"get_overlap_between_cluster_and_unit_as_percentage_ver_2.m")
+% num_iterations = length(ground_truth);
+% q = parallel.pool.DataQueue;
+% afterEach(q,@print_status_bar)
+% print_status_bar(num_iterations,"get_overlap_between_cluster_and_unit_as_percentage_ver_2.m")
 for i=1:length(ground_truth)
     current_unit_ts_locs = ground_truth{i};
     number_of_times_current_unit_spikes = size(current_unit_ts_locs,2);
@@ -29,6 +29,6 @@ for i=1:length(ground_truth)
         unit_of_max_overlap = i;
     end
     array_of_overlap_with_unit(i) = percentage_of_units_spikes_in_cluster;
-    send(q,[]);
+    % send(q,[]);
 end
 end
