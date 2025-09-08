@@ -18,7 +18,7 @@ rng(0,'twister');
 config = spikesort_config();
 
 %override the config file so that it uses differnt z scores
-config.DEFAULT_CLUSTERING_Z_SCORES = 3:0.01:4;
+config.DEFAULT_CLUSTERING_Z_SCORES = 3.5;
 
 %override the default config file to use a different save directory
 config.RECORDING_NAME = "threshold_tests";
@@ -32,6 +32,11 @@ config.GT_FP = fullfile(config.base_file_path,"Data","sim_no_drift_first_300_sec
 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data","sim_no_drift_first_300_seconds","timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data","sim_no_drift_first_300_seconds","recordings_by_channel");
 disp("Finished Setting directories")
+
+%run the clustering algorithm with just the default z score first in order
+%to avoid repetitive work when registering the enviornment
+modified_run_entire_clustering_algorithm(config);
+%doing this here avoids work later
 
 %let us get the agent and critique net that will be used
 number_of_features = 4; %to reflect the only information the agent gets to have is the z score and the last accuracy accuracy ratio we found
