@@ -146,19 +146,24 @@ for min_z_score = z_scores_to_check
     file_name = "blind_pass.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');
     fclose(file_id);
+    disp("Finished Core")
 
 
     %step 11: read the results of the blind pass into a table
     blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
+    disp("Finished getting basic blind pass table")
     % save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
 
     %now add the clusters to the blind pass table
+    disp("Abount to get clusters")
     blind_pass_table = add_clusters_to_bp_table(blind_pass_table);
+    disp("Finished adding clusters");
 
     %now we compute the accuracy directly for the blind pass table
+    disp("About to add accuracy");
     blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
     blind_pass_table= add_accuracy_col(config,blind_pass_table);
-    % save(fp_to_bp_table,"blind_pass_table");
+    disp("Finished getting accuracy")
 
     %now get the ratio of clusters above 70% accurate to clusters less than 70%
     %accuracy

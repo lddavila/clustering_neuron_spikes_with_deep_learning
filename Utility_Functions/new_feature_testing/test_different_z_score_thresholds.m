@@ -40,6 +40,7 @@ disp("Finished Setting directories")
 %baselien ratio when we perfrom a spike cutting at 3.5
 ratio0 = modified_run_entire_clustering_algorithm(config);
 %doing this here avoids work later
+disp("Finished initial blind pass")
 
 %let us get the agent and critique net that will be used
 number_of_features = 4; %to reflect the only information the agent gets to have is the z score and the last accuracy accuracy ratio we found
@@ -47,13 +48,15 @@ num_neurons = 5; %a simple test value
 num_layers = 5; %a simple test value
 current_eps = 0.1; %this epsilon value encourages more random movement
 [agent,~,obs_info,action_info] = get_agent_and_critique_net_for_verbose_states(number_of_features,num_neurons,num_layers,current_eps);
+disp("Finished getting agent and critique net");
 
 %now get the reset handle
 ResetHandle = @() custom_reset_function_for_finding_z_score_threshold(config,ratio0);
+disp("Finished getting the custom reset function")
 
 %now get the step function
 StepHandle = @(Action,Info) custom_step_function_for_finding_z_score_threshold(Action,Info,config);
-
+disp("Finished getting the step function")
 %now set the training options
 opt = rlTrainingOptions(MaxEpisodes=500, ...
     MaxStepsPerEpisode=500, ...,
@@ -62,12 +65,14 @@ opt = rlTrainingOptions(MaxEpisodes=500, ...
     SaveAgentCriteria="AverageReward", ...
     StopTrainingCriteria="None",...
     StopOnError="off");
+disp("Finished setting options")
 
 %now get the enviornment that the agent will train in
 env = rlFunctionEnv(obs_info,action_info,StepHandle,ResetHandle);
+disp("Finished validating the enviornment")
 
 %now train the agent
 train(agent,env,opt);
-
+disp("Finished Training")
 
 end
