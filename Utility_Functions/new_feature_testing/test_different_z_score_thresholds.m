@@ -18,7 +18,7 @@ rng(0,'twister');
 config = spikesort_config();
 
 %override the config file so that it uses differnt z scores
-config.DEFAULT_CLUSTERING_Z_SCORES = linspace(3,4,100);
+config.DEFAULT_CLUSTERING_Z_SCORES = 3:0.01:4;
 
 %override the default config file to use a different save directory
 config.RECORDING_NAME = "threshold_tests";
