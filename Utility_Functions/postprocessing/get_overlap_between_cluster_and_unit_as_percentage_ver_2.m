@@ -22,7 +22,7 @@ for i=1:length(ground_truth)
     % 
     % end
     %ORIGINAL ENDS
-    number_of_ts_in_common = ismembertol(current_unit_ts, timestamps_of_cluster, time_delta, 'DataScale', 1);
+    number_of_ts_in_common = sum(ismembertol(current_unit_ts, timestamps_of_cluster, time_delta, 'DataScale', 1),"all");
     percentage_of_units_spikes_in_cluster = (number_of_ts_in_common / number_of_times_current_unit_spikes) * 100;
     if percentage_of_units_spikes_in_cluster > max_overlap_percentage
         max_overlap_percentage = percentage_of_units_spikes_in_cluster;
