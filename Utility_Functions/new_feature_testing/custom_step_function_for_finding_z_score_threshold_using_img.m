@@ -92,6 +92,7 @@ else
     disp("proposed z")
     disp(proposed_z)
     [meets_acc_ratio,blind_pass_table ]= modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+    disp("Finished modified clustering algorithm")
     display(blind_pass_table(:,["Z Score","Tetrode","Cluster","accuracy"]))
     disp(channels)
     if meets_acc_ratio
