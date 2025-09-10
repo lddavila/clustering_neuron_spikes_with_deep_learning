@@ -91,6 +91,7 @@ else
     config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
     [meets_acc_ratio,blind_pass_table ]= modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
     disp(blind_pass_table(:,["Z Score","Tetrode","Cluster","accuracy"]))
+    disp(channels)
     if meets_acc_ratio
         reward = reward+110;
     else
@@ -101,9 +102,10 @@ else
     max_accuracy = max(blind_pass_table{:,"accuracy"});
     scaling_reward = max_accuracy - 80;
     reward = scaling_reward * 10;
-    disp("made the decision to run clustering")
+    %disp("made the decision to run clustering")
     is_done = true;
     next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
+    disp("______________________________________________________________________________")
     return;
 end
 
