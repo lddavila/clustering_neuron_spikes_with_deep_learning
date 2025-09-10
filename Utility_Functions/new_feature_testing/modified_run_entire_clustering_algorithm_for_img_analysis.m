@@ -7,7 +7,7 @@ function [meets_acc_ratio,blind_pass_table] = modified_run_entire_clustering_alg
 %threshold) and mask the spikes in all subsequent dictionary creation
 %thus skipping a lot of precessing work
 
-
+disp("Made it inside modified_run_entire_clustering_algorithm_for_img_analysis.m");
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
@@ -23,10 +23,11 @@ list_of_existing_files(rows_to_exclude,:) = [];
 
 % Step 4: Get ordered List of Channels
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
+disp("Made it to getitng ordered list of channels")
 
 % Step 5: Get the Min Threshold
 min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
-
+disp("Made it to getting min threshold")
 
 what_is_computed = fullfile(string(list_of_existing_files{:,"folder"}),string(list_of_existing_files{:,"name"}));
 config.ALREADY_DONE_FILES = what_is_computed;
@@ -58,11 +59,13 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %step 9 use a for loop to cycle through all z-scores listed in the config
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
-
+disp("Made it to getting z scores")
 
 
 accuracy_threshold = 80;
+disp("about to get into for loop")
 for min_z_score = z_scores_to_check %this for loop is probably redundant because we'll only ever be doing 1 tetrode at 1 z score at a time in this version
+    disp("Made it inside for loop")
     % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
     %   each element of "what_is_precomputed" is a string telling you what is already done
 
@@ -141,7 +144,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     % file_name = "blind_pass.txt";
     % file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
     % fclose(file_id);
-    % disp("Finished Core")
+    disp("Finished Core")
 
 
     %step 11: read the results of the blind pass into a table
