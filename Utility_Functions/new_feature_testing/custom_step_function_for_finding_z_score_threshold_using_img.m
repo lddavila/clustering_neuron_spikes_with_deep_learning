@@ -93,6 +93,11 @@ else
     else
         reward = reward-20;
     end
+    %we'll also had a scaling reward depending on how far above/below the
+    %accuracy is from the threshold
+    max_accuracy = max(blind_pass_table{:,"accuracy"});
+    scaling_reward = max_accuracy - 80;
+    reward = scaling_reward * 10;
     is_done = true;
     next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
     return;
