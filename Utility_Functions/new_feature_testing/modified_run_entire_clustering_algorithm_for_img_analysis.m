@@ -83,7 +83,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     beginning_time = tic;
     spike_windows_dir_new = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
     get_spike_windows_ver_3(ordered_list_of_channels,min_z_score,spike_windows_dir,spike_windows_dir_new);
-
+    disp("Finished getting spike windows")
     end_time = toc(beginning_time);
     % fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
 
@@ -94,6 +94,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
     % clc;
     get_dictionaries_of_all_spikes_ver_3(channels,spike_windows_dir_new,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
+    disp("Finished getting dictionaries")
     %tetrode_dictionary
     %keys: "t" + tetrode number
     %values: all channels which are part of the current dictionary
@@ -138,6 +139,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
     initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score)));
     initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score)));
+    disp("About to begin clustering")
     [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
     end_time = toc(beginning_time);
     % fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
