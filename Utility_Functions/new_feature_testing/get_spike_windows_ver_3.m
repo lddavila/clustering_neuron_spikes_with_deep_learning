@@ -4,14 +4,14 @@ function [] = get_spike_windows_ver_3(channels,desired_z_score,old_spike_windows
 %this function reads an existing spike windows z score and eliminates any
 %spikes that have a z score lower than the currently desired on
 
-
+disp("entered get_spike_windows_ver_3")
 for i=1:length(channels)
     current_channel = channels(i);
     previously_found_spike_windows = importdata(fullfile(old_spike_windows_dir,current_channel));
     spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,5)>=desired_z_score,:);
     par_save(fullfile(new_spike_windows_dir,current_channel),spike_windows)
 end
-
+disp("Finished getting spike windows")
 
 
 end
