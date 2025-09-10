@@ -82,7 +82,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     get_spike_windows_ver_3(ordered_list_of_channels,min_z_score,spike_windows_dir,spike_windows_dir_new);
 
     end_time = toc(beginning_time);
-    fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
+    % fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
 
 
     beginning_time = tic;
@@ -122,7 +122,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
 
     end_time = toc(beginning_time);
-    fprintf('Getting dictionaries took: %f\n',end_time)
+    % fprintf('Getting dictionaries took: %f\n',end_time)
 
 
     % Step 9e: Run Clustering Algorithm
@@ -137,28 +137,28 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score)));
     [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
     end_time = toc(beginning_time);
-    fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
-    file_name = "blind_pass.txt";
-    file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
-    fclose(file_id);
-    disp("Finished Core")
+    % fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
+    % file_name = "blind_pass.txt";
+    % file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
+    % fclose(file_id);
+    % disp("Finished Core")
 
 
     %step 11: read the results of the blind pass into a table
     blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
-    disp("Finished getting basic blind pass table")
+    % disp("Finished getting basic blind pass table")
     % save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
 
     %now add the clusters to the blind pass table
-    disp("Abount to get clusters")
+    % disp("Abount to get clusters")
     blind_pass_table = add_clusters_to_bp_table(blind_pass_table);
-    disp("Finished adding clusters");
+    % disp("Finished adding clusters");
 
     %now we compute the accuracy directly for the blind pass table
-    disp("About to add accuracy");
+    % disp("About to add accuracy");
     blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
     blind_pass_table= add_accuracy_col(config,blind_pass_table);
-    disp("Finished getting accuracy")
+    % disp("Finished getting accuracy")
 
     %now get the ratio of clusters above 70% accurate to clusters less than 70%
     %accuracy

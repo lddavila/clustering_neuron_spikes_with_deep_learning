@@ -1,5 +1,5 @@
 function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
-disp("Beginning Core Clustering Algorithm")
+% disp("Beginning Core Clustering Algorithm")
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
@@ -25,10 +25,10 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 
-q = parallel.pool.DataQueue;
-afterEach(q,@print_message_using_dataqueue)
-num_iterations = length(list_of_available_tetrodes);
-print_message_using_dataqueue(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
+% q = parallel.pool.DataQueue;
+% afterEach(q,@print_message_using_dataqueue)
+% num_iterations = length(list_of_available_tetrodes);
+% print_message_using_dataqueue(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
 for i=1:length(list_of_available_tetrodes)
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
@@ -42,7 +42,7 @@ for i=1:length(list_of_available_tetrodes)
     c3 = ismember(reg_ts_file_name,config.ALREADY_DONE_FILES);
     c4 = ismember(reg_ts_of_spikes_file_name,config.ALREADY_DONE_FILES);
     if all([c1,c2,c3,c4])
-        send(q,[]);
+        % send(q,[]);
         continue;
     end
 
@@ -132,6 +132,6 @@ for i=1:length(list_of_available_tetrodes)
         % fprintf('%s',ME.cause);
         continue;
     end
-    send(q,[]);
+    % send(q,[]);
 end
 end

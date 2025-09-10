@@ -9,7 +9,7 @@ tetrodes_list = strcat("t",string(1:size(array_of_available_tetrodes,2)));
 random_tetrode_index = randi(length(tetrodes_list));
 random_tetrode = tetrodes_list(random_tetrode_index);
 channels_of_rand_tetrode = array_of_available_tetrodes(random_tetrode_index,:);
-
+disp(channels_of_rand_tetrode)
 
 %get the cut spikes of the image
 spikes_of_random_tetr =get_spike_slices(channels_of_rand_tetrode,spike_windows_dir,config.DIR_WITH_OG_CHANNEL_RECORDINGS,config.NUM_DPTS_TO_SLICE,config.SCALE_FACTOR,z0);

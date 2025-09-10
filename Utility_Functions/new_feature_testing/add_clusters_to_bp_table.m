@@ -5,10 +5,10 @@ function [blind_pass_table] = add_clusters_to_bp_table(blind_pass_table)
 %we do this to save computation time for the ratio testing
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,["fp_to_output"]);
 new_data = cell(size(sliced_bp_table{1}));
-num_iterations = size(sliced_bp_table,1);
-q = parallel.pool.DataQueue;
-afterEach(q,@print_status_bar)
-print_status_bar(num_iterations,"add_clusters_to_bp_table.m")
+% num_iterations = size(sliced_bp_table,1);
+% q = parallel.pool.DataQueue;
+% afterEach(q,@print_status_bar)
+% print_status_bar(num_iterations,"add_clusters_to_bp_table.m")
 for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     try
@@ -44,7 +44,7 @@ for i=1:size(sliced_bp_table,1)
 
 
     new_data{i} = join(current_new_data,current_data);
-    send(q,[]);
+    % send(q,[]);
 end
 blind_pass_table = vertcat(new_data{:});
 end

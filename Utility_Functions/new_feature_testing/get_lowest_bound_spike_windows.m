@@ -5,11 +5,11 @@ function [] = get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per
 %the third is the original channel of the spike
 %the fourth is the original the peak of the spike according to find_peaks'
 %the fifth is the z score of the peak of the spike according to find_peaks
-number_of_iterations = length(ordered_list_of_channels);
+% number_of_iterations = length(ordered_list_of_channels);
 % status_file = config.FP_TO_STATUS_FILE;
-q = parallel.pool.DataQueue;
-afterEach(q,@print_status_bar)
-print_status_bar(number_of_iterations,"get_spike_windows_ver_2.m")
+% q = parallel.pool.DataQueue;
+% afterEach(q,@print_status_bar)
+% print_status_bar(number_of_iterations,"get_spike_windows_ver_2.m")
 
 
 already_done = config.ALREADY_DONE_FILES;
@@ -19,7 +19,7 @@ for i=1:length(ordered_list_of_channels)
     
 
     if ismember(fullfile(spike_windows_dir,current_channel),already_done)
-        send(q,[])
+        % send(q,[])
         continue;
     end
 
@@ -55,7 +55,7 @@ for i=1:length(ordered_list_of_channels)
         end
     end
     par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
-    send(q,[]);
+    % send(q,[]);
 end
 
 
