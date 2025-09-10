@@ -123,6 +123,7 @@ for i=1:length(list_of_available_tetrodes)
             output_array{i} = NaN;
             aligned_array{i} = NaN;
             reg_timestamps_array{i} = NaN;
+            disp("Went into catch")
 
             continue;
         end
