@@ -85,11 +85,11 @@ if action ==-1 || action ==1
 else
     %because clustering is expensive and we want to encourage the least
     %number of clustering possible we impose a cost;
-    reward = -10;
+    reward = -100;
     config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
-    meets_acc_ratio = modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+    [meets_acc_ratio,blind_pass_table ]= modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
     if meets_acc_ratio
-        reward = reward+100;
+        reward = reward+110;
     else
         reward = reward-20;
     end

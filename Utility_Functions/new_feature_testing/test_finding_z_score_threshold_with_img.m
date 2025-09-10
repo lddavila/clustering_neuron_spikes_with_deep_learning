@@ -27,7 +27,7 @@ cd(home_dir);
 
 
 %set the seed for reproducability
-rng(0,'twister');
+%rng(0,'twister');
 
 % get a default config file
 config = spikesort_config();
@@ -114,7 +114,7 @@ get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per_channel_dir,l
 number_of_features =60003 ; % to reflect the image, ratio, and z score given 
 num_neurons = 15; %a simple test value
 num_layers = 15; %a simple test value
-current_eps = 0.1; %this epsilon value encourages more random movement
+current_eps = 0.2; %this epsilon value encourages more random movement
 [agent,~,obs_info,action_info] = get_agent_and_critique_net_for_finding_z_score_with_img(number_of_features,num_neurons,num_layers,current_eps);
 disp("Finished getting agent and critique net");
 

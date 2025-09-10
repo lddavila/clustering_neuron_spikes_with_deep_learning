@@ -1,11 +1,19 @@
-function [output_table] = get_table_of_all_tetrodes_that_finished_blind_pass(config)
+function [output_table] = get_table_of_all_tetrodes_that_finished_blind_pass(config,optional_z_score)
 % this file serves to read all the results of
 % run_entire_clustering_algorithm_ver_2.m
+arguments
+    config (1,1) struct
+    optional_z_score double = nan;
+end
 
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 all_files_in_precomputed_dir = struct2table(dir(fullfile(precomputed_dir, '**', '*'))); % '**' searches subdirectories
 simplified_foldernames = string(all_files_in_precomputed_dir{:,"folder"});
-all_files_in_precomputed_dir = all_files_in_precomputed_dir(contains(simplified_foldernames,fullfile(precomputed_dir,"initial_pass_results min z_score")),:); 
+if isnan(optional_z_score)
+    all_files_in_precomputed_dir = all_files_in_precomputed_dir(contains(simplified_foldernames,fullfile(precomputed_dir,"initial_pass_results min z_score")),:); 
+else
+    all_files_in_precomputed_dir = all_files_in_precomputed_dir(contains(simplified_foldernames,fullfile(precomputed_dir,"initial_pass_results min z_score "+optional_z_score)),:); 
+end
 all_files_in_precomputed_dir = all_files_in_precomputed_dir(~all_files_in_precomputed_dir{:,"isdir"},:);
 only_files_with_output = all_files_in_precomputed_dir(contains(string(all_files_in_precomputed_dir{:,"name"}),"output"),:);
 output_table = table(nan(size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),...

@@ -1,4 +1,4 @@
-function [meets_acc_ratio] = modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std)
+function [meets_acc_ratio,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std)
 %this version differs from the mainline production version because it
 %optimizes for the new feature of finding the best threshold for a tetrode
 %by looking at an n-dimension image
@@ -61,7 +61,7 @@ z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
 
 
 
-accuracy_threshold = 70;
+accuracy_threshold = 80;
 for min_z_score = z_scores_to_check %this for loop is probably redundant because we'll only ever be doing 1 tetrode at 1 z score at a time in this version
     % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
     %   each element of "what_is_precomputed" is a string telling you what is already done
@@ -145,7 +145,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
 
     %step 11: read the results of the blind pass into a table
-    blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
+    blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config,min_z_score);
     % disp("Finished getting basic blind pass table")
     % save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
 
