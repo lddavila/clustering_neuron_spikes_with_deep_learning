@@ -5,6 +5,7 @@ function [] = get_spike_windows_ver_3(channels,desired_z_score,old_spike_windows
 %spikes that have a z score lower than the currently desired on
 
 disp("entered get_spike_windows_ver_3")
+disp("channels that were entered with")
 disp(channels)
 for i=1:length(channels)
     current_channel = channels(i);
