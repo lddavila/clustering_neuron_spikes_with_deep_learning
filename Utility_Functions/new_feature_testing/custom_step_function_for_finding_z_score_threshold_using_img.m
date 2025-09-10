@@ -1,4 +1,4 @@
-function [next_observation, reward, is_done, info] = custom_step_function_for_finding_z_score_threshold_using_img(action, info, config)
+function [next_observation, reward, is_done, info] = custom_step_function_for_finding_z_score_threshold_using_img(action, info, config,standard_lower_bound,standard_upper_bound,spike_windows_dir,timestamps,channel_wise_means,channel_wise_std)
 % STEP for binary-search-like tuning of z-score.
 % action: -1 -> move upper bound down (want smaller z), +1 -> move lower bound up (want larger z)
 % Optional:  0 -> no-op refine (re-evaluate midpoint)
@@ -22,38 +22,39 @@ if ~isfield(info, 'tol_z'),       info.tol_z = 1e-3;       end
 if ~isfield(info, 'max_steps'),   info.max_steps = inf;     end
 if ~isfield(info, 'step_count'),  info.step_count = 0;      end
 
-% Ensure bounds are consistent and within [3,4]
-lower_bound = min(max(info.current_lower_bound, 3), 4);
-upper_bound = max(min(info.current_upper_bound, 4), 3);
+channels = info.channels_of_tetrode;
+% Ensure bounds are consistent and within
+% [standard_lower_bound,standard_upper_bound]
+lower_bound = min(max(info.current_lower_bound, standard_lower_bound), standard_upper_bound);
+upper_bound = max(min(info.current_upper_bound, standard_upper_bound), standard_lower_bound);
 if lower_bound > upper_bound
     % Repair inverted bounds by collapsing to z_score
-    lower_bound = min(max(info.z_score, 3), 4);
+    lower_bound = min(max(info.z_score, standard_lower_bound), standard_upper_bound);
     upper_bound = lower_bound;
 end
 
 % Validate action
-if ~ismember(action, [-1, 1])
+if ~ismember(action, [-1, 1,0])
     % Illegal action: terminate with penalty, keep state as-is
     reward = -10;
     is_done = true;
-    next_observation = [info.z_score, info.last_ratio, lower_bound, upper_bound];
+    next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
     return;
 end
 
-% --- boundary checks vs hard domain [3,4] (optional but safe) ---
-% We’ll mainly trust [lower_bound, upper_bound], which is already clipped to [3,4].
+% --- boundary checks vs hard domain standard_lower_bound and standard_upper_bound (optional but safe) ---
+% Wesll mainly trust [lower_bound, upper_bound], which is already clipped to standard_lower_bound and standard_upper_bound.
 
 % --- update bounds based on action ---
 current_z = info.z_score;
 
+%adjust the bounds if the decision calls for it
 if action == -1
     % wanting to move toward smaller z → shrink upper bound
     upper_bound = min(upper_bound, current_z);
 elseif action == 1
     % wanting larger z → raise lower bound
     lower_bound = max(lower_bound, current_z);
-else
-    % action == 0: no-op refine (keep bounds)
 end
 
 % Keep bounds valid
@@ -64,31 +65,50 @@ if lower_bound > upper_bound
 end
 
 % New proposal: midpoint
+%if the the decision was to move down/up then we'll get a new z score and
+%thus a new image
+%if the action is 0 ie. run clustering then we do not get a new image
 proposed_z = lower_bound + 0.5 * (upper_bound - lower_bound);
 
-% If interval is degenerate, still evaluate once at the point
-current_z_score = proposed_z;
+if action ==-1 || action ==1
+    %to avoid continuous checks we impose a small cost on checks
+    reward = -1;
+    %get the cut spikes of the image
+    spikes_of_tetr =get_spike_slices(channels,spike_windows_dir,config.DIR_WITH_OG_CHANNEL_RECORDINGS,config.NUM_DPTS_TO_SLICE,config.SCALE_FACTOR,proposed_z);
 
-% --- run environment with new z ---
-copy_of_config = config;
-copy_of_config.DEFAULT_CLUSTERING_Z_SCORES = current_z_score;
+    %get the grayscale image of the spikes
+    gryscale_image = produce_nth_dimensional_view(spikes_of_tetr,channels);
 
-new_ratio = modified_run_entire_clustering_algorithm(copy_of_config);
+    %now reshape the grayscale image into single row of features that will
+    %go into the neural network
+    gryscale_image = double(reshape(gryscale_image,1,[]));   % 1×60,000
+else
+    %because clustering is expensive and we want to encourage the least
+    %number of clustering possible we impose a cost;
+    reward = -10;
+    config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
+    meets_acc_ratio = modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+    if meets_acc_ratio
+        reward = reward+100;
+    else
+        reward = reward-20;
+    end
+    is_done = true;
+    next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
+    return;
+end
 
-% --- reward shaping ---
-diff_between_new_and_old = new_ratio - info.last_ratio;
-reward = 10 * diff_between_new_and_old;
+
 
 % --- update info / state ---
-info.z_score               = current_z_score;
-info.last_ratio            = new_ratio;
+info.z_score               = proposed_z;
 info.current_lower_bound   = lower_bound;
 info.current_upper_bound   = upper_bound;
 info.step_count            = info.step_count + 1;
-
+info.img_vector = gryscale_image;
 % --- termination criteria ---
 width = upper_bound - lower_bound;
-small_move = abs(current_z_score - current_z) < info.tol_z;
+small_move = abs(proposed_z - current_z) < info.tol_z;
 
 is_done = false;
 if width <= info.tol_z || small_move || info.step_count >= info.max_steps
@@ -96,5 +116,5 @@ if width <= info.tol_z || small_move || info.step_count >= info.max_steps
 end
 
 % --- observation (include bounds so policy can “see” the interval) ---
-next_observation = [current_z_score, new_ratio, lower_bound, upper_bound];
+next_observation = rescale([proposed_z, lower_bound, upper_bound,gryscale_image],-1,1);
 end
