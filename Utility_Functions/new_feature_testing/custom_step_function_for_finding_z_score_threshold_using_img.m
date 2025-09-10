@@ -14,8 +14,7 @@ function [next_observation, reward, is_done, info] = custom_step_function_for_fi
 %
 % Returns:
 %   next_observation = [z, ratio, lower, upper]
-%   reward = 10 * (new_ratio - last_ratio)
-%   is_done = logical
+reward = 0;
 disp("Action is")
 disp(action)
 % --- defaults / guards ---
@@ -86,10 +85,12 @@ if action ==-1 || action ==1
     gryscale_image = double(reshape(gryscale_image,1,[]));   % 1×60,000
 else
     %because clustering is expensive and we want to encourage the least
-    %number of clustering possible we impose a cost;
+    %number of clustering possible we impose a steep cost;
+    disp("made it 0")
     reward = -100;
     config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
     [meets_acc_ratio,blind_pass_table ]= modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+    disp(blind_pass_table(:,["Z Score","Tetrode","cluster","accuracy"]))
     if meets_acc_ratio
         reward = reward+110;
     else
