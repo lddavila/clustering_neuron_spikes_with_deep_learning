@@ -90,7 +90,7 @@ else
     reward = -100;
     config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
     [meets_acc_ratio,blind_pass_table ]= modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
-    disp(blind_pass_table(:,["Z Score","Tetrode","cluster","accuracy"]))
+    disp(blind_pass_table(:,["Z Score","Tetrode","Cluster","accuracy"]))
     if meets_acc_ratio
         reward = reward+110;
     else
