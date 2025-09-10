@@ -16,7 +16,8 @@ function [next_observation, reward, is_done, info] = custom_step_function_for_fi
 %   next_observation = [z, ratio, lower, upper]
 %   reward = 10 * (new_ratio - last_ratio)
 %   is_done = logical
-
+disp("Action is")
+disp(action)
 % --- defaults / guards ---
 if ~isfield(info, 'tol_z'),       info.tol_z = 1e-3;       end
 if ~isfield(info, 'max_steps'),   info.max_steps = inf;     end
