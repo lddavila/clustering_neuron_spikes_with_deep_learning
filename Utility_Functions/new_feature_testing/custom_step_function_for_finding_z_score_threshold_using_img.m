@@ -37,6 +37,7 @@ end
 if ~ismember(action, [-1, 1,0])
     % Illegal action: terminate with penalty, keep state as-is
     reward = -10;
+    disp("Made It to illegal action")
     is_done = true;
     next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
     return;
@@ -98,6 +99,7 @@ else
     max_accuracy = max(blind_pass_table{:,"accuracy"});
     scaling_reward = max_accuracy - 80;
     reward = scaling_reward * 10;
+    disp("made the decision to run clustering")
     is_done = true;
     next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
     return;
@@ -117,6 +119,7 @@ small_move = abs(proposed_z - current_z) < info.tol_z;
 
 is_done = false;
 if width <= info.tol_z || small_move || info.step_count >= info.max_steps
+    disp("Made it to the tolerance check")
     is_done = true;
 end
 
