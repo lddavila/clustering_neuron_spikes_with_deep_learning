@@ -51,6 +51,32 @@ config.ALREADY_DONE_FILES = what_is_computed;
 %7.5 is the z score used by default as it is the midpoint between 3 and 12
 config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
 
+%create the z score directory 
+if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score"),what_is_computed) %means that the z_score matrix is already computed and we will skip computing it again
+   z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score")); %not yet computed
+else
+   z_score_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score");
+end
+disp("Finished Creating Z Score Directory");
+
+%create the directory for the template files
+create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Shape_Template_PNGs"));
+
+%load the timestamps into memory
+timestamps = importdata(config.TIMESTAMP_FP);
+disp("Finished Importing timestamps for recording")
+
+%get the ordered list of channels
+ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
+
+%get the channel statistics 
+beginning_time = tic;
+[channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,z_score_dir,scale_factor,config,what_is_computed); %will get the mean and std of every channel and calculate z_score for data set if not yet created
+mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std"));
+save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
+end_time = toc(beginning_time);
+fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
+
 %to get a training set we'll want to produce a bunch of simple jpegs that
 %we can analyze
 %assuming we have a full blind pass available we can try getting the
@@ -71,17 +97,26 @@ channel_recordings_dir = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dpts = config.NUM_DPTS_TO_SLICE;
 scale_factor = config.SCALE_FACTOR;
 dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"images"));
+
+num_iterations = size(art_tetrode_array,1);
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+print_status_bar(num_iterations,"getting_training_images.m")
 parfor i=1:size(art_tetrode_array,1)
     for z0=(increments_to_try)
         %get the cut spikes of the image
-        save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.3f",i,z0));
+        save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
+        %check to make sure the image doesn't already exist and if it does
+        %we wont recreate it
         if ~ismember(save_name,list_of_existing_files)
             spikes_of_random_tetr =get_spike_slices(channels_of_rand_tetrode,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
             %get the grayscale image of the spikes
             grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
-            par_save(save_name,grayscale_image)
+            %save the image
+            par_save_as_jpeg(save_name,grayscale_image)
         end
     end
+    send(q,[]);
 end
 
 
