@@ -18,7 +18,7 @@ for i=1:length(channels)
     disp("size of new spike windows");
     disp(size(spike_windows))
     disp("save path for spike windows")
-    disp(fullfile(new_spike_windows_dir,current_channel),spike_windows)
+    display(fullfile(new_spike_windows_dir,current_channel))
     par_save(fullfile(new_spike_windows_dir,current_channel),spike_windows)
 end
 disp("Finished getting spike windows")
