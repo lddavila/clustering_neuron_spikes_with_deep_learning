@@ -7,7 +7,7 @@ function [meets_acc_ratio,blind_pass_table] = modified_run_entire_clustering_alg
 %threshold) and mask the spikes in all subsequent dictionary creation
 %thus skipping a lot of precessing work
 
-disp("Made it inside modified_run_entire_clustering_algorithm_for_img_analysis.m");
+
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
@@ -23,11 +23,9 @@ list_of_existing_files(rows_to_exclude,:) = [];
 
 % Step 4: Get ordered List of Channels
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
-disp("Made it to getitng ordered list of channels")
 
 % Step 5: Get the Min Threshold
 min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
-disp("Made it to getting min threshold")
 
 what_is_computed = fullfile(string(list_of_existing_files{:,"folder"}),string(list_of_existing_files{:,"name"}));
 config.ALREADY_DONE_FILES = what_is_computed;
@@ -59,13 +57,11 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %step 9 use a for loop to cycle through all z-scores listed in the config
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
-disp("Made it to getting z scores")
 
 
 accuracy_threshold = 80;
-disp("about to get into for loop")
 for min_z_score = z_scores_to_check %this for loop is probably redundant because we'll only ever be doing 1 tetrode at 1 z score at a time in this version
-    disp("Made it inside for loop")
+
     % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
     %   each element of "what_is_precomputed" is a string telling you what is already done
 
@@ -81,14 +77,9 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
     % step 9c; Get all the data points from the potential spikes
     beginning_time = tic;
-    disp("about to get spike windows")
+
     spike_windows_dir_new = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-    disp("new spike windows dir")
-    disp(spike_windows_dir_new)
-    disp("old spike windows dir")
-    disp(spike_windows_dir)
     get_spike_windows_ver_3(channels,min_z_score,spike_windows_dir,spike_windows_dir_new);
-    disp("Finished getting spike windows")
     end_time = toc(beginning_time);
     % fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
 
@@ -98,9 +89,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     % step 9d: get maps of each tetrode to its spikes
 
     % clc;
-    disp("About to get dictionaries")
     get_dictionaries_of_all_spikes_ver_3(channels,spike_windows_dir_new,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
-    disp("Finished getting dictionaries")
     %tetrode_dictionary
     %keys: "t" + tetrode number
     %values: all channels which are part of the current dictionary
@@ -145,14 +134,13 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
     initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score)));
     initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score)));
-    disp("About to begin clustering")
     [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
     end_time = toc(beginning_time);
     % fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
     % file_name = "blind_pass.txt";
     % file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
     % fclose(file_id);
-    disp("Finished Core")
+
 
 
     %step 11: read the results of the blind pass into a table
