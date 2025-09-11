@@ -7,7 +7,7 @@ for i=1:length(channels)
     current_channel = channels(i);
     previously_found_spike_windows = importdata(fullfile(old_spike_windows_dir,"c"+string(current_channel)+".mat"));
     spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,5)>=desired_z_score,:);
-    par_save(fullfile(new_spike_windows_dir,current_channel),spike_windows)
+    par_save(fullfile(new_spike_windows_dir,"c"+string(current_channel)+".mat"),spike_windows)
 end
 
 
