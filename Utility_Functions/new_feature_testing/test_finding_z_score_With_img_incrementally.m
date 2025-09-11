@@ -25,7 +25,8 @@ config = spikesort_config();
 
 %override the default config file to use a different save directory
 config.RECORDING_NAME = "img_threshold_finding_incremental";
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"img_threshold_finding_incremental");
+config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"img_threshold_finding_incremental"));
+
 startup;
 disp("Finished Setting Recording Name")
 
@@ -76,6 +77,10 @@ mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(co
 save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
 end_time = toc(beginning_time);
 fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
+
+%now get the modified spike windows where the z score is at least the lower bound
+spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(lower) + " num dps "+ string(config.NUM_DPTS_TO_SLICE)));
+get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per_channel_dir,lower,config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config)
 
 %to get a training set we'll want to produce a bunch of simple jpegs that
 %we can analyze
@@ -134,14 +139,17 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
 cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
-parfor i=1:size(art_tetrode_array,1)
-    table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy"]);
+for i=1:size(art_tetrode_array,1)
+    table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
+    channels = art_tetrode_array(i,:);
     for z0=(increments_to_try)
         %get the cut spikes of the image
         save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
-        table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","accuracy"])];
-        %check to make sure the image doesn't already exist and if it does
-        %we wont recreate it
+        table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
+        temp_config = config;
+        config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
+        [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+        max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
         cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
         send(q,[]);
     end
