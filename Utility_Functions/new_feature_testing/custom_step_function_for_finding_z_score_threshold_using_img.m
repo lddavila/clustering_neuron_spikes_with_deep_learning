@@ -37,7 +37,7 @@ end
 if ~ismember(action, [-1, 1,0])
     % Illegal action: terminate with penalty, keep state as-is
     reward = -10;
-    disp("Made It to illegal action")
+    % disp("Made It to illegal action")
     is_done = true;
     next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
     return;
@@ -86,7 +86,7 @@ if action ==-1 || action ==1
 else
     %because clustering is expensive and we want to encourage the least
     %number of clustering possible we impose a steep cost;
-    disp("made it 0")
+    % disp("made it 0")
     reward = -100;
     config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
     % disp("proposed z")
@@ -131,7 +131,7 @@ small_move = abs(proposed_z - current_z) < info.tol_z;
 
 is_done = false;
 if width <= info.tol_z || small_move || info.step_count >= info.max_steps
-    disp("Made it to the tolerance check")
+    % disp("Made it to the tolerance check")
     is_done = true;
 end
 
