@@ -100,6 +100,9 @@ else
     else
         reward = reward-20;
     end
+    if isempty(blind_pass_table)
+        reward = reward -20; %you want to impose an even steeper if it failed to return any clusters at all cause it means it completely failed
+    end
     %we'll also had a scaling reward depending on how far above/below the
     %accuracy is from the threshold
     max_accuracy = max(blind_pass_table{:,"accuracy"});
