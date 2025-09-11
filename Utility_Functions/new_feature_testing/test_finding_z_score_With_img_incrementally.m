@@ -131,7 +131,8 @@ parfor i=1:size(art_tetrode_array,1)
     cell_array_of_image_data{i} = table_of_image_data;
     send(q,[]);
 end
-table_of_image_data = vertat(cell_array_of_image_data);
+table_of_image_data = vertat(cell_array_of_image_data(:));
+par_save(table_of_image_data)
 disp("Finished creating images")
 
 %now that the training images are created we can run the clustering using
