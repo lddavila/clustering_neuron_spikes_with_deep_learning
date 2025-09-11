@@ -115,12 +115,14 @@ print_status_bar(num_iterations,"getting_training_images.m")
 cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_is_computed)
     parfor i=1:size(art_tetrode_array,1)
+        sub_cell_array_of_image_data = cell(length(increments_to_try),1);
         table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
         channels = art_tetrode_array(i,:);
+        counter =1;
         for z0=(increments_to_try)
             %get the cut spikes of the image
             save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
-            table_of_image_data = [table_of_image_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","image_path"])];
+            sub_cell_array_of_image_data{counter} =table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","image_path"]);
             %check to make sure the image doesn't already exist and if it does
             %we wont recreate it
             if ~ismember(save_name,what_is_computed)
@@ -131,6 +133,8 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
                 par_save_as_jpeg(save_name,grayscale_image)
             end
             send(q,[]);
+            counter = counter+1;
+            table_of_image_data = vertcat(sub_cell_array_of_image_data{:});
         end
         cell_array_of_image_data{i} = table_of_image_data;
         
@@ -152,7 +156,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     print_status_bar(num_iterations,"getting_training_images.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
     for i=1:size(art_tetrode_array,1)
-        table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
+        table_of_image_accuracy_data = cell2table(cell(0,4),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
         channels = art_tetrode_array(i,:);
         for z0=(increments_to_try)
             temp_config = config;
@@ -189,13 +193,18 @@ random_positives= datasample(s,indexes_of_positives,min_num_samples,'Replace',fa
 random_negatives = datasample(s,indexes_of_negatives,min_num_samples,'Replace',false);
 
 equalized_classes = training_data([random_positives;random_negatives],:);
-shuffled_data = equalized_classes(randperm(size(equalized_classes,1),1),:);
+shuffled_data = equalized_classes(randperm(size(equalized_classes,1),size(equalized_classes,1)),:);
 
 %now create an image data store based off of this data
-imds = imageDatastore(training_data.image_path);
-imds.Labels = categorical(training_data.accuracy_class);
+imds = imageDatastore(shuffled_data.image_path);
+imds.Labels = categorical(shuffled_data.accuracy_class);
 
+%now specify training and validation data
+numTrainFiles = round(size(shuffled_data,1) *0.75);
+[imdsTrain,imdsValidation] = splitEachLabel(imds,numTrainFiles,"randomized");
 
+%now get the class labels
+classNames = categories(imdsTrain.Labels);
 
 %now we get the neural network which we'll use to train the identifcation
 %inputSize = size(grayscale_image);
@@ -208,6 +217,21 @@ layers = [
     reluLayer
     fullyConnectedLayer(numClasses)
     softmaxLayer];
+
+%now specify training options
+options = trainingOptions("sgdm", ...
+    MaxEpochs=4, ...
+    ValidationData=imdsValidation, ...
+    ValidationFrequency=30, ...
+    Plots="training-progress", ...
+    Metrics="accuracy", ...
+    Verbose=false);
+
+%now train
+net = trainnet(imdsTrain,layers,"crossentropy",options);
+
+%now get the accuracy of the net
+accuracy = testnet(net,imdsValidation,"accuracy");
 end
 
 
