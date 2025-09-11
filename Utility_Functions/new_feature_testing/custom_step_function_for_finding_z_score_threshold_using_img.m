@@ -15,8 +15,8 @@ function [next_observation, reward, is_done, info] = custom_step_function_for_fi
 % Returns:
 %   next_observation = [z, ratio, lower, upper]
 reward = 0;
-disp("Action is")
-disp(action)
+% disp("Action is")
+% disp(action)
 % --- defaults / guards ---
 if ~isfield(info, 'tol_z'),       info.tol_z = 1e-3;       end
 if ~isfield(info, 'max_steps'),   info.max_steps = inf;     end
@@ -89,10 +89,10 @@ else
     disp("made it 0")
     reward = -100;
     config.DEFAULT_CLUSTERING_Z_SCORES = proposed_z;
-    disp("proposed z")
-    disp(proposed_z)
+    % disp("proposed z")
+    % disp(proposed_z)
     [meets_acc_ratio,blind_pass_table ]= modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
-    disp("Finished modified clustering algorithm")
+    % disp("Finished modified clustering algorithm")
     % display(blind_pass_table(:,["Z Score","Tetrode","Cluster","accuracy"]))
     % disp(channels)
     if meets_acc_ratio
