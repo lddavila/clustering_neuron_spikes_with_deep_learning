@@ -12,7 +12,7 @@ print_status_bar(number_of_iterations,"get_spike_windows_ver_2.m")
 
 
 already_done = config.ALREADY_DONE_FILES;
-for i=1:length(ordered_list_of_channels)
+parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
 
     
