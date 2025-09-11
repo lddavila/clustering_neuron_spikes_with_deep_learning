@@ -1,0 +1,88 @@
+function [] = test_finding_z_score_With_img_incrementally()
+%because the reward function for the q-learning agent proved ot be a little
+%to complex to properly develop I'm going to try and use a simpler machine
+%learning approach
+%similar to before we'll use a neural network to try and identify which
+%tetrodes at which z scores will produce a cluster with 90% accuracy when
+%we look at all 2d views available
+
+clc;
+
+%set the increments that will be used for each tetrode
+increments_to_try = 3:0.1:12;
+
+% add the path
+home_dir = cd("..");
+cd("..");
+addpath(genpath(pwd));
+cd(home_dir);
+
+%set the seed for reproducability
+rng(0,'twister');
+
+% get a default config file
+config = spikesort_config();
+
+%override the default config file to use a different save directory
+config.RECORDING_NAME = "img_threshold_finding_incremental";
+config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"img_threshold_finding_incremental");
+startup;
+disp("Finished Setting Recording Name")
+
+%override the default config file to point towards the recording we'll be
+%using for these tests
+config.GT_FP = fullfile(config.base_file_path,"Data","sim_no_drift_first_300_seconds","ground_truth","ground_truth.mat");
+config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data","sim_no_drift_first_300_seconds","timestamps","timestamps.mat");
+config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data","sim_no_drift_first_300_seconds","recordings_by_channel");
+disp("Finished Setting directories")
+
+%get the scale factor
+scale_factor = config.SCALE_FACTOR;
+
+%get a list of what is already done
+list_of_existing_files =struct2table(dir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"**",".")));
+rows_to_exclude = string(list_of_existing_files{:,"name"}) == "." | string(list_of_existing_files{:,"name"})=="..";
+list_of_existing_files(rows_to_exclude,:) = [];
+what_is_computed = fullfile(string(list_of_existing_files{:,"folder"}),string(list_of_existing_files{:,"name"}));
+config.ALREADY_DONE_FILES = what_is_computed;
+
+
+%override the config file so that it uses differnt z scores
+%7.5 is the z score used by default as it is the midpoint between 3 and 12
+config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
+
+%to get a training set we'll want to produce a bunch of simple jpegs that
+%we can analyze
+%assuming we have a full blind pass available we can try getting the
+%cluster images from every tetrode
+%unfortunately this will be costly
+%a full blind has 285 tetrodes and if we increment them as I desire it'll
+%be 91 *285, but luckily I have already implemented a much faster version
+%of the core clustering algorithm so hopefully we can avoid a lot of the
+%overhead
+
+%we won't do any grading or merging or any such thing
+%we'll exclusively get the images then run the clustering then compute
+%accuracy
+
+%first we'll worry about getting the images as that is much simpler
+art_tetrode_array = config.ART_TETR_ARRAY;
+channel_recordings_dir = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
+num_dpts = config.NUM_DPTS_TO_SLICE;
+scale_factor = config.SCALE_FACTOR;
+dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"images"));
+parfor i=1:size(art_tetrode_array,1)
+    for z0=(increments_to_try)
+        %get the cut spikes of the image
+        save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.3f",i,z0));
+        if ~ismember(save_name,list_of_existing_files)
+            spikes_of_random_tetr =get_spike_slices(channels_of_rand_tetrode,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
+            %get the grayscale image of the spikes
+            grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
+            par_save(save_name,grayscale_image)
+        end
+    end
+end
+
+
+end
