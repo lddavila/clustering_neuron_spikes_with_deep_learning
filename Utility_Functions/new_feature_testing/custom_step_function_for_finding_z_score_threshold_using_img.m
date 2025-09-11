@@ -105,12 +105,14 @@ else
     end
     %we'll also had a scaling reward depending on how far above/below the
     %accuracy is from the threshold
-    max_accuracy = max(blind_pass_table{:,"accuracy"});
+    max_accuracy = max([0,max(blind_pass_table{:,"accuracy"})]); %written this way in the case of empty blind pass table
     scaling_reward = max_accuracy - 80;
-    reward = reward +scaling_reward * 10;
+    reward = reward +(scaling_reward * 10);
     %disp("made the decision to run clustering")
     is_done = true;
     next_observation = rescale([info.z_score, lower_bound, upper_bound,info.img_vector],-1,1);
+    % disp("reward is")
+    % display(reward)
     % disp("reward is")
     % display(reward)
     % disp("______________________________________________________________________________")
@@ -137,4 +139,5 @@ end
 
 % --- observation (include bounds so policy can “see” the interval) ---
 next_observation = rescale([proposed_z, lower_bound, upper_bound,gryscale_image],-1,1);
+
 end
