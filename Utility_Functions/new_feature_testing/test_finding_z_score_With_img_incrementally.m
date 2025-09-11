@@ -78,6 +78,10 @@ save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel
 end_time = toc(beginning_time);
 fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
 
+%find all spikes where the z score is at least the lower bound 
+spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spikes_per_channel min_z_score "+string(increments_to_try(1))));
+detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,z_score_dir,increments_to_try(1),scale_factor,config);
+
 %now get the modified spike windows where the z score is at least the lower bound
 spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(increments_to_try(1)) + " num dps "+ string(config.NUM_DPTS_TO_SLICE)));
 get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per_channel_dir,lower(1),config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config)
