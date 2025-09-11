@@ -52,11 +52,11 @@ config.ALREADY_DONE_FILES = what_is_computed;
 %7.5 is the z score used by default as it is the midpoint between 3 and 12
 config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
 
-%create the z score directory 
+%create the z score directory
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score"),what_is_computed) %means that the z_score matrix is already computed and we will skip computing it again
-   z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score")); %not yet computed
+    z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score")); %not yet computed
 else
-   z_score_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score");
+    z_score_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_score");
 end
 disp("Finished Creating Z Score Directory");
 
@@ -70,7 +70,7 @@ disp("Finished Importing timestamps for recording")
 %get the ordered list of channels
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
 
-%get the channel statistics 
+%get the channel statistics
 beginning_time = tic;
 [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,z_score_dir,scale_factor,config,what_is_computed); %will get the mean and std of every channel and calculate z_score for data set if not yet created
 mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std"));
@@ -78,7 +78,7 @@ save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel
 end_time = toc(beginning_time);
 fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
 
-%find all spikes where the z score is at least the lower bound 
+%find all spikes where the z score is at least the lower bound
 spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spikes_per_channel min_z_score "+string(increments_to_try(1))));
 detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,z_score_dir,increments_to_try(1),scale_factor,config);
 
@@ -112,53 +112,66 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
 cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
-parfor i=1:size(art_tetrode_array,1)
-    table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
-    for z0=(increments_to_try)
-        %get the cut spikes of the image
-        save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
-        table_of_image_data = [table_of_image_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","image_path"])];
-        %check to make sure the image doesn't already exist and if it does
-        %we wont recreate it
-        if ~ismember(save_name,list_of_existing_files)
-            spikes_of_random_tetr =get_spike_slices(channels_of_rand_tetrode,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
-            %get the grayscale image of the spikes
-            grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
-            %save the image
-            par_save_as_jpeg(save_name,grayscale_image)
-        end 
+if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_is_computed)
+    for i=1:size(art_tetrode_array,1)
+        table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
+        for z0=(increments_to_try)
+            %get the cut spikes of the image
+            save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
+            table_of_image_data = [table_of_image_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","image_path"])];
+            %check to make sure the image doesn't already exist and if it does
+            %we wont recreate it
+            if ~ismember(save_name,list_of_existing_files)
+                spikes_of_random_tetr =get_spike_slices(channels_of_rand_tetrode,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
+                %get the grayscale image of the spikes
+                grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
+                %save the image
+                par_save_as_jpeg(save_name,grayscale_image)
+            end
+        end
+        cell_array_of_image_data{i} = table_of_image_data;
+        send(q,[]);
     end
-    cell_array_of_image_data{i} = table_of_image_data;
-    send(q,[]);
+    table_of_image_data = vertat(cell_array_of_image_data(:));
+    par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),table_of_image_data);
+else
+    table_of_image_data = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"));
 end
-table_of_image_data = vertat(cell_array_of_image_data(:));
-par_save(table_of_image_data)
 disp("Finished creating images")
 
 %now that the training images are created we can run the clustering using
 %the modified clustering algorithm to classify each image as having at
 %least 1 cluster that is at least 80% accurate
-
-num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
-q = parallel.pool.DataQueue;
-afterEach(q,@print_status_bar)
-print_status_bar(num_iterations,"getting_training_images.m")
-cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
-for i=1:size(art_tetrode_array,1)
-    table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
-    channels = art_tetrode_array(i,:);
-    for z0=(increments_to_try)
-        %get the cut spikes of the image
-        save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
-        table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
-        temp_config = config;
-        config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
-        [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
-        max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
-        cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
-        send(q,[]);
+if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat"),what_is_computed)
+    num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_status_bar)
+    print_status_bar(num_iterations,"getting_training_images.m")
+    cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
+    for i=1:size(art_tetrode_array,1)
+        table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
+        channels = art_tetrode_array(i,:);
+        for z0=(increments_to_try)
+            %get the cut spikes of the image
+            save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
+            table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
+            temp_config = config;
+            config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
+            [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+            max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
+            cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
+            send(q,[]);
+        end
     end
+    par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat"),table_of_image_accuracy_data);
+else
+    table_of_image_accuracy_data =importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat")) ;
+end
+disp("Finished getting accuracy");
+%now we'll combine the two tables in order to classify our training data
+
 
 end
 
-end
+
+
