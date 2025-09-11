@@ -113,7 +113,7 @@ afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
 cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_is_computed)
-    for i=1:size(art_tetrode_array,1)
+    parfor i=1:size(art_tetrode_array,1)
         table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
         for z0=(increments_to_try)
             %get the cut spikes of the image
@@ -121,7 +121,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
             table_of_image_data = [table_of_image_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","image_path"])];
             %check to make sure the image doesn't already exist and if it does
             %we wont recreate it
-            if ~ismember(save_name,list_of_existing_files)
+            if ~ismember(save_name,what_is_computed)
                 spikes_of_random_tetr =get_spike_slices(channels_of_rand_tetrode,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
                 %get the grayscale image of the spikes
                 grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
