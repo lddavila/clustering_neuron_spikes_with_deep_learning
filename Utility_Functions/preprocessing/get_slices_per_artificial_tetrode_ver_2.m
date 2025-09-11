@@ -11,6 +11,8 @@ for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
     % disp(fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat"))
     current_channel_recording_file_name = fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat");
+    disp("current channel recording file name")
+    disp(current_channel_recording_file_name);
     channels_data{i} = (importdata(current_channel_recording_file_name) * scale_factor).';
 end
 
