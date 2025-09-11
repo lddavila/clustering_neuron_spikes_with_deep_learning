@@ -11,8 +11,8 @@ for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
     % disp(fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat"))
     current_channel_recording_file_name = fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat");
-    disp("current channel recording file name")
-    disp(current_channel_recording_file_name);
+    % disp("current channel recording file name")
+    % disp(current_channel_recording_file_name);
     channels_data{i} = (importdata(current_channel_recording_file_name) * scale_factor).';
 end
 
@@ -21,7 +21,9 @@ end
 spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
-    %disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
+    %disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
+    disp("file that can't be loaded");
+    disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
     spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
 % disp("Finsihed Getting Spike Windows")
