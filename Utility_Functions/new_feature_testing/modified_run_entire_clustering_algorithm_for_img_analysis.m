@@ -163,7 +163,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     %accuracy
     meets_acc_ratio =any(blind_pass_table{:,"accuracy"}>=accuracy_threshold);
 
-    disp("Finished getting blind pass table")
+    % disp("Finished getting blind pass table")
     %do file cleanup to ensure no necessary steps are skipped due to
     %previous permutations
     rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"dictionaries min_z_score "+string(min_z_score)+" num_dps "+string(num_dps)),'s');
@@ -171,9 +171,9 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score "+string(min_z_score)),'s')
     rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score "+string(min_z_score)+" num dps "+string(num_dps)),'s')
 
-    disp("Finished cleaning up")
+    % disp("Finished cleaning up")
 
-    display(blind_pass_table(:,["Z Score","Tetrode","Cluster","accuracy"]))
+    % display(blind_pass_table(:,["Z Score","Tetrode","Cluster","accuracy"]))
 
 end
 
