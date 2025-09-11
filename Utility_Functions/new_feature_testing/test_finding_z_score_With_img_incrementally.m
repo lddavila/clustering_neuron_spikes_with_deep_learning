@@ -8,6 +8,7 @@ function [] = test_finding_z_score_With_img_incrementally()
 
 clc;
 
+
 %set the increments that will be used for each tetrode
 increments_to_try = 3:0.1:12;
 
@@ -172,8 +173,19 @@ disp("Finished getting accuracy");
 
 training_data = join(table_of_image_data,table_of_image_accuracy_data,"Keys",["Tetrode","Z Score"]);
 
-%now we get the neural network which we'll use to train the identifcation
+% we want to 
 
+%now we get the neural network which we'll use to train the identifcation
+%inputSize = size(grayscale_image);
+numClasses = 10;
+
+layers = [
+    imageInputLayer(inputSize)
+    convolution2dLayer(5,20)
+    batchNormalizationLayer
+    reluLayer
+    fullyConnectedLayer(numClasses)
+    softmaxLayer];
 end
 
 

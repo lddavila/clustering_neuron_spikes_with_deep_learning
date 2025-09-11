@@ -3,7 +3,7 @@ function [img_gray]= produce_nth_dimensional_view(spikes, channels)
 
 % Invisible figure, exact pixel size
 f = figure('Visible','off', 'Units','pixels', 'Position',[100 100 300 200], ...
-           'Color','white', 'Renderer','opengl');  % opengl handles scatter well
+           'Color','white');  % opengl handles scatter well
 
 all_pairs = nchoosek(1:numel(channels), 2);
 nPlots    = size(all_pairs,1);
