@@ -125,7 +125,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
             if ~ismember(save_name,what_is_computed)
                 spikes_of_random_tetr =get_spike_slices(channels,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
                 %get the grayscale image of the spikes
-                grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
+                grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels);
                 %save the image
                 par_save_as_jpeg(save_name,grayscale_image)
             end
@@ -143,7 +143,7 @@ disp("Finished creating images")
 
 %now that the training images are created we can run the clustering using
 %the modified clustering algorithm to classify each image as having at
-%least 1 cluster that is at least 80% accurate
+%least 1 cluster that is at least 90% accurate
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat"),what_is_computed)
     num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
     q = parallel.pool.DataQueue;
@@ -154,16 +154,14 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
         table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
         channels = art_tetrode_array(i,:);
         for z0=(increments_to_try)
-            %get the cut spikes of the image
-            save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
-            table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
             temp_config = config;
             config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
             [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
             max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
-            cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
+            table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
             send(q,[]);
         end
+        cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
     end
     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat"),table_of_image_accuracy_data);
 else
@@ -172,6 +170,9 @@ end
 disp("Finished getting accuracy");
 %now we'll combine the two tables in order to classify our training data
 
+training_data = join(table_of_image_data,table_of_image_accuracy_data,"Keys",["Tetrode","Z Score"]);
+
+%now we get the neural network which we'll use to train the identifcation
 
 end
 
