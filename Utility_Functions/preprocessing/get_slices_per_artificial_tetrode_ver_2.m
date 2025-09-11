@@ -22,8 +22,8 @@ spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
     %disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
-    disp("file that can't be loaded");
-    disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
+    % disp("file that can't be loaded");
+    % disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
     spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
 % disp("Finsihed Getting Spike Windows")
