@@ -85,7 +85,7 @@ detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,config.DIR_W
 
 %now get the modified spike windows where the z score is at least the lower bound
 spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(increments_to_try(1)) + " num dps "+ string(config.NUM_DPTS_TO_SLICE)));
-get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per_channel_dir,lower(1),config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config)
+get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per_channel_dir,increments_to_try(1),config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config)
 
 %to get a training set we'll want to produce a bunch of simple jpegs that
 %we can analyze
@@ -135,7 +135,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
         cell_array_of_image_data{i} = table_of_image_data;
         
     end
-    table_of_image_data = vertat(cell_array_of_image_data(:));
+    table_of_image_data = vertcat(cell_array_of_image_data{:});
     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),table_of_image_data);
 else
     table_of_image_data = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"));
@@ -156,14 +156,16 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
         channels = art_tetrode_array(i,:);
         for z0=(increments_to_try)
             temp_config = config;
-            config.DEFAULT_CLUSTERING_Z_SCORES = increments_to_try;
+            temp_config.DEFAULT_CLUSTERING_Z_SCORES = z0;
             [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
             max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
             table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
             send(q,[]);
         end
         cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
+       
     end
+    table_of_image_accuracy_data = vertcat(cell_array_of_image_accuracy_data{:});
     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat"),table_of_image_accuracy_data);
 else
     table_of_image_accuracy_data =importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat")) ;
@@ -173,20 +175,39 @@ disp("Finished getting accuracy");
 
 training_data = join(table_of_image_data,table_of_image_accuracy_data,"Keys",["Tetrode","Z Score"]);
 
-% we want to 
+% we want to equalize the classes
+% we do this because regardless of the proportions of the training dataset
+% we want to ensure that the neural network gives every image the same
+% chance of being identified as a valid class 
+over_n_groupcounts = groupcounts(training_data,"accuracy_class");
+min_num_samples = min(over_n_groupcounts{:,"GroupCount"});
+indexes_of_positives = find(training_data{:,"accuracy_class"}==1);
+indexes_of_negatives = find(training_data{:,"accuracy_class"}==0);
+
+s = RandStream('mlfg6331_64'); 
+random_positives= datasample(s,indexes_of_positives,min_num_samples,'Replace',false);
+random_negatives = datasample(s,indexes_of_negatives,min_num_samples,'Replace',false);
+
+equalized_classes = training_data([random_positives;random_negatives],:);
+shuffled_data = equalized_classes(randperm(size(equalized_classes,1),1),:);
+
+%now create an image data store based off of this data
+imds = imageDatastore(training_data.image_path);
+imds.Labels = categorical(training_data.accuracy_class);
+
+
 
 %now we get the neural network which we'll use to train the identifcation
 %inputSize = size(grayscale_image);
-numClasses = 10;
-
+numClasses = 2;
+input_size = [200,300,1];
 layers = [
-    imageInputLayer(inputSize)
+    imageInputLayer(input_size)
     convolution2dLayer(5,20)
     batchNormalizationLayer
     reluLayer
     fullyConnectedLayer(numClasses)
     softmaxLayer];
 end
-
 
 
