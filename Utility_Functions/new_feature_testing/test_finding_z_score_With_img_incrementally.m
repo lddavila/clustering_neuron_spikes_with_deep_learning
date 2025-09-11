@@ -107,7 +107,7 @@ num_dpts = config.NUM_DPTS_TO_SLICE;
 scale_factor = config.SCALE_FACTOR;
 dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"images"));
 
-num_iterations = size(art_tetrode_array,1);
+num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
@@ -128,9 +128,10 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
                 %save the image
                 par_save_as_jpeg(save_name,grayscale_image)
             end
+            send(q,[]);
         end
         cell_array_of_image_data{i} = table_of_image_data;
-        send(q,[]);
+        
     end
     table_of_image_data = vertat(cell_array_of_image_data(:));
     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),table_of_image_data);
