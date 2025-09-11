@@ -10,7 +10,7 @@ disp(channels)
 for i=1:length(channels)
     current_channel = channels(i);
     disp("file we're importing from")
-    disp(fullfile(old_spike_windows_dir,current_channel))
+    disp(fullfile(old_spike_windows_dir,"c"+string(current_channel)+".mat"))
     previously_found_spike_windows = importdata(fullfile(old_spike_windows_dir,"c"+string(current_channel)+".mat"));
     disp("Size of old spike windows")
     disp(size(previously_found_spike_windows));
