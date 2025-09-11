@@ -102,10 +102,13 @@ num_iterations = size(art_tetrode_array,1);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
-parfor i=1:size(art_tetrode_array,1)
+cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
+for i=1:size(art_tetrode_array,1)
+    table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
     for z0=(increments_to_try)
         %get the cut spikes of the image
         save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
+        table_of_image_data = [table_of_image_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","image_path"])];
         %check to make sure the image doesn't already exist and if it does
         %we wont recreate it
         if ~ismember(save_name,list_of_existing_files)
@@ -114,10 +117,35 @@ parfor i=1:size(art_tetrode_array,1)
             grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels_of_rand_tetrode);
             %save the image
             par_save_as_jpeg(save_name,grayscale_image)
-        end
+        end 
     end
+    cell_array_of_image_data{i} = table_of_image_data;
     send(q,[]);
 end
+table_of_image_data = vertat(cell_array_of_image_data);
+disp("Finished creating images")
 
+%now that the training images are created we can run the clustering using
+%the modified clustering algorithm to classify each image as having at
+%least 1 cluster that is at least 80% accurate
+
+num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+print_status_bar(num_iterations,"getting_training_images.m")
+cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
+parfor i=1:size(art_tetrode_array,1)
+    table_of_image_accuracy_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","accuracy"]);
+    for z0=(increments_to_try)
+        %get the cut spikes of the image
+        save_name = fullfile(dir_to_save_images_to,sprintf("t%i %.2f",i,z0)+".png");
+        table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,save_name,'VariableNames',["Tetrode","Z Score","accuracy"])];
+        %check to make sure the image doesn't already exist and if it does
+        %we wont recreate it
+        cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
+        send(q,[]);
+    end
+
+end
 
 end
