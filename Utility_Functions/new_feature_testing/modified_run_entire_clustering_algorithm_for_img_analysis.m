@@ -174,7 +174,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"dictionaries min_z_score "+string(min_z_score)+" num_dps "+string(num_dps)),'s');
     rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score)),'s');
     rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score "+string(min_z_score)),'s')
-    rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score "+string(min_z_score)+" num dps "+string(num_dps)),'s')
+    rmdir(spike_windows_dir_new,'s')
 
     % disp("Finished cleaning up")
 
