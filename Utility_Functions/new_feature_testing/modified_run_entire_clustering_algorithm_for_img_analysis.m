@@ -146,7 +146,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     %step 11: read the results of the blind pass into a table
     blind_pass_table = table(fullfile(initial_tetrode_results_dir,"t1 output.mat"),fullfile(initial_tetrode_results_dir,"t1 reg_timestamps.mat"),'VariableNames', ...
     ["fp_to_output","fp_to_reg_timestamps_of_the_spikes"]);
-    if isfile(blind_pass_table{1,"fp_to_output"}) && isfile(blind_pass_table{1,"fp_to_reg_timestamps_of_the_spikes"})
+    if ~isfile(blind_pass_table{1,"fp_to_output"}) || ~isfile(blind_pass_table{1,"fp_to_reg_timestamps_of_the_spikes"})
         meets_acc_ratio = false;
         blind_pass_table = [];
         return;
