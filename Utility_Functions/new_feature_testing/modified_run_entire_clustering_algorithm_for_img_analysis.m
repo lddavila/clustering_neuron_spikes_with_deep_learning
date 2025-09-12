@@ -149,10 +149,13 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     if ~isfile(blind_pass_table{1,"fp_to_output"}) || ~isfile(blind_pass_table{1,"fp_to_reg_timestamps_of_the_spikes"})
         meets_acc_ratio = false;
         blind_pass_table = [];
+        try
         rmdir(dictionaries_dir,'s');
         rmdir(initial_tetrode_dir,'s');
         rmdir(initial_tetrode_results_dir,'s')
         rmdir(spike_windows_dir_new,'s')
+        catch
+        end
         return;
     end
     % disp("Finished getting basic blind pass table")
