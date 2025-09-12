@@ -145,6 +145,11 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
     %step 11: read the results of the blind pass into a table
     blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config,min_z_score);
+    if isempty(blind_pass_table)
+        meets_acc_ratio = false;
+        blind_pass_table = [];
+        return;
+    end
     % disp("Finished getting basic blind pass table")
     % save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
 
