@@ -5,7 +5,7 @@ afterEach(q,@print_status_bar)
 num_iterations = length(ordered_list_of_channels);
 print_status_bar(num_iterations,"detect_spikes_ver_2.m")
 already_done = config.ALREADY_DONE_FILES;
-parfor i=1:length(ordered_list_of_channels)
+for i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     if ismember(fullfile(spikes_per_channel_dir,current_channel),already_done)
         send(q,[]);
