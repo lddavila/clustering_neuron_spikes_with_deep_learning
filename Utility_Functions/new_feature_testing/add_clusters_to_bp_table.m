@@ -17,7 +17,7 @@ for i=1:size(sliced_bp_table,1)
     catch
         % disp("Failed to load output file")
         % disp(current_data{1,"fp_to_output"})
-        send(q,[]);
+        % send(q,[]);
         continue;
     end
 
@@ -27,7 +27,7 @@ for i=1:size(sliced_bp_table,1)
     catch
         % disp("Failed to load timestamps of spikes");
         % disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
-        send(q,[]);
+        % send(q,[]);
         continue;
     end
     idx_b4_filt = extract_clusters_from_output(output(:,1),output);
