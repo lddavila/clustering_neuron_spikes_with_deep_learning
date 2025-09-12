@@ -78,7 +78,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     % step 9c; Get all the data points from the potential spikes
     beginning_time = tic;
 
-    spike_windows_dir_new = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
+    spike_windows_dir_new = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps))+"temp");
     get_spike_windows_ver_3(channels,min_z_score,spike_windows_dir,spike_windows_dir_new);
     end_time = toc(beginning_time);
     % fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
