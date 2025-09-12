@@ -17,8 +17,8 @@ for i=1:size(sliced_bp_table,1)
     [overlap_percentages{i},max_overlap_unit(i),max_overlap_percentages(i)] =get_overlap_between_cluster_and_unit_as_percentage_ver_2(timestamp_of_cluster,ground_truth,timestamps,time_delta);
     % send(q,[]);
 end
-blind_pass_table.("Max Overlap % With Unit") = max_overlap_percentages;
-blind_pass_table.("Max Overlap Unit") = max_overlap_unit;
-blind_pass_table.("overlap % with all units") = overlap_percentages;
+blind_pass_table.("Max_Overlap_perc_With_Unit") = max_overlap_percentages;
+blind_pass_table.("Max_Overlap_Unit") = max_overlap_unit;
+blind_pass_table.("overlap_perc_with_all_units") = overlap_percentages;
 
 end
