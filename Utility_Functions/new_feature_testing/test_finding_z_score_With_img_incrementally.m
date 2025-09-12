@@ -157,11 +157,13 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     afterEach(q,@print_status_bar)
     print_status_bar(num_iterations,"getting accuracy for each image.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
+    parpool("threads");   
     parfor i=1:size(art_tetrode_array,1)
         sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
         channels = art_tetrode_array(i,:);
-        counter = 1;
-        for z0=(increments_to_try)
+
+        for j=1:length(increments_to_try)
+            z0= increments_to_try(j)
             temp_config = config;
             temp_config.DEFAULT_CLUSTERING_Z_SCORES = z0;
             [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std,i);
@@ -170,7 +172,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
             else
                 max_accuracy = 0;
             end
-            sub_cell_array_of_image_accuracy_data{counter} =table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
+            sub_cell_array_of_image_accuracy_data{j} =table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
             send(q,[]);
         end
         cell_array_of_image_accuracy_data{i} = vertcat(sub_cell_array_of_image_accuracy_data{:});
