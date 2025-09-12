@@ -155,7 +155,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
     q = parallel.pool.DataQueue;
     afterEach(q,@print_status_bar)
-    print_status_bar(num_iterations,"getting_training_images.m")
+    print_status_bar(num_iterations,"getting accuracy for each image.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
     for i=1:size(art_tetrode_array,1)
         sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
