@@ -127,6 +127,9 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
             %we wont recreate it
             if ~ismember(save_name,what_is_computed)
                 spikes_of_random_tetr =get_spike_slices(channels,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
+                if isempty(spikes_of_random_tetr)
+                    continue;
+                end
                 %get the grayscale image of the spikes
                 grayscale_image = produce_nth_dimensional_view(spikes_of_random_tetr,channels);
                 %save the image
