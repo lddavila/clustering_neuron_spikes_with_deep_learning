@@ -157,6 +157,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     afterEach(q,@print_status_bar)
     print_status_bar(num_iterations,"getting accuracy for each image.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
+    delete(gcp('nocreate'))
     parpool("threads");   
     parfor i=1:size(art_tetrode_array,1)
         sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
