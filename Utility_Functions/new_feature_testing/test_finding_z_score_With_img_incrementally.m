@@ -114,7 +114,7 @@ afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
 cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_is_computed)
-    parfor i=1:size(art_tetrode_array,1)
+    for i=1:size(art_tetrode_array,1)
         sub_cell_array_of_image_data = cell(length(increments_to_try),1);
         %table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
         channels = art_tetrode_array(i,:);
