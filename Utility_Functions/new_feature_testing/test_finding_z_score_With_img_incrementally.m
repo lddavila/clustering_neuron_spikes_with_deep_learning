@@ -116,7 +116,7 @@ cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_is_computed)
     parfor i=1:size(art_tetrode_array,1)
         sub_cell_array_of_image_data = cell(length(increments_to_try),1);
-        table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
+        %table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
         channels = art_tetrode_array(i,:);
         counter =1;
         for z0=(increments_to_try)
@@ -134,9 +134,8 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
             end
             send(q,[]);
             counter = counter+1;
-            table_of_image_data = vertcat(sub_cell_array_of_image_data{:});
         end
-        cell_array_of_image_data{i} = table_of_image_data;
+        cell_array_of_image_data{i} = vertcat(sub_cell_array_of_image_data{:});
         
     end
     table_of_image_data = vertcat(cell_array_of_image_data{:});
