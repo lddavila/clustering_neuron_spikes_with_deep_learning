@@ -39,6 +39,7 @@ spiking_channels = cell(1,size(sorted_spike_windows_for_current_tetrode,1));
 
 
 if isempty(sorted_spike_windows_for_current_tetrode)
+    spike_slices = [];
     return
 end
 
