@@ -160,7 +160,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
     %now we compute the accuracy directly for the blind pass table
     % disp("About to add accuracy");
-    blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
+    blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
     blind_pass_table= add_accuracy_col(config,blind_pass_table);
     % disp("Finished getting accuracy")
 
