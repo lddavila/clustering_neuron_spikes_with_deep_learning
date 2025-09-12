@@ -157,14 +157,14 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     afterEach(q,@print_status_bar)
     print_status_bar(num_iterations,"getting accuracy for each image.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
-    for i=1:size(art_tetrode_array,1)
+    parfor i=1:size(art_tetrode_array,1)
         sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
         channels = art_tetrode_array(i,:);
         counter = 1;
         for z0=(increments_to_try)
             temp_config = config;
             temp_config.DEFAULT_CLUSTERING_Z_SCORES = z0;
-            [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
+            [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std,i);
             max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
             sub_cell_array_of_image_accuracy_data{counter} =table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
             send(q,[]);

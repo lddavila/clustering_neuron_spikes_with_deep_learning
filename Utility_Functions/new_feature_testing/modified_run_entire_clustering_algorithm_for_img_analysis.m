@@ -1,4 +1,4 @@
-function [meets_acc_ratio,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std)
+function [meets_acc_ratio,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std,tetrode_number)
 %this version differs from the mainline production version because it
 %optimizes for the new feature of finding the best threshold for a tetrode
 %by looking at an n-dimension image
@@ -78,14 +78,14 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     % step 9c; Get all the data points from the potential spikes
     beginning_time = tic;
 
-    spike_windows_dir_new = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps))+"temp");
+    spike_windows_dir_new = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps))+string(tetrode_number));
     get_spike_windows_ver_3(channels,min_z_score,spike_windows_dir,spike_windows_dir_new);
     end_time = toc(beginning_time);
     % fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
 
 
     beginning_time = tic;
-    dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
+    dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps))+string(tetrode_number));
     % step 9d: get maps of each tetrode to its spikes
 
     % clc;
@@ -132,8 +132,8 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     % disp(size(array_of_desired_tetrodes));
     beginning_time = tic;
 
-    initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score)));
-    initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score)));
+    initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score))+string(tetrode_number));
+    initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score)))+string(tetrode_number);
     [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
     end_time = toc(beginning_time);
     % fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
@@ -171,9 +171,9 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     % disp("Finished getting blind pass table")
     %do file cleanup to ensure no necessary steps are skipped due to
     %previous permutations
-    rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"dictionaries min_z_score "+string(min_z_score)+" num_dps "+string(num_dps)),'s');
-    rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score)),'s');
-    rmdir(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score "+string(min_z_score)),'s')
+    rmdir(dictionaries_dir,'s');
+    rmdir(initial_tetrode_dir,'s');
+    rmdir(initial_tetrode_results_dir,'s')
     rmdir(spike_windows_dir_new,'s')
 
     % disp("Finished cleaning up")
