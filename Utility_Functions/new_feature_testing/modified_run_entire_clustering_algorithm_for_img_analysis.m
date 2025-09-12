@@ -133,7 +133,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
     beginning_time = tic;
 
     initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+string(min_z_score))+" "+string(tetrode_number));
-    initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score)))+" "+string(tetrode_number);
+    initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score " + string(min_z_score))+" "+string(tetrode_number));
     [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
     end_time = toc(beginning_time);
     % fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
@@ -144,7 +144,7 @@ for min_z_score = z_scores_to_check %this for loop is probably redundant because
 
 
     %step 11: read the results of the blind pass into a table   
-    blind_pass_table = table(fullfile(initial_tetrode_results_dir,"t1 output.mat"),fullfile(initial_tetrode_results_dir,"t1 reg_timestamps.mat"),'VariableNames', ...
+    blind_pass_table = table(fullfile(initial_tetrode_results_dir,"t1 output.mat"),fullfile(initial_tetrode_results_dir,"t1 reg_timestamps_of_the_spikes.mat"),'VariableNames', ...
     ["fp_to_output","fp_to_reg_timestamps_of_the_spikes"]);
     if ~isfile(blind_pass_table{1,"fp_to_output"}) || ~isfile(blind_pass_table{1,"fp_to_reg_timestamps_of_the_spikes"})
         meets_acc_ratio = false;

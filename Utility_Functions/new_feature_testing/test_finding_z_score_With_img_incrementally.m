@@ -113,11 +113,28 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting_training_images.m")
 cell_array_of_image_data = cell(size(art_tetrode_array,1),1);
+
+tetrode_array = config.ART_TETR_ARRAY;
+list_of_available_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
+list_of_available_channels = string(list_of_available_channels{:,"name"});
+list_of_available_channels = strrep(list_of_available_channels,".mat","");
+list_of_available_channels = strrep(list_of_available_channels,"c","");
+list_of_available_channels = str2double(list_of_available_channels);
+
+all_channels_are_available = ismember(tetrode_array,list_of_available_channels);
+tetrode_array(~all(all_channels_are_available,2),:) = [];
+
+
+num_iterations = size(tetrode_array,1) * length(increments_to_try);
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+print_status_bar(num_iterations,"getting_training_images.m")
+cell_array_of_image_data = cell(size(tetrode_array,1),1);
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_is_computed)
-    parfor i=1:size(art_tetrode_array,1)
+    for i=1:size(tetrode_array,1)
         sub_cell_array_of_image_data = cell(length(increments_to_try),1);
         %table_of_image_data = cell2table(cell(0,3),'VariableNames',["Tetrode","Z Score","image_path"]);
-        channels = art_tetrode_array(i,:);
+        channels = tetrode_array(i,:);
         counter =1;
         for z0=(increments_to_try)
             %get the cut spikes of the image
@@ -152,18 +169,18 @@ disp("Finished creating images")
 %the modified clustering algorithm to classify each image as having at
 %least 1 cluster that is at least 90% accurate
 if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat"),what_is_computed)
-    num_iterations = size(art_tetrode_array,1) * length(increments_to_try);
+    num_iterations = size(tetrode_array,1) * length(increments_to_try);
     q = parallel.pool.DataQueue;
     afterEach(q,@print_status_bar)
     print_status_bar(num_iterations,"getting accuracy for each image.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
 
-    parfor i=1:size(art_tetrode_array,1)
+    for i=1:size(tetrode_array,1)
         sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
-        channels = art_tetrode_array(i,:);
+        channels = tetrode_array(i,:);
 
         for j=1:length(increments_to_try)
-            z0= increments_to_try(j)
+            z0= increments_to_try(j);
             temp_config = config;
             temp_config.DEFAULT_CLUSTERING_Z_SCORES = z0;
             [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std,i);
