@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH -N 2
+#SBATCH -N 1
 #SBATCH -p normal
 #SBATCH -J training
 #SBATCH -o output.txt 
