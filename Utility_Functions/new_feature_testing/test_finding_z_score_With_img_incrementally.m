@@ -156,17 +156,18 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     print_status_bar(num_iterations,"getting_training_images.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
     for i=1:size(art_tetrode_array,1)
-        table_of_image_accuracy_data = cell2table(cell(0,4),'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
+        sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
         channels = art_tetrode_array(i,:);
+        counter = 1;
         for z0=(increments_to_try)
             temp_config = config;
             temp_config.DEFAULT_CLUSTERING_Z_SCORES = z0;
             [~,blind_pass_table] = modified_run_entire_clustering_algorithm_for_img_analysis(temp_config,timestamps,spike_windows_dir,channels,channel_wise_means,channel_wise_std);
             max_accuracy = max([max(blind_pass_table{:,"accuracy"}),0]); %meant to return a 0 if there's no cluster with a max accuracy
-            table_of_image_accuracy_data = [table_of_image_accuracy_data;table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"])];
+            sub_cell_array_of_image_accuracy_data{counter} =table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
             send(q,[]);
         end
-        cell_array_of_image_accuracy_data{i} = table_of_image_accuracy_data;
+        cell_array_of_image_accuracy_data{i} = vertcat(sub_cell_array_of_image_accuracy_data{:});
        
     end
     table_of_image_accuracy_data = vertcat(cell_array_of_image_accuracy_data{:});
@@ -232,6 +233,8 @@ net = trainnet(imdsTrain,layers,"crossentropy",options);
 
 %now get the accuracy of the net
 accuracy = testnet(net,imdsValidation,"accuracy");
+disp("Accuracy")
+disp(accuracy);
 end
 
 

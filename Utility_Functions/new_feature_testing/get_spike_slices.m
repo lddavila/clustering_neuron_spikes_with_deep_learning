@@ -19,6 +19,7 @@ spike_windows_for_current_tetrode =  vertcat(spike_windows{:});
 spike_windows_for_current_tetrode(spike_windows_for_current_tetrode(:,5)<min_z_score,:)= []; %get rid of any spikes that don't meet the min z score
 
 if isempty(spike_windows_for_current_tetrode)
+    spike_slices = [];
     return;
 end
 
