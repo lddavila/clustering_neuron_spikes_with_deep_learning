@@ -28,8 +28,8 @@ disp("Finished Setting directories")
 scale_factor = config.SCALE_FACTOR;
 
 
-fp_to_img_table = "C:\Users\ldd77\OneDrive\Desktop\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\img_threshold_finding_incremental\image_table.mat";
-fp_to_accuracy_table = "C:\Users\ldd77\OneDrive\Desktop\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\img_threshold_finding_incremental\table_of_image_accuracy_data.mat";
+fp_to_img_table = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat");
+fp_to_accuracy_table = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy_data.mat");
 
 table_of_image_data = importdata(fp_to_img_table);
 table_of_image_accuracy_data = importdata(fp_to_accuracy_table);
