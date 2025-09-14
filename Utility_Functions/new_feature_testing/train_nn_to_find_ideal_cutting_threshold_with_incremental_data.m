@@ -76,7 +76,7 @@ imds.Labels = categorical(shuffled_data.accuracy_class);
 
 %now specify training and validation data
 numTrainFiles = round(size(shuffled_data,1) *0.75);
-[imdsTrain,imdsValidation] = splitEachLabel(imds,numTrainFiles,"randomized");
+[imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
 
 %now get the class labels
 classNames = categories(imdsTrain.Labels);
