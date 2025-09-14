@@ -28,6 +28,10 @@ config = spikesort_config();
 config.RECORDING_NAME = "img_threshold_finding_incremental";
 config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"img_threshold_finding_incremental"));
 
+%create a directory to save text files to allow for continuation in the
+%case of accuracy calculation
+file_to_save_text_files_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(BLIND_PASS_DIR_PRECOMPUTED,"accuracy_text_files");
+
 startup;
 disp("Finished Setting Recording Name")
 
@@ -145,6 +149,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"),what_
             if ~ismember(save_name,what_is_computed)
                 spikes_of_random_tetr =get_spike_slices(channels,spike_windows_dir,channel_recordings_dir,num_dpts,scale_factor,z0);
                 if isempty(spikes_of_random_tetr)
+
                     continue;
                 end
                 %get the grayscale image of the spikes
@@ -164,6 +169,8 @@ else
     table_of_image_data = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"));
 end
 disp("Finished creating images")
+%throttle computation for frontera memory issuies
+parpool('Processes', 40);
 
 %now that the training images are created we can run the clustering using
 %the modified clustering algorithm to classify each image as having at
@@ -175,7 +182,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
     print_status_bar(num_iterations,"getting accuracy for each image.m")
     cell_array_of_image_accuracy_data = cell(size(art_tetrode_array,1),1);
 
-    for i=1:size(tetrode_array,1)
+    parfor i=1:size(tetrode_array,1)
         sub_cell_array_of_image_accuracy_data = cell(length(increments_to_try),1);
         channels = tetrode_array(i,:);
 
@@ -189,6 +196,9 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"table_of_image_accuracy
             else
                 max_accuracy = 0;
             end
+            text_file_name = sprintf('Tetrode_%i_accuracy_%.2f_zscore_%.2f_channels_%i_%i_%i_%i.txt',i,max_accuracy,z0,channels(1),channels(2),channels(3),channels(4));
+            fileID = fopen(fullfile(file_to_save_text_files_to,text_file_name), 'w');
+            fclose(fileID);
             sub_cell_array_of_image_accuracy_data{j} =table(i,z0,max_accuracy,max_accuracy>90,'VariableNames',["Tetrode","Z Score","accuracy","accuracy_class"]);
             send(q,[]);
         end

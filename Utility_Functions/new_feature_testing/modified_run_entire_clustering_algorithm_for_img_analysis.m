@@ -12,7 +12,8 @@ scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
-
+%throttle computation for frontera memory issuies
+parpool('Processes', 40);
 
 %step 3: get list of existing files in the precomputed dir
 %doing this enables us to tell which parts of the algorithm can be

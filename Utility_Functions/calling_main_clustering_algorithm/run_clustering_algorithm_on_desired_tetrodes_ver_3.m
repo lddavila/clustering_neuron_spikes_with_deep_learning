@@ -129,7 +129,10 @@ for i=1:length(list_of_available_tetrodes)
         end
     catch ME
         end_time = toc(beginning_time);
+        disp("########################################################################################")
         fprintf("%s crashed for some reason and will be skipped it took %f seconds to fail\n",current_tetrode,end_time);
+        disp(ME.message);
+        disp("########################################################################################")
         % fprintf('%s',ME.cause);
         continue;
     end
