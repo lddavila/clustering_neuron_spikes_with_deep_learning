@@ -1,5 +1,8 @@
 function [] = read_text_files()
 fp_to_dir = "/scratch1/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/img_threshold_finding_incremental/accuracy_text_files/*.txt";
+home_dir = cd("..");
+cd("..");
+addpath(genpath(pwd));
 all_txt_files = struct2table(dir(fp_to_dir));
 sliced_txt_files = slice_table_for_parallel_processing(all_txt_files,[]);
 final_table = [];
