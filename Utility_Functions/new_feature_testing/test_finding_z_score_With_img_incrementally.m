@@ -30,7 +30,7 @@ config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs
 
 %create a directory to save text files to allow for continuation in the
 %case of accuracy calculation
-file_to_save_text_files_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(config.BLIND_PASS_DIR_PRECOMPUTED,"accuracy_text_files");
+file_to_save_text_files_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"accuracy_text_files"));
 
 startup;
 disp("Finished Setting Recording Name")
