@@ -6,8 +6,10 @@ function [] = test_finding_z_score_With_img_incrementally()
 %tetrodes at which z scores will produce a cluster with 90% accuracy when
 %we look at all 2d views available
 
-clc;
 
+clc;
+%throttle computation for frontera memory issuies
+parpool('Processes', 40);
 
 %set the increments that will be used for each tetrode
 increments_to_try = 3:0.1:12;
@@ -169,8 +171,7 @@ else
     table_of_image_data = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"image_table.mat"));
 end
 disp("Finished creating images")
-%throttle computation for frontera memory issuies
-parpool('Processes', 40);
+
 
 %now that the training images are created we can run the clustering using
 %the modified clustering algorithm to classify each image as having at
