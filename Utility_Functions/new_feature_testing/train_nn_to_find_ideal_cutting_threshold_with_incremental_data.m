@@ -15,7 +15,7 @@ config.RECORDING_NAME = "img_threshold_finding_incremental";
 config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"img_threshold_finding_incremental"));
 disp("Finished Setting Recording Name")
 
-dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold"));
+
 
 %override the default config file to point towards the recording we'll be
 %using for these tests
@@ -51,63 +51,73 @@ table_of_image_accuracy_data.("image_path") = image_path;
 training_data = table_of_image_accuracy_data;
 training_data(training_data{:,"image_path"}=="",:) = [];
 
-min_accuracy = 80;
-accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
-training_data.accuracy_class = accuracy_class;
-% we want to equalize the classes
-% we do this because regardless of the proportions of the training dataset
-% we want to ensure that the neural network gives every image the same
-% chance of being identified as a valid class 
-over_n_groupcounts = groupcounts(training_data,"accuracy_class");
-min_num_samples = min(over_n_groupcounts{:,"GroupCount"});
-indexes_of_positives = find(training_data{:,"accuracy_class"}==1);
-indexes_of_negatives = find(training_data{:,"accuracy_class"}==0);
+all_possible_accuracies = [40 50 60 70 80 90];
+blocks        = [2 3];       % how many conv blocks (2–3)
+baseFilters   = [16 32];     % starting #filters (16 or 32)
+fcUnitsGrid   = [64 128];    % size of the FC layer
 
-s = RandStream('mlfg6331_64'); 
-random_positives= datasample(s,indexes_of_positives,min_num_samples,'Replace',false);
-random_negatives = datasample(s,indexes_of_negatives,min_num_samples,'Replace',false);
 
-equalized_classes = training_data([random_positives;random_negatives],:);
-shuffled_data = equalized_classes(randperm(size(equalized_classes,1),size(equalized_classes,1)),:);
 
-%now create an image data store based off of this data
-imds = imageDatastore(shuffled_data.image_path);
-imds.Labels = categorical(shuffled_data.accuracy_class);
 
-%now specify training and validation data
-numTrainFiles = round(size(shuffled_data,1) *0.75);
-[imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
+for min_accuracy=all_possible_accuracies
+    dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc+"+string(min_accuracy)));
+    accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
+    training_data.accuracy_class = accuracy_class;
+    % we want to equalize the classes
+    % we do this because regardless of the proportions of the training dataset
+    % we want to ensure that the neural network gives every image the same
+    % chance of being identified as a valid class
+    over_n_groupcounts = groupcounts(training_data,"accuracy_class");
+    min_num_samples = min(over_n_groupcounts{:,"GroupCount"});
+    indexes_of_positives = find(training_data{:,"accuracy_class"}==1);
+    indexes_of_negatives = find(training_data{:,"accuracy_class"}==0);
 
-%now get the class labels
-classNames = categories(imdsTrain.Labels);
+    s = RandStream('mlfg6331_64');
+    random_positives= datasample(s,indexes_of_positives,min_num_samples,'Replace',false);
+    random_negatives = datasample(s,indexes_of_negatives,min_num_samples,'Replace',false);
 
-%now we get the neural network which we'll use to train the identifcation
-%inputSize = size(grayscale_image);
-numClasses = 2;
-input_size = [200,300,1];
-layers = [
-    imageInputLayer(input_size)
-    convolution2dLayer(5,20)
-    batchNormalizationLayer
-    reluLayer
-    fullyConnectedLayer(numClasses)
-    softmaxLayer];
+    equalized_classes = training_data([random_positives;random_negatives],:);
+    shuffled_data = equalized_classes(randperm(size(equalized_classes,1),size(equalized_classes,1)),:);
 
-%now specify training options
-options = trainingOptions("sgdm", ...
-    MaxEpochs=100, ...
-    ValidationData=imdsValidation, ...
-    ValidationFrequency=30, ...
-    Plots="none", ...
-    Metrics="accuracy", ...
-    Verbose=true);
+    %now create an image data store based off of this data
+    imds = imageDatastore(shuffled_data.image_path);
+    imds.Labels = categorical(shuffled_data.accuracy_class);
 
-%now train
-net = trainnet(imdsTrain,layers,"crossentropy",options);
+    %now specify training and validation data
+    [imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
 
-%now get the accuracy of the net
-accuracy = testnet(net,imdsValidation,"accuracy");
-disp("Accuracy")
-disp(accuracy);
+    %now get the class labels
+    %classNames = categories(imdsTrain.Labels);
+
+    %now we get the neural network which we'll use to train the identifcation
+    %inputSize = size(grayscale_image);
+    num_classes = 2;
+    input_size = [200,300,1];
+
+    %now specify training options
+    options = trainingOptions("sgdm", ...
+        MaxEpochs=50, ...
+        ValidationData=imdsValidation, ...
+        ValidationFrequency=30, ...
+        Plots="training-progress", ...
+        Metrics="accuracy", ...
+        Verbose=false);
+
+    for num_blocks = blocks
+        for fcUnits = fcUnitsGrid
+           layers = makeTinyCNN(input_size, num_classes, num_blocks, baseFilters, fcUnits);
+
+            %now train
+            net = trainnet(imdsTrain,layers,"crossentropy",options);
+
+            %now get the accuracy of the net
+            accuracy = testnet(net,imdsValidation,"accuracy");
+            disp("Accuracy")
+            disp(accuracy);
+
+            par_save(fullfile(dir_to_save_results_to,sprintf("accuracy_%.2f_num_blocks_%i_fc_units_%i.mat",accuracy,num_blocks,fcUnits)),net);
+        end
+    end
+end
 
 end

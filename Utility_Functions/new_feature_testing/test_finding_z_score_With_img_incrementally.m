@@ -247,6 +247,7 @@ classNames = categories(imdsTrain.Labels);
 %inputSize = size(grayscale_image);
 numClasses = 2;
 input_size = [200,300,1];
+
 layers = [
     imageInputLayer(input_size)
     convolution2dLayer(5,20)
