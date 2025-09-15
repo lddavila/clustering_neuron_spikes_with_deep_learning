@@ -53,7 +53,7 @@ training_data(training_data{:,"image_path"}=="",:) = [];
 
 all_possible_accuracies = [40 50 60 70 80 90];
 blocks        = [2 3];       % how many conv blocks (2–3)
-baseFilters   = [16 32];     % starting #filters (16 or 32)
+baseFilters_all   = [16 32];     % starting #filters (16 or 32)
 fcUnitsGrid   = [64 128];    % size of the FC layer
 
 
@@ -110,19 +110,21 @@ for min_accuracy=all_possible_accuracies
     ExecutionEnvironment="auto");          % use GPU if present
 
 
-    for num_blocks = blocks
-        for fcUnits = fcUnitsGrid
-           layers = makeTinyCNN(input_size, num_classes, num_blocks, baseFilters, fcUnits);
+    for baseFilters = baseFilters_all
+        for num_blocks = blocks
+            for fcUnits = fcUnitsGrid
+                layers = makeTinyCNN(input_size, num_classes, num_blocks, baseFilters, fcUnits);
 
-            %now train
-            net = trainnet(imdsTrain,layers,"crossentropy",options);
+                %now train
+                net = trainnet(imdsTrain,layers,"crossentropy",options);
 
-            %now get the accuracy of the net
-            accuracy = testnet(net,imdsValidation,"accuracy");
-            disp("Accuracy")
-            disp(accuracy);
+                %now get the accuracy of the net
+                accuracy = testnet(net,imdsValidation,"accuracy");
+                disp("Accuracy")
+                disp(accuracy);
 
-            par_save(fullfile(dir_to_save_results_to,sprintf("accuracy_%.2f_num_blocks_%i_fc_units_%i.mat",accuracy,num_blocks,fcUnits)),net);
+                par_save(fullfile(dir_to_save_results_to,sprintf("accuracy_%.2f_num_blocks_%i_fc_units_%i.mat",accuracy,num_blocks,fcUnits)),net);
+            end
         end
     end
 end
