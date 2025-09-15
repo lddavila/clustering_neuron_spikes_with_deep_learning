@@ -50,6 +50,7 @@ end
 table_of_image_accuracy_data.("image_path") = image_path;
 training_data = table_of_image_accuracy_data;
 training_data(training_data{:,"image_path"}=="",:) = [];
+training_data.og_idx = 1:size(training_data);
 
 all_possible_accuracies = [40, 50, 60, 70, 80, 90];
 blocks        = [2 3];       % how many conv blocks (2–3)
@@ -83,7 +84,7 @@ parfor m=1:length(all_possible_accuracies)
 
     %now create an image data store based off of this data
     imds = imageDatastore(shuffled_data.image_path);
-    imds.Labels = categorical(accuracy_class_data.accuracy_class);
+    imds.Labels = categorical(accuracy_class{shuffled_data.og_idx});
 
     %now specify training and validation data
     [imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
