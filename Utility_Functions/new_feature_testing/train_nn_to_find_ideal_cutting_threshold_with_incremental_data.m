@@ -60,7 +60,7 @@ disp("Finished setting the meta parameters")
 
 
 
-for m=1:length(all_possible_accuracies)
+parfor m=1:length(all_possible_accuracies)
     min_accuracy = all_possible_accuracies(m);
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc_+"+string(min_accuracy)));
     accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
@@ -84,7 +84,7 @@ for m=1:length(all_possible_accuracies)
 
     %now create an image data store based off of this data
     imds = imageDatastore(shuffled_data.image_path);
-    imds.Labels = categorical(accuracy_class{shuffled_data.og_idx});
+    imds.Labels = categorical(accuracy_class{shuffled_data.og_idx,:});
 
     %now specify training and validation data
     [imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
