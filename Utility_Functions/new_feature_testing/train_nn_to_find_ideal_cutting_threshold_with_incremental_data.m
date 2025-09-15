@@ -38,7 +38,7 @@ num_iterations = size(table_of_image_accuracy_data,1);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"getting fp for each image.m")
-parfor i=1:size(table_of_image_accuracy_data,1)
+for i=1:size(table_of_image_accuracy_data,1)
     current_z_score = table_of_image_accuracy_data{i,"Z Score"};
     current_tetrode = str2double(strrep(table_of_image_accuracy_data{i,"Tetrode"},"t",""));
     path = table_of_image_data{table_of_image_data{:,"Z Score"} == current_z_score & table_of_image_data{:,"Tetrode"}==current_tetrode,"image_path"};
@@ -55,12 +55,12 @@ all_possible_accuracies = [40 50 60 70 80 90];
 blocks        = [2 3];       % how many conv blocks (2–3)
 baseFilters_all   = [16 32];     % starting #filters (16 or 32)
 fcUnitsGrid   = [64 128];    % size of the FC layer
-
+disp("Finished setting the meta parameters")
 
 
 
 for min_accuracy=all_possible_accuracies
-    dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc+"+string(min_accuracy)));
+    dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc_+"+string(min_accuracy)));
     accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
     training_data.accuracy_class = accuracy_class;
     % we want to equalize the classes
