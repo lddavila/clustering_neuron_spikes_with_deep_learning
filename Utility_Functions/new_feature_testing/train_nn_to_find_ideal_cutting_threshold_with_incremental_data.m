@@ -59,18 +59,19 @@ disp("Finished setting the meta parameters")
 
 
 
-for min_accuracy=all_possible_accuracies
+parfor min_accuracy=all_possible_accuracies
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc_+"+string(min_accuracy)));
     accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
-    training_data.accuracy_class = accuracy_class;
+    accuracy_class_data = table(accuracy_class);
+    % training_data.accuracy_class = accuracy_class;
     % we want to equalize the classes
     % we do this because regardless of the proportions of the training dataset
     % we want to ensure that the neural network gives every image the same
     % chance of being identified as a valid class
-    over_n_groupcounts = groupcounts(training_data,"accuracy_class");
+    over_n_groupcounts = groupcounts(accuracy_class_data,"accuracy_class");
     min_num_samples = min(over_n_groupcounts{:,"GroupCount"});
-    indexes_of_positives = find(training_data{:,"accuracy_class"}==1);
-    indexes_of_negatives = find(training_data{:,"accuracy_class"}==0);
+    indexes_of_positives = find(accuracy_class_data{:,"accuracy_class"}==1);
+    indexes_of_negatives = find(accuracy_class_data{:,"accuracy_class"}==0);
 
     s = RandStream('mlfg6331_64');
     random_positives= datasample(s,indexes_of_positives,min_num_samples,'Replace',false);
@@ -109,7 +110,7 @@ for min_accuracy=all_possible_accuracies
     Verbose=true, ...
     ExecutionEnvironment="auto");          % use GPU if present
     disp("Finished setting options")
-    
+
 
     for baseFilters = baseFilters_all
         for num_blocks = blocks
