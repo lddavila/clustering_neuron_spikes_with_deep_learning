@@ -50,7 +50,7 @@ end
 table_of_image_accuracy_data.("image_path") = image_path;
 training_data = table_of_image_accuracy_data;
 training_data(training_data{:,"image_path"}=="",:) = [];
-training_data.og_idx = 1:size(training_data);
+training_data.og_idx = 1:size(training_data,1);
 
 all_possible_accuracies = [40, 50, 60, 70, 80, 90];
 blocks        = [2 3];       % how many conv blocks (2–3)
