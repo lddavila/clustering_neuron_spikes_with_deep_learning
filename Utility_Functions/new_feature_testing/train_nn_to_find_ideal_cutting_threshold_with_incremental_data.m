@@ -51,7 +51,7 @@ table_of_image_accuracy_data.("image_path") = image_path;
 training_data = table_of_image_accuracy_data;
 training_data(training_data{:,"image_path"}=="",:) = [];
 
-all_possible_accuracies = [40 50 60 70 80 90];
+all_possible_accuracies = [40, 50, 60, 70, 80, 90];
 blocks        = [2 3];       % how many conv blocks (2–3)
 baseFilters_all   = [16 32];     % starting #filters (16 or 32)
 fcUnitsGrid   = [64 128];    % size of the FC layer
@@ -59,7 +59,8 @@ disp("Finished setting the meta parameters")
 
 
 
-parfor min_accuracy=all_possible_accuracies
+parfor m=1:length(all_possible_accuracies)
+    min_accuracy = all_possible_accuracies(m);
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc_+"+string(min_accuracy)));
     accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
     accuracy_class_data = table(accuracy_class);
