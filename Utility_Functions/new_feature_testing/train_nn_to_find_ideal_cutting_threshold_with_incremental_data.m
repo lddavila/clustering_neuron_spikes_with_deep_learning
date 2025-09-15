@@ -84,7 +84,7 @@ parfor m=1:length(all_possible_accuracies)
 
     %now create an image data store based off of this data
     imds = imageDatastore(shuffled_data.image_path);
-    imds.Labels = categorical(accuracy_class{shuffled_data.og_idx,:});
+    imds.Labels = categorical(accuracy_class_data{shuffled_data.og_idx,:});
 
     %now specify training and validation data
     [imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
