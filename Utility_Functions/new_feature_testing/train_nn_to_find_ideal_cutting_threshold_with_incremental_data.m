@@ -59,7 +59,7 @@ disp("Finished setting the meta parameters")
 
 
 
-parfor min_accuracy=all_possible_accuracies
+for min_accuracy=all_possible_accuracies
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"nets_for_incremental_img_threshold_min_acc_+"+string(min_accuracy)));
     accuracy_class = training_data{:,"accuracy"}>=min_accuracy;
     accuracy_class_data = table(accuracy_class);
