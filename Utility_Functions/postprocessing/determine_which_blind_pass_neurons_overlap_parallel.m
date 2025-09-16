@@ -31,8 +31,7 @@ for i=1:size(blind_pass_table,1)
     indexes_to_merge = [];
     q = parallel.pool.DataQueue;
     afterEach(q,@print_message_using_dataqueue)
-    print_message_using_dataqueue(sum(~already_merged),"Created "+string(cluster_group_counter)+" so far "+" determine_which_blind_pass_neurons_overlap_parallel.m")
-
+    print_message_using_dataqueue(sum(~already_merged),"Created "+string(cluster_group_counter)+"groups so far: determine_which_blind_pass_neurons_overlap_parallel.m")
     parfor j=1:size(sliced_still_mergable_data,1)
         current_data = sliced_still_mergable_data{j};
         compare_neuron_ts = current_data{1,"timestamps"}{1};
