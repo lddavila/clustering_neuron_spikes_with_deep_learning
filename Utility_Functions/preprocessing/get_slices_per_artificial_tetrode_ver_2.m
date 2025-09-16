@@ -65,11 +65,10 @@ end
 sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
 
 simple_channel_list = 1:numel(chan_of_art_tetrode);
-% q = parallel.pool.DataQueue;
-% afterEach(q,@print_status_bar)
-% num_iterations = size(sorted_spike_windows_for_current_tetrode,1);
-% print_status_bar(num_iterations,"get_slices_per_artificial_tetrode_ver_2.m")
-for i=1:size(sorted_spike_windows_for_current_tetrode,1)
+
+timing_matrix_const = parallel.pool.Constant(timing_matrix);
+channels_data_const = parallel.pool.Constant(channels_data);
+parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
 
     current_window = sliced_spike_windows{i};
 
@@ -77,12 +76,12 @@ for i=1:size(sorted_spike_windows_for_current_tetrode,1)
         continue;
     end
 
-    current_timing_slice = timing_matrix(current_window(1,1):current_window(1,2) -1);
+    current_timing_slice = timing_matrix_const(current_window(1,1):current_window(1,2) -1);
     time_slices(i,:) = current_timing_slice;
 
     for j=simple_channel_list
-        spike_slices(j,i,:) = channels_data{j}(current_window(1,1) :current_window(1,2) -1);
-        spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1) :current_window(1,2)-1);
+        spike_slices(j,i,:) = channels_data_const{j}(current_window(1,1) :current_window(1,2) -1);
+        spike_slices_in_samples_format(:,j,i) = channels_data_const{j}(current_window(1,1) :current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
     % send(q,[]);

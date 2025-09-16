@@ -48,7 +48,7 @@ mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(pr
 save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
 
 end_time = toc(beginning_time);
-fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
+fprintf("Finished Getting mean and std, it took %.2f seconds\n",end_time)
 %step 8: Get the channel groupings AKA artificial tetrodes
 art_tetr_array = config.ART_TETR_ARRAY;
 
@@ -71,7 +71,7 @@ lower_bound_z_score = min(z_scores_to_check);
 lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(lower_bound_z_score)));
 detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);
 end_time = toc(beginning_time);
-fprintf("Finished cutting spikes per channel for z score %i, it took %f seconds\n",lower_bound_z_score,end_time);
+fprintf("Finished cutting spikes per channel for z score %.2f, it took %.2f seconds\n",lower_bound_z_score,end_time);
 
 %step 9b get the spike windows of the smallest z score in the config
 %by all subsequent z score tests will be much faster as they will simply
@@ -90,10 +90,9 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         % step 9c; Get all the data points from the potential spikes
         beginning_time = tic;
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-        get_spike_windows_ver_3(channels_without_formatting,lowest_bound_spike_windows_dir,min_z_score,config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir);
-
+        get_spike_windows_ver_3(channels_without_formatting,lowest_bound_spike_windows_dir,min_z_score,config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config);
         end_time = toc(beginning_time);
-        fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
+        fprintf("Finished getting spike windows for z score %.2f, it took %.2f seconds\n",min_z_score,end_time);
 
 
         % step 9d: get maps of each tetrode to its spikes
@@ -138,7 +137,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
         [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
         end_time = toc(beginning_time);
-        fprintf("Core Clustering for z score %f finished, it took %f seconds\n",min_z_score,end_time);
+        fprintf("Core Clustering for z score %.2f finished, it took %.2f seconds\n",min_z_score,end_time);
         file_name = "blind_pass.txt";
         file_id = fopen(fullfile(precomputed_dir,file_name),'w');
         fclose(file_id);
@@ -174,7 +173,7 @@ else
     disp("To regrade, delete finished_grading.txt");
 end
 end_time = toc(beginning_time);
-fprintf("Finished grading, it took %f seconds\n",end_time);
+fprintf("Finished grading, it took %.2f seconds\n",end_time);
 
 %step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
 if ~ismember(fullfile(precomputed_dir,"finished_adding_mw.txt"),what_is_computed)
