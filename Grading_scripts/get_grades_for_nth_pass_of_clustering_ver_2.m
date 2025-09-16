@@ -9,6 +9,8 @@ precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 num_iterations = size(sliced_blind_pass_table,1);
 grades_table = cell(size(blind_pass_table,1),1);
 
+config =parallel.pool.Constant(config);
+
 q = parallel.pool.DataQueue;
 afterEach(q,@print_message_using_dataqueue)
 print_message_using_dataqueue(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
@@ -25,7 +27,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     ts_and_r_vals_fp = current_data{1,"fp_to_timestamps_rtvals"};
 
     aligned_fp = current_data{1,"fp_to_aligned"};
-    output_fp = current_data{1,"fp_to_output"};
+   
     try
         ts_r_tvals_cc_struct = importdata(ts_and_r_vals_fp ,"timestamps","r_tvals","cleaned_clusters");
         timestamps = ts_r_tvals_cc_struct.timestamps;
@@ -44,14 +46,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         disp(aligned_fp);
         continue;
     end
-    try
-        output_struct = importdata(output_fp,"output");
-        output = output_struct.output;
-    catch
-        disp("failed to load");
-        disp(output_fp);
-        continue;
-    end
+
     %compute_gradings_ver_4(aligned, timestamps, tvals, clusters, config,debug)
     if config.ON_HPC
         dir_of_template_shape_pngs = config.TEMPLATE_CLUSTER_FP_ON_HPC;
