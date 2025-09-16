@@ -8,9 +8,10 @@ afterEach(q,@print_status_bar)
 num_iterations = length(channels);
 print_status_bar(num_iterations,"get_spike_windows_ver_3.m")
 
-const_config = parallel.pool.Constant(config);
+
+precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 parfor i=1:length(channels)
-    if isfile(fullfile(const_config.BLIND_PASS_DIR_PRECOMPUTED, "c"+string(channels(i))+".mat"))
+    if isfile(fullfile(precomputed_dir, "c"+string(channels(i))+".mat"))
         send(q,[]);
         continue;
     end
