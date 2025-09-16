@@ -1,9 +1,10 @@
 function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table)
-unique_aligned_fps = unique(blind_pass_table{:,"fp_to_aligned"});
-number_of_iterations =size(unique_aligned_fps,1);
 
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
-
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+num_iterations = size(blind_pass_table,1);
+print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
 parfor i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
@@ -13,6 +14,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     catch
         disp("Failed to load aligned file")
         disp(current_data{1,"fp_to_aligned"})
+        send(q,[]);
         continue;
     end
 
@@ -22,6 +24,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     catch
         disp("Failed to load output file")
         disp(current_data{1,"fp_to_output"})
+        send(q,[]);
         continue;
     end
 
@@ -31,6 +34,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     catch
         disp("Failed to load timestamps of spikes");
         disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+        send(q,[]);
         continue;
     end
 
@@ -66,6 +70,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         current_data.("mean_waveform_rep_wire_"+string(k)) = mean_waveform_cell_array(:,k);
     end
     sliced_blind_pass_table{i} = current_data;
+    send(q,[]);
 end
 blind_pass_table = vertcat(sliced_blind_pass_table{:});
 end
