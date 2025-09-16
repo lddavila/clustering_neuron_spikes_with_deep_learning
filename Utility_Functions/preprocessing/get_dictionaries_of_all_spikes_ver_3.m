@@ -31,24 +31,16 @@ list_of_available_channels = string(list_of_available_channels{:,"name"});
 list_of_available_channels = strrep(list_of_available_channels,".mat","");
 list_of_available_channels = strrep(list_of_available_channels,"c","");
 list_of_available_channels = str2double(list_of_available_channels);
-% q = parallel.pool.DataQueue;
-% afterEach(q,@print_message_using_dataqueue)
-% num_iterations = size(art_tetr_array,1);
-% print_message_using_dataqueue(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+num_iterations = size(art_tetr_array,1);
+print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 already_done = config.ALREADY_DONE_FILES;
-% for this intensive process we want to turn off the parallel pool already
-% set for this job
-% p = gcp('nocreate');
-% if ~isempty(p)
-%     delete(p);
-% end
-%now we want to creae a threaded pool to avoid excess memory copying
-% parpool("Threads");   
 for i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
-        % send(q,[]);
+        send(q,[]);
         continue;
     end
     fp_for_tetrode_dict =fullfile(dictionaries_dir,"t"+string(i)+" tetrode_dictionary.mat") ;
@@ -60,7 +52,7 @@ for i=1:size(art_tetr_array,1)
     fp_to_sorted_spike_windows = fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat");
     dict_fpths = [fp_for_tetrode_dict,fp_for_spike_tetrode_dict,fp_for_timing_tetrode_dict,fp_for_channel_to_tetrode_dict,fp_to_spiking_channel_tetrode_dict,fp_to_spike_tetrode_dictionary_samples_format,fp_to_sorted_spike_windows];
     if all(ismember(dict_fpths,already_done))
-        % send(q,[]);
+        send(q,[]);
         continue;
     end
 
@@ -77,9 +69,7 @@ for i=1:size(art_tetr_array,1)
     channel_to_tetrode_dictionary = struct("channel_to_tetrode_dictionary",channel_to_tetrode_dictionary);
     par_save(fp_for_tetrode_dict,tetrode_dictionary);
     par_save(fp_for_channel_to_tetrode_dict,channel_to_tetrode_dictionary)
+    send(q,[]);
 end
-%now we want to restart the normal parallel pool
-% delete(gcp('nocreate'));
-% parpool("local"); 
-% fclose(status_file);
+
 end
