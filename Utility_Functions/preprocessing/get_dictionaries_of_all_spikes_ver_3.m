@@ -32,7 +32,7 @@ list_of_available_channels = strrep(list_of_available_channels,".mat","");
 list_of_available_channels = strrep(list_of_available_channels,"c","");
 list_of_available_channels = str2double(list_of_available_channels);
 q = parallel.pool.DataQueue;
-afterEach(q,@print_message_using_dataqueue)
+afterEach(q,@print_status_bar)
 num_iterations = size(art_tetr_array,1);
 print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 already_done = config.ALREADY_DONE_FILES;
