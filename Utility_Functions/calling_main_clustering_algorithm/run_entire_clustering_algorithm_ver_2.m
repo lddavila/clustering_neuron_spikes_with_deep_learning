@@ -79,7 +79,7 @@ fprintf("Finished cutting spikes per channel for z score %.2f, it took %.2f seco
 %this offers a significant increase in performance
 
 lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lower_bound_z_score) + " num dps "+ string(num_dps)));
-get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir)
+get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lower_bound_z_score,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
