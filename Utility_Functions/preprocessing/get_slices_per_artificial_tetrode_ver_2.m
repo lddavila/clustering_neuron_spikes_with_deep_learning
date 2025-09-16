@@ -68,7 +68,7 @@ simple_channel_list = 1:numel(chan_of_art_tetrode);
 
 timing_matrix_const = parallel.pool.Constant(timing_matrix);
 channels_data_const = parallel.pool.Constant(channels_data);
-parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
+for i=1:size(sorted_spike_windows_for_current_tetrode,1)
 
     current_window = sliced_spike_windows{i};
 
@@ -84,8 +84,6 @@ parfor i=1:size(sorted_spike_windows_for_current_tetrode,1)
         spike_slices_in_samples_format(:,j,i) = channels_data_const.Value{j}(current_window(1,1) :current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
-    % send(q,[]);
-
 end
 
 
