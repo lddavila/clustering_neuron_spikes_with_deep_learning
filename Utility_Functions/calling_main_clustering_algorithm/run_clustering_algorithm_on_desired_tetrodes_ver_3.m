@@ -24,12 +24,12 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
-
+config =parallel.pool.Constant(config);
 % q = parallel.pool.DataQueue;
 % afterEach(q,@print_message_using_dataqueue)
 % num_iterations = length(list_of_available_tetrodes);
 % print_message_using_dataqueue(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
-for i=1:length(list_of_available_tetrodes)
+parfor i=1:length(list_of_available_tetrodes)
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
@@ -37,10 +37,10 @@ for i=1:length(list_of_available_tetrodes)
     reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
     reg_ts_of_spikes_file_name =fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
 
-    c1 = ismember(output_file_name,config.ALREADY_DONE_FILES);
-    c2 = ismember(aligned_file_name,config.ALREADY_DONE_FILES);
-    c3 = ismember(reg_ts_file_name,config.ALREADY_DONE_FILES);
-    c4 = ismember(reg_ts_of_spikes_file_name,config.ALREADY_DONE_FILES);
+    c1 = isfile(output_file_name);
+    c2 = isfile(aligned_file_name);
+    c3 = isfile(reg_ts_file_name);
+    c4 = isfile(reg_ts_of_spikes_file_name);
     if all([c1,c2,c3,c4])
         % send(q,[]);
         continue;
@@ -124,7 +124,7 @@ for i=1:length(list_of_available_tetrodes)
             aligned_array{i} = NaN;
             reg_timestamps_array{i} = NaN;
             disp("Went into catch")
-
+            send(q,[]);
             continue;
         end
     catch ME
@@ -134,8 +134,9 @@ for i=1:length(list_of_available_tetrodes)
         disp(ME.message);
         disp("########################################################################################")
         % fprintf('%s',ME.cause);
+        send(q,[]);
         continue;
     end
-    % send(q,[]);
+    send(q,[]);
 end
 end
