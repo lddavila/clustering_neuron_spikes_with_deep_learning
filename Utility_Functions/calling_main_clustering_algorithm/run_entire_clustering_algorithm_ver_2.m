@@ -84,6 +84,8 @@ get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
     for min_z_score=z_scores_to_check
+        if ~min_z_score==lower_bound_z_score
+        end
         % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
         %   each element of "what_is_precomputed" is a string telling you
         %   what is already done 

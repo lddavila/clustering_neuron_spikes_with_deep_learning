@@ -10,7 +10,7 @@ print_status_bar(num_iterations,"get_spike_windows_ver_3.m")
 
 
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
-parfor i=1:length(channels)
+for i=1:length(channels)
     if isfile(fullfile(precomputed_dir, "c"+string(channels(i))+".mat"))
         send(q,[]);
         continue;
