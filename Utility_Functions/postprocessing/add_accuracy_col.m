@@ -4,12 +4,13 @@ ground_truth = importdata(config.GT_FP);
 timestamps = importdata(config.TIMESTAMP_FP);
 % accuracy_category = nan(size(table_of_clusters,1),1);
 sliced_bp_table = slice_table_for_parallel_processing(table_of_clusters,[]);
-% num_iterations = size(table_of_clusters,1);
-% q = parallel.pool.DataQueue;
-% afterEach(q,@print_status_bar)
-% num_iterations = size(sliced_bp_table,1);
-% print_status_bar(num_iterations,"add_accuracy_col.m")
-for i=1:size(sliced_bp_table,1)
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = length(sliced_bp_table);
+print_status_bar(num_iterations,"add_accuracy_col.m")
+timestamps = parallel.pool.Constant(timestamps);
+ground_truth = parallel.pool.Constant(ground_truth);
+parfor i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     %blind_pass_table.("Max_Overlap_perc_With_Unit") = max_overlap_percentages;
 %blind_pass_table.("Max_Overlap_Unit") = max_overlap_unit;
