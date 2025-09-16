@@ -83,6 +83,7 @@ bp_table_only_neur_filtered = blind_pass_table(blind_pass_table{:,"grades_pred"}
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
 beginning_time = tic;
+config.TIME_DELTA = 0.004; %the time delta expected from the neural network
 clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap_parallel(bp_table_only_neur_filtered,config);
 end_time = toc(beginning_time);
 fprintf("Finished merging clusters it took %f seconds\n",end_time)
