@@ -25,10 +25,10 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 config =parallel.pool.Constant(config);
-% q = parallel.pool.DataQueue;
-% afterEach(q,@print_message_using_dataqueue)
-% num_iterations = length(list_of_available_tetrodes);
-% print_message_using_dataqueue(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
+q = parallel.pool.DataQueue;
+afterEach(q,@print_message_using_dataqueue)
+num_iterations = length(list_of_available_tetrodes);
+print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
 parfor i=1:length(list_of_available_tetrodes)
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
@@ -42,7 +42,7 @@ parfor i=1:length(list_of_available_tetrodes)
     c3 = isfile(reg_ts_file_name);
     c4 = isfile(reg_ts_of_spikes_file_name);
     if all([c1,c2,c3,c4])
-        % send(q,[]);
+        send(q,[]);
         continue;
     end
 
