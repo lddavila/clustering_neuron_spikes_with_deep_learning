@@ -7,6 +7,7 @@ unit_of_max_overlap = NaN;
 % q = parallel.pool.DataQueue;
 % afterEach(q,@print_status_bar)
 % print_status_bar(num_iterations,"get_overlap_between_cluster_and_unit_as_percentage_ver_2.m")
+
 for i=1:length(ground_truth)
     current_unit_ts_locs = ground_truth{i};
     number_of_times_current_unit_spikes = size(current_unit_ts_locs,2);
