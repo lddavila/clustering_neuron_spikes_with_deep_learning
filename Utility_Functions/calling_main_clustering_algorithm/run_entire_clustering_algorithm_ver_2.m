@@ -49,44 +49,56 @@ save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel
 
 end_time = toc(beginning_time);
 fprintf("Finished Getting mean and std, it took %f seconds\n",end_time)
-%step 8: Get the channel groupings
-% clc;
+%step 8: Get the channel groupings AKA artificial tetrodes
 art_tetr_array = config.ART_TETR_ARRAY;
 
 
 %step 9 use a for loop to cycle through all z-scores listed in the config
 %file
 z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
+z_scores_to_check = sort(z_scores_to_check,'ascend');
 
 
 
+% step 9a: get all potential spikes with the lowest allowable z score
+% desired
+%all spikes of higher z scores will be included in these
+%for higher z score's we'll simply filter spike windows by the z score of
+%the spike
+%this provides a significant boost in performance
+beginning_time = tic;
+lower_bound_z_score = min(z_scores_to_check);
+lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(lower_bound_z_score)));
+detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);
+end_time = toc(beginning_time);
+fprintf("Finished cutting spikes per channel for z score %i, it took %f seconds\n",lower_bound_z_score,end_time);
+
+%step 9b get the spike windows of the smallest z score in the config
+%by all subsequent z score tests will be much faster as they will simply
+%perform a logical indexing of the lowest bound
+%this offers a significant increase in performance
+
+lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lower_bound_z_score) + " num dps "+ string(num_dps)));
+get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir)
+
+channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
     for min_z_score=z_scores_to_check
         % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
-        %   each element of "what_is_precomputed" is a string telling you what is already done
-
-        beginning_time = tic;
-        % step 9b: get potential spikes from continuous recordings
-        spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min_z_score)));
-        detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
-        end_time = toc(beginning_time);
-        fprintf("Finished cutting spikes per channel for z score %i, it took %f seconds\n",min_z_score,end_time);
-
-
+        %   each element of "what_is_precomputed" is a string telling you
+        %   what is already done 
         % step 9c; Get all the data points from the potential spikes
         beginning_time = tic;
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-        get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel_dir,min_z_score,config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir,config);
+        get_spike_windows_ver_3(channels_without_formatting,lowest_bound_spike_windows_dir,min_z_score,config.NUM_DPTS_TO_SLICE,z_score_dir,spike_windows_dir);
 
         end_time = toc(beginning_time);
         fprintf("Finished getting spike windows for z score %f, it took %f seconds\n",min_z_score,end_time);
 
 
+        % step 9d: get maps of each tetrode to its spikes
         beginning_time = tic;
         dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
-        % step 9d: get maps of each tetrode to its spikes
-
-        % clc;
         get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
         %tetrode_dictionary
         %keys: "t" + tetrode number
@@ -116,20 +128,12 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         % number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
         % disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
         % clc;
-
-
         end_time = toc(beginning_time);
         fprintf('Getting dictionaries took: %f\n',end_time)
 
 
         % Step 9e: Run Clustering Algorithm
-        % close all;
-
-        % clc;
-
-        % disp(size(array_of_desired_tetrodes));
         beginning_time = tic;
-
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
         [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);

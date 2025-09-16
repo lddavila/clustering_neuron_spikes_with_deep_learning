@@ -1,13 +1,18 @@
-function [] = get_spike_windows_ver_3(channels,desired_z_score,old_spike_windows_dir,new_spike_windows_dir)
+function [] = get_spike_windows_ver_3(channels,desired_z_score,lowest_bound_spike_windows_dir,new_spike_windows_dir)
 
 %differs from get_spike_windows_ver_2 because instead of creating the spike windows array per channel
 %this function reads an existing spike windows z score and eliminates any
 %spikes that have a z score lower than the currently desired on
-for i=1:length(channels)
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = length(channels);
+print_status_bar(num_iterations,"get_spike_windows_ver_3.m")
+parfor i=1:length(channels)
     current_channel = channels(i);
-    previously_found_spike_windows = importdata(fullfile(old_spike_windows_dir,"c"+string(current_channel)+".mat"));
+    previously_found_spike_windows = importdata(fullfile(lowest_bound_spike_windows_dir,"c"+string(current_channel)+".mat"));
     spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,5)>=desired_z_score,:);
     par_save(fullfile(new_spike_windows_dir,"c"+string(current_channel)+".mat"),spike_windows)
+    send(q,[]);
 end
 
 
