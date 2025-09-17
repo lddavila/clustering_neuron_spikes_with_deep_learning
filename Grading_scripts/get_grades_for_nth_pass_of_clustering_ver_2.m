@@ -50,13 +50,13 @@ parfor i=1:size(sliced_blind_pass_table,1)
     end
 
     %compute_gradings_ver_4(aligned, timestamps, tvals, clusters, config,debug)
-    if config.ON_HPC
-        dir_of_template_shape_pngs = config.TEMPLATE_CLUSTER_FP_ON_HPC;
+    if config.Value.ON_HPC
+        dir_of_template_shape_pngs = config.Value.TEMPLATE_CLUSTER_FP_ON_HPC;
     else
-        dir_of_template_shape_pngs = config.TEMPLATE_CLUSTER_FP;
+        dir_of_template_shape_pngs = config.Value.TEMPLATE_CLUSTER_FP;
     end
     dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
-    grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config);
+    grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.Value.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config.Value);
     grade_struct = struct();
 
     for j=1:size(grades,2)
