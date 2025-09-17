@@ -26,7 +26,7 @@ for i=1:length(list_of_available_tetrodes)
 end
 config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
-afterEach(q,@print_message_using_dataqueue)
+afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
 parfor i=1:length(list_of_available_tetrodes)
