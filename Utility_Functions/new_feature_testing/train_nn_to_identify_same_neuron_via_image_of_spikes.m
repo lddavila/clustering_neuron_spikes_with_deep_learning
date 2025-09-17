@@ -23,7 +23,7 @@ disp("finished getting all comparisons")
 is_same_neuron = blind_pass_table{all_comparisons(:,1),"Max Overlap Unit"} == blind_pass_table{all_comparisons(:,2),"Max Overlap Unit"};
 disp("finished getting is same neuron")
 %now set how many training samples you want
-num_training_samples = 10000;
+num_training_samples = 100000;
 
 %now from each class randomly sample num_training_samples/2
 rng(0);
@@ -92,7 +92,7 @@ blocks        = [2 3];       % how many conv blocks (2–3)
 baseFilters_all   = [16 32];     % starting #filters (16 or 32)
 fcUnitsGrid   = [64 128];    % size of the FC layer
 disp("Finished setting the meta parameters")
-for baseFilters = baseFilters_all
+parfor baseFilters = baseFilters_all
     for num_blocks = blocks
         for fcUnits = fcUnitsGrid
             layers = makeTinyCNN(input_size, num_classes, num_blocks, baseFilters, fcUnits);
