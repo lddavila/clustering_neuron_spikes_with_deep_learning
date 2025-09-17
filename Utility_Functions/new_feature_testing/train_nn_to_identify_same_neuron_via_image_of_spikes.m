@@ -88,8 +88,8 @@ options = trainingOptions("sgdm", ...
     ExecutionEnvironment="auto");          % use GPU if present
 disp("Finished setting options")
 
-blocks        = [2 3];       % how many conv blocks (2–3)
-baseFilters_all   = [16 32];     % starting #filters (16 or 32)
+blocks        = [2 3 4 5 6];       % how many conv blocks (2–3)
+baseFilters_all   = [32 64];     % starting #filters (16 or 32)
 fcUnitsGrid   = [64 128];    % size of the FC layer
 disp("Finished setting the meta parameters")
 parfor baseFilters = baseFilters_all
