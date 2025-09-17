@@ -24,9 +24,15 @@ is_same_neuron = blind_pass_table{all_comparisons(:,1),"Max Overlap Unit"} == bl
 num_training_samples = 100000;
 
 %now from each class randomly sample num_training_samples/2
-
+rng(0);
 number_of_samples_per_class = round(num_training_samples);
 is_same_neuron_indexes = find(is_same_neuron);
 is_not_same_neuron_samples = find(~is_same_neuron);
+
+random_groupable = all_comparisons(is_same_neuron_indexes(randperm(length(is_same_neuron_indexes),number_of_samples_per_class)),:);
+random_non_groupable = all_comparisons(is_not_same_neuron_samples(randperm(length(is_not_same_neuron_samples),number_of_samples_per_class)),:);
+all_training_values = [random_non_groupable;random_groupable];
+%shuffle the values
+all_training_values = all_training_values(randperm(size(all_training_values,1),size(all_training_values,1)));
 
 end
