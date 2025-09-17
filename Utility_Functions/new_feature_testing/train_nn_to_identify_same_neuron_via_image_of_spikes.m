@@ -14,6 +14,8 @@ config.RECORDING_NAME = "sim_no_drift_first_300_seconds";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
 blind_pass_table = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table","blind_pass_table.mat"));
 disp("Finished importing bp table")
+disp("size of bp table");
+disp(size(blind_pass_table));
 
 
 %get all possible combinations of comparing 2 clusters
