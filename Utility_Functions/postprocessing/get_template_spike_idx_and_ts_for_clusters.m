@@ -2,7 +2,7 @@ function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_p
 
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
 q = parallel.pool.DataQueue;
-afterEach(q,@print_message_using_dataqueue)
+afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
 parfor i=1:size(sliced_blind_pass_table,1)

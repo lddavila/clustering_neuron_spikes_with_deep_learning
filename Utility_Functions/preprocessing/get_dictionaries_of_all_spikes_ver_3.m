@@ -36,7 +36,7 @@ afterEach(q,@print_status_bar)
 num_iterations = size(art_tetr_array,1);
 print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 already_done = config.ALREADY_DONE_FILES;
-for i=1:size(art_tetr_array,1)
+parfor i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))

@@ -29,9 +29,11 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
-parfor i=1:length(list_of_available_tetrodes)
+for i=1:length(list_of_available_tetrodes)
+     
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
+    tetrode_number= str2double(strrep(current_tetrode,"t",""));
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
     aligned_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
     reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
@@ -100,7 +102,7 @@ parfor i=1:length(list_of_available_tetrodes)
 
     try
         %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
-        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config.Value,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
+        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config.Value,channels_in_current_tetrode,tetrode_number,sorted_spike_windows,initial_tetrodes_results_dir);
         %   - the first column contains the timestamps of the spikes in seconds
         %   - the second column contains the cluster classification of the spikes
         %       E.g., a value of '3' means that the spike belongs to cluster 3.
