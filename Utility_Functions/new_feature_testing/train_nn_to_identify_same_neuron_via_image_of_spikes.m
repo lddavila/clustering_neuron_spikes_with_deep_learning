@@ -54,8 +54,8 @@ end
 %now we can get the training images for the 2 wfs
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"group_or_dont_based_on_wf"));
 dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_results_to,"training_images"));
-image_path =get_simple_wf_plots(left_mean_wf_cell_array,right_mean_wf_cell_array,dir_to_save_images_to);
-
+%image_path =get_simple_wf_plots(left_mean_wf_cell_array,right_mean_wf_cell_array,dir_to_save_images_to);
+image_path = "";
 
 
 %with the images created we can now train the neural networks
