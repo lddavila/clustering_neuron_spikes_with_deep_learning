@@ -25,7 +25,7 @@ disp("finished getting all comparisons")
 is_same_neuron = blind_pass_table{all_comparisons(:,1),"Max Overlap Unit"} == blind_pass_table{all_comparisons(:,2),"Max Overlap Unit"};
 disp("finished getting is same neuron")
 %now set how many training samples you want
-num_training_samples = 50000;
+num_training_samples = 30000;
 
 %now from each class randomly sample num_training_samples/2
 rng(0);
@@ -55,7 +55,7 @@ end
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"group_or_dont_based_on_wf"));
 dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_results_to,"training_images"));
 image_path =get_simple_wf_plots(left_mean_wf_cell_array,right_mean_wf_cell_array,dir_to_save_images_to);
-image_path = "";
+
 
 
 %with the images created we can now train the neural networks
