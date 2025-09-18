@@ -94,7 +94,7 @@ blocks        = [2 3 4 5 6];       % how many conv blocks (2–3)
 baseFilters_all   = [32 64];     % starting #filters (16 or 32)
 fcUnitsGrid   = [64 128];    % size of the FC layer
 disp("Finished setting the meta parameters")
-parfor baseFilters = baseFilters_all
+for baseFilters = baseFilters_all
     for num_blocks = blocks
         for fcUnits = fcUnitsGrid
             layers = makeTinyCNN(input_size, num_classes, num_blocks, baseFilters, fcUnits);
