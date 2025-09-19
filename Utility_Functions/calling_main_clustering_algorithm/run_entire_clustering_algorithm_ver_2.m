@@ -138,7 +138,7 @@ if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
         beginning_time = tic;
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
         initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
-        [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
+        [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config,min_z_score);
         end_time = toc(beginning_time);
         fprintf("Core Clustering for z score %.2f finished, it took %.2f seconds\n",min_z_score,end_time);
         file_name = "blind_pass.txt";

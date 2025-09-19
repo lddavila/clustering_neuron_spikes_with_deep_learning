@@ -1,4 +1,4 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
+function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config,current_z_score)
 % disp("Beginning Core Clustering Algorithm")
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
@@ -28,7 +28,7 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
-print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3.m")
+print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
 parfor i=1:length(list_of_available_tetrodes)
      
     beginning_time = tic;
