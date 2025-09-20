@@ -3,7 +3,7 @@ quality_pred = NaN;
    
 colors = distinguishable_colors(1); %will always use the same colors
 my_gray = [0.5 0.5 0.5];
-hold on
+%hold on
 f = figure('Visible','off');
 
 
@@ -19,6 +19,7 @@ scatter(peaks(:, first_dimension), peaks(:, second_dimension), 2,my_gray);
 
 if isempty(peaks_in_cluster)
     accuracy_pred = NaN;
+    close(f);
     return
 end
 
