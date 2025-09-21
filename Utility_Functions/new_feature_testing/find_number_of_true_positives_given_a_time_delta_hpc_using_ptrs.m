@@ -1,4 +1,4 @@
-function [overlap,matches_log] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,time_delta)
+function [overlap,matches_log,matches] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,time_delta)
 
 switched = false;
 %step 1 is to ensure that the ts are sorted

@@ -1,6 +1,6 @@
-function [array_of_overlap_with_unit,unit_of_max_overlap,max_overlap_percentage] = get_overlap_between_cluster_and_unit_as_percentage_ver_2(timestamps_of_cluster,ground_truth,timestamps,time_delta)
+function [array_of_overlap_with_unit,unit_of_max_overlap,max_overlap_percentage] = get_overlap_between_units_and_cluster_2_ptr_method(timestamps_of_cluster,ground_truth,timestamps,time_delta)
 
-
+%find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs()
 array_of_overlap_with_unit = zeros(1,length(ground_truth));
 max_overlap_percentage = 0;
 unit_of_max_overlap = NaN;
@@ -13,18 +13,7 @@ for i=1:length(ground_truth)
     current_unit_ts_locs = ground_truth{i};
     number_of_times_current_unit_spikes = size(current_unit_ts_locs,2);
     current_unit_ts = timestamps(current_unit_ts_locs);
-    
-    %ORIGINAL BEGINS BELOW
-    % number_of_ts_in_common = 0;
-    % for j=1:number_of_times_current_unit_spikes
-    %     diffs_between_unit_ts_and_cluster_ts = current_unit_ts(j) - timestamps_of_cluster;
-    %     if any(abs(diffs_between_unit_ts_and_cluster_ts) < time_delta)
-    %         number_of_ts_in_common = number_of_ts_in_common +1;
-    %     end
-    % 
-    % end
-    %ORIGINAL ENDS
-    number_of_ts_in_common = sum(ismembertol(current_unit_ts, timestamps_of_cluster, time_delta, 'DataScale', 1),"all");
+    [~,~,number_of_ts_in_common] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(timestamps_of_cluster,current_unit_ts,time_delta);
     percentage_of_units_spikes_in_cluster = (number_of_ts_in_common / number_of_times_current_unit_spikes) * 100;
     if percentage_of_units_spikes_in_cluster > max_overlap_percentage
         max_overlap_percentage = percentage_of_units_spikes_in_cluster;

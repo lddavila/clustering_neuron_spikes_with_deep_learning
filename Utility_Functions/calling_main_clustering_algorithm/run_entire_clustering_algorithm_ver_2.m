@@ -82,7 +82,7 @@ lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_pa
 get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lower_bound_z_score,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
-if ~ismember(fullfile(precomputed_dir,"blind_pass.txt"),what_is_computed)
+if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
     for min_z_score=z_scores_to_check
         % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
         %   each element of "what_is_precomputed" is a string telling you
@@ -152,7 +152,7 @@ end
 
 %step 11: read the results of the blind pass into a table
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
-if ~ismember(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),what_is_computed)
+if ~isfile(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"))
     blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
     save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
 else
@@ -165,7 +165,7 @@ disp(size(blind_pass_table));
 % step 12: Grade the blind pass results
 beginning_time = tic;
 disp("Beginning Grading")
-if ~ismember(fullfile(precomputed_dir,"finished_grading.txt"),what_is_computed)
+if ~isfile(fullfile(precomputed_dir,"finished_grading.txt"))
     blind_pass_table = get_grades_and_grades_fp_col(blind_pass_table,config);
     save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
     file_name = "finished_grading.txt";
@@ -179,7 +179,7 @@ end_time = toc(beginning_time);
 fprintf("Finished grading, it took %.2f seconds\n",end_time);
 
 %step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
-if ~ismember(fullfile(precomputed_dir,"finished_adding_mw.txt"),what_is_computed)
+if ~isfile(fullfile(precomputed_dir,"finished_adding_mw.txt"))
     blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
     save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
     file_name = "finished_adding_mw.txt";
