@@ -63,5 +63,5 @@ for i=1:size(blind_pass_table,1)
     already_merged(indexes_to_merge) = 1;
     cluster_group_counter = cluster_group_counter+1;
 end
-clusters_organized_by_same_group{cluster_group_counter:end} = cluster_group_counter(1:cluster_group_counter-1);
+clusters_organized_by_same_group = cluster_group_counter(1:cluster_group_counter-1);
 end
