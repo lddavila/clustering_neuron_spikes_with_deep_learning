@@ -86,7 +86,7 @@ for i=1:10
 
     %% Step 9: Merge neurons into groups that represent the same underlying unit
     beginning_time = tic;
-    config.TIME_DELTA = 0.00002; %the time delta expected from the neural network
+    config.TIME_DELTA = 0.0002; %a stricter time delta then available on the neural network
     clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap_parallel(bp_table_only_neur_filtered,config);
     end_time = toc(beginning_time);
     fprintf("Finished merging clusters it took %f seconds\n",end_time)
@@ -102,4 +102,3 @@ for i=1:10
     create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_without_filter_fp);
     save(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organized_by_same_group_without_filter.mat"),"clusters_organized_by_same_group_without_filter");
 end
-% %% step 13: Sort the Results of step 9
