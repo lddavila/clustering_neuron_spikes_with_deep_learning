@@ -39,8 +39,9 @@ fprintf("Finished running blind pass it took %f seconds\n",end_time)
 % in this example the data is simulated and the ground truth is available
 beginning_time = tic;
 config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
-if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"),config.ALREADY_DONE_FILES)
-    blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit(blind_pass_table,config);
+timestamps = importdata(config.TIMESTAMP_FP);
+if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
+    blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
     blind_pass_table= add_accuracy_col(config,blind_pass_table);
     save(fp_to_bp_table,"blind_pass_table");
 else
@@ -52,7 +53,8 @@ end_time = toc(beginning_time);
 fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
 %% Step 6: Get accuracy category prediction using grades + universal rank neural network 
 beginning_time = tic;
-if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_predictions.txt"),config.ALREADY_DONE_FILES)
+config.TIME_DELTA = 0.0002; %changing back to the time delta used to train nn
+if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_predictions.txt"))
     blind_pass_table = add_accuracy_cat_pred_from_nn(blind_pass_table,config);
     end_time = toc(beginning_time);
     save(fp_to_bp_table,"blind_pass_table");
@@ -63,7 +65,7 @@ end
 fprintf("Finished adding accuracy cat predictions based on grades and universal rank it took %.2f seconds\n",end_time)
 %% step 7: Get Accuracy category prediction using mean waveform neural network
 beginning_time = tic;
-if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_based_on_wf.txt"),config.ALREADY_DONE_FILES)
+if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_based_on_wf.txt"))
     blind_pass_table = add_mean_waveform_pred_col(blind_pass_table,config);
     end_time=toc(beginning_time);
     save(fp_to_bp_table,"blind_pass_table");
@@ -83,7 +85,7 @@ bp_table_only_neur_filtered = blind_pass_table(blind_pass_table{:,"grades_pred"}
 
 %% Step 9: Merge neurons into groups that represent the same underlying unit
 beginning_time = tic;
-config.TIME_DELTA = 0.004; %the time delta expected from the neural network
+config.TIME_DELTA = 0.00002; %the time delta expected from the neural network
 clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap_parallel(bp_table_only_neur_filtered,config);
 end_time = toc(beginning_time);
 fprintf("Finished merging clusters it took %f seconds\n",end_time)
