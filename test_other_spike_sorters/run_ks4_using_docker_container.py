@@ -11,13 +11,13 @@ from spikeinterface.comparison import compare_sorter_to_ground_truth
 import numpy as np
 
 
-def run_various_spike_sorters(sorting_true,job_list_current):
+def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     _rs.has_nvidia = lambda: False  # No GPU on this box → make SI skip CUDA paths cleanly
     os.system('cls' if os.name == 'nt' else 'clear')
 
     # start fresh instead of using "overwrite" on run_sorter
-    shutil.rmtree(out_dir, ignore_errors=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    #shutil.rmtree(out_dir, ignore_errors=True)
+    #out_dir.mkdir(parents=True, exist_ok=True)
 
     #for every dictionary in job_list add the folder key
     #for i, job in enumerate(job_list_current):
@@ -28,6 +28,7 @@ def run_various_spike_sorters(sorting_true,job_list_current):
 
     #now for every sorting in sortings do a ground truth comparison
     for sorter_name, sorting in sortings.items():
+
         print(f"Results for {sorter_name}")
         cmp_to_gt_results = compare_sorter_to_ground_truth(sorting_true, sorting, exhaustive_gt=True)
         sorting = sorting.save(folder=str(out_dir / f"{sorter_name}_output" / f"{sorter_name}_sorting"), overwrite=True)

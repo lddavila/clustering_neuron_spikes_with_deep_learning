@@ -49,6 +49,7 @@ for i, rec_fp in enumerate(h5_files):
     head, tail = os.path.split(rec_fp)
     tail = tail.replace('.h5', '')
     out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results")
+    print(out_dir)
     rec = se.MEArecRecordingExtractor(rec_fp)
     sorting_true = se.MEArecSortingExtractor(rec_fp)
     #add these to the job list
@@ -63,4 +64,4 @@ for i, rec_fp in enumerate(h5_files):
                           'folder': str(out_dir),
                           'verbose':True})
 
-    run_various_spike_sorters(sorting_true, job_list)
+    run_various_spike_sorters(sorting_true, job_list,out_dir)
