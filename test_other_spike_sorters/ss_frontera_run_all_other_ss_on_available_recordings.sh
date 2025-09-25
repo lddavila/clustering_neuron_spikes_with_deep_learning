@@ -8,7 +8,7 @@
 #SBATCH -o output.txt
 #SBATCH -e output.txt
 
-set -euo pipefail
+set -eo pipefail
 
 module purge
 module load gcc/9.1.0
