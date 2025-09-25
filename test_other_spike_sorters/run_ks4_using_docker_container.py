@@ -23,7 +23,7 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     #for i, job in enumerate(job_list_current):
     #    job['folder'] = str(out_dir / f"{job['sorter_name'+'_output']}")
     
-    sortings = run_sorter_jobs(job_list=job_list_current, verbose=True)
+    sortings = run_sorter_jobs(job_list=job_list_current)
     print(sortings.items)
 
     #now for every sorting in sortings do a ground truth comparison

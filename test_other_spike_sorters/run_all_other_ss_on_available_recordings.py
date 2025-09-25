@@ -62,6 +62,7 @@ for i, rec_fp in enumerate(h5_files):
                           'torch_device':"cpu", 
                           'remove_existing_folder':True, 
                           'folder': str(out_dir),
-                          'Verbose':True})
+                            'verbose':True
+                         })
 
     run_various_spike_sorters(sorting_true, job_list,out_dir)
