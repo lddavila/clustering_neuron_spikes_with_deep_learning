@@ -18,3 +18,7 @@ Data/
 
 #ignore the files in the Shape_template_PNGs file
 Shape_Template_PNGs/
+
+#ignore the files virtual environment
+./test_other_spike_sorters/venv/
+ss_env312/
