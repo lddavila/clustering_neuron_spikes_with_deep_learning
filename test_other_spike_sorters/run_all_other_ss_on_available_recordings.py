@@ -60,7 +60,7 @@ for i, rec_fp in enumerate(h5_files):
                           'installation_mode':"pypi", 
                           'torch_device':"cpu", 
                           'remove_existing_folder':True, 
-                          'folder': str(out_dir / (i + "_output")),
+                          'folder': str(out_dir),
                           'verbose':True})
 
     run_various_spike_sorters(sorting_true, job_list)
