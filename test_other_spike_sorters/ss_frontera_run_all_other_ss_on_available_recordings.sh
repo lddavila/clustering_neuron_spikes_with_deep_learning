@@ -6,7 +6,7 @@
 #SBATCH -n 1
 #SBATCH -t 04:00:00
 #SBATCH -o output.txt
-#SBATCH -e output.err
+#SBATCH -e output.txt
 
 set -euo pipefail
 
