@@ -11,7 +11,7 @@ from spikeinterface.comparison import compare_sorter_to_ground_truth
 import numpy as np
 
 
-def run_various_spike_sorters(rec,sorting_true,job_list_current,base_dir,out_dir,ground_truth):
+def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     _rs.has_nvidia = lambda: False  # No GPU on this box → make SI skip CUDA paths cleanly
     os.system('cls' if os.name == 'nt' else 'clear')
 

@@ -56,4 +56,4 @@ for i, rec_fp in enumerate(h5_files):
     for i in list_of_sorters:
         job_list.append({'sorter_name': i, 'recording': rec, 'docker_image':True, 'installation_mode':"pypi", 'torch_device':"cpu", 'remove_existing_folder':True, 'verbose':True})
 
-    run_various_spike_sorters(rec, sorting_true, job_list, base_dir,out_dir=out_dir)
+    run_various_spike_sorters(sorting_true, job_list, out_dir=out_dir)
