@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import spikeinterface as si
 import spikeinterface.extractors as se
+import MEArec as mr
 
 #create a simple recording and ground truth sorting
 #toy_example_rec, toy_example_sorting_true = toy_example(duration=30, num_channels=64, num_segments=1, seed=0)
@@ -48,8 +49,8 @@ for i, rec_fp in enumerate(h5_files):
     head, tail = os.path.split(rec_fp)
     tail = tail.replace('.h5', '')
     out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results")
-    rec = se.MEArecRecordingExtractor('mearec_sim.h5')
-    sorting_true = se.MEArecSortingExtractor('mearec_sim.h5')
+    rec = se.MEArecRecordingExtractor(rec_fp)
+    sorting_true = se.MEArecSortingExtractor(rec_fp)
     #add these to the job list
     job_list = []
     for i in list_of_sorters:
