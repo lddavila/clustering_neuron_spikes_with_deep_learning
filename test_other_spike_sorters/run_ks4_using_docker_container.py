@@ -11,7 +11,7 @@ from spikeinterface.comparison import compare_sorter_to_ground_truth
 import numpy as np
 
 
-def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
+def run_various_spike_sorters(sorting_true,job_list_current):
     _rs.has_nvidia = lambda: False  # No GPU on this box → make SI skip CUDA paths cleanly
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -20,8 +20,8 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
 
     #for every dictionary in job_list add the folder key
-    for i, job in enumerate(job_list_current):
-        job['folder'] = str(out_dir / f"{job['sorter_name'+'_output']}")
+    #for i, job in enumerate(job_list_current):
+    #    job['folder'] = str(out_dir / f"{job['sorter_name'+'_output']}")
     
     sortings = run_sorter_jobs(job_list=job_list_current, verbose=True)
     print(sortings.items)
