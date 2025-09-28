@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J reading
+#SBATCH -J test_other_ss
 #SBATCH -A ASC25063
 #SBATCH -p normal
 #SBATCH -N 1

@@ -5,6 +5,7 @@ from pathlib import Path
 import spikeinterface as si
 import spikeinterface.extractors as se
 import MEArec as mr
+import time;
 
 #create a simple recording and ground truth sorting
 #toy_example_rec, toy_example_sorting_true = toy_example(duration=30, num_channels=64, num_segments=1, seed=0)
@@ -53,8 +54,9 @@ for i, rec_fp in enumerate(h5_files):
     rec = se.MEArecRecordingExtractor(rec_fp)
     sorting_true = se.MEArecSortingExtractor(rec_fp)
     #add these to the job list
-    job_list = []
+    
     for i in list_of_sorters:
+        job_list = []
         job_list.append({'sorter_name': i,
                           'recording': rec, 
                           'installation_mode':"pypi", 
@@ -64,5 +66,11 @@ for i, rec_fp in enumerate(h5_files):
                             'verbose':True,
                             'singularity_image':True
                          })
-
-    run_various_spike_sorters(sorting_true, job_list,out_dir)
+        start_time = time.time();
+        run_various_spike_sorters(sorting_true, job_list,out_dir)
+        end_time = time.time();
+        print(f"Time taken for {i} on {tail}: {end_time - start_time} seconds") 
+        time_taken = end_time - start_time
+        with open(out_dir / f"{i}_time.txt", "w") as f:
+            f.write(f"Time taken for {i} on {tail}: {time_taken} seconds\n")
+            f.close()
