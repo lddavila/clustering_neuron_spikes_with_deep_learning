@@ -50,6 +50,7 @@ for i, rec_fp in enumerate(h5_files):
     head, tail = os.path.split(rec_fp)
     tail = tail.replace('.h5', '')
     out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results")
+    out_dir.mkdir(parents=True, exist_ok=True)
     print(out_dir)
     rec = se.MEArecRecordingExtractor(rec_fp)
     sorting_true = se.MEArecSortingExtractor(rec_fp)
@@ -71,6 +72,8 @@ for i, rec_fp in enumerate(h5_files):
         end_time = time.time();
         print(f"Time taken for {i} on {tail}: {end_time - start_time} seconds") 
         time_taken = end_time - start_time
+        #create a text file in the out_dir with the time taken
+
         with open(out_dir / f"{i}_time.txt", "w") as f:
             f.write(f"Time taken for {i} on {tail}: {time_taken} seconds\n")
             f.close()
