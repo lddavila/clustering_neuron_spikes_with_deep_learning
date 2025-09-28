@@ -11,8 +11,8 @@
 set -eo pipefail
 
 module purge
-module load gcc/9.1.0
-module load python3/3.9.2
+module load gcc/14.2.0
+module load python3/3.11.8
 module load tacc-apptainer
 
 # Provide 'singularity' shim for SpikeInterface
