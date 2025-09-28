@@ -40,4 +40,4 @@ python -V
 pip show MEArec || true
 
 # IMPORTANT: use $SCRATCH (not /scratch) inside your scripts/paths
-python /scratch1/10595/lddavila/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/run_all_other_ss_on_available_recordings.py
+python /scratch/10595/lddavila/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/run_all_other_ss_on_available_recordings.py
