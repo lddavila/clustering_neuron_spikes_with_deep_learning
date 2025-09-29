@@ -14,7 +14,7 @@ cd(examples_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 %%
-for i=1:4
+for i=1:5:8
     % step 2: Get the config Necessary for current Example
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
