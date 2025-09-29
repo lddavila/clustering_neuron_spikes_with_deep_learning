@@ -158,7 +158,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         %grades{k, 9} = min_bhat;
         
         % Bhat distance to unsorted
-        %other_cf = setdiff(1:size(all_peaks, 2), unique(vertcat(clusters{:})));
+        other_cf = setdiff(1:size(all_peaks, 2), unique(vertcat(clusters{:})));
         %other_peaks = all_peaks(:, other_cf)';
         %dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
         %if ~isempty(other_peaks) && any(dim_filt)
