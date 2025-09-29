@@ -27,6 +27,7 @@ function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_
 
 
 list_of_available_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
+disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 list_of_available_channels = string(list_of_available_channels{:,"name"});
 list_of_available_channels = strrep(list_of_available_channels,".mat","");
 list_of_available_channels = strrep(list_of_available_channels,"c","");
