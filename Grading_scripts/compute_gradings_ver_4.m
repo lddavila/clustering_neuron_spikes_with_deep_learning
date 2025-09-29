@@ -187,13 +187,13 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         else
             near_thresh_idx = other_cf(all(bsxfun(@(x, y) x < y, other_peaks, 1.5 * tvals), 2));
         end
-        near_thresh_peaks = all_peaks(:, near_thresh_idx)';
-        dim_filt = find_singular_cols(peaks) & find_singular_cols(near_thresh_peaks);
-        if sum(dim_filt) > 1 && length(near_thresh_idx) > 0.5*length(cluster_filter)
-            %grades{k, 19} = bhat_dist(peaks(:, dim_filt), near_thresh_peaks(:, dim_filt));
-        end
+        % near_thresh_peaks = all_peaks(:, near_thresh_idx)';
+        % dim_filt = find_singular_cols(peaks) & find_singular_cols(near_thresh_peaks);
+        % if sum(dim_filt) > 1 && length(near_thresh_idx) > 0.5*length(cluster_filter)
+        %     %grades{k, 19} = bhat_dist(peaks(:, dim_filt), near_thresh_peaks(:, dim_filt));
+        % end
         
-        dim_filt = find_singular_cols(peaks) & find_singular_cols(all_peaks');
+        % dim_filt = find_singular_cols(peaks) & find_singular_cols(all_peaks');
         %if any(dim_filt) && ~isempty(other_cf)
             %m1 = mahal(peaks(:, dim_filt), peaks(:, dim_filt));
             %t1 = median(m1) + 5 * std(m1);
