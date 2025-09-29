@@ -182,11 +182,11 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         %isi = isi * 1e3; % milliseconds
         %grades{k, 15} = sum(isi < 7.5) / sum(isi < 100);
         
-        if isempty(other_cf)
-            near_thresh_idx = [];
-        else
-            near_thresh_idx = other_cf(all(bsxfun(@(x, y) x < y, other_peaks, 1.5 * tvals), 2));
-        end
+        % if isempty(other_cf)
+        %     near_thresh_idx = [];
+        % else
+        %     near_thresh_idx = other_cf(all(bsxfun(@(x, y) x < y, other_peaks, 1.5 * tvals), 2));
+        % end
         % near_thresh_peaks = all_peaks(:, near_thresh_idx)';
         % dim_filt = find_singular_cols(peaks) & find_singular_cols(near_thresh_peaks);
         % if sum(dim_filt) > 1 && length(near_thresh_idx) > 0.5*length(cluster_filter)
