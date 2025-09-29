@@ -32,6 +32,9 @@ for i=1:10
     % Step 4: run the blind pass with a various min_z_score (cut threshold)
     very_beginning_time = tic;
     [blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
+
+    %add the recording name to the blind pass table
+    blind_pass_table.recording_name = repelem(config.recording_name,size(blind_pass_table,1),1);
     end_time = toc(very_beginning_time);
     fprintf("Finished running blind pass it took %f seconds\n",end_time)
     % (OPTIONAL STEP 5 CONTINUED) Get max overlap unit and accuracy cols for the neurons
