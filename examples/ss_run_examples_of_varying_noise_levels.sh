@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH -n 40
-#SBATCH -p medium
+#SBATCH -p normal
 #SBATCH -J noise_lvls
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 

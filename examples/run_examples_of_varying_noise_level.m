@@ -5,7 +5,7 @@ tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
 c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
 if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
 disp("Num worksers available:"+string(c.NumWorkers));
-parpool(c,"Processes", c.NumWorkers);
+parpool("Processes", c.NumWorkers);
 
 %% STEP 1: Add functions to your path
 examples_dir = cd("..");
@@ -14,7 +14,7 @@ cd(examples_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 %%
-for i=9:10
+for i=1:4
     % step 2: Get the config Necessary for current Example
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
