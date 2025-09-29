@@ -4,7 +4,8 @@ c = parcluster('local');
 tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
 c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
 if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
-parpool("Processes", c.NumWorkers);
+disp("Num worksers available:"+string(c.NumWorkers));
+parpool(c,"Processes", c.NumWorkers);
 
 %% STEP 1: Add functions to your path
 examples_dir = cd("..");
