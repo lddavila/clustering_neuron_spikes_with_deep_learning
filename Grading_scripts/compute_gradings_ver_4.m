@@ -98,8 +98,8 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
 
         % Rate how good the cluster is based on how far away it is from the
         % rest of the spikes (including unclustered).
-        % other_good_spikes = setdiff(total_raw_spikes, cluster_filter);
-        % other_peaks = all_peaks(:, other_good_spikes);
+        other_good_spikes = setdiff(total_raw_spikes, cluster_filter);
+        other_peaks = all_peaks(:, other_good_spikes);
         % data_filt = find_singular_cols(other_peaks');
         % lratio = compute_lratio(peaks(data_filt, :)', other_peaks(data_filt, :)');
         % grades{k, 1} = lratio;
