@@ -304,7 +304,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         % mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
         % mean_waveform = mean_waveform - mean(mean_waveform);
         % grades{k, 8) = template_match(mean_waveform, temp.nt);
-        %mean_waveform_for_cluster_k = mean(shiftdim(spikes(compare_wire, :, :), 1));
+        mean_waveform_for_cluster_k = mean(shiftdim(spikes(compare_wire, :, :), 1));
         %grades{k,35} = calculate_tightness_of_waveform_per_cluster(mean_waveform_for_cluster_k,spikes,debug);
 
         %%grade 36 will be the same as 35, but only using the rep wire
