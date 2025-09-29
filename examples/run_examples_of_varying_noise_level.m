@@ -1,6 +1,6 @@
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
 c = parcluster('local');
- Put JobStorageLocation on node-local temp, NOT on GPFS
+% Put JobStorageLocation on node-local temp, NOT on GPFS
 tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
 c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
 if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
@@ -14,7 +14,7 @@ cd(examples_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 %%
-for i=8:10
+for i=1:4
     % step 2: Get the config Necessary for current Example
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
