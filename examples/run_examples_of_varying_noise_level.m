@@ -7,6 +7,11 @@
 %disp("Num worksers available:"+string(c.NumWorkers));
 %parpool(c,"Processes", c.NumWorkers);
 
+c = parcluster('local');
+c.JobStorageLocation = config.BLIND_PASS_DIR_PRECOMPUTED;
+saveAsProfile(c, 'local_scratch');
+parpool('local_scratch', c.NumWorkers); 
+
 %% STEP 1: Add functions to your path
 examples_dir = cd("..");
 addpath(genpath(pwd));
