@@ -383,7 +383,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             grades{k,61} = predict_expand_or_not(compare_wire,second_compare_wire,all_peaks,config_struct,cluster_filter);
 
             if length(cluster_filter) > 1
-                grades{k,62} = predict_accuracy_cat_using_nn(config_struct,mean_waveform);
+                grades{k,62} = predict_accuracy_cat_using_nn(config_struct,mean_waveform_for_cluster_k);
             else
                 grades{k,62} = 0;
             end
