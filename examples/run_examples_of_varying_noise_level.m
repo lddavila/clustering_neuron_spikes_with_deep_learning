@@ -14,16 +14,16 @@ cd(examples_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 %%
-if contains(config.base_file_path,"cnheaton")
-    beginning = 6;
-    the_end = 10;
-else
-    beginning = 1;
-    the_end = 10;
-end
 for i=beginning:the_end
     % step 2: Get the config Necessary for current Example
     config = spikesort_config();
+    if contains(config.base_file_path,"cnheaton")
+        beginning = 6;
+        the_end = 10;
+    else
+        beginning = 1;
+        the_end = 10;
+    end
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
     config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
     startup;
