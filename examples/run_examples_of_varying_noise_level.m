@@ -1,16 +1,11 @@
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
-%c = parcluster('local');
-% Put JobStorageLocation on node-local temp, NOT on GPFS
-%tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
-%c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
-%if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
-%disp("Num worksers available:"+string(c.NumWorkers));
-%parpool(c,"Processes", c.NumWorkers);
-
 c = parcluster('local');
-c.JobStorageLocation = config.BLIND_PASS_DIR_PRECOMPUTED;
-saveAsProfile(c, 'local_scratch');
-parpool('local_scratch', c.NumWorkers); 
+ Put JobStorageLocation on node-local temp, NOT on GPFS
+tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
+c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
+if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
+disp("Num worksers available:"+string(c.NumWorkers));
+parpool(c,"Processes", c.NumWorkers);
 
 %% STEP 1: Add functions to your path
 examples_dir = cd("..");
@@ -19,13 +14,16 @@ cd(examples_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 %%
-for i=1:10
+for i=5:7
     % step 2: Get the config Necessary for current Example
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
     config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
     startup;
     disp("Finished Setting Recording Name")
+    %replace the base file path
+    config.base_file_path = strrep(config.base_file_path,"cnheaton","afriedman");
+    config.base_file_path = strrep(config.base_file_path,"lddavila","afriedman");
     % (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
     config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
     config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
