@@ -179,7 +179,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         grades{k, 13} = compute_new_cv(rep_wire, 0.33);
         grades{k, 14} = compute_new_cv(rep_wire, 0.25);
         
-        isi = isi * 1e3; % milliseconds
+        %isi = isi * 1e3; % milliseconds
         %grades{k, 15} = sum(isi < 7.5) / sum(isi < 100);
         
         if isempty(other_cf)
