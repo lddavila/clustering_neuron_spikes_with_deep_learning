@@ -75,10 +75,7 @@ for i=1:size(sorted_spike_windows_for_current_tetrode,1)
     if current_window(1,1) == current_window(1,2) 
         continue;
     end
-    disp("current_window")
-    display(current_window)
-    disp("timing matrix")
-    disp(size(timing_matrix_const.Value))
+
     current_timing_slice = timing_matrix_const.Value(current_window(1,1):current_window(1,2) -1);
     time_slices(i,:) = current_timing_slice;
 
