@@ -7,7 +7,7 @@ num_dps = config.NUM_DPTS_TO_SLICE;
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Shape_Template_PNGs"));
 
 % step 1: load the timestamps into memory
-timestamps = load(config.TIMESTAMP_FP);
+timestamps = importdata(config.TIMESTAMP_FP);
 disp("Finished Importing timestamps for recording")
 
 %step 2: read the precomputed dir from the config
