@@ -52,7 +52,7 @@ for i=1:size(unique_z_score_dirs,1)
         %worry cleaning the clusters which has to happen if we extract
         %clusters from output 
         %references to fp_to_output are being replaced downstream
-        output_table{output_table_counter,"fp_to_cleaned_clusters"} = regexprep(strrep(fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+".mat"),"_results"),'\s(?!.*\s)',"");
+        output_table{output_table_counter,"fp_to_cleaned_clusters"} = regexprep(strrep(fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+".mat"),"_results",""),'\s(?!.*\s)',"");
         output_table{output_table_counter,"fp_to_reg_timestamps_of_the_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_the_spikes.mat");
         output_table{output_table_counter,"fp_to_reg_timestamps"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+"reg_timestamps.mat");
         output_table{output_table_counter,"fp_to_sorted_spike_windows_after_purges"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" sorted_spike_windows_after_purges.mat");
