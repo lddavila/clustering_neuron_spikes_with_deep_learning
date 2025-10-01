@@ -19,11 +19,10 @@ for i=1:size(sliced_blind_pass_table,1)
     end
 
     try
-        output = importdata(current_data{1,"fp_to_output"});
-        output = output.output;
+        load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
     catch
-        disp("Failed to load output file")
-        disp(current_data{1,"fp_to_output"})
+        disp("Failed to load cleaned clusters file")
+        disp(current_data{1,"fp_to_cleaned_clusters"})
         send(q,[]);
         continue;
     end
@@ -42,14 +41,15 @@ for i=1:size(sliced_blind_pass_table,1)
     disp(current_data{1,"Tetrode"})
     disp("Faliure z score");
     disp(current_data{1,"Z Score"})
-    idx_b4_filt = extract_clusters_from_output(output(:,1),output);
+
 
     all_peaks = get_peaks(aligned, true);
     idx_cell_array = cell(size(current_data,1),1);
     mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
     timestamp_cell_array = cell(size(current_data,1),1);
-    for j=1:length(idx_b4_filt)
-        cluster_filter = idx_b4_filt{j};
+    for j=10:length(cleaned_clusters)
+        disp(j)
+        cluster_filter = cleaned_clusters{j};
         spikes = aligned(:, cluster_filter, :);
         peaks = all_peaks(:, cluster_filter);
         % Set up the representative wire for the cluster

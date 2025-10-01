@@ -18,7 +18,7 @@ all_files_in_precomputed_dir = all_files_in_precomputed_dir(~all_files_in_precom
 only_files_with_output = all_files_in_precomputed_dir(contains(string(all_files_in_precomputed_dir{:,"name"}),"output"),:);
 output_table = table(nan(size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),...
     'VariableNames', ...
-    ["Z Score","Tetrode","fp_to_aligned","fp_to_output","fp_to_reg_timestamps_of_the_spikes","fp_to_reg_timestamps","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"]);
+    ["Z Score","Tetrode","fp_to_aligned","fp_to_cleaned_clusters","fp_to_reg_timestamps_of_the_spikes","fp_to_reg_timestamps","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"]);
 
 unique_z_score_dirs = unique(string(only_files_with_output{:,"folder"}));
 output_table_counter = 1;
@@ -36,9 +36,23 @@ for i=1:size(unique_z_score_dirs,1)
         output_table{output_table_counter,"Z Score"} = current_z_score;
         output_table{output_table_counter,"Tetrode"} = unique_tetrodes(j);
         list_of_files_for_current_tetrode = files_with_current_z_score(contains(string(all_mat_file_names_in_current_directory),unique_tetrodes(j)+" ","IgnoreCase",true),:);
+       % list_of_cleaned_clusters_file = 
 
         output_table{output_table_counter,"fp_to_aligned"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" aligned.mat");
-        output_table{output_table_counter,"fp_to_output"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" output.mat");
+        % the line fp_to_cleaned_clusters is formatted in such a way to
+        % remove the need of the output file
+        %we take the known results directory and replace it with the
+        %regular directory
+        %so initial_pass_results min z_score 3
+        %becomes
+        %initial_pass min z_score3
+        %notice the "_results" and space between z_score and 3 has been
+        %removed
+        %this way we don't have to rerun clusters and also don't need to
+        %worry cleaning the clusters which has to happen if we extract
+        %clusters from output 
+        %references to fp_to_output are being replaced downstream
+        output_table{output_table_counter,"fp_to_cleaned_clusters"} = regexprep(strrep(fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+".mat"),"_results"),'\s(?!.*\s)',"");
         output_table{output_table_counter,"fp_to_reg_timestamps_of_the_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_the_spikes.mat");
         output_table{output_table_counter,"fp_to_reg_timestamps"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+"reg_timestamps.mat");
         output_table{output_table_counter,"fp_to_sorted_spike_windows_after_purges"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" sorted_spike_windows_after_purges.mat");
