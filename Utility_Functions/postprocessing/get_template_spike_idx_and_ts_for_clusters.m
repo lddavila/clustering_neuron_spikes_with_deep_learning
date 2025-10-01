@@ -38,6 +38,10 @@ for i=1:size(sliced_blind_pass_table,1)
         continue;
     end
 
+    disp("Faliure tetrode")
+    disp(current_data{1,"Tetrode"})
+    disp("Faliure z score");
+    disp(current_data{1,"Z Score"})
     idx_b4_filt = extract_clusters_from_output(output(:,1),output);
 
     all_peaks = get_peaks(aligned, true);
