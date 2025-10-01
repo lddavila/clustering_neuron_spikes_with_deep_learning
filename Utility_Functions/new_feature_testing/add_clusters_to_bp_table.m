@@ -9,10 +9,10 @@ new_data = cell(size(sliced_bp_table{1}));
 % q = parallel.pool.DataQueue;
 % afterEach(q,@print_status_bar)
 % print_status_bar(num_iterations,"add_clusters_to_bp_table.m")
-for i=1:size(sliced_bp_table,1)
+parfor i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     try
-        load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
+        cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
     catch
         % disp("Failed to load output file")
       
