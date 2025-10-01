@@ -5,7 +5,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
     try
@@ -48,7 +48,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
     timestamp_cell_array = cell(size(current_data,1),1);
     for j=1:length(cleaned_clusters)
-        disp(j)
+        %disp(j)
         cluster_filter = cleaned_clusters{j};
         spikes = aligned(:, cluster_filter, :);
         peaks = all_peaks(:, cluster_filter);
