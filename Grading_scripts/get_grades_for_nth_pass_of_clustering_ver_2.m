@@ -14,7 +14,7 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
 
@@ -32,8 +32,8 @@ parfor i=1:size(sliced_blind_pass_table,1)
         grades_struct = grades_struct.data_to_save;
         grades_struct = struct2table(grades_struct);
         grades = cell(size(grades_struct,1),size(grades_struct,2));
-        for row_counter = size(grades_struct,1)
-            for col_counter = size(grades_struct,2)
+        for row_counter = 1:size(grades_struct,1)
+            for col_counter = 1:size(grades_struct,2)
                 grades{row_counter,col_counter} = grades_struct{row_counter,col_counter}{1};
             end
         end
