@@ -23,7 +23,7 @@ else
     beginning = 1;
     the_end = 10;
 end
-for i=1:2
+for i=beginning:the_end
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
     config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
