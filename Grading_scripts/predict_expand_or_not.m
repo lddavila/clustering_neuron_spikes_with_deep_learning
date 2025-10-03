@@ -2,7 +2,7 @@ function [expand_or_not_class] = predict_expand_or_not(first_dimension,second_di
 colors = distinguishable_colors(1); %will always use the same colors
 my_gray = [0.5 0.5 0.5];
 hold on
-f = figure;
+f = figure('Visible','off');
 
 
 
@@ -61,14 +61,16 @@ scatter(cluster_x, cluster_y, 2,colors(1,:))
 axis equal;
 axis off;
 
-randomized_temp_file_number_sequence = randi(1e9, 1, 10);
+%randomized_temp_file_number_sequence = randi(1e9, 1, 10);
 
-file_save_name = strjoin(string(randomized_temp_file_number_sequence))+".png"; %this file will be deleted
+frame = getframe(f);
+RGB   = frame2im(frame);   % now proceed to gray + imresize
+%file_save_name = strjoin(string(randomized_temp_file_number_sequence))+".png"; %this file will be deleted
 % so we just randomly generate 10 numbers between 1 and billion and use this as a file name to avoid a multi threaded process accidentally
 %reading the same file
-saveas(f,file_save_name);
+%saveas(f,file_save_name);
 close(f);
-RGB = imread(file_save_name);
+%RGB = imread(file_save_name);
 grayscaled_image =rgb2gray(RGB);
 resized_and_gray_scaled_image = imresize(grayscaled_image,[224,224]);
 
@@ -76,7 +78,7 @@ resized_and_gray_scaled_image = imresize(grayscaled_image,[224,224]);
 expand_or_not_class = predict(expand_or_not_nn,single(resized_and_gray_scaled_image));
 [~,expand_or_not] = max(expand_or_not_class);
 expand_or_not_class = expand_or_not-1;
-delete(file_save_name);
+%delete(file_save_name);
 %imshow(resized_and_gray_scaled_image)
 % imwrite(resized_and_gray_scaled_image,file_save_name);
 
