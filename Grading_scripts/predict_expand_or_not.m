@@ -1,7 +1,7 @@
 function [expand_or_not_class] = predict_expand_or_not(first_dimension,second_dimension,peaks,config,peaks_in_cluster)
 colors = distinguishable_colors(1); %will always use the same colors
 my_gray = [0.5 0.5 0.5];
-hold on
+
 f = figure('Visible','off');
 
 
