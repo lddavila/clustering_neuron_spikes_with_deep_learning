@@ -14,7 +14,7 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     disp("Starting grading")
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
@@ -68,11 +68,9 @@ parfor i=1:size(sliced_blind_pass_table,1)
         end
 
         %compute_gradings_ver_4(aligned, timestamps, tvals, clusters, config,debug)
-        if config.Value.ON_HPC
-            dir_of_template_shape_pngs = config.Value.TEMPLATE_CLUSTER_FP_ON_HPC;
-        else
-            dir_of_template_shape_pngs = config.Value.TEMPLATE_CLUSTER_FP;
-        end
+
+
+        dir_of_template_shape_pngs = config.Value.TEMPLATE_CLUSTER_FP;
 
         grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.Value.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config.Value);
         grade_struct = struct();
