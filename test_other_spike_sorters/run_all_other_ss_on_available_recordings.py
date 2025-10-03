@@ -41,7 +41,7 @@ print(f"Found {len(h5_files)} h5 files: {[f.name for f in h5_files]}")
 
 
 #define a list of sorters to run
-list_of_sorters = ['kilosort5','mountainsort4' 'ironclust', 'herdingspikes', 'spyking-circus']
+list_of_sorters = ['kilosort4','mountainsort4' 'ironclust', 'herdingspikes', 'spyking-circus']
 
 
 #now import each h5 file as a recording and run the sorters on it
