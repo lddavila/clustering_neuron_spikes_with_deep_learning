@@ -14,7 +14,7 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
     disp("Starting grading")
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
@@ -47,7 +47,7 @@ for i=1:size(sliced_blind_pass_table,1)
         aligned_fp = current_data{1,"fp_to_aligned"};
 
         try
-            ts_r_tvals_cc_struct = importdata(ts_and_r_vals_fp ,"timestamps","r_tvals","cleaned_clusters");
+            ts_r_tvals_cc_struct = load(ts_and_r_vals_fp ,"timestamps","r_tvals","cleaned_clusters");
             timestamps = ts_r_tvals_cc_struct.timestamps;
             r_tvals = ts_r_tvals_cc_struct.r_tvals;
             cleaned_clusters = ts_r_tvals_cc_struct.cleaned_clusters;
@@ -58,8 +58,8 @@ for i=1:size(sliced_blind_pass_table,1)
             continue;
         end
         try
-            aligned_struct = importdata(aligned_fp,"aligned");
-            aligned = aligned_struct.aligned;
+            aligned_struct = load(aligned_fp,"data_to_save");
+            aligned = aligned_struct.data_to_save.aligned;
         catch
             disp("failed to load");
             disp(aligned_fp);
@@ -100,15 +100,11 @@ for i=1:size(sliced_blind_pass_table,1)
     send(q,[])
 
 end
-blind_pass_table = [];
-parfor i=1:size(grades_table,1)
-    current_data = grades_table{i};
-    if isempty(current_data)
-        continue;
-    end
-    all_other_variables = setdiff(string(current_data.Properties.VariableNames),["Z Score","Tetrode","Cluster","grades"]);
-    blind_pass_table = [blind_pass_table;current_data(:,["Z Score","Tetrode","Cluster","grades",all_other_variables])];
-end
+
+current_data = sliced_blind_pass_table{1};
+all_other_variables = setdiff(string(current_data.Properties.VariableNames),["Z Score","Tetrode","Cluster","grades"]);
+blind_pass_table = vertcat(grades_table{:});
+blind_pass_table = blind_pass_table(:,["Z Score","Tetrode","Cluster","grades",all_other_variables]);
 
 
 end
