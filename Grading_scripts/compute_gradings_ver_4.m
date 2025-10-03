@@ -61,6 +61,8 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
     "Mean Z Score Per Channel all spikes in config","compare wire Mean z score Cluster Only","Compare Mean Z Score All Spikes In Config","Compare Wire Mean Amp"];  
     num_clusters = length(clusters);
     grades = cell(num_clusters, 64);
+    
+   
     total_raw_spikes = 1:size(aligned, 2);
     all_peaks = get_peaks(aligned, true);
     temp = load('template.mat');
@@ -341,19 +343,20 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         %grades{k,44} = mean(z_score_of_rep_wire_of_compare_peaks,"all");
 
 
-        %grades{k,45} = calculate_signal_to_noise_of_cluster_by_dim(aligned,cluster_filter);
-
+        %OG LINEgrades{k,45} = calculate_signal_to_noise_of_cluster_by_dim(aligned,cluster_filter);
+        grades{k,45} = [0 0 0 0];
 
         grades{k,46} = calculate_signal_to_noise_of_cluster_by_dims(aligned,cluster_filter,compare_wire,second_compare_wire);
 
-        %grades{k,47} = calculate_avg_spike_amp_per_channel(aligned,cluster_filter);
-
-        %grades{k,48} = calculate_avg_z_score_per_channel(aligned,cluster_filter);
+        %OG LINE grades{k,47} = calculate_avg_spike_amp_per_channel(aligned,cluster_filter);
+        grades{k,47} = [0 0 0 0];
+        %OG LINE grades{k,48} = calculate_avg_z_score_per_channel(aligned,cluster_filter);
+        grades{k,48} = [0 0 0 0];
 
         grades{k,49} = channels;
 
-        %grades{k,50} = calculate_avg_z_score_per_channel_without_clust_filt(aligned);
-
+        %OG LINE grades{k,50} = calculate_avg_z_score_per_channel_without_clust_filt(aligned);
+        grades{k,50} = [0 0 0 0];
         %grades{k,51} = grades{k,48}(compare_wire);
         %grades{k,52} = grades{k,50}(compare_wire);
         %grades{k,53} = grades{k,47}(compare_wire);
