@@ -26,15 +26,14 @@ print_status_bar(num_iterations,"add_accuracy_cat_prediction_from_nn: getting ra
 presorted_table_constant = parallel.pool.Constant(presorted_table);
 
 
-for i=1:size(sliced_bp_table,1)
+parfor i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     current_data_waveform = current_data{1,"mean_waveform_rep_wire_1"}{1};
     %current_data_grades_unformatted = current_data{1,"grades"}{1};
     %current_data_grades = cell2mat(current_data_grades_unformatted(parallel_constant_config.Value.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
 
-    [names_of_current_data_grades,current_data_grades] = flatten_grades_cell_array(current_data{:,"grades"},config);
-    [indexes_of_current_data_grades,~] = find(ismember(names_of_current_data_grades,config.NAMES_OF_CURR_GRADES(config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST)));
-    current_data_grades = current_data_grades(:,indexes_of_current_data_grades);
+    [~,current_data_grades] = flatten_grades_cell_array(current_data{:,"grades"},config);
+    current_data_grades =current_data_grades(indexes_of_grades_were_looking_for);
     current_data_size = size(current_data{1,"timestamps"}{1},1);
     current_ts = current_data{1,"timestamps"}{1};
     estimated_rank_col(i) = add_universal_rank(current_data_waveform,current_data_grades,current_data_size,presorted_table_constant.Value,choose_better_nn,presorted_grade_rows,current_ts,config);
