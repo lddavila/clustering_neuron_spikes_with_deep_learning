@@ -201,6 +201,10 @@ else
     disp("is neuron or not column exists. Skipping.")
     disp("To read the column, delete inished_adding_mua_or_not_col.txt")
 end
+
+% add the recording name to the blind pass table
+blind_pass_table.recording_name = repelem(config.RECORDING_NAME,size(blind_pass_table,1),1);
+
 %step 16: save the blind pass table to the desired file
 save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
 
