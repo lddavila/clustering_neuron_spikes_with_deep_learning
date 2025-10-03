@@ -23,6 +23,9 @@ for i=1:size(list_of_features_to_add,2)
         %current_feature= "under_unit_gradienceLevelN_minThresholdM";
     elseif current_feature=="size"
         assembled_data{i} =  get_size_of_cluster_from_bp_table(blind_pass_table);
+    elseif current_feature == "grades 2"
+         temp_data= vertcat(blind_pass_table{:,"grades"}{:});
+         assembled_data{i} = cell2mat(temp_data(:,config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
     end
 end
 
