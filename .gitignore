@@ -25,6 +25,7 @@ ss_env312/
 
 #ignore all the temp things created by running docker containers
 kilosort4_output/*
+kilosort4_output/
 *.json
 *.pyc
 *.log
