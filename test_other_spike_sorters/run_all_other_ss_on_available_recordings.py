@@ -58,6 +58,7 @@ for i, rec_fp in enumerate(h5_files):
         out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results" + i)
         out_dir.mkdir(parents=True, exist_ok=True)
         print(out_dir)
+        out_dir = Path(out_dir)
         job_dict = {'sorter_name': i,
                           'recording': rec, 
                           'installation_mode':"pypi", 
