@@ -49,16 +49,16 @@ for i, rec_fp in enumerate(h5_files):
     #get the name of the file without the full path
     head, tail = os.path.split(rec_fp)
     tail = tail.replace('.h5', '')
-    out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    print(out_dir)
+    
     rec = se.MEArecRecordingExtractor(rec_fp)
     sorting_true = se.MEArecSortingExtractor(rec_fp)
     #add these to the job list
     
     for i in list_of_sorters:
-        job_list = []
-        job_list.append({'sorter_name': i,
+        out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results" + i)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        print(out_dir)
+        job_dict = {'sorter_name': i,
                           'recording': rec, 
                           'installation_mode':"pypi", 
                           'torch_device':"cpu", 
@@ -66,9 +66,9 @@ for i, rec_fp in enumerate(h5_files):
                           'folder': str(out_dir),
                             'verbose':True,
                             'singularity_image':True
-                         })
+                         };
         start_time = time.time();
-        run_various_spike_sorters(sorting_true, job_list,out_dir)
+        run_various_spike_sorters(sorting_true, job_dict,out_dir)
         end_time = time.time();
         print(f"Time taken for {i} on {tail}: {end_time - start_time} seconds") 
         time_taken = end_time - start_time

@@ -23,8 +23,14 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     #for i, job in enumerate(job_list_current):
     #    job['folder'] = str(out_dir / f"{job['sorter_name'+'_output']}")
     
-    sortings = run_sorter_jobs(job_list=job_list_current)
-    print(sortings)
+    sorting = sc.sorters.run_sorter(job_list_current, verbose=True)
+    print(sorting)
+
+    #now save the sorting
+    sorting.save(folder=str(out_dir / 'sorting'), overwrite=True)
+
+    #now compare the sorter to the ground truth
+    cmp_to_gt_results = sc.compare_sorter_to_ground_truth(sorting_true, sorting, exhaustive_gt=True)
 
     #now for every sorting in sortings do a ground truth comparison
     for sorter_name, sorting in sortings.items():
