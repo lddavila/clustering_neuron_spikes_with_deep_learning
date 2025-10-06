@@ -4,7 +4,7 @@
 #SBATCH -p normal
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -t 48:00:00
+#SBATCH -t 1:00:00
 #SBATCH -o output.txt
 #SBATCH -e output.txt
 
