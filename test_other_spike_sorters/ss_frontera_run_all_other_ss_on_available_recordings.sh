@@ -12,7 +12,7 @@ set -eo pipefail
 
 module purge
 module load gcc/9.1.0
-module load python3/3.9.2)
+module load python3/3.9.2
 
 
 # Optional: show what we loaded
