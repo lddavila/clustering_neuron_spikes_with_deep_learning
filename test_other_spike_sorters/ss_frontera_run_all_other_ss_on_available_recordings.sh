@@ -11,11 +11,16 @@
 set -euo pipefail
 
 module purge
-module load python3/3.9.2
-module load tacc-apptainer
-# (gcc not needed if we stick to wheels)
 
-# --- Apptainer "singularity" shim for SpikeInterface ---
+# Python 3.9 on Frontera needs a newer GCC first
+module load gcc/9.1.0
+
+# Some queues/nodes expose python3/3.9.2, others python/3.9.2 — try both.
+(module load python3/3.9.2) || (module load python/3.9.2)
+
+module load tacc-apptainer
+
+# --- "singularity" shim for SpikeInterface ---
 mkdir -p "$WORK/bin"
 cat > "$WORK/bin/singularity" <<'EOF'
 #!/usr/bin/env bash
@@ -24,7 +29,7 @@ EOF
 chmod +x "$WORK/bin/singularity"
 export PATH="$WORK/bin:$PATH"
 
-# --- Put Apptainer caches on scratch ---
+# --- Apptainer caches on scratch ---
 export APPTAINER_CACHEDIR="$SCRATCH/apptainer_cache"
 export APPTAINER_TMPDIR="$SCRATCH/apptainer_tmp"
 mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
@@ -32,23 +37,16 @@ mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
 # --- Activate venv ---
 source "$WORK/ss_env39/bin/activate"
 
-# --- Ensure wheel-only installs for Py3.9 (no compiling) ---
+# --- Wheel-only installs to avoid compiling on the node ---
 python -m pip install -U pip wheel setuptools
-# Install only if missing (prevents reinstall every run)
-python - <<'PY' || true
-import importlib, sys
-importlib.import_module("pandas"); importlib.import_module("numpy")
-print("pandas & numpy already present in", sys.executable)
-PY
+export PIP_ONLY_BINARY=":all:"
+python -m pip install "numpy==1.24.4" "pandas==1.5.3"
 
-python -m pip install --only-binary=:all: "numpy==1.24.4" "pandas==1.5.3"
-
-# --- Avoid BLAS over-subscription ---
+# --- Avoid BLAS oversubscription ---
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 
 echo "Python: $(which python)"
 python -V
 python -c "import numpy, pandas; print('numpy', numpy.__version__, 'pandas', pandas.__version__)"
 
-# --- Run (prefer $SCRATCH paths inside your code, but absolute is OK) ---
 python /scratch1/10595/lddavila/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/run_all_other_ss_on_available_recordings.py
