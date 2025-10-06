@@ -26,12 +26,18 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     #remove_existing_folder=True,
     #docker_image=True,
     #verbose=True)")
-    
-    sorting = si.sorters.run_sorter(job_list_current['sorter_name'],
-        recording=job_list_current['recording'],
-        remove_existing_folder=job_list_current['remove_existing_folder'],
-        singularity_image=job_list_current['singularity_image'],
-        verbose=job_list_current['verbose'])
+
+    #check to see if the sorter already exists, and if it does then load it instead of running it again
+    if os.path.exists(out_dir / 'sorting'):
+        print(f"Sorter {job_list_current['sorter_name']} already exists, loading it from {out_dir / 'sorting'}")
+        sorting = si.load_extractor(out_dir / 'sorting')
+    else:
+        sorting = si.sorters.run_sorter(job_list_current['sorter_name'],
+            recording=job_list_current['recording'],
+            remove_existing_folder=job_list_current['remove_existing_folder'],
+            singularity_image=job_list_current['singularity_image'],
+            verbose=job_list_current['verbose'])
+    print("Finished sorting for "+job_list_current['sorter_name'])
     print(sorting)
 
     #now save the sorting
