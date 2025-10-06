@@ -10,8 +10,7 @@ import os
 from spikeinterface.comparison import compare_sorter_to_ground_truth
 import numpy as np
 import spikeinterface.comparison as sc
-import numpy as np
-
+import pandas as pd
 
 def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     _rs.has_nvidia = lambda: False  # No GPU on this box → make SI skip CUDA paths cleanly
@@ -59,4 +58,5 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
      #                       'verbose':True,
      #                       'singularity_image':True
      #                    };
-    np.savetxt(out_dir / job_list_current['sorter_name']+'_agreement_matrix.csv', cmp_to_gt_results.agreement_matrix, delimiter=',')
+    df = pd.DataFrame(cmp_to_gt_results.agreement_scores).T
+    df.to_csv(out_dir / job_list_current['sorter_name']+'_agreement_scores.csv')
