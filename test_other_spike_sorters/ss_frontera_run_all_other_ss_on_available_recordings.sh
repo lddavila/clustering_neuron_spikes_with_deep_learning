@@ -12,22 +12,12 @@ set -eo pipefail
 
 module purge
 module load gcc/9.1.0
-(module load python3/3.9.2) || (module load python/3.9.2)
+module load python3/3.9.2)
 
-# Make sure libpython is on the runtime path (some nodes need this)
-PY3_LIBDIR="$(python3 - <<'PY' 2>/dev/null || true
-import sysconfig
-print(sysconfig.get_config_var('LIBDIR') or '')
-PY
-)"
-if [ -n "${PY3_LIBDIR:-}" ] && [ -d "$PY3_LIBDIR" ]; then
-  export LD_LIBRARY_PATH="$PY3_LIBDIR:${LD_LIBRARY_PATH:-}"
-fi
 
 # Optional: show what we loaded
-module list 2>&1 || true
-echo "PY3_LIBDIR=$PY3_LIBDIR"
-echo "LD_LIBRARY_PATH snippet=$(echo "$LD_LIBRARY_PATH" | tr ':' '\n' | head -n 3)"
+echo "Loaded modules:"
+module list
 
 # Apptainer (no -u to avoid completion bug)
 module load tacc-apptainer
