@@ -32,6 +32,9 @@ mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
 # Activate your venv (adjust path if needed)
 source $WORK/ss_env39/bin/activate
 
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --no-cache-dir pandas
+
 # Avoid over-subscription by BLAS
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 
