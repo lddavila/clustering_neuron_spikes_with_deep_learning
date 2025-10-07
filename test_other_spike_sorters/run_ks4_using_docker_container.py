@@ -59,4 +59,4 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
      #                       'singularity_image':True
      #                    };
     df = pd.DataFrame(cmp_to_gt_results.agreement_scores).T
-    df.to_csv(out_dir / job_list_current['sorter_name']+'_agreement_scores.csv')
+    df.to_csv(out_dir / 'agreement_scores.csv')
