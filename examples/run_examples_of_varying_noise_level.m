@@ -7,7 +7,7 @@ if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
 disp("Num worksers available:"+string(c.NumWorkers));
 current_dir = pwd;
 if contains(pwd,"10595")
-    parpool("Processes",10);
+    parpool("Processes",5);
 
 else
     parpool("Processes", c.NumWorkers);
