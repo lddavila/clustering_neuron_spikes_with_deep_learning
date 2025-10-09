@@ -127,11 +127,14 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
             cl_idx = clusters{c};
             cl = pc1(cl_idx, :);
             dim_filter = find_singular_cols(cl);
-            m = mahal(cl(:, dim_filter), cl(:, dim_filter));
+            %OG LINE: m = mahal(cl(:, dim_filter), cl(:, dim_filter));
+            m = mahal_fixed_for_num_unstable(cl(:, dim_filter), cl(:, dim_filter));
             cl2_idx = cl_idx(m < median(m) + 2*std(m));
             cl2 = pc1(cl2_idx, :);
             dim_filter = find_singular_cols(cl2);
-            m2 = mahal(cl2(:, dim_filter), cl2(:, dim_filter));
+            
+            %OG LINE:m2 = mahal(cl2(:, dim_filter), cl2(:, dim_filter));
+            m2 = mahal_fixed_for_num_unstable(cl2(:, dim_filter), cl2(:, dim_filter));
             cleaned_clusters{c} = cl2_idx(m2 < median(m2) + 2*std(m2));
         end
     else

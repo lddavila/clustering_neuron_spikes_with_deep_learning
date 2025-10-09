@@ -27,9 +27,11 @@ function clust_idx = classify_nearsim_spikes(raw, cf, spikes, config)
     for k = 1:length(cluster_peaks)
         cp = cluster_peaks{k};
         try
-            m = mahal(cp, cp);
+            %OG LINE: m = mahal(cp, cp);
+            m = mahal_fixed_for_num_unstable(cp,cp);
             st = median(m) + config.NS_NUM_STD * std(m);
-            m = mahal(spikes_peaks, cp);
+            %OG LINE: m = mahal(spikes_peaks, cp);
+            m = mahal_fixed_for_num_unstable(spikes_peaks,cp);
         catch
             continue
         end
