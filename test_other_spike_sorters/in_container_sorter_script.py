@@ -19,10 +19,10 @@ if __name__ == '__main__':
         sorter_params = json.load(f)
 
     # run in container
-    output_folder = '/Users/ldd77/OneDrive/Desktop/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/kilosort4_output'
+    output_folder = '/Users/ldd77/OneDrive/Desktop/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/spykingcircus_output'
     sorting = run_sorter_local(
-        'kilosort4', recording, folder=output_folder,
-        remove_existing_folder=False, delete_output_folder=False,
+        'spykingcircus', recording, folder=output_folder,
+        remove_existing_folder=True, delete_output_folder=False,
         verbose=True, raise_error=True, with_output=True, **sorter_params
     )
-    sorting.save(folder='/Users/ldd77/OneDrive/Desktop/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/kilosort4_output/in_container_sorting')
+    sorting.save(folder='/Users/ldd77/OneDrive/Desktop/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/spykingcircus_output/in_container_sorting')

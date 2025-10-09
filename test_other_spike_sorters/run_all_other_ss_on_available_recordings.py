@@ -41,9 +41,7 @@ print(f"Found {len(h5_files)} h5 files: {[f.name for f in h5_files]}")
 
 
 #define a list of sorters to run
-list_of_sorters = ['kilosort4','mountainsort4', 'ironclust', 'spyking-circus']
-
-
+list_of_sorters = ['kilosort4','mountainsort4', 'ironclust']
 #now import each h5 file as a recording and run the sorters on it
 for i, rec_fp in enumerate(h5_files):
     #get the name of the file without the full path
