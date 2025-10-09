@@ -36,7 +36,11 @@ function new_cluster_idx = smart_expand_cluster(features, cluster_idx, only_peak
             num_std = config.params.RF_NUM_STD;
         end
         try
-            m2 = mahal(features(in_expan, :), features(in_expan, :));
+            %OG LINE: m2 = mahal(features(in_expan, :), features(in_expan, :));
+            %replaced the og line to use the guarded version of mhal
+            %distance which subs in generalized Mahalanobis when the matrix
+            %is unstable
+            m2 = mahal_fixed_for_num_unstable(features(in_expan,:),features(in_expan,:));
         catch
             new_cluster_idx = cluster_idx;
             return
@@ -49,7 +53,12 @@ function new_cluster_idx = smart_expand_cluster(features, cluster_idx, only_peak
 end
 
 function [m, thresh] = get_thresh(features, cluster_idx, clean, config)
-    m = mahal(features, features(cluster_idx, :));
+    %OG LINE: m =  m = mahal(features, features(cluster_idx, :));
+    %changed the og line cause instability was popping up too much so
+    %rewrote the mahal function with a catch to stabilize the result
+    %it can be changed bakc, and I might choose to just normalize the
+    %features instead if this proves insufficent
+    m = mahal_fixed_for_num_unstable(features, features(cluster_idx, :));
     dist = chi2inv(0.99, size(features, 2));
     if clean
         limit = dist * config.params.RF_MAHAL_HIST_BOUND_SCALE;
