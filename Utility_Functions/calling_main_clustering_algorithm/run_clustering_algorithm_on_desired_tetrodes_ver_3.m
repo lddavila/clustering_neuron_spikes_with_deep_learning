@@ -25,6 +25,12 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
 config =parallel.pool.Constant(config);
+
+% --- Stop any existing pool ---
+% in the case of too much memory we dramatically resudce the number of
+% workers 
+delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
+parpool("Processes",5);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
@@ -140,4 +146,7 @@ parfor i=1:length(list_of_available_tetrodes)
     end
     send(q,[]);
 end
+%once finished we can return to the standard amount of workers
+delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
+parpool("Processes",40);
 end
