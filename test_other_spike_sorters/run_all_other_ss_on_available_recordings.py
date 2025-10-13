@@ -67,12 +67,17 @@ for i, rec_fp in enumerate(h5_files):
                             'singularity_image':True
                          };
         start_time = time.time();
+        already_done = False;
+         #check to see if the sorter already exists, and if it does then load it instead of running it again
+        if os.path.exists(out_dir / 'sorting'):
+            already_done = True;
         run_various_spike_sorters(sorting_true, job_dict,out_dir)
         end_time = time.time();
         print(f"Time taken for {i} on {tail}: {end_time - start_time} seconds") 
         time_taken = end_time - start_time
         #create a text file in the out_dir with the time taken
 
-        with open(out_dir / f"{i}_time.txt", "w") as f:
+        if not already_done:  #only write the time file if we actually ran the sorter, not if we loaded it from disk
+          with open(out_dir / f"{i}_time.txt", "w") as f:
             f.write(f"Time taken for {i} on {tail}: {time_taken} seconds\n")
             f.close()
