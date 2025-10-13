@@ -1,16 +1,11 @@
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
-c = parcluster('local');
 % Put JobStorageLocation on node-local temp, NOT on GPFS
-tmp = getenv('TMPDIR'); if isempty(tmp), tmp = tempdir; end
-c.JobStorageLocation = fullfile(tmp, sprintf('matlabJobStorage_%s', char(java.util.UUID.randomUUID)));
-if ~exist(c.JobStorageLocation,'dir'), mkdir(c.JobStorageLocation); end
-disp("Num worksers available:"+string(c.NumWorkers));
-current_dir = pwd;
 if contains(pwd,"10595")
-    parpool("Processes",40);
-
+    c = parcluster('Slurm'); 
+   parpool(c,168)
 else
-    parpool("Processes", min([c.NumWorkers,40]));
+    c = parcluster('local');
+    parpool("Processes",40);
 end
 %% STEP 1: Add functions to your path
 examples_dir = cd("..");
