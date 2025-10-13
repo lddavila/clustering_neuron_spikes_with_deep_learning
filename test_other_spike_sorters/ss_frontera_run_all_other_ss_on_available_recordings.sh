@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J test_other_ss
 #SBATCH -A ASC25063
-#SBATCH -p medium
+#SBATCH -p normal
 #SBATCH -N 2
 #SBATCH -n 1
 #SBATCH -t 48:00:00
