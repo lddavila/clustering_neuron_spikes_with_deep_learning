@@ -30,7 +30,8 @@ config =parallel.pool.Constant(config);
 % in the case of too much memory we dramatically resudce the number of
 % workers 
 delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
-parpool("Processes",5);
+c =parcluster('local');
+parpool("Processes",min([c.NumWorkers,5]));
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
@@ -148,6 +149,6 @@ parfor i=1:length(list_of_available_tetrodes)
 end
 %once finished we can return to the standard amount of workers
 delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
-current_pool = gcp;
-parpool("Processes",min([current_pool.NumWorkers,40]));
+c =parcluster('local');
+parpool("Processes",min([c.NumWorkers,40]));
 end
