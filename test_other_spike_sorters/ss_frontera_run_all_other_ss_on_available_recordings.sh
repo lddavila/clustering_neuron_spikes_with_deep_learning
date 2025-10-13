@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -J test_other_ss
 #SBATCH -A ASC25063
-#SBATCH -p small
-#SBATCH -N 1
+#SBATCH -p medium
+#SBATCH -N 2
 #SBATCH -n 1
 #SBATCH -t 48:00:00
 #SBATCH -o output.txt

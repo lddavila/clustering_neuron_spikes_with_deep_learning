@@ -1,7 +1,7 @@
 #!/bin/bash 
-#SBATCH -N 1
-#SBATCH -p small
-#SBATCH -J reading
+#SBATCH -N 2
+#SBATCH -p medium
+#SBATCH -J var_noise_lvs
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 #SBATCH -t 1:00:00
