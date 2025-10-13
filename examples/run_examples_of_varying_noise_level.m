@@ -10,7 +10,7 @@ if contains(pwd,"10595")
     parpool("Processes",40);
 
 else
-    parpool("Processes", c.NumWorkers);
+    parpool("Processes", min([c.NumWorkers,40]));
 end
 %% STEP 1: Add functions to your path
 examples_dir = cd("..");

@@ -148,5 +148,6 @@ parfor i=1:length(list_of_available_tetrodes)
 end
 %once finished we can return to the standard amount of workers
 delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
-parpool("Processes",40);
+current_pool = gcp;
+parpool("Processes",min([current_pool.NumWorkers,40]));
 end
