@@ -1,6 +1,7 @@
 #!/bin/bash 
-#SBATCH -N 1
-#SBATCH -p small
+#SBATCH -N 3
+#SBATCH -n 168
+#SBATCH -p normal
 #SBATCH -J var_noise_lvs
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
