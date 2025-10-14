@@ -51,6 +51,7 @@ for i, rec_fp in enumerate(h5_files):
     rec = se.MEArecRecordingExtractor(rec_fp)
     sorting_true = se.MEArecSortingExtractor(rec_fp)
     #add these to the job list
+    print("About to run sorters on "+tail)
     
     for i in list_of_sorters:
         out_dir  = base_dir / "Default_Results_Dir" / (tail + "_results" + i)
