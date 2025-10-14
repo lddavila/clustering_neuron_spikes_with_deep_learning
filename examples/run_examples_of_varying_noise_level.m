@@ -19,11 +19,14 @@ config = spikesort_config();
 if contains(config.base_file_path,"cnheaton")
     beginning = 6;
     the_end = 10;
+elseif contains(config.base_file_path,"afriedman")
+    beginning=3;
+    the_end = 3;
 else
     beginning = 1;
     the_end = 5;
 end
-for i=3:10
+for i=beginning:the_end
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
     config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
