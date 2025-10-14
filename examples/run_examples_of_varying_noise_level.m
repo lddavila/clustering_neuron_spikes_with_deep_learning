@@ -1,7 +1,7 @@
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
 % Put JobStorageLocation on node-local temp, NOT on GPFS
 if contains(pwd,"10595")
-    c = parcluster('Slurm'); 
+    c = parcluster('local'); 
    parpool(c,168)
 else
     c = parcluster('local');
