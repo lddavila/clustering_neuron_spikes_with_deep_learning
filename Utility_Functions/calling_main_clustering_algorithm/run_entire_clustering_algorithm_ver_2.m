@@ -32,7 +32,7 @@ what_is_computed = fullfile(string(list_of_existing_files{:,"folder"}),string(li
 config.ALREADY_DONE_FILES = what_is_computed;
 
 % step 6: get or make the z_score channel data directory (only done once)
-if ~ismember(fullfile(precomputed_dir,"z_score"),what_is_computed) %means that the z_score matrix is already computed and we will skip computing it again
+if ~isfolder(fullfile(precomputed_dir,"z_score")) %means that the z_score folder is already computed and we will skip computing it again
     z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"z_score")); %not yet computed
 else
     z_score_dir = fullfile(precomputed_dir,"z_score");
