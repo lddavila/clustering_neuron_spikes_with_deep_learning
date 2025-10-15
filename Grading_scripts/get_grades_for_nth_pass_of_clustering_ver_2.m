@@ -27,8 +27,8 @@ parfor i=1:size(sliced_blind_pass_table,1)
     grades_file_name =fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
 
     if isfile(grades_file_name)
-        disp(grades_file_name)
-        disp("has already been graded. To regrade delete the file and run again.")
+        % disp(grades_file_name)
+        % disp("has already been graded. To regrade delete the file and run again.")
         grades_struct = load(grades_file_name);
         grades_struct = grades_struct.data_to_save;
         grades_struct = struct2table(grades_struct);
