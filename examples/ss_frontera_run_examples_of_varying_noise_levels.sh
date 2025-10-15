@@ -4,8 +4,8 @@
 #SBATCH -N 3
 #SBATCH --ntasks-per-node=52         # 3 × 52 = 156 workers (headroom on each node)
 #SBATCH -t 48:00:00
-#SBATCH -o output.%j.txt
-#SBATCH -e error.%j.txt
+#SBATCH -o output.txt
+#SBATCH -e output.txt
 
 module purge
 module load matlab/2023b
