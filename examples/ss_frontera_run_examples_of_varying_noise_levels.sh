@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J var_noise_lvs
-#SBATCH -p normal
-#SBATCH -N 3
+#SBATCH -p small
+#SBATCH -N 1
 #SBATCH --ntasks-per-node=52         # 3 × 52 = 156 workers (headroom on each node)
 #SBATCH -t 48:00:00
 #SBATCH -o output.txt
