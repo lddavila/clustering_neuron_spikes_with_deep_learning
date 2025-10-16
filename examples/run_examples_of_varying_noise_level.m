@@ -71,7 +71,7 @@ for i=beginning:the_end
     if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
         blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
         blind_pass_table= add_accuracy_col(config,blind_pass_table);
-        par_save(fp_to_bp_table,"blind_pass_table");
+        par_save(fp_to_bp_table,blind_pass_table);
     else
         disp("Overlap are already in your table.")
         disp("To recompute delete finished_adding_overlap_and_accuracy.txt");

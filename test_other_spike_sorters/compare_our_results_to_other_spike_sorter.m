@@ -2,7 +2,7 @@ function [table_of_stats] = compare_our_results_to_other_spike_sorter(blind_pass
 comparisons = string(keys(other_spike_sorter_accuracy_dict));
 
 table_of_stats = cell2table(cell(0,6),'VariableNames',["sorter","#_clusters_found","#_mua_clusters_created","#_missed_gt_units","missed_gt_units","repitition_table"]);
-groupcounts_of_bp = groupcounts(blind_pass_table,"Max Overlap Unit");
+groupcounts_of_bp = groupcounts(blind_pass_table,"Max_Overlap_Unit");
 
 
 
@@ -10,7 +10,7 @@ list_of_gt_units = 1:num_gt_units;
 missing_gt_units = list_of_gt_units;
 gt_unit_repitions = zeros(length(list_of_gt_units),1);
 for i=1:length(list_of_gt_units)
-    only_for_current = blind_pass_table(blind_pass_table{:,"Max Overlap Unit"}==i,:);
+    only_for_current = blind_pass_table(blind_pass_table{:,"Max_Overlap_Unit"}==i,:);
 
     gt_unit_repitions(i) = size(only_for_current,1);
     if ~any(only_for_current{:,"accuracy"}>=min_accuracy,"all")
