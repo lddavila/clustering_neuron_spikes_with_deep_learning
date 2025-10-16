@@ -11,7 +11,7 @@ for i=1:length(ordered_list_of_channels)
         send(q,[]);
         continue;
     end
-    disp(fullfile(dir_with_channel_recordings,current_channel))
+    %disp(fullfile(dir_with_channel_recordings,current_channel))
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel));
     channel_data = channel_data * scale_factor;
     z_score_data = importdata(fullfile(dir_with_z_scores,current_channel));
