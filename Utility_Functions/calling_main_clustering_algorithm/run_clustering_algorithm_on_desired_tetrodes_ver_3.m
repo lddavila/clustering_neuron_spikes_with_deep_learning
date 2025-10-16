@@ -149,6 +149,6 @@ parfor i=1:length(list_of_available_tetrodes)
 end
 %once finished we can return to the standard amount of workers
 delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
-c =parcluster('local');
-parpool("Processes",min([c.NumWorkers,40]));
+%c =parcluster('local');
+%parpool("Processes",min([c.NumWorkers,40]));
 end
