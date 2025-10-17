@@ -138,8 +138,7 @@ parfor i=1:length(list_of_available_tetrodes)
     catch ME
         end_time = toc(beginning_time);
         disp("########################################################################################")
-        fprintf("%s crashed for some reason and will be skipped it took %f seconds to fail\n",current_tetrode,end_time);
-        disp(ME.message);
+        fprintf(2, "%s\n", getReport(ME, "extended", "hyperlinks", "off"));
         disp("########################################################################################")
         % fprintf('%s',ME.cause);
         send(q,[]);
