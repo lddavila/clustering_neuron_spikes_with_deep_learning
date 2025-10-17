@@ -29,6 +29,8 @@ for k=1:length(number_of_comparisons)
     %disp("Number of times our algo beat the other ss")
     num_times_our_algo_breat_the_other_ss = sum(comparison_table{:,"max_accuracy_for_gt_unit_our_ss"}>comparison_table{:,"max_accuracy_for_other_ss"});
     bar(comparison_table{:,"max_accuracy_for_other_ss"});
+    hold on;
+    yline(mean(comparison_table{:,"max_accuracy_for_other_ss"}))
     title(spike_sorter +" We beat "+string(num_times_our_algo_breat_the_other_ss)+" times");
     ylim([0,100])
 end

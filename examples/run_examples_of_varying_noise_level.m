@@ -2,7 +2,7 @@
 % Put JobStorageLocation on node-local temp, NOT on GPFS
 if contains(pwd,"10595")
     c = parcluster('local'); 
-   parpool(c,40)
+   parpool(c,10)
 else
     c = parcluster('local');
     parpool("Processes",40);
