@@ -52,7 +52,8 @@ disp("Finished setting seed")
 %now we'll extract some desired data from the blind_pass table which will
 %be used for training 
 list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","histogram 1","histogram 2", "histogram 3","histogram 4","size","grades 2"];
-%all_feature_data = assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config);
+grades_data = assemble_data_for_neural_net(["grades 2"],blind_pass_table,config);
+normalized_grades = normalize(grades_data{1});
 disp("Finished getting feature data")
 
 %now we'll get all possible comparisons of 2 in the blind pass table
