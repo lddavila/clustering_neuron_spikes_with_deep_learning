@@ -2,6 +2,10 @@ function [] = train_choose_better_cluster_incremental_difficulty(varargin)
 %the goal of this function is to train the neural network on progressively
 %harder and harder challenges
 
+%ensure that you're on the correct fp while running the scipt
+current_script_file_path = mfilename('fullpath');
+[current_script_dir,~,~] = fileparts(current_script_file_path);
+cd(current_script_dir);
 %first start the parallel pool so we can access the # of available workers
  c = parcluster('local'); 
  num_workers = c.NumWorkers;
@@ -49,11 +53,14 @@ disp("Finished loading blind pass table")
 rng("default")
 disp("Finished setting seed")
 
-%now we'll extract some desired data from the blind_pass table which will
-%be used for training 
+%now we'll extract some desired data from the blind_pass table which will be used for training 
 list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","histogram 1","histogram 2", "histogram 3","histogram 4","size","grades 2"];
-grades_data = assemble_data_for_neural_net(["grades 2"],blind_pass_table,config);
-normalized_grades = normalize(grades_data{1});
+assembled_data = assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config);
+%we'll want to cycle through assembled data and normalize all of them to
+%aid in training
+for i=1:length(assembled_data)
+    assembled_data{i} = normalize(assembled_data{i},'range');
+end
 disp("Finished getting feature data")
 
 %now we'll get all possible comparisons of 2 in the blind pass table
@@ -64,7 +71,7 @@ disp("Finished getting all possible comparisons of 2")
 %now for each comparison get a boolean vector which tells us if the "left"
 %AKA 1st col of all_comparions
 %has a higher accuracy
-%is_left_better_col = blind_pass_table{all_comparisons(:,1),"accuracy"} >= blind_pass_table{all_comparisons(:,2),"accuracy"};
+is_left_better_col = blind_pass_table{all_comparisons(:,1),"accuracy"} >= blind_pass_table{all_comparisons(:,2),"accuracy"};
 %disp("Finsihed getting is left better col")
 
 %now we calculate the magnitude of the differences (Magnitude meaning abs
@@ -85,45 +92,15 @@ for i=1:length(list_of_magnitudes)-1
     [cell_array_of_accuracy_magnitudes{i},~] = find(c1 & c2);
 end
 
-%get list of how many different combinations of the histogram feature you can have
-max_num_hists = sum(contains(list_of_features_to_add,"histogram"));
-table_of_all_hists = [];
-parfor i=1:max_num_hists
-    all_possible_combinations = nchoosek(1:max_num_hists,i);
-    all_possible_combinations = num2cell(all_possible_combinations,2);
-    table_of_all_hists = [table_of_all_hists;table(all_possible_combinations,'VariableNames',["permutations_of_hists"])];
-end
-
-
-%get list of how many different combinations of the waveforms feature you can have
-max_num_waveforms = sum(contains(list_of_features_to_add,"mean_waveform"));
-table_of_all_waveforms = [];
-parfor i=1:max_num_waveforms
-    all_possible_combinations = nchoosek(1:max_num_waveforms,i);
-    all_possible_combinations = num2cell(all_possible_combinations,2);
-    table_of_all_waveforms = [table_of_all_waveforms;table(all_possible_combinations,'VariableNames',["permutations_of_waveforms"])];
-end
-
-%get a list of how many different ways you can combimbe waveforms and
-%histograms
-array_of_all_mean_wf_and_hist_combos = combvec(1:size(table_of_all_waveforms,1),1:size(table_of_all_hists,1)).';
 
 %set some hyperparameters for the series of trainings we will be doing
-number_of_layers = 1:8;
-filter_sizes = 5:5:20;
-num_mean_wave_and_hist_combos = 1:size(array_of_all_mean_wf_and_hist_combos);
+number_of_layers = 1:12;
+filter_sizes = 5:5:30;
 
-%get a table which tells you all possible permutations of the training sets
-%you wish to create
-permutations_table = get_table_of_all_permutations_for_nn_training([ ...
-    "num_layers", ...
-    "filter_sizes", ...
-    "which_hists_and_waves"], ...
-    number_of_layers,filter_sizes,num_mean_wave_and_hist_combos);
+permutations_table = get_table_of_all_permutations_for_nn_training(["num_layers", ...
+    "filter_sizes"], ...
+    number_of_layers,filter_sizes);
 
-%calculate how many batches we need to run in order to finish training
-%(doing it this way manages memory issues)
-number_of_batches_required_to_run_all_permutations = ceil(size(permutations_table,1) / c.NumWorkers);
 
 %now navigate into the dir to save results to
 cd(dir_to_save_results_to);
@@ -131,84 +108,109 @@ cd(dir_to_save_results_to);
 %now we begin data assembly
 disp("Beginning training set assembly");
 
+%get a bunch of neural network with various architectures that will be
+%trained below
+cell_array_of_neural_networks = cell(size(permutations_table,1),1);
+array_of_continue_training = ones(size(permutations_table,1),1);
+array_of_accuracy = zeros(size(permutations_table,1),length(cell_array_of_accuracy_magnitudes));
+for i=1:size(permutations_table,1)
+    %here 2 is not a "magic number" but reflects the is left/right better
+    %where 0 indicates left is not better and 1 indicates the left cluster
+    %is better (where better means has a higher accuracy)
+    %4438 relates to the number of features expected for each training
+    cell_array_of_neural_networks{i} = dynamically_create_layers_for_nn(4438,permutations_table{i,"filter_sizes"},permutations_table{i,"num_layers"},2);
+end
+
 %this first for loop is used to navigate through the levels of difficulty
 %it starts with the easiest (located at the end of the cell_array_of_accuracy_magnitudes) and
 %navigates to progressively harder difficulties (found at the beginning of
 %cell_array_of_accuracy_magnitudes)
-
+validation_data = [];
 for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     if isempty(cell_array_of_accuracy_magnitudes{difficulty_level})
         continue;
     end
+    
+    %as long as cell_array_of_accuracy_magnitudes{difficulty_level} is not
+    %empty then we can proceed to try and train
 
-    indexes_to_use= unique(reshape(all_comparisons(cell_array_of_accuracy_magnitudes{difficulty_level},:),1,[]),'stable');
-    limited_blind_pass_table = blind_pass_table(indexes_to_use,:);
-    assembled_data = assemble_data_for_neural_net(list_of_features_to_add,limited_blind_pass_table,config);
+    % for now I'll just assume we want to use ALL available features
+    % if this proves to be insufficient than we'll worry about permutations
+    % of features later
 
-    %an unfortunate but necessary redundant calculation
-    all_possible_ways_to_select_two_clusters = nchoosek(1:height(limited_blind_pass_table),2);
-    is_left_better_col = limited_blind_pass_table{all_possible_ways_to_select_two_clusters(:,1),"accuracy"} >= limited_blind_pass_table{all_possible_ways_to_select_two_clusters(:,2),"accuracy"};
-    for k=1:number_of_batches_required_to_run_all_permutations
-        place_counter = 1;
-        training_sets = cell(num_workers,1);
-        filter_sizes_cell_array =  cell(num_workers,1);
-        num_layers_cell_array =  cell(num_workers,1);
+    indexes_to_use = cell_array_of_accuracy_magnitudes{difficulty_level};
+    indexes_to_use = indexes_to_use(1:50000);
 
-        %first get the row which determines which waveform and histogram
-        %combination will be used
-        which_waveform_and_histogram= permutations_table{k,"which_hists_and_waves"};
+    %the training data will be assembled in the same order that it appears
+    %in assembled data
+    left_clust_data = cellfun(@(x) x(all_comparisons(indexes_to_use,1),:),assembled_data,'UniformOutput',false);
+    left_clust_data = cell2mat(left_clust_data);
+    right_clust_data = cellfun(@(x) x(all_comparisons(indexes_to_use,2),:),assembled_data,'UniformOutput',false);
+    right_clust_data = cell2mat(right_clust_data);
 
-        %first select which waveform(s) will be used for this training set
-        which_waveforms_row = array_of_all_mean_wf_and_hist_combos(which_waveform_and_histogram,1);
-        which_waveform_combination = table_of_all_waveforms{which_waveforms_row,"permutations_of_waveforms"}{1};
-        idxs_with_wf = contains(list_of_features_to_add,"mean_waveform");
-        only_waveforms_from_assembled_data = assembled_data(idxs_with_wf);
-        waveform_data = horzcat(only_waveforms_from_assembled_data{which_waveform_combination});
+    %with the data we now have to ensure that left is better and left is
+    %not better has an equal probability of occuring
+    %we do this to ensure there's no probability bias
+    training_data = equalize_classes(array2table([left_clust_data,right_clust_data,is_left_better_col(indexes_to_use)]));
 
-        %now select which histogram(s) will be used for this training set
-        which_histograms_row = array_of_all_mean_wf_and_hist_combos(which_waveform_and_histogram,2);
-        which_histogram_combination = table_of_all_hists{which_histograms_row,"permutations_of_hists"}{1};
-        only_hists_from_assembled_data = assembled_data(contains(list_of_features_to_add,"histogram"));
-        hist_data = horzcat(only_hists_from_assembled_data{which_histogram_combination});
+    %remove any rows from training data that produce nans
+    training_data = rmmissing(training_data);
 
-        num_layers_cell_array{place_counter} = permutations_table{i,"num_layers"};
-        filter_sizes_cell_array{place_counter} = permutations_table{i,"filter_sizes"};
+    %we want to put asside about 1000 datapoints from this difficulty level
+    %to validate all fully trained neural networks on a mixed dataset of
+    %various difficulty levels
+    number_of_samples_to_extract = 500;
 
-        %now normalize the grade data
-        grades_data = normalize_data(assembled_data(contains(list_of_features_to_add,"grades")),-1,1);
-        grades_data = grades_data{1};
+    list_of_all_left_is_better_idxs = find(training_data{:,end}==1);
+    first_n_left_is_better = list_of_all_left_is_better_idxs(1:number_of_samples_to_extract);
 
-        size_data =assembled_data{contains(list_of_features_to_add,"size")};
+    list_of_all_right_is_better_idxs = find(training_data{:,end}==0);
+    first_n_right_is_better = list_of_all_right_is_better_idxs(1:number_of_samples_to_extract);
 
-        %now put the data into a single array
-        training_set_array = [waveform_data,hist_data,grades_data,size_data];
+    validation_data = [validation_data;training_data(first_n_right_is_better,:);training_data(first_n_left_is_better,:)];
 
-        %now randomly select combinations of 2 for choose better
-        rand_indexes = randperm(size(all_possible_ways_to_select_two_clusters,1),num_samples_per_dataset);
-        random_training_data_idxs = all_possible_ways_to_select_two_clusters(rand_indexes,:);
-        random_is_left_better = is_left_better_col(rand_indexes,:);
-
-        %now assemble all the data
-        training_set_data = array2table([training_set_array(random_training_data_idxs(:,1),:),training_set_array(random_training_data_idxs(:,2),:),random_is_left_better]);
-
-        %now equalize the classes of is left better
-        training_set_data = equalize_classes(array2table(training_set_data));
-
-        %now remove any rows that may have produced nans
-        training_set_data(isnan(training_set_data{:,end}),:) = [];
+    %now remove those examples from training data to ensure no data leakage
+    training_data([first_n_left_is_better,first_n_right_is_better],:) = [];
 
 
+    training_data_parallel = parallel.pool.Constant(training_data);
 
-        % parfor i=1:size(training_sets,1)
-        %     [accuracy,net,layers] = predict_acc_cat_using_leaky_relu(training_sets{i},filter_sizes_cell_array{i},num_layers_cell_array{i});
-        %     net_struct = struct();
-        %     net_struct.net = net;
-        %     net_struct.layers = layers;
-        %     save_name = sprintf('%.4f_accurate_num_layers_%i_num_neur_pr_lyer_%i dataset %i',accuracy,num_layers_cell_array{i},filter_sizes_cell_array{i},i);
-        %     par_save(save_name+".mat",net_struct);
-        % end
-        % clear("training_sets")
-    end
+    %now with all this assembled we can actually begin training
+    disp("Beginning training on difficulty_level:"+string(difficulty_level))
+     for i=1:1%size(permutations_table,1)
+         if ~array_of_continue_training(i)
+             continue;
+         end
+        %unlike previous models we perform multiple training phases
+        [accuracy,net] = test_nn_on_incremental_challenging(training_data_parallel.Value,cell_array_of_neural_networks{i},128);
+        %if accuracy is less than 60% then we won't continue training
+        %this will hopefully ensure we speed up training
+        if accuracy < .6
+            array_of_continue_training(i) = 0;
+            array_of_accuracy(i,difficulty_level) = accuracy;
+            cell_array_of_neural_networks{i} = [];
+        else
+            cell_array_of_neural_networks{i} = net.Layers;
+        end
+     end
+     clear("training_data")
+    
+    
 end
 
+%finally we can see how well the neural networks actually work on our
+%validation data
+all_final_accuracies = zeros(length(cell_array_of_neural_networks),1);
+for i=1:length(cell_array_of_neural_networks)
+    if isempty(cell_array_of_neural_networks{i})
+        continue;
+    end
+    scores = predict(cell_array_of_neural_networks{i},table2array(validation_data(:,1:end-1)));
+    [~,YPred] = max(scores,[],2);
+    YPred = YPred-1;
+
+    YTest = validation_data(:,end);
+    all_final_accuracies(i) = sum(categorical(YPred)== YTest)/numel(YTest);
+end
+disp(all_final_accuracies);
 end
