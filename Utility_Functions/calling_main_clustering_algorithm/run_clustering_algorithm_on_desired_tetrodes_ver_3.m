@@ -1,12 +1,9 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config,current_z_score)
+function [] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config,current_z_score)
 % disp("Beginning Core Clustering Algorithm")
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
 
-output_array = cell(1,length(list_of_available_tetrodes));
-aligned_array = cell(1,length(list_of_available_tetrodes));
-reg_timestamps_array= cell(1,length(list_of_available_tetrodes));
 
 sliced_channel_wise_means = cell(size(list_of_available_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_available_tetrodes,2),1);
@@ -36,7 +33,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
-for i=1:length(list_of_available_tetrodes)
+parfor i=1:length(list_of_available_tetrodes)
      
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
@@ -113,10 +110,6 @@ for i=1:length(list_of_available_tetrodes)
         %   - the second column contains the cluster classification of the spikes
         %       E.g., a value of '3' means that the spike belongs to cluster 3.
         if ~isempty(output) && ~isempty(aligned) && ~isempty(reg_timestamps)
-            output_array{i} = output;
-            aligned_array{i} = aligned;
-            reg_timestamps_array{i} = reg_timestamps;
-
             output = struct("output",output);
             aligned = struct("aligned",aligned);
             reg_timestamps = struct("reg_timestamps",reg_timestamps);
@@ -128,9 +121,6 @@ for i=1:length(list_of_available_tetrodes)
             par_save(reg_ts_of_spikes_file_name,reg_timestamps_of_the_spikes)
 
         else
-            output_array{i} = NaN;
-            aligned_array{i} = NaN;
-            reg_timestamps_array{i} = NaN;
             disp("Went into catch")
             send(q,[]);
             continue;
