@@ -177,7 +177,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
 
     %now with all this assembled we can actually begin training
     disp("Beginning training on difficulty_level:"+string(difficulty_level))
-     for i=1:1%size(permutations_table,1)
+     parfor i=1:size(permutations_table,1)
          if ~array_of_continue_training(i)
              continue;
          end
