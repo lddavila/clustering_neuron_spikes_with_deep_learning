@@ -26,6 +26,13 @@ function d = mahal_fixed_for_num_unstable(Y,X)
 
 %   Copyright 1993-2007 The MathWorks, Inc. 
 
+% Force error on numerical instability
+warning('error', 'MATLAB:singularMatrix');
+warning('error', 'MATLAB:nearlySingularMatrix');
+warning('error', 'MATLAB:illConditionedMatrix');
+%we turn these warnings into errors in case our attempts to avoid the
+%nearly singular error fails 
+
 
 [rx,cx] = size(X);
 [ry,cy] = size(Y);
@@ -67,3 +74,4 @@ else
     ri = R'\rhs;
 end
 d = sum(ri.*ri,1)'*(rx-1);
+end
