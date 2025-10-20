@@ -111,6 +111,7 @@ disp("Beginning training set assembly");
 %get a bunch of neural network with various architectures that will be
 %trained below
 cell_array_of_neural_networks = cell(size(permutations_table,1),1);
+cell_array_of_net_objects =cell(size(permutations_table,1),1) ;
 array_of_continue_training = ones(size(permutations_table,1),1);
 array_of_accuracy = zeros(size(permutations_table,1),length(cell_array_of_accuracy_magnitudes));
 for i=1:size(permutations_table,1)
@@ -139,7 +140,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     % of features later
 
     indexes_to_use = cell_array_of_accuracy_magnitudes{difficulty_level};
-    %indexes_to_use = indexes_to_use(1:50000);
+    %indexes_to_use = indexes_to_use(1:10000);
 
     %the training data will be assembled in the same order that it appears
     %in assembled data
@@ -177,7 +178,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
 
     %now with all this assembled we can actually begin training
     disp("Beginning training on difficulty_level:"+string(difficulty_level))
-     parfor i=1:size(permutations_table,1)
+     for i=1:size(permutations_table,1)
          if ~array_of_continue_training(i)
              continue;
          end
@@ -191,6 +192,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
             cell_array_of_neural_networks{i} = [];
         else
             cell_array_of_neural_networks{i} = net.Layers;
+            cell_array_of_net_objects{i} = net;
         end
      end
      clear("training_data")
@@ -205,7 +207,7 @@ for i=1:length(cell_array_of_neural_networks)
     if isempty(cell_array_of_neural_networks{i})
         continue;
     end
-    scores = predict(cell_array_of_neural_networks{i},table2array(validation_data(:,1:end-1)));
+    scores = predict(cell_array_of_net_objects{i},table2array(validation_data(:,1:end-1)));
     [~,YPred] = max(scores,[],2);
     YPred = YPred-1;
 
