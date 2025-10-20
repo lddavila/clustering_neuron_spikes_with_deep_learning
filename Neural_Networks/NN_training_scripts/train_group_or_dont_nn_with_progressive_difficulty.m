@@ -1,7 +1,13 @@
-function [] = train_choose_better_cluster_incremental_difficulty(varargin)
-%the goal of this function is to train the neural network on progressively
-%harder and harder challenges
-
+function [] = train_group_or_dont_nn_with_progressive_difficulty(varargin)
+%the goal of this function is to train the neural network to identify which
+%clusters found by the algorithm represent the same underlying neuron and
+%train it on progressively harder datasets
+%where we define harder as how much overlap in timestamps any 2 clusters may have
+%obiously it is very easy to merge 2 clusters that have a high degree of
+%overlap but the key in solving the problem is to identify pairs which have
+%high overlap but don't represent the same underlying neuron or have a low
+%overlap but do represent the same underlying neuron 
+delete(gcp('nocreate'));
 %ensure that you're on the correct fp while running the scipt
 current_script_file_path = mfilename('fullpath');
 [current_script_dir,~,~] = fileparts(current_script_file_path);
@@ -53,7 +59,7 @@ disp("Finished loading blind pass table")
 rng("default")
 disp("Finished setting seed")
 
-%now we'll extract some desired data from the blind_pass table which will be used for training 
+%now we'll extract some desired data from the blind_pass table which will be used for training
 list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","histogram 1","histogram 2", "histogram 3","histogram 4","size","grades 2"];
 assembled_data = assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config);
 %we'll want to cycle through assembled data and normalize all of them to
@@ -68,24 +74,40 @@ disp("Finished getting feature data")
 all_comparisons = nchoosek(1:size(blind_pass_table,1),2);
 disp("Finished getting all possible comparisons of 2")
 
-%now for each comparison get a boolean vector which tells us if the "left"
-%AKA 1st col of all_comparions
-%has a higher accuracy
-is_left_better_col = blind_pass_table{all_comparisons(:,1),"accuracy"} >= blind_pass_table{all_comparisons(:,2),"accuracy"};
+%now for each comparison get a boolean vector which tells us if they
+%represent the same underlying unit
+is_left_better_col = blind_pass_table{all_comparisons(:,1),"Max_Overlap_Unit"} == blind_pass_table{all_comparisons(:,2),"Max_Overlap_Unit"};
 %disp("Finsihed getting is left better col")
 
-%now we calculate the magnitude of the differences (Magnitude meaning abs
-%difference)
-mag_of_acc_differences = abs(blind_pass_table{all_comparisons(:,1),"accuracy"} -blind_pass_table{all_comparisons(:,2),"accuracy"});
-disp("Finished calculating magnitude of differences")
+%now we calculate the overlap between all pairs
+overlap_array = zeros(length(is_left_better_col),1);
+blind_pass_table_parallel = parallel.pool.Constant(blind_pass_table);
+all_comparisons_parallel = parallel.pool.Constant(all_comparisons);
+config_parallel = parallel.pool.Constant(config);
+parpool('Threads');
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = size(all_comparisons,1);
+print_status_bar(num_iterations,"getting overlap for training data")
+if ~isfile("master_overlap_col.mat")
+    parfor i=1:size(all_comparisons,1)
+        cluster_1_ts = blind_pass_table_parallel.Value{all_comparisons_parallel.Value(i,1),"timestamps"}{1};
+        cluster_2_ts = blind_pass_table_parallel.Value{all_comparisons_parallel.Value(i,2),"timestamps"}{1};
+        [overlap_array(i),~,~] =find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config_parallel.Value.TIME_DELTA);
+        send(q,[]);
+    end
+    par_save(fullfile(config.parent_save_dir,"master_overlap_col.mat"),overlap_array);
+else
+    overlap_array = importdata(fullfile(config.parent_save_dir,"master_overlap_col.mat"));
+end
 
 %now we want to categorize the mag of accuracy differences
-%they'll be increasing in magnitude by 10
-list_of_magnitudes = 1:5:100;
+%they'll be increasing in magnitude by .05
+list_of_magnitudes = 0:.05:1;
 cell_array_of_accuracy_magnitudes = cell(size(list_of_magnitudes,2),1);
 for i=1:length(list_of_magnitudes)-1
-    c1 = mag_of_acc_differences <= list_of_magnitudes(i+1)-1;
-    c2 = mag_of_acc_differences > list_of_magnitudes(i)-1;
+    c1 = overlap_array <= list_of_magnitudes(i+1)-1;
+    c2 = overlap_array > list_of_magnitudes(i)-1;
 
     %first we must get the indexes of the rows that fall within the     current
     %bin
@@ -184,7 +206,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
              continue;
          end
         %unlike previous models we perform multiple training phases
-        fprintf("Training architecture %i on training set with level %i difficulty\n",i,difficulty_level)
+        fprintf("Training architecture %i on training set with level %i difficulty",i,difficulty_level)
         [accuracy,net] = test_nn_on_incremental_challenging(training_data,cell_array_of_neural_networks{i},128);
         %if accuracy is less than 60% then we won't continue training
         %this will hopefully ensure we speed up training
