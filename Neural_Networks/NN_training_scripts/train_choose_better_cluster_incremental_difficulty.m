@@ -140,7 +140,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     % of features later
 
     indexes_to_use = cell_array_of_accuracy_magnitudes{difficulty_level};
-    indexes_to_use = indexes_to_use(1:min([500000,length(indexes_to_use)])); %throttle # of comparisons
+    indexes_to_use = indexes_to_use(1:min([100000,length(indexes_to_use)])); %throttle # of comparisons
 
     %the training data will be assembled in the same order that it appears
     %in assembled data
