@@ -1,5 +1,7 @@
 function [equalized_nn_data] = equalize_classes(nn_data)
-
+if class(nn_data)~="table"
+    nn_data = array2table(nn_data);
+end
 counts_by_class = groupcounts(nn_data,string(nn_data.Properties.VariableNames(end)));
 [min_counts,min_index] = min(counts_by_class{:,"GroupCount"});
 equalized_nn_data = cell(size(counts_by_class,1),1);
@@ -15,5 +17,6 @@ for i=1:size(counts_by_class,1)
     end
 end
 equalized_nn_data = vertcat(equalized_nn_data{:});
+equalized_nn_data = equalized_nn_data{:,:};
 
 end

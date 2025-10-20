@@ -140,7 +140,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     % of features later
 
     indexes_to_use = cell_array_of_accuracy_magnitudes{difficulty_level};
-    indexes_to_use = indexes_to_use(1:min([100000,length(indexes_to_use)])); %throttle # of comparisons
+    indexes_to_use = indexes_to_use(1:min([500000,length(indexes_to_use)])); %throttle # of comparisons
 
     %the training data will be assembled in the same order that it appears
     %in assembled data
@@ -152,7 +152,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     %with the data we now have to ensure that left is better and left is
     %not better has an equal probability of occuring
     %we do this to ensure there's no probability bias
-    training_data = equalize_classes(array2table([left_clust_data,right_clust_data,is_left_better_col(indexes_to_use)]));
+    training_data = equalize_classes([left_clust_data,right_clust_data,is_left_better_col(indexes_to_use)]);
 
     %remove any rows from training data that produce nans
     training_data = rmmissing(training_data);
@@ -162,10 +162,10 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     %various difficulty levels
     number_of_samples_to_extract = 500;
 
-    list_of_all_left_is_better_idxs = find(training_data{:,end}==1);
+    list_of_all_left_is_better_idxs = find(training_data(:,end)==1);
     first_n_left_is_better = list_of_all_left_is_better_idxs(1:number_of_samples_to_extract);
 
-    list_of_all_right_is_better_idxs = find(training_data{:,end}==0);
+    list_of_all_right_is_better_idxs = find(training_data(:,end)==0);
     first_n_right_is_better = list_of_all_right_is_better_idxs(1:number_of_samples_to_extract);
 
     validation_data = [validation_data;training_data(first_n_right_is_better,:);training_data(first_n_left_is_better,:)];
@@ -178,8 +178,8 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
 
     %now with all this assembled we can actually begin training
     disp("Beginning training on difficulty_level:"+string(difficulty_level))
-    parpool('Threads',num_workers);
-     parfor i=1:size(permutations_table,1)
+   
+     for i=1:size(permutations_table,1)
          if ~array_of_continue_training(i)
              continue;
          end

@@ -1,9 +1,11 @@
 function [accuracy,net] = test_nn_on_incremental_challenging(features,layers,batch_size)
 
 
-
-data_to_put_into_neural_network = features;
-
+if class(features)~= "table"
+    data_to_put_into_neural_network = array2table(features);
+else
+    data_to_put_into_neural_network = features;
+end
 
 
 data_to_put_into_neural_network = convertvars(data_to_put_into_neural_network,data_to_put_into_neural_network.Properties.VariableNames(end),"categorical");
