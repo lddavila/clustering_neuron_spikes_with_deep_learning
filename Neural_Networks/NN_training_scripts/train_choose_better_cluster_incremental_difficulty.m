@@ -140,7 +140,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     % of features later
 
     indexes_to_use = cell_array_of_accuracy_magnitudes{difficulty_level};
-    indexes_to_use = indexes_to_use(1:min([500000,length(indexes_to_use)])); %throttle # of comparisons
+    indexes_to_use = indexes_to_use(1:min([100000,length(indexes_to_use)])); %throttle # of comparisons
 
     %the training data will be assembled in the same order that it appears
     %in assembled data
@@ -174,7 +174,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     training_data([first_n_left_is_better,first_n_right_is_better],:) = [];
 
 
-    training_data_parallel = parallel.pool.Constant(training_data);
+  
 
     %now with all this assembled we can actually begin training
     disp("Beginning training on difficulty_level:"+string(difficulty_level))
@@ -184,7 +184,8 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
              continue;
          end
         %unlike previous models we perform multiple training phases
-        [accuracy,net] = test_nn_on_incremental_challenging(training_data_parallel.Value,cell_array_of_neural_networks{i},128);
+        fprintf("Training architecture %i on training set with level %i difficulty",i,difficulty_level)
+        [accuracy,net] = test_nn_on_incremental_challenging(training_data,cell_array_of_neural_networks{i},128);
         %if accuracy is less than 60% then we won't continue training
         %this will hopefully ensure we speed up training
         if accuracy < .6
@@ -197,7 +198,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
         end
      end
      clear("training_data")
-     clear("training_data_parallel");
+   
     
     
 end
