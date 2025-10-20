@@ -81,7 +81,7 @@ disp("Finished calculating magnitude of differences")
 
 %now we want to categorize the mag of accuracy differences
 %they'll be increasing in magnitude by 10
-list_of_magnitudes = 1:10:100;
+list_of_magnitudes = 1:5:100;
 cell_array_of_accuracy_magnitudes = cell(size(list_of_magnitudes,2),1);
 for i=1:length(list_of_magnitudes)-1
     c1 = mag_of_acc_differences <= list_of_magnitudes(i+1)-1;
@@ -140,7 +140,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
     % of features later
 
     indexes_to_use = cell_array_of_accuracy_magnitudes{difficulty_level};
-    %indexes_to_use = indexes_to_use(1:10000);
+    indexes_to_use = indexes_to_use(1:min([1000000,length(indexes_to_use)])); %throttle # of comparisons
 
     %the training data will be assembled in the same order that it appears
     %in assembled data
