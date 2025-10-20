@@ -178,7 +178,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
 
     %now with all this assembled we can actually begin training
     disp("Beginning training on difficulty_level:"+string(difficulty_level))
-     for i=1:size(permutations_table,1)
+     parfor i=1:size(permutations_table,1)
          if ~array_of_continue_training(i)
              continue;
          end
@@ -196,6 +196,7 @@ for difficulty_level=length(cell_array_of_accuracy_magnitudes):-1:1
         end
      end
      clear("training_data")
+     clear("training_data_parallel");
     
     
 end
@@ -215,4 +216,7 @@ for i=1:length(cell_array_of_neural_networks)
     all_final_accuracies(i) = sum(categorical(YPred)== YTest)/numel(YTest);
 end
 disp(all_final_accuracies);
+par_save("all_neural_nets.mat",cell_array_of_net_objects);
+par_save("all_final_accuracies.mat",all_final_accuracies)
+par_save("validatation_data.mat",validation_data)
 end
