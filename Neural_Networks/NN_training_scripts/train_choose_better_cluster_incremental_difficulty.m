@@ -43,6 +43,9 @@ if length(varargin)<1
 else
     blind_pass_table = varargin{1};
 end
+
+%now remove any examples in blind_pass_table with accuracy less than 50
+blind_pass_table = blind_pass_table(blind_pass_table{:,"accuracy"}>=50,:);
 %set the random seed for repeatable results
 rng("default")
 
@@ -232,7 +235,8 @@ for difficulty_level=1:length(cell_array_of_accuracy_magnitudes_for_training)
   
 
     %now with all this assembled we can actually begin training
-    disp("Beginning training on difficulty_level:"+string(difficulty_level))
+    
+    %disp("Beginning training on difficulty_level:"+string(difficulty_level))
    
      for i=1:1%:size(permutations_table,1)
          if ~array_of_continue_training(i)

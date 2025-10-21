@@ -20,8 +20,8 @@ if contains(config.base_file_path,"cnheaton")
     beginning = 6;
     the_end = 10;
 elseif contains(config.base_file_path,"afriedman")
-    beginning=3;
-    the_end = 3;
+    beginning=1;
+    the_end = 10;
 else
     beginning = 1;
     the_end = 10;
