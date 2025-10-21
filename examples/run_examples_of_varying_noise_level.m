@@ -12,7 +12,7 @@ if contains(pwd,"10595")
     c = parcluster('local'); 
    parpool(c,56)
 else
-    c = parcluster('local');
+    %c = parcluster('local');
     
 end
 %%
