@@ -234,14 +234,14 @@ for difficulty_level=1:length(cell_array_of_accuracy_magnitudes_for_training)
     %now with all this assembled we can actually begin training
     disp("Beginning training on difficulty_level:"+string(difficulty_level))
    
-     for i=1:5:size(permutations_table,1)
+     for i=1:1%:size(permutations_table,1)
          if ~array_of_continue_training(i)
              continue;
          end
         %unlike previous models we perform multiple training phases
-        fprintf("Training architecture %i on training set with level %i difficulty\n",i,difficulty_level)
+        fprintf("Training architecture %i on training set with differences in %i accuracy\n",i,list_of_magnitudes(difficulty_level))
         [accuracy,net] = test_nn_on_incremental_challenging(training_data,validation_data,cell_array_of_neural_networks{i},128);
-        fprintf("Achieved %.2f accuracy on validation/testing data",accuracy)
+        fprintf("Achieved %.2f accuracy on validation/testing data\n",accuracy * 100)
         %if accuracy is less than 60% then we won't continue training
         %this will hopefully ensure we speed up training
         if accuracy < .6
