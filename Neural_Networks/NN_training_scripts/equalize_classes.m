@@ -17,6 +17,8 @@ for i=1:size(counts_by_class,1)
     end
 end
 equalized_nn_data = vertcat(equalized_nn_data{:});
+shuffled_idxs = randperm(size(equalized_nn_data,1));
+equalized_nn_data = equalized_nn_data(shuffled_idxs,:);
 equalized_nn_data = equalized_nn_data{:,:};
 
 end
