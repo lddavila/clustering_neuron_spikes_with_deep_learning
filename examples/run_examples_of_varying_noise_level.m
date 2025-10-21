@@ -1,3 +1,11 @@
+
+%% STEP 1: Add functions to your path
+examples_dir = cd("..");
+addpath(genpath(pwd));
+cd(examples_dir);
+disp("Finished Adding path")
+default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
+config = spikesort_config();
 %% SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
 % Put JobStorageLocation on node-local temp, NOT on GPFS
 if contains(pwd,"10595")
@@ -5,17 +13,10 @@ if contains(pwd,"10595")
    parpool(c,56)
 else
     c = parcluster('local');
-    parpool("Processes",40);
+    
 end
-%% STEP 1: Add functions to your path
-examples_dir = cd("..");
-addpath(genpath(pwd));
-cd(examples_dir);
-disp("Finished Adding path")
-default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 %%
 % step 2: Get the config Necessary for current Example
-config = spikesort_config();
 if contains(config.base_file_path,"cnheaton")
     beginning = 6;
     the_end = 10;
