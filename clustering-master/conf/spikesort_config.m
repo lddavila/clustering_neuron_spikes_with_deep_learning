@@ -210,6 +210,8 @@ config.CCG_THRESHOLD = 0.25; %per kilosort4 paper
 config.USING_BINARY_FILES = false;
 
 config.FP_TO_MASTER_TRAINING_BP_TABLE =fullfile(config.base_file_path,"Data","master_training_blind_pass_table.mat");
+
+config.USE_SMART_EXPANSION_VER_2 = false;
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

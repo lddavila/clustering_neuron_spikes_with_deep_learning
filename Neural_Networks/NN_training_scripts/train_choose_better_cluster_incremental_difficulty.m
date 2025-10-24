@@ -44,8 +44,8 @@ else
     blind_pass_table = varargin{1};
 end
 
-%now remove any examples in blind_pass_table with accuracy less than 50
-blind_pass_table = blind_pass_table(blind_pass_table{:,"accuracy"}>=50,:);
+%now remove any examples in blind_pass_table with accuracy less than 40
+% blind_pass_table = blind_pass_table(blind_pass_table{:,"accuracy"}>=40,:);
 %set the random seed for repeatable results
 rng("default")
 
@@ -218,7 +218,7 @@ for difficulty_level=1:length(cell_array_of_accuracy_magnitudes_for_training)
     %we want to put asside about 1000 datapoints from this difficulty level
     %to validate all fully trained neural networks on a mixed dataset of
     %various difficulty levels
-    number_of_samples_to_extract = 500;
+    number_of_samples_to_extract = 100;
 
     list_of_all_left_is_better_idxs = find(validation_data(:,end)==1);
     first_n_left_is_better = list_of_all_left_is_better_idxs(1:number_of_samples_to_extract);
@@ -257,7 +257,7 @@ for difficulty_level=1:length(cell_array_of_accuracy_magnitudes_for_training)
             cell_array_of_net_objects{i} = net;
         end
      end
-     clear("training_data")
+     %clear("training_data")
    
     
     
@@ -266,8 +266,8 @@ end
 %finally we can see how well the neural networks actually work on our
 %validation data
 all_final_accuracies = zeros(length(cell_array_of_neural_networks),1);
-for i=1:length(cell_array_of_neural_networks)
-    if isempty(cell_array_of_neural_networks{i})
+for i=1:length(cell_array_of_net_objects)
+    if isempty(cell_array_of_net_objects{i})
         continue;
     end
     scores = predict(cell_array_of_net_objects{i},final_validation_data(:,1:end-1));
@@ -281,4 +281,11 @@ disp(all_final_accuracies);
 par_save("all_neural_nets.mat",cell_array_of_net_objects);
 par_save("all_final_accuracies.mat",all_final_accuracies)
 par_save("validatation_data.mat",validation_data)
+
+nn_struct = struct();
+nn_struct.net = cell_array_of_net_objects{1};
+nn_struct.normalizing_min = cell_array_of_col_min;
+nn_struct.normalizing_max = cell_array_of_col_max;
+
+save("first_nn.mat","nn_struct")
 end

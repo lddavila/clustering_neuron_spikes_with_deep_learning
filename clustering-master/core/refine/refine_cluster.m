@@ -26,7 +26,11 @@ function [refined_cluster_idx, backup] = refine_cluster(features, peaks, cluster
     
     cluster_core_idx = extract_core(features, cluster_idx, config);
 
-    r_cluster_idx = smart_expand_cluster(features, cluster_core_idx, false, true, config);
+    if ~config.USE_SMART_EXPANSION_VER_2
+        r_cluster_idx = smart_expand_cluster(features, cluster_core_idx, false, true, config);
+    else
+        r_cluster_idx = smart_expand_cluster_ver_2(features,cluster_core_idx,false,true,config);
+    end
     if isempty(r_cluster_idx)
         refined_cluster_idx = [];
         return
