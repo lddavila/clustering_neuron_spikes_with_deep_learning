@@ -12,8 +12,8 @@ if contains(pwd,"10595")
     c = parcluster('local'); 
    parpool(c,56)
 else
-    %c = parcluster('local');
-    
+    c = parcluster('local');
+    parpool(c.NumWorkers)
 end
 %%
 % step 2: Get the config Necessary for current Example

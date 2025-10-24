@@ -188,7 +188,7 @@ for difficulty_level=1:length(cell_array_of_accuracy_magnitudes_for_training)
     % of features later
 
     indexes_to_use_for_training = cell_array_of_accuracy_magnitudes_for_training{difficulty_level};
-    indexes_to_use_for_training = indexes_to_use_for_training(1:min([10000,length(indexes_to_use_for_training)])); %throttle # of comparisons
+    indexes_to_use_for_training = indexes_to_use_for_training(1:min([50000,length(indexes_to_use_for_training)])); %throttle # of comparisons
 
     indexes_to_use_for_validation = cell_array_of_accuracy_magnitudes_for_validation{difficulty_level};
     indexes_to_use_for_validation = indexes_to_use_for_validation(1:min([10000,length(indexes_to_use_for_validation)])); %throttle # of comparisons
