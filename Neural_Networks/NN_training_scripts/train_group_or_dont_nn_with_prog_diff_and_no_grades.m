@@ -1,4 +1,5 @@
 function [] = train_group_or_dont_nn_with_prog_diff_and_no_grades(varargin)
+
 %differs from train_group_or_dont_nn_with_progressive_difficulty.m because
 %this model does not include grades
 %the goal is to test whether or not grades are actually a hinderance to the
@@ -20,9 +21,7 @@ delete(gcp('nocreate'));
 current_script_file_path = mfilename('fullpath');
 [current_script_dir,~,~] = fileparts(current_script_file_path);
 cd(current_script_dir);
-%first start the parallel pool so we can access the # of available workers
-c = parcluster('local');
-num_workers = c.NumWorkers;
+
 
 %we know already that it can easily choose better with practically 100%
 %accuracy when the accuracy differences are large
@@ -43,6 +42,10 @@ cd(home_dir);
 config = spikesort_config();
 parent_save_dir = config.parent_save_dir;
 disp("Finished Loading Config")
+
+if contains(config.base_file_path,"afriedman")
+    parpool('local_40', 40);
+end
 
 %create a directory where the results will be saved
 dir_to_save_results_to = fullfile(parent_save_dir,"group_or_dont_incremental_no_grades");
@@ -81,8 +84,8 @@ disp("Finished setting seed")
 %20=num neurons per layer
 %21 = num layers
 %2 = number of classes
-%2201 = number of features in assembled data
-layers_of_net = dynamically_create_layers_for_nn(2201,20,21,2);
+%4402 = number of features in assembled data
+layers_of_net = dynamically_create_layers_for_nn(4402,20,21,2);
 
 %now use a for loop to navigate through the progressively noisier recordings
 extracted_rows = [];
@@ -135,6 +138,11 @@ for i=1:length(noise_levels)
     %now get all possible comparisons of the equalized_training_rows
     all_comparisons = nchoosek(1:size(equalized_training_rows,1),2);
 
+    %get the class of every row of comparisons
+    is_same_neuron = equalized_training_rows{all_comparisons(:,1),"Max_Overlap_Unit"}==equalized_training_rows{all_comparisons(:,2),"Max_Overlap_Unit"};
+
+
+
     %add the flipped comparisons to the end of comparisons to ensure the NN
     %sees both possible views
     %all_possible_comparisons = [all_possible_comparisons;[all_possible_comparisons(:,1),all_possible_comparisons(:,2)]];
@@ -149,7 +157,6 @@ for i=1:length(noise_levels)
     equalized_training_rows_parallel = parallel.pool.Constant(equalized_training_rows);
     all_comparisons_parallel = parallel.pool.Constant(all_comparisons);
     config_parallel = parallel.pool.Constant(config);
-    parpool('Threads');
     q = parallel.pool.DataQueue;
     afterEach(q,@print_status_bar)
     num_iterations = size(all_comparisons,1);
@@ -164,17 +171,65 @@ for i=1:length(noise_levels)
         par_save("overlap_col_for_"+unique_recordings(i)+".mat",overlap_array);
     else
         overlap_array = importdata("overlap_col_for_"+unique_recordings(i)+".mat");
+        %overlap_array = [overlap_array;overlap_array];
     end
 
-    %%now we want to categorize the mag of accuracy differences
-    %they'll be increasing in magnitude by .05
-    % list_of_magnitudes = 0:.05:1;
-    % cell_array_of_accuracy_magnitudes = cell(size(list_of_magnitudes,2),1);
-    % for i=1:length(list_of_magnitudes)-1
-    %     c1 = overlap_array <= list_of_magnitudes(i+1)-1;
-    %     c2 = overlap_array > list_of_magnitudes(i)-1;
-    %     [cell_array_of_accuracy_magnitudes{i},~] = find(c1 & c2);
-    % end
+    %now we'll set up the second part of our curriculum
+    %the second level of the curriculum is based upon the amount of overlap
+    %between the two comparisons 
+    %we'll group the comparisons in terms of their overlap measurement
+    %recall overlap is a measurement of
+        %# timestamps in common / size of the smaller cluster
+
+        %which is reflective of how much of the smaller cluster exists in
+        %the larger cluster
+        %the value is between 0-1
+        %where 0 is no overlap and 1 is complete overlap
+
+    %they'll be decreasing in overlap by .05
+    %this ensures the easier determinations are at the beginning
+    %(low difficulty level) and the harder are at the end (higher difficulty level) 
+    list_of_magnitudes = 1:-.1:0;
+    comparisons_within_overlap_bounds = cell(size(list_of_magnitudes,2),1);
+    cell_array_of_true_class_for_comparisons = cell(size(list_of_magnitudes,2),1);
+    for k=1:length(list_of_magnitudes)-1
+        c1 = overlap_array <= list_of_magnitudes(k);
+        c2 = overlap_array > list_of_magnitudes(k+1);
+        comparisons_within_overlap_bounds{k} = all_comparisons(c1 & c2,:);
+        cell_array_of_true_class_for_comparisons{k} = is_same_neuron(c1 & c2);
+    end
+
+    %now we can use a for loop to cycle through these progressively harder
+    %data sets
+    for k=1:length(comparisons_within_overlap_bounds)
+        current_comparisons_idxs = comparisons_within_overlap_bounds{k};
+        true_class_for_current_comparions = cell_array_of_true_class_for_comparisons{k};
+
+        %now get the rows of assembled data that represent the left and
+        %right cluster
+        left_clust_data = cellfun(@(x) x(current_comparisons_idxs(:,1),:),assembled_data,'UniformOutput',false);
+        left_clust_data = cell2mat(left_clust_data);
+        right_clust_data = cellfun(@(x) x(current_comparisons_idxs(:,2),:),assembled_data,'UniformOutput',false);
+        right_clust_data = cell2mat(right_clust_data);
+        %put all of this data into a single matrix
+        all_training_data = [left_clust_data,right_clust_data,true_class_for_current_comparions];
+        %below we flip all the left/right data to ensure that the neural
+        %network doesn't get too comfortable seeing one cluster on the same
+        %side
+        all_training_data = [all_training_data;[right_clust_data,left_clust_data,true_class_for_current_comparions]];
+
+        %now we can train the neural network
+        [accuracy,net] = train_assembled_network_(all_training_data,layers_of_net,64);
+
+        %print out a statement to reflect accuracy
+        fprintf("Accuracy: %.2f for recording %s with level %i difficulty \n",accuracy,unique_recordings(i),k);
+
+        %save the set in case it fails at any point so we can pick it back
+        %up
+        par_save(sprintf("Accuracy %.2f for recording %s with level %i difficulty.mat",accuracy,unique_recordings(i),k),net)
+
+
+    end
 
 end
 
