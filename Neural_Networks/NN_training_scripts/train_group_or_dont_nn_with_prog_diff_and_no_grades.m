@@ -165,23 +165,19 @@ for i=1:length(noise_levels)
     else
         overlap_array = importdata("overlap_col_for_"+unique_recordings(i)+".mat");
     end
+
+    %%now we want to categorize the mag of accuracy differences
+    %they'll be increasing in magnitude by .05
+    % list_of_magnitudes = 0:.05:1;
+    % cell_array_of_accuracy_magnitudes = cell(size(list_of_magnitudes,2),1);
+    % for i=1:length(list_of_magnitudes)-1
+    %     c1 = overlap_array <= list_of_magnitudes(i+1)-1;
+    %     c2 = overlap_array > list_of_magnitudes(i)-1;
+    %     [cell_array_of_accuracy_magnitudes{i},~] = find(c1 & c2);
+    % end
+
 end
 
-%now we calculate the overlap between all pairs
-
-
-%now we want to categorize the mag of accuracy differences
-%they'll be increasing in magnitude by .05
-list_of_magnitudes = 0:.05:1;
-cell_array_of_accuracy_magnitudes = cell(size(list_of_magnitudes,2),1);
-for i=1:length(list_of_magnitudes)-1
-    c1 = overlap_array <= list_of_magnitudes(i+1)-1;
-    c2 = overlap_array > list_of_magnitudes(i)-1;
-
-    %first we must get the indexes of the rows that fall within the     current
-    %bin
-    [cell_array_of_accuracy_magnitudes{i},~] = find(c1 & c2);
-end
 
 
 
