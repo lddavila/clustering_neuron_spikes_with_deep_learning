@@ -1,4 +1,6 @@
 function [] = test_neural_net_on_never_before_seen_data(blind_pass_table,fp_to_nn,config)
+
+% blind_pass_table = blind_pass_table(blind_pass_table{:,"accuracy"}>40,:);
 net_struct = importdata(fp_to_nn);
 net = net_struct.net;
 normalizing_min = net_struct.normalizing_min;
@@ -49,7 +51,7 @@ left_clust_data_training = cell2mat(left_clust_data_training);
 right_clust_data_training= cellfun(@(x) x(all_comparisons_for_training(indexes_to_use_for_training,2),:),all_assembled_data,'UniformOutput',false);
 right_clust_data_training = cell2mat(right_clust_data_training);
 
-final_validation_data = [left_clust_data_training,right_clust_data_training];
+final_validation_data = left_clust_data_training -right_clust_data_training;
 
 %now check how they perform on this new set of data
 
