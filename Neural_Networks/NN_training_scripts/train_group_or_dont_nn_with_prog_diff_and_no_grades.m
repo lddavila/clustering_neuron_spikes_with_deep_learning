@@ -84,8 +84,8 @@ disp("Finished setting seed")
 %20=num neurons per layer
 %21 = num layers
 %2 = number of classes
-%4402 = number of features in assembled data
-layers_of_net = dynamically_create_layers_for_nn(4402,20,21,2);
+%4403 = number of features in assembled data
+layers_of_net = dynamically_create_layers_for_nn(4403,20,21,2);
 
 %now use a for loop to navigate through the progressively noisier recordings
 extracted_rows = [];
@@ -192,11 +192,13 @@ for i=1:length(noise_levels)
     list_of_magnitudes = 1:-.1:0;
     comparisons_within_overlap_bounds = cell(size(list_of_magnitudes,2),1);
     cell_array_of_true_class_for_comparisons = cell(size(list_of_magnitudes,2),1);
+    cell_array_of_overlap_feature = cell(size(list_of_magnitudes,2),1);
     for k=1:length(list_of_magnitudes)-1
         c1 = overlap_array <= list_of_magnitudes(k);
         c2 = overlap_array > list_of_magnitudes(k+1);
         comparisons_within_overlap_bounds{k} = all_comparisons(c1 & c2,:);
         cell_array_of_true_class_for_comparisons{k} = is_same_neuron(c1 & c2);
+        cell_array_of_overlap_feature{k} = overlap_array(c1 & c2);
     end
 
     %now we can use a for loop to cycle through these progressively harder
@@ -204,19 +206,31 @@ for i=1:length(noise_levels)
     for k=1:length(comparisons_within_overlap_bounds)
         current_comparisons_idxs = comparisons_within_overlap_bounds{k};
         true_class_for_current_comparions = cell_array_of_true_class_for_comparisons{k};
-
+        overlap_data = cell_array_of_overlap_feature{k};
+        if size(current_comparisons_idxs,1)>10000
+            current_comparisons_idxs = current_comparisons_idxs(1:10000,:);
+            true_class_for_current_comparions = true_class_for_current_comparions(1:10000);
+            overlap_data = overlap_data(1:10000);
+        end
         %now get the rows of assembled data that represent the left and
         %right cluster
         left_clust_data = cellfun(@(x) x(current_comparisons_idxs(:,1),:),assembled_data,'UniformOutput',false);
         left_clust_data = cell2mat(left_clust_data);
         right_clust_data = cellfun(@(x) x(current_comparisons_idxs(:,2),:),assembled_data,'UniformOutput',false);
         right_clust_data = cell2mat(right_clust_data);
+
+        
+
         %put all of this data into a single matrix
-        all_training_data = [left_clust_data,right_clust_data,true_class_for_current_comparions];
+        all_training_data = [left_clust_data,right_clust_data,overlap_data,true_class_for_current_comparions];
         %below we flip all the left/right data to ensure that the neural
         %network doesn't get too comfortable seeing one cluster on the same
         %side
-        all_training_data = [all_training_data;[right_clust_data,left_clust_data,true_class_for_current_comparions]];
+        all_training_data = [all_training_data;[right_clust_data,left_clust_data,overlap_data,true_class_for_current_comparions]];
+
+        %print the ratio of are same neuron vs not same neuron
+        disp("# Is same / # is not same")
+        fprintf("%i / %i\n",sum(all_training_data(:,end)==1),sum(all_training_data(:,end)==0))
 
         %now we can train the neural network
         [accuracy,net] = train_assembled_network_(all_training_data,layers_of_net,64);
