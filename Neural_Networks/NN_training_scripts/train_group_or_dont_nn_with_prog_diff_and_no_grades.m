@@ -205,6 +205,9 @@ for i=1:length(noise_levels)
     %data sets
     for k=1:length(comparisons_within_overlap_bounds)
         current_comparisons_idxs = comparisons_within_overlap_bounds{k};
+        if isempty(current_comparisons_idxs)
+            continue;
+        end
         true_class_for_current_comparions = cell_array_of_true_class_for_comparisons{k};
         overlap_data = cell_array_of_overlap_feature{k};
         if size(current_comparisons_idxs,1)>10000
@@ -234,7 +237,7 @@ for i=1:length(noise_levels)
 
         %now we can train the neural network
         [accuracy,net] = train_assembled_network_(all_training_data,layers_of_net,64);
-
+        layers_of_net = net.Layers;
         %print out a statement to reflect accuracy
         fprintf("Accuracy: %.2f for recording %s with level %i difficulty \n",accuracy,unique_recordings(i),k);
 
