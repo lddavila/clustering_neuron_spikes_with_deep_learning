@@ -48,7 +48,7 @@ if contains(config.base_file_path,"afriedman")
 end
 
 %create a directory where the results will be saved
-dir_to_save_results_to = fullfile(parent_save_dir,"group_or_dont_incremental_no_grades");
+dir_to_save_results_to = fullfile(parent_save_dir,"group_or_dont_incremental_no_grades_expanded");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);
 end
@@ -90,6 +90,9 @@ layers_of_net = dynamically_create_layers_for_nn(4403,20,21,2);
 %now use a for loop to navigate through the progressively noisier recordings
 extracted_rows = [];
 cd(dir_to_save_results_to);
+inject_later = []; %used to preserve a subset of the easier examples in order to inject into training of harder examples
+                   %in an effort to prevent later curriculum learning from
+                   %erasing early curriculum learning
 for i=1:length(noise_levels)
     current_noise_levels = blind_pass_table(blind_pass_table{:,"recording_name"}==unique_recordings(i),:);
 
@@ -118,14 +121,14 @@ for i=1:length(noise_levels)
     %now take the remaining units into their own table
     training_rows = current_noise_levels(any(current_noise_levels{:,"Max_Overlap_Unit"}==units_to_remain,2),:);
 
-    %equalize cluster appearences in training rows
+    %(roughly) equalize cluster appearences in training rows
     groupcounts_of_training_rows = groupcounts_of_units(any(groupcounts_of_units{:,"Max_Overlap_Unit"}==units_to_remain,2),:);
-    min_number_of_cluster_appearences = min(groupcounts_of_training_rows{:,"GroupCount"});
+    min_number_of_cluster_appearences = 15;
 
     equalized_training_rows = [];
     for k=1:size(groupcounts_of_training_rows,1)
         all_examples_of_current_unit = find(training_rows{:,"Max_Overlap_Unit"} == groupcounts_of_training_rows{k,"Max_Overlap_Unit"});
-        indexes_of_randomly_sampled_reps_of_current_unit = randperm(length(all_examples_of_current_unit),min_number_of_cluster_appearences);
+        indexes_of_randomly_sampled_reps_of_current_unit = randperm(length(all_examples_of_current_unit),min([min_number_of_cluster_appearences,length(all_examples_of_current_unit)]));
         equalized_training_rows = [equalized_training_rows;training_rows(all_examples_of_current_unit(indexes_of_randomly_sampled_reps_of_current_unit),:)];
     end
 
@@ -171,9 +174,9 @@ for i=1:length(noise_levels)
         par_save("overlap_col_for_"+unique_recordings(i)+".mat",overlap_array);
     else
         overlap_array = importdata("overlap_col_for_"+unique_recordings(i)+".mat");
-        %overlap_array = [overlap_array;overlap_array];
     end
 
+    overlap_array = overlap_array * 100;
     %now we'll set up the second part of our curriculum
     %the second level of the curriculum is based upon the amount of overlap
     %between the two comparisons 
@@ -231,12 +234,22 @@ for i=1:length(noise_levels)
         %side
         all_training_data = [all_training_data;[right_clust_data,left_clust_data,overlap_data,true_class_for_current_comparions]];
 
+        %take some trainig data and preserve it for later training 
+        random_eaiser_indexes = randperm(size(all_training_data,1),round(size(all_training_data,1) * 0.20));
+        inject_later = [inject_later;all_training_data(random_eaiser_indexes,:)];
+
+        all_training_data = [all_training_data;inject_later];
+
+        %now equalzie the training of both
+        all_training_data = equalize_classes(all_training_data);
+        
+
         %print the ratio of are same neuron vs not same neuron
         disp("# Is same / # is not same")
         fprintf("%i / %i\n",sum(all_training_data(:,end)==1),sum(all_training_data(:,end)==0))
 
         %now we can train the neural network
-        [accuracy,net] = train_assembled_network_(all_training_data,layers_of_net,64);
+        [accuracy,net] = train_assembled_network_(all_training_data,layers_of_net,16);
         layers_of_net = net.Layers;
         %print out a statement to reflect accuracy
         fprintf("Accuracy: %.2f for recording %s with level %i difficulty \n",accuracy,unique_recordings(i),k);
