@@ -46,14 +46,6 @@ end
 disp("Finished loading blind pass table")
 
 
-%now extract how many recordings and thus noise levels are in the blind
-%pass table
-unique_recordings = unique(blind_pass_table{:,"recording_name"});
-unique_recordings_split = split(unique_recordings,"_");
-noise_levels = str2double(unique_recordings_split(:,1));
-[noise_levels,indexes_of_sorted_noise_levels] = sort(noise_levels,'ascend');
-unique_recordings = unique_recordings(indexes_of_sorted_noise_levels);
-
 %set the random seed for reproducable results
 rng("default")
 disp("Finished setting seed")
@@ -68,7 +60,7 @@ layers_of_net = dynamically_create_layers_for_nn(4403,200,21,2);
 
 %now use a for loop to navigate through the progressively noisier recordings
 cd(dir_to_save_results_to);
-inject_later = []; %used to preserve a subset of the easier examples in order to inject into training of harder examples
+
 %in an effort to prevent later curriculum learning from
 %erasing early curriculum learning
 
@@ -101,8 +93,7 @@ current_comparisons_idxs = [all_comparisons(randomly_selected_class_0,:);all_com
 
 %get the NN data out of current_noise_levels
 %we won't normalize here because the raw values have significant meaning
-%i.e. microvolts and bin count
-list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","histogram 1","histogram 2","size"];
+%i.e. microvolts and bin list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","histogram 1","histogram 2","size"];
 assembled_data = assemble_data_for_neural_net(list_of_features_to_add,current_noise_levels,config);
 
 %now get the rows of assembled data that represent the left and
@@ -156,10 +147,10 @@ fprintf("%i / %i\n",sum(all_nn_data(:,end)==1),sum(all_nn_data(:,end)==0))
 % layers_of_net = net.Layers;
 
 %print out a statement to reflect accuracy
-fprintf("Accuracy: %.2f for recording %s with level %i",accuracy*100,unique_recordings(i));
+fprintf("Accuracy: %.2f for mixed",accuracy*100);
 
 %save the set in case it fails at any point so we can pick it back
 %up
-par_save(sprintf("Accuracy %.2f for recording %s with level.mat",accuracy,unique_recordings(i)),net)
+par_save(sprintf("Accuracy %.2f for mixed.mat",accuracy),net)
 end
 
