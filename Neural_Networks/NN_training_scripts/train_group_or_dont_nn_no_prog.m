@@ -120,7 +120,7 @@ config_parallel = parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(current_comparisons_idxs,1);
-print_status_bar(num_iterations,"getting overlap for recording:"+unique_recordings(i));
+print_status_bar(num_iterations,"getting overlap for mixed");
 if ~isfile("mixed_overlap.mat")
     for j=1:size(current_comparisons_idxs,1)
         cluster_1_ts = current_noise_levels_parallel.Value{current_comparisons_idxs_parallel.Value(j,1),"timestamps"}{1};
@@ -130,7 +130,7 @@ if ~isfile("mixed_overlap.mat")
     end
     par_save("mixed_overlap.mat",overlap_array);
 else
-    overlap_array = importdata("overlap_col_for_"+unique_recordings(i)+".mat");
+    overlap_array = importdata("mixed_overlap.mat");
 end
 
 %we scale up overlap because it will be a very important feature, but
