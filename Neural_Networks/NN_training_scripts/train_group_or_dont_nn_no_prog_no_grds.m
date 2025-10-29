@@ -6,11 +6,11 @@ function [] = train_group_or_dont_nn_no_prog_no_grds(varargin)
 %grouping process instead of helpful
 
 %The curriculum based here will be based only on the noise level of the original recording
-%this does not add difficulty based on overlap to the curriculum 
+%this does not add difficulty based on overlap to the curriculum
 
 %the goal of this function is to train the neural network to identify which
 %clusters found by the algorithm represent the same underlying neuron and
-%train it on progressively harder datasets 
+%train it on progressively harder datasets
 %where we define harder as how noisy the simulated data set was
 
 %ensure that you're on the correct fp while running the scipt
@@ -30,7 +30,7 @@ config = spikesort_config();
 parent_save_dir = config.parent_save_dir;
 disp("Finished Loading Config")
 
-%only for alexander's broken hpc account 
+%only for alexander's broken hpc account
 if contains(config.base_file_path,"afriedman")
     parpool('local_40', 40);
 end
@@ -77,8 +77,8 @@ layers_of_net = dynamically_create_layers_for_nn(4403,200,21,2);
 %now use a for loop to navigate through the progressively noisier recordings
 cd(dir_to_save_results_to);
 inject_later = []; %used to preserve a subset of the easier examples in order to inject into training of harder examples
-                   %in an effort to prevent later curriculum learning from
-                   %erasing early curriculum learning
+%in an effort to prevent later curriculum learning from
+%erasing early curriculum learning
 
 %there's a practically infinit number of comarisons that can be made so we
 %have to specify how many we'll realistically generate for training as
@@ -146,7 +146,7 @@ for i=1:length(noise_levels)
     %get missed
     overlap_array = overlap_array * 100;
 
-    %now combine the overlap features and true classes of the data 
+    %now combine the overlap features and true classes of the data
     all_nn_data = [left_clust_data,right_clust_data,overlap_array,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)]];
 
     %flip the clusters in order to ensure the neural network doesn't learn
@@ -159,16 +159,16 @@ for i=1:length(noise_levels)
     disp("# Is same / # is not same")
     fprintf("%i / %i\n",sum(all_nn_data(:,end)==1),sum(all_nn_data(:,end)==0))
 
-     %now we can train the neural network
-        [accuracy,net] = train_assembled_network_(all_nn_data,layers_of_net,64);
-        layers_of_net = net.Layers;
+    %now we can train the neural network
+    [accuracy,net] = train_assembled_network_(all_nn_data,layers_of_net,64);
+    layers_of_net = net.Layers;
 
-        %print out a statement to reflect accuracy
-        fprintf("Accuracy: %.2f for recording %s with level %i difficulty \n",accuracy*100,unique_recordings(i),k);
+    %print out a statement to reflect accuracy
+    fprintf("Accuracy: %.2f for recording %s with level %i",accuracy*100,unique_recordings(i));
 
-        %save the set in case it fails at any point so we can pick it back
-        %up
-        par_save(sprintf("Accuracy %.2f for recording %s with level %i difficulty.mat",accuracy,unique_recordings(i),k),net)
+    %save the set in case it fails at any point so we can pick it back
+    %up
+    par_save(sprintf("Accuracy %.2f for recording %s with level.mat",accuracy,unique_recordings(i)),net)
 end
 
 end
