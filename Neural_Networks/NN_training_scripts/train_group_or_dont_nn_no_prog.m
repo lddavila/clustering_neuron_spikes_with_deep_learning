@@ -93,7 +93,8 @@ current_comparisons_idxs = [all_comparisons(randomly_selected_class_0,:);all_com
 
 %get the NN data out of current_noise_levels
 %we won't normalize here because the raw values have significant meaning
-%i.e. microvolts and bin list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","histogram 1","histogram 2","size"];
+%i.e. microvolts and bin count
+list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","histogram 1","histogram 2","size"];
 assembled_data = assemble_data_for_neural_net(list_of_features_to_add,current_noise_levels,config);
 
 %now get the rows of assembled data that represent the left and
