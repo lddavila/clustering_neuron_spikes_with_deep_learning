@@ -253,7 +253,7 @@ for i=1:length(noise_levels)
     %DO NOT RECOMPUTE
     X_Test = all_nn_data(:,1:end-1);
     X_Test = (X_Test - cell_array_of_mus{i}) ./ cell_array_of_sig{i};
-    X_Test(:, sig == 0) = 0;
+    X_Test(:, cell_array_of_sig{i} == 0) = 0;
 
     %print the ratio of are same neuron vs not same neuron
     disp("# Is same / # is not same")
