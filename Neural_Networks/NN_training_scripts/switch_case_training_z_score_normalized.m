@@ -158,7 +158,7 @@ for i=1:length(noise_levels)
     all_nn_data = equalize_classes(all_nn_data);
 
     %now perform z-score normalization on the data
-    [X_norm, cell_array_of_mus{i}, cell_array_of_sig{i}] = safe_zscore_normalizer(all_nn_data);
+    [X_norm, cell_array_of_mus{i}, cell_array_of_sig{i}] = safe_zscore_normalizer(all_nn_data(:,1:end-1));
 
 
     %print the ratio of are same neuron vs not same neuron
@@ -166,7 +166,7 @@ for i=1:length(noise_levels)
     fprintf("%i / %i\n",sum(all_nn_data(:,end)==1),sum(all_nn_data(:,end)==0))
 
     %now we can train the neural network
-    [accuracy,net] = train_assembled_network_(X_norm,layers_of_net,64);
+    [accuracy,net] = train_assembled_network_([X_norm,all_nn_data(:,end)],layers_of_net,64);
     cell_array_of_trained_nets{i} = net;
 
     %print out a statement to reflect accuracy
