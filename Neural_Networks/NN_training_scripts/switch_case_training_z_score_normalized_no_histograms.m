@@ -257,7 +257,7 @@ for i=1:length(noise_levels)
 
     %print the ratio of are same neuron vs not same neuron
     disp("# Is same / # is not same")
-    fprintf("%i / %i\n",sum(X_Test(:,end)==1),sum(X_Test(:,end)==0))
+    fprintf("%i / %i\n",sum(all_nn_data(:,end)==1),sum(all_nn_data(:,end)==0))
 
     %now test the neural network
     net = cell_array_of_trained_nets{i};
