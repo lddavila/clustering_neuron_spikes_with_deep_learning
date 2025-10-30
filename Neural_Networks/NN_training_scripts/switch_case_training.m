@@ -86,11 +86,11 @@ for i=1:length(noise_levels)
 
     %now we'll define a single neural network architecture which we'll hope
     %can generalize to all data that exists at the current noise level
-    %200=num neurons per layer
+    %20 = num neurons per layer
     %21 = num layers
     %2 = number of classes
     %4403 = number of features in assembled data
-    layers_of_net = dynamically_create_layers_for_nn(4403,200,21,2);
+    layers_of_net = dynamically_create_layers_for_nn(4403,20,21,2);
 
     
     current_noise_levels = partitioned_mixed{i,1};
