@@ -126,7 +126,7 @@ for i=1:length(noise_levels)
     right_clust_data = cell2mat(right_clust_data);
 
     %calculate the overlap for all the comparisons
-    overlap_array = zeros(size(current_comparisons_idxs,2),1);
+    overlap_array = zeros(size(current_comparisons_idxs,1),1);
     current_noise_levels_parallel = parallel.pool.Constant(current_noise_levels);
     current_comparisons_idxs_parallel = parallel.pool.Constant(current_comparisons_idxs);
     config_parallel = parallel.pool.Constant(config);

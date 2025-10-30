@@ -58,10 +58,10 @@ else
     overlap_array = importdata("overlap_col.mat");
 end
 
-overlap_array = overlap_array * 100;
+overlap_array = overlap_array * 1000;
 
 %now we can assemble the data required for the group_or_dont neural network
-list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","histogram 1","histogram 2", "histogram 3","histogram 4","size"];
+list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","histogram 1","histogram 2", "size"];
 assembled_data = assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config);
 
 left_clust_data = cellfun(@(x) x(rows_for_training(:,1),:),assembled_data,'UniformOutput',false);
