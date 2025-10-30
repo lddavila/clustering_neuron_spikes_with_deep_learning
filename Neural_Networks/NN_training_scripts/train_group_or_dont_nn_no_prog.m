@@ -56,7 +56,7 @@ disp("Finished setting seed")
 %21 = num layers
 %2 = number of classes
 %4403 = number of features in assembled data
-layers_of_net = dynamically_create_layers_for_nn(4403,200,21,2);
+layers_of_net = dynamically_create_layers_for_nn(2202,200,21,2);
 
 %now use a for loop to navigate through the progressively noisier recordings
 cd(dir_to_save_results_to);
