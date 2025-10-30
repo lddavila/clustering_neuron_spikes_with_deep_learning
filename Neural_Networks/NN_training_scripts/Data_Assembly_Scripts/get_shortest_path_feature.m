@@ -1,0 +1,28 @@
+function [] = get_shortest_path_feature(blind_pass_table,comparisons)
+probe_graph = get_graph_rep_of_probe_map;
+
+%extract the channels for each tetrode
+grades = vertcat(blind_pass_table{:,"grades"}{:});
+channel_list = cell2mat(grades(:,49));
+
+shortest_path_col = zeros(size(comparisons,1),1);
+
+%for each 
+for i=1:size(comparisons,1)
+    left_channels = channel_list(comparisons(i,1),:);
+    right_channels = channel_list(comparisons(i,2),:);
+
+    %share all the same channels and thus the distanc is 0
+    if all(any(left_channels==right_channels.'))
+        continue
+    end
+
+    %when they don't share all the same channels then we have to find the
+    %average distance between all of the channels
+    for j=1:length(left_channels)
+        for k=1:length(right_channels)
+            
+        end
+    end
+end
+end
