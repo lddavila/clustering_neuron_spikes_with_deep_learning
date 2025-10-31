@@ -26,6 +26,7 @@ for i=1:size(list_of_features_to_add,2)
     elseif current_feature == "grades 2"
          temp_data= vertcat(blind_pass_table{:,"grades"}{:});
          assembled_data{i} = cell2mat(temp_data(:,config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
+
     end
 end
 

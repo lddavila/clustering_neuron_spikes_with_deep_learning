@@ -1,4 +1,4 @@
-function G = get_graph_rep_of_probe_map()
+function [G,x,y] = get_graph_rep_of_probe_map()
     number_of_rows = 96;
     number_of_cols = 4;
 
@@ -59,22 +59,25 @@ function G = get_graph_rep_of_probe_map()
     % Create graph
     G = graph(edges(:,1), edges(:,2), [], node_names);
 
-    figure;
+    % figure;
     row_pitch = 20;     % µm vertical spacing
     col_pitch = 40;     % µm horizontal spacing
 
-    [x, y] = meshgrid(1:number_of_cols, 1:number_of_rows);
-    x = x(:) * col_pitch;
-    y = flipud(y(:)) * row_pitch;   % flip so row 1 is at top
-    coords = [x, y];
-    coords = coords(1:numnodes(G), :);
-    plot(G, ...
-        'XData', coords(:,1), ...
-        'YData', coords(:,2), ...
-        'NodeLabel', {}, ...
-        'MarkerSize', 3);
-    axis equal
-    title('Physical Probe Layout');
-    xlabel('Column (µm)');
-    ylabel('Depth (µm)');
+% pitches in microns (set to your geometry)
+row_pitch = 20;     % vertical spacing
+col_pitch = 32;     % horizontal spacing
+
+% Map channel_id -> (row, col) using the actual matrix
+[row_idx, col_idx, ch_id] = find(probe_map_matrix);   % ch_id are the nonzero channels
+
+max_id = max(ch_id);
+x = nan(1, max_id);
+y = nan(1, max_id);
+
+% place each channel by its column/row in the matrix
+x(ch_id) = (col_idx - 1) * col_pitch;
+% flip Y so larger row index is deeper (downwards) on the plot
+y(ch_id) = (max(row_idx) - row_idx) * row_pitch;
+
+
 end
