@@ -6,14 +6,19 @@ grades = vertcat(blind_pass_table{:,"grades"}{:});
 channel_list = cell2mat(grades(:,49));
 
 shortest_path_col = zeros(size(comparisons,1),1);
+current_comparisons_idxs_parallel = parallel.pool.Constant(comparisons);
+channel_list_parallel = parallel.pool.Constant(channel_list);
 
-%for each
-for i=1:size(comparisons,1)
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = size(comparisons,1);
+print_status_bar(num_iterations,"get_shortest_path_feature.m");
+parfor i=1:size(comparisons,1)
 
     % Now plot the graph using these true coordinates
     %figure;
     if i==1 && make_plot
-        p = plot(probe_graph, ...
+        plot(probe_graph, ...
             'XData', x, ...
             'YData', y, ...
             'NodeLabel', {}, ...
@@ -22,8 +27,8 @@ for i=1:size(comparisons,1)
         xlabel('x (\mum)'); ylabel('y (\mum)');
         title('Probe graph with physical coordinates');
     end
-    left_channels = channel_list(comparisons(i,1),:);
-    right_channels = channel_list(comparisons(i,2),:);
+    left_channels = channel_list_parallel.Value(current_comparisons_idxs_parallel.Value(i,1),:);
+    right_channels = channel_list_parallel.Value(current_comparisons_idxs_parallel.Value(i,2),:);
 
     %share all the same channels and thus the distanc is 0
     if all(any(left_channels==right_channels.'))
@@ -39,7 +44,7 @@ for i=1:size(comparisons,1)
         end
     end
     shortest_path_col(i) = mean(matrix_of_distances,"all");
-    fprintf("%i/%i avg dist: %.2f\n",i,size(comparisons,1),shortest_path_col(i));
+    send(q,[]);
 end
 
 

@@ -1,7 +1,6 @@
-function [] = switch_case_training_with_distance_and_z_score(varargin)
+function [] = switch_case_training_with_distance(varargin)
 %tries to mind a general method to determine if the 2 clusters are the
 %same or not for clusters that are on the same noise level
-%-has z score normalization 
 %-has the average path length between channels feature (as calculated by a
 %graph which represents the probe map)
 
@@ -31,7 +30,7 @@ if contains(config.base_file_path,"afriedman")
 end
 
 %create a directory where the results will be saved
-dir_to_save_results_to = fullfile(parent_save_dir,"switch_case_z_score_normalized_no_histograms_extra_part_and_pth_fixed_test");
+dir_to_save_results_to = fullfile(parent_save_dir,"switch_case_extra_part_and_pth");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);
 end
@@ -158,6 +157,7 @@ for i=1:length(noise_levels)
         overlap_array = importdata("overlap_col_for_"+unique_recordings(i)+".mat");
     end
     
+    overlap_array = overlap_array * 100; %scale up overlap because it is between 0-1 and the scale could mess with it 
 
    
 
@@ -182,6 +182,7 @@ for i=1:length(noise_levels)
         overlap_array_val = importdata("val_overlap_col_for_"+unique_recordings(i)+".mat");
     end
 
+    overlap_array_val = overlap_array_val * 100; %scale from between 0-1 to 0-100
     %now get the shortest distance feature for the training comparisons
     shortest_dist_col = get_shortest_path_feature(current_noise_level_data,current_comparisons_idxs,0,G,x,y);
 
@@ -201,13 +202,8 @@ for i=1:length(noise_levels)
     all_nn_data = equalize_classes(all_nn_data);
     all_val_nn_data = equalize_classes(all_val_nn_data);
 
-    %now perform z-score normalization on the data
-    [X_norm, cell_array_of_mus{i}, cell_array_of_sig{i}] = safe_zscore_normalizer(all_nn_data(:,1:end-1));
-    
-    %normalize the validation data based on the data from the training set
+    X_norm = all_nn_data(:,1:end-1);
     X_Val = all_val_nn_data(:,1:end-1);
-    X_Val = (X_Val - cell_array_of_mus{i}) ./ cell_array_of_sig{i};
-    X_Val(:, cell_array_of_sig{i} == 0) = 0;
 
 
     %print the ratio of are same neuron vs not same neuron
@@ -228,14 +224,8 @@ for i=1:length(noise_levels)
     %print out a statement to reflect accuracy
     fprintf("Accuracy: %.2f for recording %s with level %i",accuracy*100,unique_recordings(i));
 
-    %save the set in case it fails at any point so we can pick it back
-    %up
-
-    net_struct = struct();
-    net_struct.net = net;
-    net_struct.mean= cell_array_of_mus{i};
-    net_struct.std = cell_array_of_sig{i};
-    par_save(sprintf("Accuracy %.2f for recording %s with level.mat",accuracy,unique_recordings(i)),net_struct)
+    %save the trained neural net
+    par_save(sprintf("Accuracy %.2f for recording %s with level.mat",accuracy,unique_recordings(i)),net)
 end
 
 %now we can validate each of the neural networks on comparisons at similar
@@ -274,9 +264,6 @@ for i=1:length(noise_levels)
     right_clust_data = cellfun(@(x) x(current_comparisons_idxs(:,2),:),assembled_data,'UniformOutput',false);
     right_clust_data = cell2mat(right_clust_data);
 
-    %now get the shortest distance feature for the test data
-    shortest_dist_val = get_shortest_path_feature(current_noise_level_data,current_comparisons_idxs,0,G,x,y);
-
     %calculate the overlap for all the comparisons
     overlap_array = zeros(size(current_comparisons_idxs,1),1);
     current_noise_levels_parallel = parallel.pool.Constant(current_noise_level_data);
@@ -300,11 +287,11 @@ for i=1:length(noise_levels)
 
 
     %now combine the overlap features and true classes of the data
-    all_nn_data = [left_clust_data,right_clust_data,overlap_array,shortest_dist_val,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)]];
+    all_nn_data = [left_clust_data,right_clust_data,overlap_array,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)]];
 
     %flip the clusters in order to ensure the neural network doesn't learn
     %one side too much
-    all_nn_data = [right_clust_data,left_clust_data,overlap_array,shortest_dist_val,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)];all_nn_data];
+    all_nn_data = [right_clust_data,left_clust_data,overlap_array,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)];all_nn_data];
     %shuffle the data
     all_nn_data = equalize_classes(all_nn_data);
 
