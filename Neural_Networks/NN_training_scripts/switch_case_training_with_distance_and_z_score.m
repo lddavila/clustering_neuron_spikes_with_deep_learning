@@ -95,7 +95,7 @@ for i=1:length(noise_levels)
     %21 = num layers
     %2 = number of classes
     %4403 = number of features in assembled data
-    layers_of_net = dynamically_create_layers_for_nn(603,20,21,2);
+    layers_of_net = dynamically_create_layers_for_nn(604,20,21,2);
 
     
     current_noise_levels = partitioned_mixed{i,1};
@@ -130,6 +130,9 @@ for i=1:length(noise_levels)
     right_clust_data = cellfun(@(x) x(current_comparisons_idxs(:,2),:),assembled_data,'UniformOutput',false);
     right_clust_data = cell2mat(right_clust_data);
 
+     %now get the average shortest distance between the 2 channels
+    avg_shortest_path = get_shortest_path_feature(current_noise_levels,current_comparisons_idxs,1,probe_graph,x,y);
+
     %calculate the overlap for all the comparisons
     overlap_array = zeros(size(current_comparisons_idxs,1),1);
     current_noise_levels_parallel = parallel.pool.Constant(current_noise_levels);
@@ -152,11 +155,11 @@ for i=1:length(noise_levels)
     end
 
     %now combine the overlap features and true classes of the data
-    all_nn_data = [left_clust_data,right_clust_data,overlap_array,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)]];
+    all_nn_data = [left_clust_data,right_clust_data,overlap_array,avg_shortest_path,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)]];
 
     %flip the clusters in order to ensure the neural network doesn't learn
     %one side too much
-    all_nn_data = [right_clust_data,left_clust_data,overlap_array,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)];all_nn_data];
+    all_nn_data = [right_clust_data,left_clust_data,overlap_array,avg_shortest_path,[zeros(number_of_comparisons_per_class,1);ones(number_of_comparisons_per_class,1)];all_nn_data];
     %shuffle the data
     all_nn_data = equalize_classes(all_nn_data);
 

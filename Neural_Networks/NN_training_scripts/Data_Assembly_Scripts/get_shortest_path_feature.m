@@ -39,6 +39,7 @@ for i=1:size(comparisons,1)
         end
     end
     shortest_path_col(i) = mean(matrix_of_distances,"all");
+    fprintf("%i/%i avg dist: %.2f\n",i,size(comparisons,1),shortest_path_col(i));
 end
 
 
