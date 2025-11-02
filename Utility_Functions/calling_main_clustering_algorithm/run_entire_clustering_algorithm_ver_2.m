@@ -190,7 +190,19 @@ if ~isfile(fullfile(precomputed_dir,"finished_adding_mw.txt"))
     fclose(file_id);
 else
     disp("Mean waveforms have already been added to your blind pass table. Skipping getting.");
-    disp("To regrade, delete finished_adding_mw.txt");
+    disp("To overwrite current waveforms, delete finished_adding_mw.txt");
+end
+
+% Add the mean wavefrom by stds from cluster center
+if ~isfile(fullfile(precomputed_dir,"finished_adding_mw_by_stds.txt"))
+    blind_pass_table = add_mean_wf_based_in_std_from_cluster_center(blind_pass_table,config);
+    par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
+    file_name = "finished_adding_mw_by_stds.txt";
+    file_id = fopen(fullfile(precomputed_dir,file_name),'w');
+    fclose(file_id);
+else
+    disp("Mean Waveforms by std have already been added to your blind pass table. Skipping getting");
+    disp("to overwrite current mean waveforms by std, delete finished_adding_mw_by_stds.txt");
 end
 
 %step 15: add the neuron or MUA or not col
