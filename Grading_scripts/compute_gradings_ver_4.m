@@ -60,7 +60,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
     "likeliness of burst","compare wire","2nd compare wire","avg compare wire cluster z score","SNR by dimensions","SNR based on 2 Compare Wires", "Mean Spike Amplitude Per Channel","Mean Z Score Per Channel Cluster Only","Channels",...
     "Mean Z Score Per Channel all spikes in config","compare wire Mean z score Cluster Only","Compare Mean Z Score All Spikes In Config","Compare Wire Mean Amp"];  
     num_clusters = length(clusters);
-    grades = cell(num_clusters, 64);
+    grades = cell(num_clusters, 66);
     
    
     total_raw_spikes = 1:size(aligned, 2);
@@ -395,6 +395,9 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             %grade 64 will be the bin counts of a histogram
             grades{k,64} = get_bin_counts_per_rep_wire(peaks,size(channels,2));
             
+            %grade 65 will be the cv of the first valley
+            %grade 66 will be the cv of the second valley
+            [grades{k,65},grades{k,66}] = calculate_cv_of_valleys(spikes);
            
 
     end
