@@ -15,6 +15,11 @@ for i=1:size(spikes,1)
     flattened_spikes = squeeze(spikes(i,:,:));
     [~,idx] = max(flattened_spikes,[],2);
 
+    disp("/////////////////////////////////")
+    disp("Size of flattened spikes")
+    disp(size(flattened_spikes))
+    disp()
+    disp("///////////////////////////////////////")
     first_half_of_all_spikes = flattened_spikes(:,1:idx);
     
     end_of_second_half_of_all_spikes = min([idx+50,repelem(size(flattened_spikes,2),size(idx,1),1)],[],2);

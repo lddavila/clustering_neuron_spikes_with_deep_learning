@@ -29,7 +29,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     tetrode_number = split(current_tetrode,"t");
     tetrode_number = str2double(tetrode_number(2));
     current_z_score = current_data{1,"Z Score"};
-    fprintf("Currently grading %s with z score %i\n",current_tetrode,current_z_score);
+    % fprintf("Currently grading %s with z score %i\n",current_tetrode,current_z_score);
     dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
     grades_file_name =fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
 
@@ -105,7 +105,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     end
     grades_table{i} = grades_and_grades_fp_table;
     %disp(grades_and_grades_fp_table{:,"grades"});
-    disp("################################################")
+    % disp("################################################")
     send(q,[])
 
 end
