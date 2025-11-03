@@ -71,7 +71,7 @@ cd(dir_to_save_results_to);
 %computing the overlap feature can be very expensive
 %0 = not groupable AKA do not represent the same underlying neuron
 %1 = is groupable AKAK does represent the same underlying neuron
-number_of_comparisons_per_class = 10000;
+
 cell_array_of_trained_nets = cell(1,length(noise_levels));
 cell_array_of_mus = cell(1,length(noise_levels));
 cell_array_of_sig = cell(1,length(noise_levels)); 
@@ -107,6 +107,8 @@ for i=1:1.5%length(noise_levels)
     val_class_1_comparisons = find(is_same_neuron_val);
     val_class_0_comparisons = find(~is_same_neuron_val);
 
+    number_of_comparisons_per_class = min([10000,length(comparisons_with_class_1),length(val_class_1_comparisons)]);
+
     randomly_selected_class_1 = randperm(length(comparisons_with_class_1),number_of_comparisons_per_class);
     randomly_selected_class_0 = randperm(length(comparisons_with_class_0),number_of_comparisons_per_class);
 
@@ -120,7 +122,7 @@ for i=1:1.5%length(noise_levels)
 
 
 
-    list_of_features_to_add = ["peak_caps 1","peak_caps 2","peak_caps 3","peak_caps 4","size"];
+    list_of_features_to_add = ["peak_caps 1","peak_caps 2","peak_caps 3","peak_caps 4","size","grades 2"];
     assembled_data = assemble_data_for_neural_net(list_of_features_to_add,current_noise_level_data,config);
     assembled_val_data = assemble_data_for_neural_net(list_of_features_to_add,val_noise_level_data,config);
 
@@ -254,7 +256,6 @@ for i=1:1.5%length(noise_levels)
     %get the NN data out of current_noise_levels
     %we won't normalize here because the raw values have significant meaning
     %i.e. microvolts and bin count
-    list_of_features_to_add = ["peak_caps 1","peak_caps 2","peak_caps 3","peak_caps 4"];
     assembled_data = assemble_data_for_neural_net(list_of_features_to_add,current_noise_level_data,config);
 
     %now get the rows of assembled data that represent the left and

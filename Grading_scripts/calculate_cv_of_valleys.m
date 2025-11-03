@@ -13,23 +13,32 @@ for i=1:size(spikes,1)
     %find the max of every spike
     %the first valley is located at the min of every spike before the peak
     flattened_spikes = squeeze(spikes(i,:,:));
-    [~,idx] = max(flattened_spikes,[],2);
+    [~,idx_of_peak] = max(flattened_spikes,[],2);
 
+    %get indexes for all the columns
+    all_col_idxs = 1:size(flattened_spikes,2);
     disp("/////////////////////////////////")
     disp("Size of flattened spikes")
     disp(size(flattened_spikes))
     disp("///////////////////////////////////////")
-    first_half_of_all_spikes = flattened_spikes(:,1:idx);
+
+    masked_left = all_col_idxs <= idx_of_peak;
+    first_half_of_all_spikes = flattened_spikes;
+    first_half_of_all_spikes(~masked_left) = +inf;
     
-    end_of_second_half_of_all_spikes = min([idx+50,repelem(size(flattened_spikes,2),size(idx,1),1)],[],2);
-    second_half_of_all_spikes = flattened_spikes(:,idx+1:end_of_second_half_of_all_spikes);
+    end_of_second_half_of_all_spikes = min([idx_of_peak+50,repelem(size(flattened_spikes,2),size(idx_of_peak,1),1)],[],2);
+    mask_for_right = (all_col_idxs >= (idx_of_peak+1)) & (all_col_idxs <= end_of_second_half_of_all_spikes);
+    second_half_of_all_spikes = flattened_spikes;
+    second_half_of_all_spikes(~mask_for_right) = +inf;
 
     %now find the cv of the first valleys
     valley_1 = min(first_half_of_all_spikes,[],2);
+    valley_1(isinf(valley_1)) = nan;
     valley_1_cv(i) = std(valley_1) / mean(abs(valley_1));
 
     %now do the same for the cv of the second set of vallyes
     valley_2 = min(second_half_of_all_spikes,[],2);
+    valley_2(isinf(valley_2))= nan;
     valley_2_cv(i) = std(valley_2) / mean(abs(valley_2));
 
 
