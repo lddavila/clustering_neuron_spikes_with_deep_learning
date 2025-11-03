@@ -17,10 +17,10 @@ for i=1:size(spikes,1)
 
     %get indexes for all the columns
     all_col_idxs = 1:size(flattened_spikes,2);
-    disp("/////////////////////////////////")
-    disp("Size of flattened spikes")
-    disp(size(flattened_spikes))
-    disp("///////////////////////////////////////")
+    % disp("/////////////////////////////////")
+    % disp("Size of flattened spikes")
+    % disp(size(flattened_spikes))
+    % disp("///////////////////////////////////////")
 
     masked_left = all_col_idxs <= idx_of_peak;
     first_half_of_all_spikes = flattened_spikes;
