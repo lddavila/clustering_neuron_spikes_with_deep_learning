@@ -1,4 +1,4 @@
-function [] = switch_case_training_with_distance(varargin)
+function [] = switch_case_training_peak_caps_and_distance(varargin)
 %tries to mind a general method to determine if the 2 clusters are the
 %same or not for clusters that are on the same noise level
 %-has the average path length between channels feature (as calculated by a
@@ -254,7 +254,7 @@ for i=1:1.5%length(noise_levels)
     %get the NN data out of current_noise_levels
     %we won't normalize here because the raw values have significant meaning
     %i.e. microvolts and bin count
-    list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","size"];
+    list_of_features_to_add = ["peak_caps 1","peak_caps 2","peak_caps 3","peak_caps 4"];
     assembled_data = assemble_data_for_neural_net(list_of_features_to_add,current_noise_level_data,config);
 
     %now get the rows of assembled data that represent the left and

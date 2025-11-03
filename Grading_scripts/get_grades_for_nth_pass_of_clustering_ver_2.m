@@ -2,8 +2,12 @@ function [blind_pass_table] = get_grades_for_nth_pass_of_clustering_ver_2(blind_
 
 % run_grading_script_on_blind_pass
 draw_elipse_templates(config);
+%update paths on the blind pass table
+blind_pass_table = update_fpths(blind_pass_table,config);
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[]);
 debug = 0;
+
+
 
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 num_iterations = size(sliced_blind_pass_table,1);
@@ -15,14 +19,17 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
 parfor i=1:size(sliced_blind_pass_table,1)
+    
     %disp("Starting grading")
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
+    
 
 
     tetrode_number = split(current_tetrode,"t");
     tetrode_number = str2double(tetrode_number(2));
     current_z_score = current_data{1,"Z Score"};
+    fprintf("Currently grading %s with z score %i\n",current_tetrode,current_z_score);
     dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
     grades_file_name =fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
 
@@ -92,12 +99,13 @@ parfor i=1:size(sliced_blind_pass_table,1)
         grades_and_grades_fp_table{k,"grades"} = {grades(k,:)};
         grades_and_grades_fp_table{k,"fp_to_grades"} = fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
     end
-    variables_from_original_data = string(current_data.Properties.VariableNames);
+    variables_from_original_data = setdiff(string(current_data.Properties.VariableNames),"grades");
     for k=1:size(variables_from_original_data,2)
         grades_and_grades_fp_table.(variables_from_original_data(k)) = repelem(current_data{1, variables_from_original_data(k)},size(grades_and_grades_fp_table,1),1);
     end
     grades_table{i} = grades_and_grades_fp_table;
     %disp(grades_and_grades_fp_table{:,"grades"});
+    disp("################################################")
     send(q,[])
 
 end

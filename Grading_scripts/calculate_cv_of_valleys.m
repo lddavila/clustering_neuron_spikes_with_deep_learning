@@ -16,7 +16,9 @@ for i=1:size(spikes,1)
     [~,idx] = max(flattened_spikes,[],2);
 
     first_half_of_all_spikes = flattened_spikes(:,1:idx);
-    second_half_of_all_spikes = flattened_spikes(:,idx+1:idx+50);
+    
+    end_of_second_half_of_all_spikes = min([idx+50,repelem(size(flattened_spikes,2),size(idx,1),1)],[],2);
+    second_half_of_all_spikes = flattened_spikes(:,idx+1:end_of_second_half_of_all_spikes);
 
     %now find the cv of the first valleys
     valley_1 = min(first_half_of_all_spikes,[],2);
