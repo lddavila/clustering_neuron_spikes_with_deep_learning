@@ -18,7 +18,6 @@ for i=1:size(spikes,1)
     disp("/////////////////////////////////")
     disp("Size of flattened spikes")
     disp(size(flattened_spikes))
-    disp()
     disp("///////////////////////////////////////")
     first_half_of_all_spikes = flattened_spikes(:,1:idx);
     

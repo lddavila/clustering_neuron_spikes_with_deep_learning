@@ -8,5 +8,5 @@ mean_waveform_array = cell2mat(blind_pass_table{:,which_waveform_string});
 [peak_val,peak_idx] = max(mean_waveform_array,[],2);
 
 %now get 10 dpts to the left of the peak and 10 to the right
-peak_caps = mean_waveform_array(:,peak_idx-10:peak_idx+1);
+peak_caps = mean_waveform_array(:,peak_idx-10:peak_idx+10);
 end

@@ -120,7 +120,7 @@ for i=1:1.5%length(noise_levels)
 
 
 
-    list_of_features_to_add = ["mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","size"];
+    list_of_features_to_add = ["peak_caps 1","peak_caps 2","peak_caps 3","peak_caps 4","size"];
     assembled_data = assemble_data_for_neural_net(list_of_features_to_add,current_noise_level_data,config);
     assembled_val_data = assemble_data_for_neural_net(list_of_features_to_add,val_noise_level_data,config);
 
