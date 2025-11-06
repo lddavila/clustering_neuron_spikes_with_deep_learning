@@ -1,4 +1,4 @@
-function [] = switch_case_training_peak_caps_and_distance(varargin)
+function [] = switch_case_training_peak_caps_and_distance_no_per_rec_split(varargin)
 %tries to find a general method to determine if the 2 clusters are the
 %same or not for clusters that are on the same noise level
 %-has the average path length between channels feature (as calculated by a
@@ -30,7 +30,7 @@ if contains(config.base_file_path,"afriedman")
 end
 
 %create a directory where the results will be saved
-dir_to_save_results_to = fullfile(parent_save_dir,"switch_case_extra_part_and_pth");
+dir_to_save_results_to = fullfile(parent_save_dir,"switch_case_extra_part_and_pth_no_by_recording_split");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);
 end
@@ -46,7 +46,7 @@ else
 end
 
 %partition the tables by the underlying neurons to prevent data leakage
-partitioned_mixed = partition_bp_tables(blind_pass_table);
+partitioned_mixed = partition_bp_tables(blind_pass_table,0);
 disp("Finished loading blind pass table")
 
 
@@ -86,7 +86,7 @@ for i=1:1.5%length(noise_levels)
 
     %paritition the data again in order to ensure that validation doesn't
     %rely on memorizing comparisons for mergability
-    partitioned_noise_level_data = partition_bp_tables(current_noise_level_data);
+    partitioned_noise_level_data = partition_bp_tables(current_noise_level_data,0);
 
     current_noise_level_data = partitioned_noise_level_data{1,1};
     val_noise_level_data = partitioned_noise_level_data{1,2};
@@ -97,8 +97,8 @@ for i=1:1.5%length(noise_levels)
 
 
     %get the class of every row of comparisons
-    is_same_neuron = current_noise_level_data{all_comparisons(:,1),"Max_Overlap_Unit"} == current_noise_level_data{all_comparisons(:,2),"Max_Overlap_Unit"};
-    is_same_neuron_val = val_noise_level_data{all_val_comparisons(:,1),"Max_Overlap_Unit"} == val_noise_level_data{all_val_comparisons(:,2),"Max_Overlap_Unit"};
+    is_same_neuron = current_noise_level_data{all_comparisons(:,1),"Max_Overlap_Unit"} == current_noise_level_data{all_comparisons(:,2),"Max_Overlap_Unit"} & current_noise_level_data{all_comparisons(:,1),"recording_name"} == current_noise_level_data{all_comparisons(:,2),"recording_name"};
+    is_same_neuron_val = val_noise_level_data{all_val_comparisons(:,1),"Max_Overlap_Unit"} == val_noise_level_data{all_val_comparisons(:,2),"Max_Overlap_Unit"} & val_noise_level_data{all_val_comparisons(:,1),"recording_name"} == val_noise_level_data{all_val_comparisons(:,2),"recording_name"};
 
     %randomly sample each class specified in
     %number_of_comparisons_per_class
@@ -139,7 +139,7 @@ for i=1:1.5%length(noise_levels)
     right_clust_data_val = cell2mat(right_clust_data_val);
 
     %calculate the overlap for all the comparisons
-    overlap_array = zeros(size(current_comparisons_idxs,1),1);
+    overlap_array = zeros(size(left_clust_data,1),1);
     current_noise_levels_parallel = parallel.pool.Constant(current_noise_level_data);
     current_comparisons_idxs_parallel = parallel.pool.Constant(current_comparisons_idxs);
     config_parallel = parallel.pool.Constant(config);
