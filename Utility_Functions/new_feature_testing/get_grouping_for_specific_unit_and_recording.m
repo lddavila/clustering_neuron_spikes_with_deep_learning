@@ -1,11 +1,15 @@
-function [tracked_faliures] = get_grouping_for_specific_unit_and_recording()
+function [tracked_faliures] = get_grouping_for_specific_unit_and_recording(varargin)
 home_dir = cd("..");
 cd("..");
 addpath(genpath(pwd));
 cd(home_dir);
 config = spikesort_config();
-blind_pass_table = importdata(config.FP_TO_MASTER_TRAINING_BP_TABLE);
-unit = unique(blind_pass_table{:,"Max_Overlap_Unit"});
+if length(varargin)<1
+    blind_pass_table = importdata(config.FP_TO_MASTER_TRAINING_BP_TABLE);
+else
+    blind_pass_table = varargin{1};
+end
+unit = unique(blind_pass_table{:,"Max_Overlap_Unit"}).';
 
 unique_recording_list = unique(blind_pass_table{:,"recording_name"});
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"get_grouping_fails"));
