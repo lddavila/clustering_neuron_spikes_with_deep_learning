@@ -5,7 +5,7 @@ addpath(genpath(pwd));
 cd(home_dir);
 config = spikesort_config();
 blind_pass_table = importdata(config.FP_TO_MASTER_TRAINING_BP_TABLE);
-unit = unique(blind_pass_table{:,"Max_Overlap_unit"});
+unit = unique(blind_pass_table{:,"Max_Overlap_Unit"});
 
 unique_recording_list = unique(blind_pass_table{:,"recording_name"});
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"get_grouping_fails"));
