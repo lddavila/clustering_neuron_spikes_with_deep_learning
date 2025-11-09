@@ -1,4 +1,4 @@
-function [grouped_clusters] = logical_grouping(blind_pass_table,config)
+function [grouped_clusters,failed_grouping] = logical_grouping(blind_pass_table,config,track_failed_grouping)
 %the goal of this function is to group the clusters using logic instead of a neural network
 
 %build arrray to identify which clusters are already grouped
@@ -18,6 +18,8 @@ locations = get_probe_xy();
 %blind_pass_table
 grouped_clusters = cell(size(blind_pass_table,1),1);
 group_tracker = 1;
+
+failed_grouping = [];
 for i=1:size(blind_pass_table,1)
     %check to ensure that the current cluster hasn't been grouped
     if is_grouped(i) 
@@ -91,7 +93,7 @@ for i=1:size(blind_pass_table,1)
         other_z_scores = blind_pass_table{to_add_to_group,"Z Score"} == cluster_2{1,"Z Score"};
         other_tetrodes = (blind_pass_table{to_add_to_group,"Tetrode"} == cluster_2{1,"Tetrode"}).';
         has_match = (other_z_scores == other_tetrodes);
-        if (sum(has_match,"all")>0) && (overlap <= 0.5)
+        if (sum(has_match,"all")>0) && (overlap <= 0.1)
             send(q,[]);
             continue;
         end
@@ -107,7 +109,7 @@ for i=1:size(blind_pass_table,1)
         end
         %if they have channels in common and have the same wire then it's
         %highly likely these represent the same neuron
-        if have_same_rep_wire 
+        if have_same_rep_wire && overlap >0.03
             is_mergable = true;
         end
 
@@ -120,13 +122,65 @@ for i=1:size(blind_pass_table,1)
         within_euc_dist_range = rep_wire_norm <= 40;
         
 
-        if within_euc_dist_range && overlap >0.30
+        %if you are within the euclidean distance range then we expect a
+        %higher overlap
+        %we have to allow for lower overlap ranges as the euclidean
+        %distances get further (within reason)
+        if within_euc_dist_range && overlap > .45
+            is_mergable =true;
+        end
+        if rep_wire_norm > 50 && overlap >.40
             is_mergable = true;
         end
-        
+        if rep_wire_norm > 60 && overlap >.30
+            is_mergable = true;
+        end
+        if rep_wire_norm > 70 && overlap >.20
+            is_mergable = true;
+        end
+        if rep_wire_norm > 80 && overlap >.10
+            is_mergable = true;
+        end
+
+
         if is_mergable
+            %we make this a nested if statement because if you do not track
+            %failed groupings it is assumed that you do not have the max
+            %overlap unit col in your table since it is not a simulated
+            %recording and this structure prevents the error of trying to
+            %access a variable that doesn't exist
+            if track_failed_grouping
+                if cluster_1{1,"Max_Overlap_Unit"}~=cluster_2{1,"Max_Overlap_Unit"}
+                    fprintf("\n")
+                    disp(cluster_1(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
+                    disp(cluster_2(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
+                    fprintf("overlap:%.2f\n",overlap);
+                    fprintf("euc dist:%.2f\n",rep_wire_norm);
+                    disp("improper merge")
+                    failed_grouping = [failed_grouping,[cluster_1{1,"Max_Overlap_Unit"},cluster_2{1,"Max_Overlap_Unit"}]];
+                end
+            end
             to_add_to_group = [to_add_to_group;cluster_2{1,"og_idx"}];
             fprintf("");
+            send(q,[]);
+            continue;
+        end
+
+        %we make this a nested if statement because if you do not track
+        %failed groupings it is assumed that you do not have the max
+        %overlap unit col in your table since it is not a simulated
+        %recording and this structure prevents the error of trying to
+        %access a variable that doesn't exist
+        if track_failed_grouping
+            if ~is_mergable && cluster_1{1,"Max_Overlap_Unit"}==cluster_2{1,"Max_Overlap_Unit"}
+                fprintf("\n")
+                disp(cluster_1(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
+                disp(cluster_2(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
+                fprintf("overlap:%.2f\n",overlap);
+                fprintf("euc dist:%.2f\n",rep_wire_norm);
+                disp("Failed to merge");
+                failed_grouping = [failed_grouping,cluster_1{1,"Max_Overlap_Unit"}];
+            end
         end
         send(q,[]);
     end
