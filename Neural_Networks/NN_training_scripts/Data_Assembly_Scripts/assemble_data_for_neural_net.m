@@ -28,6 +28,10 @@ for i=1:size(list_of_features_to_add,2)
          assembled_data{i} = cell2mat(temp_data(:,config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
     elseif contains(current_feature,"peak_caps")
         assembled_data{i} = get_caps_of_peaks(blind_pass_table,current_feature);
+    elseif contains(current_feature,"rep_wire")
+        [assembled_data{i},~] = get_rep_wire_for_every_cluster(blind_pass_table);
+    elseif contains(current_feature,"channels")
+        [~,assembled_data{i}] = get_rep_wire_for_every_cluster(blind_pass_table); 
     end
 end
 

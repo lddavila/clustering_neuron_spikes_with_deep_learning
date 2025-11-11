@@ -98,6 +98,9 @@ for i=1:size(blind_pass_table,1)
             continue;
         end
 
+        %get the euclidean distance between the 2 cluster mean waveforms
+       euc_dist_between_waveforms = norm(cluster_1{:,"mean_waveform_rep_wire_1"}{1} - cluster_2{:,"mean_waveform_rep_wire_1"}{1});
+
 
         %if they have channels in common then they should have the same rep
         %wire assuming they are the same
@@ -119,29 +122,34 @@ for i=1:size(blind_pass_table,1)
         %we'll figure out the distance between the rep channels
         loc_of_2_rep_wires = [locations_parallel.Value(cluster_1_channels(cluster_1_grades{42}),:) ; locations_parallel.Value(cluster_2_channels(cluster_2_grades{42}),:)] ;
         rep_wire_norm = norm(loc_of_2_rep_wires(1,:) - loc_of_2_rep_wires(2,:));
-        within_euc_dist_range = rep_wire_norm <= 40;
         
 
-        %if you are within the euclidean distance range then we expect a
-        %higher overlap
+        %if your eucliden distance (in micrometers is very low then we
+        %expect higher overlay)
         %we have to allow for lower overlap ranges as the euclidean
         %distances get further (within reason)
-        if within_euc_dist_range && overlap > .45
+        if rep_wire_norm <= 40 && overlap > .45
             is_mergable =true;
         end
         if rep_wire_norm > 50 && overlap >.40
             is_mergable = true;
         end
-        if rep_wire_norm > 60 && overlap >.30
+        if rep_wire_norm > 60 && overlap >.30 && euc_dist_between_waveforms < 70
             is_mergable = true;
         end
         if rep_wire_norm > 70 && overlap >.20
             is_mergable = true;
         end
-        if rep_wire_norm > 80 && overlap >.10
+        if rep_wire_norm > 80 && overlap >.10 && rep_wire_norm < 100
             is_mergable = true;
         end
 
+        %if we cannot get mergability based off of the euclidean distance
+        %of the channels and overlap we'll then try to get it with just the
+        %euclidean distance between the average wavefrosm
+        if euc_dist_between_waveforms < 120 && overlap>=0.26
+            is_mergable = true;
+        end
 
         if is_mergable
             %we make this a nested if statement because if you do not track
@@ -155,8 +163,9 @@ for i=1:size(blind_pass_table,1)
                     disp(cluster_1(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
                     disp(cluster_2(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
                     fprintf("overlap:%.2f\n",overlap);
-                    fprintf("euc dist:%.2f\n",rep_wire_norm);
+                    fprintf("rep wire norm:%.2f\n",rep_wire_norm);
                     disp("improper merge")
+                    fprintf("euc dist between rep wire wf: %.2f\n",euc_dist_between_waveforms)
                     failed_grouping = [failed_grouping,[cluster_1{1,"Max_Overlap_Unit"},cluster_2{1,"Max_Overlap_Unit"}]];
                 end
             end
@@ -177,7 +186,8 @@ for i=1:size(blind_pass_table,1)
                 disp(cluster_1(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
                 disp(cluster_2(:,["Tetrode","Z Score","Cluster","Max_Overlap_Unit","accuracy"]))
                 fprintf("overlap:%.2f\n",overlap);
-                fprintf("euc dist:%.2f\n",rep_wire_norm);
+                fprintf("rep wire norm:%.2f\n",rep_wire_norm);
+                fprintf("euc dist between rep wire wf: %2f\n",euc_dist_between_waveforms)
                 disp("Failed to merge");
                 failed_grouping = [failed_grouping,cluster_1{1,"Max_Overlap_Unit"}];
             end
