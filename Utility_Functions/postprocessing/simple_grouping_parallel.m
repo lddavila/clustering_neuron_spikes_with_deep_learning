@@ -150,7 +150,7 @@ for i=1:size(blind_pass_table,1)
         %AKA 50/50 chance or something akin
         %we'll default to not merging as we care more about false merges
 
-        if abs(scores(1)-scores(2)) <20
+        if abs(scores(1)-scores(2)) <.20
             send(q,[]);
             continue;
         end
