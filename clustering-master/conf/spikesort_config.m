@@ -213,7 +213,7 @@ config.FP_TO_MASTER_TRAINING_BP_TABLE =fullfile(config.base_file_path,"Data","mi
 
 config.USE_SMART_EXPANSION_VER_2 = false;
 
-config.FP_TO_SIMPLE_GROUP_OR_DONT_NN = fullfile(config.base_file_path,"Neural_Networks","simplest_group_or_dont_nn","simplest_group_or_dont.mat");
+config.FP_TO_SIMPLE_GROUP_OR_DONT_NN = fullfile(config.base_file_path,"Neural_Networks","simplest_group_or_dont_no_size","simplest_group_or_dont.mat");
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

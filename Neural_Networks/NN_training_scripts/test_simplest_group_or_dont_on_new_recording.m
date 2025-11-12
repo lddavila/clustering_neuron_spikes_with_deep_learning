@@ -1,4 +1,4 @@
-function [] = test_simplest_group_or_dont_on_new_recording(test_data,number_of_comparisons_per_class,fp_to_net)
+function [faliure_metrics] = test_simplest_group_or_dont_on_new_recording(test_data,number_of_comparisons_per_class,fp_to_net)
 config = spikesort_config();
 
 %get the x,y locations of the channels on the probe
@@ -55,8 +55,8 @@ test_euc_distance_between_rep_wires = vecnorm(rep_wire_for_left_clust_test_data_
 
 %now assemble the test data
 %training_data = [training_overlap,training_euc_distance_between_rep_wires,training_euc_distance_between_rep_wfs,training_left_col_size,training_right_col_size];
-test_data = [test_overlap,test_euc_distance_between_rep_wires,test_euc_distance_between_rep_wfs,test_left_clust_size,test_right_clust_size];
-
+%OG LINE test_data = [test_overlap,test_euc_distance_between_rep_wires,test_euc_distance_between_rep_wfs,test_left_clust_size,test_right_clust_size];
+test_data = [test_overlap,test_euc_distance_between_rep_wires,test_euc_distance_between_rep_wfs];
 %append the true class to the end of the test data
 test_data = [test_data,[test_true_class(all_test_idxs)]];
 
@@ -72,4 +72,24 @@ accuracy = sum(YPred==test_data(:,end))/size(test_data,1);
 
 %print out a statement to reflect accuracy
 fprintf("Accuracy on test data: %.2f",accuracy*100);
+
+%Faliure break down
+rows_where_the_net_failed = find(YPred ~= test_data(:,end));
+
+
+faliure_metrics = cell2table(cell(0,5),'VariableNames',["waveform_diff","dist_btwn_rep_wires","overlap","failure_type","probabilities"]);
+
+%test_data = [test_overlap,test_euc_distance_between_rep_wires,test_euc_distance_between_rep_wfs,test_left_clust_size,test_right_clust_size];
+for i=1:length(rows_where_the_net_failed)
+    f_idx = rows_where_the_net_failed(i);
+    if test_data(f_idx,end)== 1
+        faliure_type = "failed to merge";
+    else
+        faliure_type = "improperly merges";
+    end
+    probabilities = scores(f_idx,:);
+    %OG LINE: current_row = table(test_data(f_idx,3),test_data(f_idx,2),test_data(f_idx,4),test_data(f_idx,5),test_data(f_idx,1),faliure_type,'VariableNames',["waveform_diff","dist_btwn_rep_wires","left_cluster_size","right_cluster_size","overlap","failure_type"]);
+    current_row = table(test_data(f_idx,3),test_data(f_idx,2),test_data(f_idx,1),faliure_type,probabilities,'VariableNames',["waveform_diff","dist_btwn_rep_wires","overlap","failure_type","probabilities"]);
+    faliure_metrics = [faliure_metrics;current_row];
+end
 end
