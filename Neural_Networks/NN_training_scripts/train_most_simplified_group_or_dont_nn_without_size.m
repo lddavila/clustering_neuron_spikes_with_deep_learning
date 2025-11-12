@@ -126,7 +126,7 @@ for i=1:size(training_overlap,1)
     cluster_2_ts = training_data{all_training_comparisons(all_training_idxs(i),2),"timestamps"}{1};
     [training_overlap(i),~,~]=find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config.TIME_DELTA);
 end
-
+training_overlap = training_overlap * 100;
 %now get the overlap for all the validation data
 validation_overlap = nan(length(all_val_idxs),1);
 for i=1:length(validation_overlap)
@@ -134,6 +134,7 @@ for i=1:length(validation_overlap)
     cluster_2_ts = val_data{all_valdiation_comparisons(all_val_idxs(i),2),"timestamps"}{1};
     [validation_overlap(i),~,~] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config.TIME_DELTA);
 end
+validation_overlap = validation_overlap * 100;
 
 %now get the euclidean distance between the training data rep wire
 %comparisons
@@ -240,7 +241,7 @@ for i=1:length(test_overlap)
     cluster_2_ts = test_data{all_test_comparisons(all_test_idxs(i),2),"timestamps"}{1};
     [test_overlap(i),~,~]=find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config.TIME_DELTA);
 end
-
+test_overlap = test_overlap * 100;
 %now get the euclidean distance from the rep wires of all the test comparisons
 rep_wire_for_left_clust_test_data = test_assembled_data{3}(all_test_comparisons(all_test_idxs,1));
 rep_wire_for_left_clust_test_data_loc = locations(rep_wire_for_left_clust_test_data,:);

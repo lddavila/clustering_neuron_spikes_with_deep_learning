@@ -15,7 +15,7 @@ if isfield(info,'ValidationAccuracy') && ~isempty(info.ValidationAccuracy) && ~i
         acc = acc / 100;
     end
 
-    if acc >= .98
+    if acc >= .991
         consecutive = consecutive + 1;
     else
         consecutive = 0;

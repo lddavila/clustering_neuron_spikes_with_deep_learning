@@ -53,8 +53,8 @@ for i=1:size(blind_pass_table,1)
         cluster_1_ts = cluster_1{1,"timestamps"}{1};
         cluster_2_ts = cluster_2{1,"timestamps"}{1};
         [overlap,~,~]=find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config_parallel.Value.TIME_DELTA);
-
-        if overlap <=0.01
+        overlap = overlap * 100;
+        if overlap <=5
             send(q,[]);
             if (cluster_2{1,"Max_Overlap_Unit"} == cluster_1{1,"Max_Overlap_Unit"})
                 disp("false skip")
@@ -145,6 +145,15 @@ for i=1:size(blind_pass_table,1)
 
         %get predicted class
         scores = predict(net,nn_data);
+
+        %if the absolute difference between the probabilities is very low
+        %AKA 50/50 chance or something akin
+        %we'll default to not merging as we care more about false merges
+
+        if abs(scores(1)-scores(2)) <20
+            send(q,[]);
+            continue;
+        end
         [~,YPred] = max(scores,[],2);
         YPred = YPred-1;
 

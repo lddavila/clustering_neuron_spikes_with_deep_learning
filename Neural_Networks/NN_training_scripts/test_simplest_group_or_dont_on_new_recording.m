@@ -45,6 +45,7 @@ for i=1:length(test_overlap)
     cluster_2_ts = test_data{all_test_comparisons(all_test_idxs(i),2),"timestamps"}{1};
     [test_overlap(i),~,~]=find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config.TIME_DELTA);
 end
+test_overlap = test_overlap * 100;
 
 %now get the euclidean distance from the rep wires of all the test comparisons
 rep_wire_for_left_clust_test_data = test_assembled_data{3}(all_test_comparisons(all_test_idxs,1));
