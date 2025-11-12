@@ -43,9 +43,12 @@ for i=1:size(blind_pass_table,1)
     afterEach(q,@print_status_bar)
     print_status_bar(sum(~is_grouped),"Created "+string(group_tracker)+" groups so far: logical_grouping.m")
 
+    false_skip_count = 0;
+    false_merge_count = 0;
+    failed_to_merge_count = 0;
 
     parfor j=1:length(possible_additions)
-        
+
         cluster_1 = bp_table_parallel.Value(i,:);
         cluster_2 = bp_table_parallel.Value(possible_additions(j),:);
 
@@ -57,7 +60,8 @@ for i=1:size(blind_pass_table,1)
         if overlap <=5
             send(q,[]);
             if (cluster_2{1,"Max_Overlap_Unit"} == cluster_1{1,"Max_Overlap_Unit"})
-                disp("false skip")
+                % disp("false skip")
+                false_skip_count = false_skip_count+1;
             end
             continue;
         end
@@ -90,53 +94,55 @@ for i=1:size(blind_pass_table,1)
         % cluster_1_size = cluster_1_assembled_data{2};
         % cluster_2_size = cluster_2_assembled_data{2};
 
-       %before we get to the neural network we need to to make some common
-       %sense checks to prevent merges that shouldn't even be considered
-       % very low overlap <1% indicates some of these cases
-       if overlap < 0.1
-           send(q,[])
-           if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
-               fprintf("\n")
-               disp("False skip")
-               fprintf("\n")
-           end
-           continue;
-       end 
-       if euc_distance_between_rep_wfs > 220
-           send(q,[])
-           if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
-               fprintf("\n")
-               disp("False skip")
-               fprintf("\n")
-           end
-           continue;
-       end 
+        %before we get to the neural network we need to to make some common
+        %sense checks to prevent merges that shouldn't even be considered
+        % very low overlap <1% indicates some of these cases
+        if overlap < 0.1
+            send(q,[])
+            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+                % fprintf("\n")
+                % disp("False skip")
+                % fprintf("\n")
+                false_skip_count = false_skip_count+1;
+            end
+            continue;
+        end
+        if euc_distance_between_rep_wfs > 220
+            send(q,[])
+            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+                % fprintf("\n")
+                % % disp("False skip")
+                % fprintf("\n")
+                false_skip_count = false_skip_count+1;
+            end
+            continue;
+        end
 
-       %if they share a rep wire then we expect a higher than average
-       %overlap, without a higher overlap then we assume it shouldn't be
-       %merged
-       % if rep_wire_for_left_clust_test_data == rep_wire_for_right_clust_test_data && overlap <0.5
-       %     send(q,[]);
-       %     if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
-       %         fprintf("\n")
-       %         disp("False skip")
-       %         fprintf("\n")
-       %     end
-       %     continue;
-       % end
+        %if they share a rep wire then we expect a higher than average
+        %overlap, without a higher overlap then we assume it shouldn't be
+        %merged
+        % if rep_wire_for_left_clust_test_data == rep_wire_for_right_clust_test_data && overlap <0.5
+        %     send(q,[]);
+        %     if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+        %         fprintf("\n")
+        %         disp("False skip")
+        %         fprintf("\n")
+        %     end
+        %     continue;
+        % end
 
-       %if you have a small euclidean distance between rep wires then we
-       %expect a higher overlap, if that doesn't happen then we skip
-       %merging
-       % if euc_distance_between_rep_wires < 40 && overlap < .30 && euc_distance_between_rep_wfs > 100
-       %     send(q,[]);
-       %     if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
-       %         fprintf("\n")
-       %         disp("False skip")
-       %         fprintf("\n")
-       %     end
-       %     continue;
-       % end
+        %if you have a small euclidean distance between rep wires then we
+        %expect a higher overlap, if that doesn't happen then we skip
+        %merging
+        % if euc_distance_between_rep_wires < 40 && overlap < .30 && euc_distance_between_rep_wfs > 100
+        %     send(q,[]);
+        %     if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+        %         fprintf("\n")
+        %         disp("False skip")
+        %         fprintf("\n")
+        %     end
+        %     continue;
+        % end
 
 
         %put all the data together for the neural network
@@ -150,8 +156,11 @@ for i=1:size(blind_pass_table,1)
         %AKA 50/50 chance or something akin
         %we'll default to not merging as we care more about false merges
 
-        if abs(scores(1)-scores(2)) <.20
+        if scores(2) < 0.86
             send(q,[]);
+            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+                false_skip_count = false_skip_count+1;
+            end
             continue;
         end
         [~,YPred] = max(scores,[],2);
@@ -159,18 +168,21 @@ for i=1:size(blind_pass_table,1)
 
         if YPred
             to_add_to_group = [to_add_to_group;cluster_2{1,"og_idx"}];
-            if blind_pass_table{cluster_2{1,"og_idx"},"Max_Overlap_Unit"} ~= cluster_1{1,"Max_Overlap_Unit"}
-                disp("false merge")
+            if bp_table_parallel.Value{cluster_2{1,"og_idx"},"Max_Overlap_Unit"} ~= cluster_1{1,"Max_Overlap_Unit"}
+                % disp("false merge")
+                false_merge_count = false_merge_count+1;
             end
         end
         if (cluster_2{1,"Max_Overlap_Unit"} == cluster_1{1,"Max_Overlap_Unit"}) && YPred==0
-                disp("failed to merge")
+            % disp("failed to merge")
+            failed_to_merge_count = failed_to_merge_count+1;
         end
         send(q,[]);
     end
 
     fprintf("\n");
     fprintf("Grouped %i clusters\n",length(to_add_to_group));
+    fprintf("Failed to merge %i clusters | Falsely skipped %i clusters | improperly merged %i clusters: \n",failed_to_merge_count,false_skip_count,false_merge_count);
     % now form the group
     grouped_clusters{group_tracker} = bp_table_parallel.Value(to_add_to_group,:);
 

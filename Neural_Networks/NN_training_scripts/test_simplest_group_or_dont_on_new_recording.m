@@ -93,4 +93,27 @@ for i=1:length(rows_where_the_net_failed)
     current_row = table(test_data(f_idx,3),test_data(f_idx,2),test_data(f_idx,1),faliure_type,probabilities,'VariableNames',["waveform_diff","dist_btwn_rep_wires","overlap","failure_type","probabilities"]);
     faliure_metrics = [faliure_metrics;current_row];
 end
+
+% y_true over ALL evaluated comparisons (1 = should merge, 0 = not)
+y_true_all   = test_data(:,end);        % last column you appended is GT
+p_merge_all  = scores(:,2);             % second column = P(merge)
+
+% Precision–Recall curve for the MERGE class (positive = 1)
+[rec, prec, T] = perfcurve(y_true_all, p_merge_all, 1, ...
+    'xCrit','reca','yCrit','prec');
+
+figure; plot(rec, prec, 'LineWidth', 2); grid on
+xlabel('Recall'); ylabel('Precision'); title('PR curve (merge class)')
+
+% Choose threshold for target precision
+targetPrecision = 0.95;
+idx = find(prec >= targetPrecision, 1, 'last');
+if isempty(idx)
+    warning('No threshold achieves %.2f precision. Max precision = %.3f', ...
+            targetPrecision, max(prec));
+    [~,idx] = max(prec);   % pick best available
+end
+tau = T(idx);
+fprintf('Use τ = %.3f (Precision %.3f, Recall %.3f)\n', tau, prec(idx), rec(idx));
+
 end
