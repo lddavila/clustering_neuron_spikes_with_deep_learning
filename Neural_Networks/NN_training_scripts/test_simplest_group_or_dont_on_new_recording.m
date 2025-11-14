@@ -29,6 +29,11 @@ all_test_idxs = [test_class_0_idxs,test_class_1_idxs];
 list_of_features_to_add = ["mean_waveform_rep_wire_1","size","rep_wire"];
 test_assembled_data = assemble_data_for_neural_net(list_of_features_to_add,test_data,config);
 
+%normalize the data
+for i=1:size(test_assembled_data{2},1)
+    test_assembled_data{2}(i,:) = rescale(test_assembled_data{2}(i,:));
+end
+
 %get the size of the left and right clusters
 test_left_clust_size = test_assembled_data{2}(all_test_comparisons(all_test_idxs,1));
 test_right_clust_size = test_assembled_data{2}(all_test_comparisons(all_test_idxs,2));
@@ -66,8 +71,10 @@ test_data = test_data(randperm(size(test_data,1),size(test_data,1)),:);
 
 %now test the trained neural network on never before seen comparisons
 scores = predict(net,test_data(:,1:end-1));
-[~,YPred] = max(scores,[],2);
-YPred = YPred-1;
+YPred =zeros(size(scores,1),1);
+YPred(scores(:,2)>=.95)= 1;
+% [~,YPred] = max(scores,[],2);
+% YPred = YPred-1;
 
 accuracy = sum(YPred==test_data(:,end))/size(test_data,1);
 
