@@ -74,8 +74,9 @@ for i=1:size(blind_pass_table,1)
         cluster_2_assembled_data = assemble_data_for_neural_net(list_of_features_to_add,cluster_2,config);
 
         %get the euclidean distance between cluster 1 & 2's rep waveforms
-        left_clust_wfs = cluster_1_assembled_data{1};
-        right_clust_wfs = cluster_2_assembled_data{1};
+        left_clust_wfs = rescale(cluster_1_assembled_data{1});
+
+        right_clust_wfs = rescale(cluster_2_assembled_data{1});
         euc_distance_between_rep_wfs = sqrt(sum((left_clust_wfs - right_clust_wfs).^2, 'all'));
 
         % if euc_distance_between_rep_wfs >70
@@ -156,7 +157,7 @@ for i=1:size(blind_pass_table,1)
         %AKA 50/50 chance or something akin
         %we'll default to not merging as we care more about false merges
 
-        if scores(2) < 0.86
+        if scores(2) < 0.95
             send(q,[]);
             if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
                 false_skip_count = false_skip_count+1;

@@ -17,7 +17,7 @@ unique_recordings = unique(blind_pass_table{:,"recording_name"});
 
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"simple_grouping_per_recording"));
 cd(dir_to_save_results_to);
-for i=2:length(unique_recordings)
+for i=1:length(unique_recordings)
     c1 = blind_pass_table{:,"recording_name"}== unique_recordings(i);
     c2 = blind_pass_table{:,"accuracy"} >10;
     grouped_clusters = simple_grouping_parallel(blind_pass_table(c1 & c2,:),config);
