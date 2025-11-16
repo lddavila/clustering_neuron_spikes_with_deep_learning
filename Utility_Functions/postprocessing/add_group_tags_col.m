@@ -95,8 +95,9 @@ parfor i=1:size(tags_mat,1)
         end
         % send(q,[]);
     end
+    sliced_tags_matrix{i} = all_group_tags;
     
     send(q,[]);
 end
-tags_mat = vertcat(sliced_tags_matrix);
+tags_mat = cell2mat(sliced_tags_matrix);
 end
