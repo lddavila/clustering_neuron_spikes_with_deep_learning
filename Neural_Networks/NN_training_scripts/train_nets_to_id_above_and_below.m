@@ -112,7 +112,7 @@ for i=1:length(thresholds)
         net_struct.net = net;
         net_struct.InputMax = col_max;
         net_struct.InputMin = col_min;
-        par_save("above_below_"+string(current_threshold)+".mat",net_struct);
+        par_save("above_below_"+string(current_threshold)+"accuracy_"+string(accuracy*100)+".mat",net_struct);
     else
         net_struct = importdata("above_below_"+string(current_threshold)+".mat");
         col_max = net_struct.InputMax;
@@ -145,7 +145,7 @@ for i=1:length(thresholds)
     accuracy = sum(YPred==test_data(:,end))/size(test_data,1);
 
     %print out a statement to reflect accuracy
-    fprintf("Accuracy on test data: %.2f",accuracy*100);
+    fprintf("Accuracy on test data: %.2f\n",accuracy*100);
 
 end
 end
