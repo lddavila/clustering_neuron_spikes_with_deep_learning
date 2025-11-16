@@ -13,8 +13,8 @@ dir_to_save_file_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile
 cd(dir_to_save_file_to);
 for i=1:size(list_of_all_cluster_groups,1)
     current_group = importdata(fullfile(list_of_all_cluster_groups{i,"folder"}{1},list_of_all_cluster_groups{i,"name"}{1}));
-    [~,tags_matrix] = add_group_tags_col(current_group,config);
-    par_save(list_of_all_cluster_groups{i,"name"},tags_matrix)
+    bp_table_with_tags = add_group_tags_col(current_group,config);
+    par_save(list_of_all_cluster_groups{i,"name"}{1},bp_table_with_tags)
 end
 
 end

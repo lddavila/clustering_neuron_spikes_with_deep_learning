@@ -1,4 +1,4 @@
-function [groups,tags_mat]= add_group_tags_col(groups,config)
+function [bp_table]= add_group_tags_col(groups,config)
 %the goal of this function is to try and enhance our groups formed by
 %simple_grouping_parallel.m 
 %we'll do this by cycling through the already members of the already formed groups and seeing if
@@ -55,7 +55,7 @@ parfor i=1:size(tags_mat,1)
         %if a cluster has already been confirmed to be combinable with
         %other groups then we don't need to continue to compare it against
         %more groups, it's already MUA
-        if sum(all_group_tags,"all") >2
+        if sum(all_group_tags,"all",'omitmissing') >2
             % send(q,[]);
             continue;
         end
@@ -100,4 +100,8 @@ parfor i=1:size(tags_mat,1)
     send(q,[]);
 end
 tags_mat = cell2mat(sliced_tags_matrix);
+for i=1:size(bp_table,1)
+    [~,new_group_tags] = find(tags_mat(i,:)==1);
+    bp_table{i,"group_tags"} = {new_group_tags};
+end
 end
