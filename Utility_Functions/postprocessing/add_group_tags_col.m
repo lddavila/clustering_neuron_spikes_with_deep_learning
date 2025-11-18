@@ -1,4 +1,4 @@
-function [bp_table]= add_group_tags_col(groups,config)
+function [new_groups]= add_group_tags_col(groups,config)
 %the goal of this function is to try and enhance our groups formed by
 %simple_grouping_parallel.m 
 %we'll do this by cycling through the already members of the already formed groups and seeing if
@@ -104,4 +104,6 @@ for i=1:size(bp_table,1)
     [~,new_group_tags] = find(tags_mat(i,:)==1);
     bp_table{i,"group_tags"} = {new_group_tags};
 end
+
+new_groups = reform_groups_based_on_tags(bp_table);
 end

@@ -11,7 +11,7 @@ config = spikesort_config();
 if contains(pwd,"10595")
     c = parcluster('local'); 
    parpool(c,56)
-else
+elseif ~contains(config.base_file_path,"afriedman")
     c = parcluster('local');
     parpool(c.NumWorkers)
 end
@@ -22,7 +22,8 @@ if contains(config.base_file_path,"cnheaton")
     the_end = 10;
 elseif contains(config.base_file_path,"afriedman")
     beginning=1;
-    the_end = 10;
+    the_end = 5;
+    parpool('local_40', 40);
 else
     beginning = 1;
     the_end = 10;
@@ -80,53 +81,34 @@ for i=beginning:the_end
     disp("Finished Saving Accuracy");
     end_time = toc(beginning_time);
     fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
-    % % Step 6: Get accuracy category prediction using grades + universal rank neural network
-    % beginning_time = tic;
-    % config.TIME_DELTA = 0.0002; %changing back to the time delta used to train nn
-    % if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_predictions.txt"))
-    %     blind_pass_table = add_accuracy_cat_pred_from_nn(blind_pass_table,config);
-    %     end_time = toc(beginning_time);
-    %     save(fp_to_bp_table,"blind_pass_table");
-    % else
-    %     disp("Accuracy category and mean waveform already exist. Will skip adding them again.")
-    %     disp("To repredict delete finished_adding_accuracy_cat_predictions.txt")
-    % end
-    % fprintf("Finished adding accuracy cat predictions based on grades and universal rank it took %.2f seconds\n",end_time)
-    % % step 7: Get Accuracy category prediction using mean waveform neural network
-    % beginning_time = tic;
-    % if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_accuracy_cat_based_on_wf.txt"))
-    %     blind_pass_table = add_mean_waveform_pred_col(blind_pass_table,config);
-    %     end_time=toc(beginning_time);
-    %     save(fp_to_bp_table,"blind_pass_table");
-    % else
-    %     disp("Accuracy category based on waveform predictions already exist. Skipping.")
-    %     disp("To repredict delete finished_adding_accuracy_cat_based_on_wf.txt");
-    % end
-    % fprintf("Finished adding accuracy cat predictions based on mean waveform it took %.2f seconds\n",end_time)
-    % % step 8: Get Letter Grade
-    % beginning_time = tic;
-    % blind_pass_table = add_letter_grade_based_on_nn(blind_pass_table);
-    % end_time = toc(beginning_time);
-    % save(fp_to_bp_table,"blind_pass_table");
-    % fprintf("Finished Adding Letter Grade based on mean waveform and grades and universal rank prediction. It took %f seconds\n",end_time);
-    % % Step 8: Use Accuracy Prediction Neural Network to filter out any MUA clusters that made it past the first filter
-    % bp_table_only_neur_filtered = blind_pass_table(blind_pass_table{:,"grades_pred"}>0,:);
-    % 
-    % % Step 9: Merge neurons into groups that represent the same underlying unit
-    % beginning_time = tic;
-    % config.TIME_DELTA = 0.0002; %a stricter time delta then available on the neural network
-    % clusters_organized_by_same_group = determine_which_blind_pass_neurons_overlap_parallel(bp_table_only_neur_filtered,config);
-    % end_time = toc(beginning_time);
-    % fprintf("Finished merging clusters it took %f seconds\n",end_time)
-    % % Step 10: Save Results of merging
-    % clusters_organized_by_same_group_with_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_with_filter");
-    % create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_with_filter_fp);
-    % save(fullfile(clusters_organized_by_same_group_with_filter_fp,"clusters_organized_by_same_group.mat"),"clusters_organized_by_same_group");
-    % % Step 11: Merge Neurons into groups without step (for testing purposes)
-    % clusters_organized_by_same_group_without_filter = determine_which_blind_pass_neurons_overlap_parallel(blind_pass_table_only_neurons, config);
-    % 
-    % % step 12 : Save the results of step 11
-    % clusters_organized_by_same_group_without_filter_fp = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table_organized_into_same_groups_without_filter");
-    % create_a_file_if_it_doesnt_exist_and_ret_abs_path(clusters_organized_by_same_group_without_filter_fp);
-    % save(fullfile(clusters_organized_by_same_group_without_filter_fp,"clusters_organized_by_same_group_without_filter.mat"),"clusters_organized_by_same_group_without_filter");
+
+    beginning_time = tic;
+    if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_without_tags.txt"))
+        default_cluster_groups = simple_grouping_parallel(blind_pass_table,config);
+        par_save(fullfile(config.parent_save_dir,"default_cluster_groups.mat"),default_cluster_groups)
+        file_name = "finished_creating_cluster_groups_without_tags.txt";
+        file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
+        fclose(file_id);
+    else
+        default_cluster_groups = importdata(fullfile(config.parent_save_dir,"default_cluster_groups.mat"));
+        disp("groups already formed")
+    end
+    disp("Finished forming groups")
+    end_time = toc(beginning_time);
+    fprintf("Finished forming groups it took %.2f seconds\n",end_time)
+
+    beginning_time = tic;
+    if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_with_tags"))
+        new_groups = add_group_tags_col(current_group,config);
+        par_save(fullfile(config.parent_save_dir,"revised_cluster_groups.mat"),new_groups)
+        file_name = "finished_creating_cluster_groups_with_tags.txt";
+        file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
+        fclose(file_id);
+    else
+        disp("new groups already formed");
+        new_groups = importdata(fullfile(config.parent_save_dir,"revised_cluster_groups.mat"));
+    end
+    end_time = toc(beginning_time);
+    fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
+    
 end

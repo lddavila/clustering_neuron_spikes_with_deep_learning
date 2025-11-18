@@ -151,7 +151,7 @@ else
 end
 
 %step 11: read the results of the blind pass into a table
-fp_to_blind_pass_table =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
+fp_to_blind_pass_table =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table"));
 if ~isfile(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"))
     blind_pass_table = get_table_of_all_tetrodes_that_finished_blind_pass(config);
     %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")

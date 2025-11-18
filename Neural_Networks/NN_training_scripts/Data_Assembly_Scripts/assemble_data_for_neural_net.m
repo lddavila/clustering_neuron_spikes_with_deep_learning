@@ -32,6 +32,8 @@ for i=1:size(list_of_features_to_add,2)
         [assembled_data{i},~] = get_rep_wire_for_every_cluster(blind_pass_table);
     elseif contains(current_feature,"channels")
         [~,assembled_data{i}] = get_rep_wire_for_every_cluster(blind_pass_table); 
+    elseif current_feature=="above_below"
+        assembled_data{i} = get_above_below_probabilities_per_cluster(blind_pass_table);
     end
 end
 
