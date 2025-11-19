@@ -99,7 +99,7 @@ for i=beginning:the_end
 
     beginning_time = tic;
     if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_with_tags"))
-        new_groups = add_group_tags_col(current_group,config);
+        new_groups = add_group_tags_col(default_cluster_groups,config);
         par_save(fullfile(config.parent_save_dir,"revised_cluster_groups.mat"),new_groups)
         file_name = "finished_creating_cluster_groups_with_tags.txt";
         file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
