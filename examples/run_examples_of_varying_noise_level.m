@@ -90,7 +90,7 @@ for i=beginning:the_end
         file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
         fclose(file_id);
     else
-        default_cluster_groups = importdata(fullfile(config.parent_save_dir,"default_cluster_groups.mat"));
+        default_cluster_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"default_cluster_groups.mat"));
         disp("groups already formed")
     end
     disp("Finished forming groups")
@@ -106,7 +106,7 @@ for i=beginning:the_end
         fclose(file_id);
     else
         disp("new groups already formed");
-        new_groups = importdata(fullfile(config.parent_save_dir,"revised_cluster_groups.mat"));
+        new_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"));
     end
     end_time = toc(beginning_time);
     fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);

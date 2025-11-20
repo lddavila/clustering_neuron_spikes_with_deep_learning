@@ -7,8 +7,8 @@ group_size = zeros(length(cell_array_of_grouped_clusters),1);
 dominant_unit = zeros(length(cell_array_of_grouped_clusters),1);
 for i=1:length(cell_array_of_grouped_clusters)
     current_group = cell_array_of_grouped_clusters{i};
-    if ismember(current_group.Properties.VariableNames,"group_tags")
-        group_names(i) = current_group{i,"group_tag"};
+    if any(ismember(current_group.Properties.VariableNames,"group_tags"))
+        group_names(i) = current_group{1,"group_tags"}{1};
     else
         group_names(i) = i;
     end

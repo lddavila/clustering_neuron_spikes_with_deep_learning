@@ -1,4 +1,8 @@
 function [] = scroll_to_complimentary_row_in_table(table_to_scroll,row_to_scroll_to)
+if isempty(row_to_scroll_to)
+    disp("No Matching Row")
+    return;
+end
 % Assuming 'app.UITable' is the name of your Table UI component
 removeStyle(table_to_scroll);
 
