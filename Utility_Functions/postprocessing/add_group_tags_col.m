@@ -28,7 +28,7 @@ bp_table_parallel = parallel.pool.Constant(bp_table);
 config_parallel = parallel.pool.Constant(config);
 locations_parallel = parallel.pool.Constant(get_probe_xy());
 sliced_tags_matrix = slice_table_for_parallel_processing(tags_mat,[]);
-for i=1:size(tags_mat,1)
+parfor i=1:size(tags_mat,1)
     cluster_1 = bp_table_parallel.Value(i,:);
     cluster_1_ts = cluster_1{1,"timestamps"}{1};
     %get the mean waveform, size, and rep wire for each cluster
