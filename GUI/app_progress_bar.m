@@ -1,4 +1,4 @@
-function d = app_progress_bar(title_to_use)
+function fig = app_progress_bar(title_to_use)
 
 fig = uifigure('Visible','on');
 
