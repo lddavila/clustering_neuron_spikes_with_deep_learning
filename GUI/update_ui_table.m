@@ -5,5 +5,5 @@ else
     variable_names = string(table_to_update_with.Properties.VariableNames);
 end
 table_to_update.ColumnName = variable_names;
-table_to_update.Data = table_to_update_with;
+table_to_update.Data = table_to_update_with(:,variable_names);
 end

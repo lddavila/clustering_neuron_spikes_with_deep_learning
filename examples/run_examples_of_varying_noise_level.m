@@ -107,7 +107,7 @@ for i=beginning:the_end
     else
         disp("new groups already formed");
         new_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"));
-    end
+        endr
     end_time = toc(beginning_time);
     fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
     
