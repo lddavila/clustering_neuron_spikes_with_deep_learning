@@ -1,4 +1,9 @@
 function transfer_minimal_files(local_base_dir, remote_base_dir,varargin)
+home_dir = cd("..");
+cd("..");
+addpath(genpath(pwd));
+cd(home_dir)
+disp("Finished adding path")
 %TRANSFER_MINIMAL_FILES
 %   Transfer only selected files from a local directory tree on the cluster
 %   to a remote Windows machine via SFTP, preserving relative structure.
@@ -33,7 +38,7 @@ else
     user = varargin{2};
     pass = varargin{3};
 end
-
+disp("Finished getting host/password/user")
 if isempty(host) || isempty(user) || isempty(pass)
     error("SFTP_HOST, SFTP_USER, and SFTP_PASS must be set in the environment.");
 end
@@ -43,14 +48,14 @@ fprintf("Connecting to %s as %s...\n", host, user);
 % --- Discover local files recursively ---
 % Get all files and subfolders under local_base_dir
 listing = dir(fullfile(local_base_dir, "**", "*"));
-
+disp("Finished getting files");
 % Convert to table for easier filtering
 all_entries = struct2table(listing);
 
 % Remove '.' and '..'
 name_str = string(all_entries.name);
 all_entries(name_str == "." | name_str == "..", :) = [];
-
+disp("Finished filtering.")
 % Keep only files (no directories)
 all_entries = all_entries(~all_entries.isdir, :);
 
@@ -70,7 +75,7 @@ fprintf("Found %d eligible files to transfer.\n", num_files);
 
 % --- Connect via SFTP ---
 s = sftp(host, user, "Password", pass);
-
+disp('Finsihed setting up connection')
 % (Optional) show remote working dir
 try
     curpwd = pwd(s);
