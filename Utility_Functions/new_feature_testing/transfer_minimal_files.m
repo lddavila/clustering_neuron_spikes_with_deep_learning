@@ -90,7 +90,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_files,"transfer_minimal_files.m")
 
-for i = 1:num_files
+for i = 1:1.5%num_files
     this_row   = files_to_transfer(i, :);
     local_dir  = char(this_row.folder);  % local folder (Linux)
     local_name = char(this_row.name);    % filename
