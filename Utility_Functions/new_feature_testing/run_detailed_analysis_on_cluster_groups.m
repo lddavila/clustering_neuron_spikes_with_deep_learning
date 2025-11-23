@@ -11,5 +11,6 @@ rec_7 = importdata(fullfile(config.base_file_path,"Default_Results_Dir","7_600Ne
 rec_8 = importdata(fullfile(config.base_file_path,"Default_Results_Dir","8_600Neuron300SecondRecordingWithLevel8Noise","blind_pass_table.mat"));
 rec_9 = importdata(fullfile(config.base_file_path,"Default_Results_Dir","9_600Neuron300SecondRecordingWithLevel9Noise","blind_pass_table.mat"));
 rec_10 = importdata(fullfile(config.base_file_path,"Default_Results_Dir","10_600Neuron300SecondRecordingWithLevel10Noise","blind_pass_table.mat"));
-
+%% concatenate all the exmaples into single
+all_mixed_results = [rec_6;rec_7;rec_8;rec_9;rec_10];
 %% filter only down to those above 10% accuracy
