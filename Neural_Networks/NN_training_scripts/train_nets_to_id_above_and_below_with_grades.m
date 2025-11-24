@@ -24,7 +24,7 @@ dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullf
 
 %import the blind pass data we will use for trainining
 if length(varargin)<1
-    blind_pass_table = importdata(config.FP_TO_MASTER_TRAINING_BP_TABLE);
+    blind_pass_table = importdata(config.FP_TO_6_to_10);
 else
     blind_pass_table = varargin{1};
 end
