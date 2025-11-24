@@ -76,7 +76,7 @@ function transfer_minimal_files(local_base_dir, remote_base_dir, varargin)
     afterEach(q, @print_status_bar)
     print_status_bar(num_files, "transfer_minimal_files.m")
 
-    for i = 1:num_files
+    for i = 2:2.5%num_files
         this_row   = files_to_transfer(i, :);
         local_dir  = char(this_row.folder);
         local_name = char(this_row.name);
