@@ -49,8 +49,10 @@ for i=1:length(thresholds)
         %get the predictions for each row in the blind pass table
         scores = predict(filter_net,all_grades_from_bp_table);
         %filter out any rows of the blind pass table that aren't at least
-        %95% certain they're above the threshold
+        %95% certain they're above the previous threshold
         blind_pass_table(scores(:,2)<.95,:) = [];
+        disp("Size of remaining Data set after filtering")
+        disp(size(blind_pass_table))
     end
     
 

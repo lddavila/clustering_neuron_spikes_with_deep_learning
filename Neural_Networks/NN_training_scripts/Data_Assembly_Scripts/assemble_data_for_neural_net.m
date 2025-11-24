@@ -34,6 +34,13 @@ for i=1:size(list_of_features_to_add,2)
         [~,assembled_data{i}] = get_rep_wire_for_every_cluster(blind_pass_table); 
     elseif current_feature=="above_below"
         assembled_data{i} = get_above_below_probabilities_per_cluster(blind_pass_table);
+    elseif contains(current_feature,"valley")
+        assembled_data{i} =get_cv_of_valley_feature_of_nn(blind_pass_table,current_feature) ;
+    else 
+        disp("In list_of_features variable.")
+        disp(current_feature)
+        disp("Is not a valid feature.")
+        disp("assembled_data at "+string(i)+" will be empty.")
     end
 end
 
