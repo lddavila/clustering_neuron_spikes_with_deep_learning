@@ -90,7 +90,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_files,"transfer_minimal_files.m")
 
-for i = 1:1.5%num_files
+for i = 2:2.5%num_files
     this_row   = files_to_transfer(i, :);
     local_dir  = char(this_row.folder);  % local folder (Linux)
     local_name = char(this_row.name);    % filename
@@ -101,7 +101,7 @@ for i = 1:1.5%num_files
 
     % Convert local separators to remote POSIX separators
     rel_folder_remote = strrep(rel_folder, filesep, '/');
-
+    disp(rel_folder_remote);
     % Build full remote directory path under remote_base_dir
     if isempty(rel_folder_remote)
         remote_dir = remote_base_dir;   % directly under base
