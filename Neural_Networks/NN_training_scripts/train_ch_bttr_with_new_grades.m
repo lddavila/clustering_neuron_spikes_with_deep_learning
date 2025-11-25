@@ -225,7 +225,7 @@ for i=1:length(curriculum_thresholds)
     training_data = training_data(randperm(size(training_data,1),size(training_data,1)),:);
 
     %now train
-    [accuracy,net] = test_nn_on_incremental_challenging(training_data,val_data,layers_of_net,32);
+    [accuracy,net] = test_nn_on_incremental_challenging_specify_stop_fcn(training_data,val_data,layers_of_net,32,@stop_on_max_acc_and_lack_of_improvement);
     fprintf("Accuracy on training and validation data: %.2f\n",accuracy*100);
 
     %take the trained net and see its performance on the testing data
