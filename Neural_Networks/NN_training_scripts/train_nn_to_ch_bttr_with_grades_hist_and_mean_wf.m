@@ -14,6 +14,7 @@ blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 parent_save_dir = config.parent_save_dir;
 disp("Finished Loading Data")
 
+%create dir to save to
 dir_to_save_results_to = fullfile(parent_save_dir,"waves_hists_and_scaling_ch_better");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);

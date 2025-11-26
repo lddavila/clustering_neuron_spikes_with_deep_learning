@@ -1,12 +1,9 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
-disp("Beginning Core Clustering Algorithm")
+function [] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config,current_z_score)
+% disp("Beginning Core Clustering Algorithm")
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
 
-output_array = cell(1,length(list_of_available_tetrodes));
-aligned_array = cell(1,length(list_of_available_tetrodes));
-reg_timestamps_array= cell(1,length(list_of_available_tetrodes));
 
 sliced_channel_wise_means = cell(size(list_of_available_tetrodes,2),1);
 sliced_channel_stds = cell(size(list_of_available_tetrodes,2),1);
@@ -24,9 +21,20 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
+config =parallel.pool.Constant(config);
 
-
-parfor i=1:length(list_of_available_tetrodes)
+% --- Stop any existing pool ---
+% in the case of too much memory we dramatically resudce the number of
+% workers 
+% delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
+% c =parcluster('local');
+% parpool("Processes",min([c.NumWorkers,5]));
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = length(list_of_available_tetrodes);
+print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
+for i=1:length(list_of_available_tetrodes)
+     
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
@@ -34,12 +42,12 @@ parfor i=1:length(list_of_available_tetrodes)
     reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
     reg_ts_of_spikes_file_name =fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
 
-    c1 = ismember(output_file_name,config.ALREADY_DONE_FILES);
-    c2 = ismember(aligned_file_name,config.ALREADY_DONE_FILES);
-    c3 = ismember(reg_ts_file_name,config.ALREADY_DONE_FILES);
-    c4 = ismember(reg_ts_of_spikes_file_name,config.ALREADY_DONE_FILES);
+    c1 = isfile(output_file_name);
+    c2 = isfile(aligned_file_name);
+    c3 = isfile(reg_ts_file_name);
+    c4 = isfile(reg_ts_of_spikes_file_name);
     if all([c1,c2,c3,c4])
-        disp("Skipping Tetrode "+current_tetrode+" as it has already been run");
+        send(q,[]);
         continue;
     end
 
@@ -97,15 +105,11 @@ parfor i=1:length(list_of_available_tetrodes)
 
     try
         %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
-        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
+        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config.Value,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir,current_tetrode);
         %   - the first column contains the timestamps of the spikes in seconds
         %   - the second column contains the cluster classification of the spikes
         %       E.g., a value of '3' means that the spike belongs to cluster 3.
         if ~isempty(output) && ~isempty(aligned) && ~isempty(reg_timestamps)
-            output_array{i} = output;
-            aligned_array{i} = aligned;
-            reg_timestamps_array{i} = reg_timestamps;
-
             output = struct("output",output);
             aligned = struct("aligned",aligned);
             reg_timestamps = struct("reg_timestamps",reg_timestamps);
@@ -117,17 +121,24 @@ parfor i=1:length(list_of_available_tetrodes)
             par_save(reg_ts_of_spikes_file_name,reg_timestamps_of_the_spikes)
 
         else
-            output_array{i} = NaN;
-            aligned_array{i} = NaN;
-            reg_timestamps_array{i} = NaN;
-
+            disp("Went into catch")
+            send(q,[]);
             continue;
         end
-    catch 
+    catch ME
         end_time = toc(beginning_time);
-        fprintf("%s crashed for some reason and will be skipped it took %f seconds to fail\n",current_tetrode,end_time);
+        fprintf("\n")
+        disp("########################################################################################")
+        fprintf(2, "%s\n", getReport(ME, "extended", "hyperlinks", "off"));
+        disp("########################################################################################")
         % fprintf('%s',ME.cause);
+        send(q,[]);
         continue;
     end
+    send(q,[]);
 end
+%once finished we can return to the standard amount of workers
+% delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
+%c =parcluster('local');
+%parpool("Processes",min([c.NumWorkers,40]));
 end

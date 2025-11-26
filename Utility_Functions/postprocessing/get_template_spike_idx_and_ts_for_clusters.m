@@ -1,29 +1,34 @@
 function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table)
-unique_aligned_fps = unique(blind_pass_table{:,"fp_to_aligned"});
-number_of_iterations =size(unique_aligned_fps,1);
-
+blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
-
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = size(blind_pass_table,1);
+print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
 parfor i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
+
+    try
+        cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
+        cleaned_clusters = cleaned_clusters.cleaned_clusters;
+    catch
+        disp("Failed to load cleaned clusters file")
+        disp(current_data{1,"fp_to_cleaned_clusters"})
+        send(q,[]);
+        continue;
+    end
     try
         aligned = importdata(current_data{1,"fp_to_aligned"});
         aligned = aligned.aligned;
     catch
         disp("Failed to load aligned file")
         disp(current_data{1,"fp_to_aligned"})
+        send(q,[]);
         continue;
     end
 
-    try
-        output = importdata(current_data{1,"fp_to_output"});
-        output = output.output;
-    catch
-        disp("Failed to load output file")
-        disp(current_data{1,"fp_to_output"})
-        continue;
-    end
+
 
     try
         timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
@@ -31,17 +36,23 @@ parfor i=1:size(sliced_blind_pass_table,1)
     catch
         disp("Failed to load timestamps of spikes");
         disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+        send(q,[]);
         continue;
     end
 
-    idx_b4_filt = extract_clusters_from_output(output(:,1),output);
+    % disp("Faliure tetrode")
+    % disp(current_data{1,"Tetrode"})
+    % disp("Faliure z score");
+    % disp(current_data{1,"Z Score"})
+
 
     all_peaks = get_peaks(aligned, true);
     idx_cell_array = cell(size(current_data,1),1);
     mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
     timestamp_cell_array = cell(size(current_data,1),1);
-    for j=1:length(idx_b4_filt)
-        cluster_filter = idx_b4_filt{j};
+    for j=1:length(cleaned_clusters)
+        %disp(j)
+        cluster_filter = cleaned_clusters{j};
         spikes = aligned(:, cluster_filter, :);
         peaks = all_peaks(:, cluster_filter);
         % Set up the representative wire for the cluster
@@ -66,6 +77,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         current_data.("mean_waveform_rep_wire_"+string(k)) = mean_waveform_cell_array(:,k);
     end
     sliced_blind_pass_table{i} = current_data;
+    send(q,[]);
 end
 blind_pass_table = vertcat(sliced_blind_pass_table{:});
 end

@@ -60,7 +60,9 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
     "likeliness of burst","compare wire","2nd compare wire","avg compare wire cluster z score","SNR by dimensions","SNR based on 2 Compare Wires", "Mean Spike Amplitude Per Channel","Mean Z Score Per Channel Cluster Only","Channels",...
     "Mean Z Score Per Channel all spikes in config","compare wire Mean z score Cluster Only","Compare Mean Z Score All Spikes In Config","Compare Wire Mean Amp"];  
     num_clusters = length(clusters);
-    grades = cell(num_clusters, 64);
+    grades = cell(num_clusters, 66);
+    
+   
     total_raw_spikes = 1:size(aligned, 2);
     all_peaks = get_peaks(aligned, true);
     temp = load('template.mat');
@@ -100,73 +102,73 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         % rest of the spikes (including unclustered).
         other_good_spikes = setdiff(total_raw_spikes, cluster_filter);
         other_peaks = all_peaks(:, other_good_spikes);
-        data_filt = find_singular_cols(other_peaks');
-        lratio = compute_lratio(peaks(data_filt, :)', other_peaks(data_filt, :)');
-        grades{k, 1} = lratio;
+        % data_filt = find_singular_cols(other_peaks');
+        % lratio = compute_lratio(peaks(data_filt, :)', other_peaks(data_filt, :)');
+        % grades{k, 1} = lratio;
         
         % Peak cv check
         cv = compute_cv(peaks);
         grades{k, 2} = cv;
         
         % ISI check
-        isi = diff(ts) * 1e-6; % Convert to seconds
-        short_isi_len = config.params.GR_SHORT_ISI_LEN;
-        short_isi = sum(isi < short_isi_len)/length(isi); % Fraction of ISI < short_isi_len
-        grades{k, 3} = short_isi; %OG
+        %isi = diff(ts) * 1e-6; % Convert to seconds
+        %short_isi_len = config.params.GR_SHORT_ISI_LEN;
+        %short_isi = sum(isi < short_isi_len)/length(isi); % Fraction of ISI < short_isi_len
+        %grades{k, 3} = short_isi; %OG
         % run_grading_script_on_blind_pass
         
         % Theoretical fraction below threshold
-        below_threshold = compute_incompleteness(compare_peaks, wire_thresh);
-        grades{k, 4} = below_threshold;
+        %below_threshold = compute_incompleteness(compare_peaks, wire_thresh);
+        %grades{k, 4} = below_threshold;
         
         % Isolation distance
         grades{k, 5} = mahal(double(wire_thresh), compare_peaks');
         
         % Number of spikes
-        grades{k, 6} = length(cluster_filter);
+        %grades{k, 6} = length(cluster_filter);
         
         % Stationarity
-        t_mu = mean(timestamps);
-        t_std = std(timestamps);
-        cluster_med = median(timestamps(cluster_filter));
-        grades{k, 7} = cluster_med < t_mu - t_std || cluster_med > t_mu + t_std;
+        %t_mu = mean(timestamps);
+        %t_std = std(timestamps);
+        %cluster_med = median(timestamps(cluster_filter));
+        %grades{k, 7} = cluster_med < t_mu - t_std || cluster_med > t_mu + t_std;
         
         % Template matching
-        if length(cluster_filter) > 1
-            mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
-            mean_waveform = mean_waveform - mean(mean_waveform);
-            grades{k, 8} = template_match(mean_waveform, temp.nt);
-        else
-            grades{k, 8} = 0;
-        end
+        %if length(cluster_filter) > 1
+            %mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
+            %mean_waveform = mean_waveform - mean(mean_waveform);
+            %grades{k, 8} = template_match(mean_waveform, temp.nt);
+        %else
+            %grades{k, 8} = 0;
+        %end
         
         % Bhat distance
-        dists = inf(num_clusters, 1);
+        %dists = inf(num_clusters, 1);
         peaks = peaks';
-        for c = 1:num_clusters
-            if c == k
-                continue
-            end
-            other_cf = clusters{c};
-            other_peaks = all_peaks(:, other_cf)';
-            dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
-            if any(dim_filt)
-                dists(c) = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
-            end
-        end
-        min_bhat = min(dists);
-        grades{k, 9} = min_bhat;
+        %for c = 1:num_clusters
+            %if c == k
+             %   continue
+            %end
+            %other_cf = clusters{c};
+            %other_peaks = all_peaks(:, other_cf)';
+            %dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
+            %if any(dim_filt)
+            %    dists(c) = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
+           % end
+        %end
+        %min_bhat = min(dists);
+        %grades{k, 9} = min_bhat;
         
         % Bhat distance to unsorted
         other_cf = setdiff(1:size(all_peaks, 2), unique(vertcat(clusters{:})));
-        other_peaks = all_peaks(:, other_cf)';
-        dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
-        if ~isempty(other_peaks) && any(dim_filt)
-            grades{k, 10} = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
-        end
+        %other_peaks = all_peaks(:, other_cf)';
+        %dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
+        %if ~isempty(other_peaks) && any(dim_filt)
+            %grades{k, 10} = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
+        %end
         
         %how much it deviates from the noise
-        grades{k, 11} = compute_lratio(peaks(:, dim_filt), other_peaks(:, dim_filt));
+        %grades{k, 11} = compute_lratio(peaks(:, dim_filt), other_peaks(:, dim_filt));
         
         rep_wire = shiftdim(spikes(compare_wire, :, :), 1);
         [~, snr] = compute_new_cv(rep_wire, 0.5);
@@ -179,46 +181,46 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         grades{k, 13} = compute_new_cv(rep_wire, 0.33);
         grades{k, 14} = compute_new_cv(rep_wire, 0.25);
         
-        isi = isi * 1e3; % milliseconds
-        grades{k, 15} = sum(isi < 7.5) / sum(isi < 100);
+        %isi = isi * 1e3; % milliseconds
+        %grades{k, 15} = sum(isi < 7.5) / sum(isi < 100);
         
-        if isempty(other_cf)
-            near_thresh_idx = [];
-        else
-            near_thresh_idx = other_cf(all(bsxfun(@(x, y) x < y, other_peaks, 1.5 * tvals), 2));
-        end
-        near_thresh_peaks = all_peaks(:, near_thresh_idx)';
-        dim_filt = find_singular_cols(peaks) & find_singular_cols(near_thresh_peaks);
-        if sum(dim_filt) > 1 && length(near_thresh_idx) > 0.5*length(cluster_filter)
-            grades{k, 19} = bhat_dist(peaks(:, dim_filt), near_thresh_peaks(:, dim_filt));
-        end
+        % if isempty(other_cf)
+        %     near_thresh_idx = [];
+        % else
+        %     near_thresh_idx = other_cf(all(bsxfun(@(x, y) x < y, other_peaks, 1.5 * tvals), 2));
+        % end
+        % near_thresh_peaks = all_peaks(:, near_thresh_idx)';
+        % dim_filt = find_singular_cols(peaks) & find_singular_cols(near_thresh_peaks);
+        % if sum(dim_filt) > 1 && length(near_thresh_idx) > 0.5*length(cluster_filter)
+        %     %grades{k, 19} = bhat_dist(peaks(:, dim_filt), near_thresh_peaks(:, dim_filt));
+        % end
         
-        dim_filt = find_singular_cols(peaks) & find_singular_cols(all_peaks');
-        if any(dim_filt) && ~isempty(other_cf)
-            m1 = mahal(peaks(:, dim_filt), peaks(:, dim_filt));
-            t1 = median(m1) + 5 * std(m1);
-            m = mahal(all_peaks', peaks);
-            near_clust_idx = intersect(other_cf, find(m < t1));
-            near_clust_peaks = all_peaks(:, near_clust_idx)';
-            if length(near_clust_idx) > 0.2 * length(cluster_filter)
-                dim_filt = find_singular_cols(peaks) & find_singular_cols(near_clust_peaks);
-                grades{k, 20} = bhat_dist(peaks(:, dim_filt), near_clust_peaks(:, dim_filt));
-            else
-                grades{k, 20} = Inf;
-            end
-            grades{k, 21} = length(near_clust_idx);
-        end
+        % dim_filt = find_singular_cols(peaks) & find_singular_cols(all_peaks');
+        %if any(dim_filt) && ~isempty(other_cf)
+            %m1 = mahal(peaks(:, dim_filt), peaks(:, dim_filt));
+            %t1 = median(m1) + 5 * std(m1);
+            %m = mahal(all_peaks', peaks);
+            %near_clust_idx = intersect(other_cf, find(m < t1));
+            %near_clust_peaks = all_peaks(:, near_clust_idx)';
+            %if length(near_clust_idx) > 0.2 * length(cluster_filter)
+                %dim_filt = find_singular_cols(peaks) & find_singular_cols(near_clust_peaks);
+                %grades{k, 20} = bhat_dist(peaks(:, dim_filt), near_clust_peaks(:, dim_filt));
+            %else
+                %grades{k, 20} = Inf;
+            %end
+            %grades{k, 21} = length(near_clust_idx);
+        %end
         
-        cluster_t = timestamps(cluster_filter);
-        duration = 2 * std(cluster_t);
-        grades{k, 22} = duration / (timestamps(end) - timestamps(1));
+        %cluster_t = timestamps(cluster_filter);
+        %duration = 2 * std(cluster_t);
+        %grades{k, 22} = duration / (timestamps(end) - timestamps(1));
         
         mean_spike = shiftdim(mean(spikes(compare_wire, :, :)), 1);
         if length(cluster_filter) > 1
             [~, ~, mpc] = hfcm(peaks, 2, config);
             grades{k, 23} = mpc;
             dim_filt = find_singular_cols(peaks, 0.5);
-            grades{k, 24} = sum(dim_filt);
+            %grades{k, 24} = sum(dim_filt);
         
             mean_spike_int = spline(1:length(mean_spike), mean_spike, linspace(1, length(mean_spike), 5000));
             [starthalfpk, endhalfpk] = get_halfpeak_range(mean_spike_int, 0.25);
@@ -230,41 +232,41 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             grades{k, 25} = dur;
         else
             grades{k, 23} = 0;
-            grades{k, 24} = 0;
+            %grades{k, 24} = 0;
             grades{k, 25} = 0;
         end
 
-        grades{k, 26} = length(cluster_filter) * 1e6 / (timestamps(end) - timestamps(1));
+        %grades{k, 26} = length(cluster_filter) * 1e6 / (timestamps(end) - timestamps(1));
 
-        pks = find_peaks(mean_spike);
-        pks = pks{1};
-        [~, idx] = max(mean_spike(pks));
-        pkidx = pks(idx);
-        vals = find_peaks(mean_spike * (-1));
-        vals = vals{1};
-        has_valley = any(vals > pkidx);
-        grades{k, 27} = has_valley;
+        %pks = find_peaks(mean_spike);
+        %pks = pks{1};
+        %[~, idx] = max(mean_spike(pks));
+        %pkidx = pks(idx);
+        %vals = find_peaks(mean_spike * (-1));
+        %vals = vals{1};
+        %has_valley = any(vals > pkidx);
+        %grades{k, 27} = has_valley;
 
         %grade 28 will the measuring completeness with skewness instead of
         %the standard
-        the_skewness = skewness(compare_peaks);
-        grades{k,28} = the_skewness;
+        %the_skewness = skewness(compare_peaks);
+        %grades{k,28} = the_skewness;
 
         %grade 29 will be the measure of template matching within the
         %cluster's template instead of the normal template matching
         % Template matching with per cluster template, instead of general
         % template
-        if length(cluster_filter) > 1
-            mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
-            mean_waveform = mean_waveform - mean(mean_waveform);
-            grades{k, 29} = template_match_ver_2(mean_waveform, mean(mean_waveform));
-        else
-            grades{k, 29} = 0;
-        end
+        %if length(cluster_filter) > 1
+         %   mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
+         %   mean_waveform = mean_waveform - mean(mean_waveform);
+         %   grades{k, 29} = template_match_ver_2(mean_waveform, mean(mean_waveform));
+        %else
+         %   grades{k, 29} = 0;
+        %end
 
         %grade 30 will only be another incompleteness grade based only off of symmetry of the histogram
         %it will be #bins to left of bin with highest bin count / # bins to right of bin with highest bin count
-        grades{k,30} = compute_incompleteness_ver_2(compare_peaks);
+        %grades{k,30} = compute_incompleteness_ver_2(compare_peaks);
 
         %grade 31 will classify the cluster into high medium or low
         %grade of 1 indicates low average amplitude of cluster
@@ -274,11 +276,11 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         low_cutoff = 20;
         medium_cutoff = 40;
         high_cutoff = 100;
-        grades{k,31} = category_of_cluster(low_cutoff,medium_cutoff,high_cutoff,peaks);
+        %grades{k,31} = category_of_cluster(low_cutoff,medium_cutoff,high_cutoff,peaks);
 
         %grade 32 will be similar to 31, but instead of the whole cluster
         %it will just be the amplitude of the dominant wire
-        grades{k,32} = category_of_cluster(low_cutoff,medium_cutoff,high_cutoff,compare_peaks);
+        %grades{k,32} = category_of_cluster(low_cutoff,medium_cutoff,high_cutoff,compare_peaks);
 
         %grade 33 will be a range of how likely a cluster is to be a multi
         %unit activity cluster
@@ -287,13 +289,13 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         %1 is definitely multi unit activity
         %3 is definitely NOT multiunit activity
         %2 could go either way
-        if cv > 0.25 && grades{k,31} ==1 && grades{k,32} ==1
-            grades{k,33} = 1;
-        elseif cv < 0.1 && (grades{k,31}>=2 || grades{k,32} >=2) 
-            grades{k,33} = 3;
-        else
-            grades{k,33} = 2;
-        end
+        %if cv > 0.25 && grades{k,31} ==1 && grades{k,32} ==1
+        %    grades{k,33} = 1;
+        %elseif cv < 0.1 && (grades{k,31}>=2 || grades{k,32} >=2) 
+        %    grades{k,33} = 3;
+        %else
+        %    grades{k,33} = 2;
+        %end
 
         %%grade 35 will be a method of measuring tightness of waveform of
         %%the cluster, using Euclidean distance
@@ -305,7 +307,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         % mean_waveform = mean_waveform - mean(mean_waveform);
         % grades{k, 8) = template_match(mean_waveform, temp.nt);
         mean_waveform_for_cluster_k = mean(shiftdim(spikes(compare_wire, :, :), 1));
-        grades{k,35} = calculate_tightness_of_waveform_per_cluster(mean_waveform_for_cluster_k,spikes,debug);
+        %grades{k,35} = calculate_tightness_of_waveform_per_cluster(mean_waveform_for_cluster_k,spikes,debug);
 
         %%grade 36 will be the same as 35, but only using the rep wire
         %%spikes
@@ -317,7 +319,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
 
         %grade 39 will just be a simple boolean to report if the cluster is
         %underpowered (ie has less than 100 spikes
-        grades{k,39} = size(clusters{k},2) < 100 ;
+        %grades{k,39} = size(clusters{k},2) < 100 ;
 
         %grade 40 will be a measure of signal to noise ratio, closer to 1
         %is better
@@ -325,7 +327,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
 
         %grade 41 will be some kind of measure of likeliness of a bursting
         %neuron
-        grades{k,41} = NaN;%OGcheck_for_burst(ts,spikes,debug);
+        %grades{k,41} = NaN;%OGcheck_for_burst(ts,spikes,debug);
 
         %the wire with the highest amp of peaks
         grades{k,42} = compare_wire;
@@ -335,33 +337,34 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
 
         %classify the compare peaks as low/med/high compared to all peaks
         %in the cluster using z score
-        z_scores_of_all_peaks = zscore(all_peaks,1,"all");
-        z_score_of_compare_peaks = z_scores_of_all_peaks(:,cluster_filter);
-        z_score_of_rep_wire_of_compare_peaks = z_score_of_compare_peaks(compare_wire,:);
-        grades{k,44} = mean(z_score_of_rep_wire_of_compare_peaks,"all");
+        %z_scores_of_all_peaks = zscore(all_peaks,1,"all");
+        %z_score_of_compare_peaks = z_scores_of_all_peaks(:,cluster_filter);
+        %z_score_of_rep_wire_of_compare_peaks = z_score_of_compare_peaks(compare_wire,:);
+        %grades{k,44} = mean(z_score_of_rep_wire_of_compare_peaks,"all");
 
 
-        grades{k,45} = calculate_signal_to_noise_of_cluster_by_dim(aligned,cluster_filter);
-
+        %OG LINEgrades{k,45} = calculate_signal_to_noise_of_cluster_by_dim(aligned,cluster_filter);
+        grades{k,45} = [0 0 0 0];
 
         grades{k,46} = calculate_signal_to_noise_of_cluster_by_dims(aligned,cluster_filter,compare_wire,second_compare_wire);
 
-        grades{k,47} = calculate_avg_spike_amp_per_channel(aligned,cluster_filter);
-
-        grades{k,48} = calculate_avg_z_score_per_channel(aligned,cluster_filter);
+        %OG LINE grades{k,47} = calculate_avg_spike_amp_per_channel(aligned,cluster_filter);
+        grades{k,47} = [0 0 0 0];
+        %OG LINE grades{k,48} = calculate_avg_z_score_per_channel(aligned,cluster_filter);
+        grades{k,48} = [0 0 0 0];
 
         grades{k,49} = channels;
 
-        grades{k,50} = calculate_avg_z_score_per_channel_without_clust_filt(aligned);
-
-        grades{k,51} = grades{k,48}(compare_wire);
-        grades{k,52} = grades{k,50}(compare_wire);
-        grades{k,53} = grades{k,47}(compare_wire);
+        %OG LINE grades{k,50} = calculate_avg_z_score_per_channel_without_clust_filt(aligned);
+        grades{k,50} = [0 0 0 0];
+        %grades{k,51} = grades{k,48}(compare_wire);
+        %grades{k,52} = grades{k,50}(compare_wire);
+        %grades{k,53} = grades{k,47}(compare_wire);
 
         %grade 54 will be how like an elipse the cluster is
         %grade 54 will be a measure of how circular a cluster is
         %grade 56 and 57 aren't used
-        [grades{k,54},grades{k,55},grades{k,56},grades{k,57}] = plot_cluster_as_png_and_return_elipse_rating(compare_peaks,second_set_of_compare_peaks,dir_of_template_figures,channels);
+        [grades{k,54},grades{k,55}] = plot_cluster_as_png_and_return_elipse_rating(compare_peaks,second_set_of_compare_peaks,dir_of_template_figures);
 
         %grade 58 will be a prediction of the cluster's accuracy based on an image of the cluster which uses a neural network trained on a dataset
         %it will be 
@@ -383,7 +386,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             grades{k,61} = predict_expand_or_not(compare_wire,second_compare_wire,all_peaks,config_struct,cluster_filter);
 
             if length(cluster_filter) > 1
-                grades{k,62} = predict_accuracy_cat_using_nn(config_struct,mean_waveform);
+                grades{k,62} = predict_accuracy_cat_using_nn(config_struct,mean_waveform_for_cluster_k);
             else
                 grades{k,62} = 0;
             end
@@ -392,30 +395,33 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             %grade 64 will be the bin counts of a histogram
             grades{k,64} = get_bin_counts_per_rep_wire(peaks,size(channels,2));
             
+            %grade 65 will be the cv of the first valley
+            %grade 66 will be the cv of the second valley
+            [grades{k,65},grades{k,66}] = calculate_cv_of_valleys(spikes);
            
 
     end
 
     %bhat distance from possible multi unit activity clusters
-    for k=1:num_clusters
-        cluster_filter = clusters{k};
-        peaks = all_peaks(:, cluster_filter);
-        dists = inf(num_clusters, 1);
-        peaks = peaks';
-        for c = 1:num_clusters
-            if c == k || grades{c,1} == 1
-                continue
-            end
-            other_cf = clusters{c};
-            other_peaks = all_peaks(:, other_cf)';
-            dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
-            if any(dim_filt)
-                dists(c) = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
-            end
-        end
-        min_bhat = min(dists);
-        grades{k,34} = min_bhat;
-    end
+    %for k=1:num_clusters
+        %cluster_filter = clusters{k};
+        %peaks = all_peaks(:, cluster_filter);
+        %dists = inf(num_clusters, 1);
+        %peaks = peaks';
+        %for c = 1:num_clusters
+            %if c == k || grades{c,1} == 1
+             %   continue
+            %end
+            %other_cf = clusters{c};
+            %other_peaks = all_peaks(:, other_cf)';
+            %dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
+           % if any(dim_filt)
+          %      dists(c) = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
+         %   end
+        %end
+        %min_bhat = min(dists);
+        %grades{k,34} = min_bhat;
+    %end
 
     % for i=1:size(classification_of_grade,1)
     %     classification_of_grade(i) = classify_clusters_based_on_grades(grades(i,:));

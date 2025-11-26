@@ -2,11 +2,9 @@ function [accuracy_array] = calculate_accuracy(gt_ts,cell_array_of_all_cluster_t
 accuracy_array = nan(1,size(cell_array_of_all_cluster_ts,2));
 for i=1:size(cell_array_of_all_cluster_ts,2)
     cluster_ts = cell_array_of_all_cluster_ts{i};
-    if size(gt_ts,2) < size(cluster_ts,1)
-        tp = find_number_of_true_positives_given_a_time_delta_hpc(gt_ts,cluster_ts.',config.TIME_DELTA); % a spike that is in both the cluster and the unit with some time delta specified in seconds
-    else
-        tp = find_number_of_true_positives_given_a_time_delta_hpc(cluster_ts.',gt_ts,config.TIME_DELTA);
-    end
+    % OG LINEtp = find_number_of_true_positives_given_a_time_delta_hpc(gt_ts,cluster_ts.',config.TIME_DELTA); % a spike that is in both the cluster and the unit with some time delta specified in seconds
+    [~,~,tp] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(gt_ts,cluster_ts,config.TIME_DELTA);
+
     fn = length(gt_ts) - tp; % a spike in the unit, but not in the cluster
     tn = 0; % this would be a spike in the same configuration ie
     %                                   |z score n|tetrode i| cluster a

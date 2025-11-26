@@ -28,8 +28,9 @@ while abs(class_predictions(1) - class_predictions(2)) > 0.05 && num_iterations<
     compare_grades = presorted_grade_rows(compare_position,:);
     compare_size = size(presorted_table{compare_position,"timestamps"}{1},1);
 
-    overlap_between_clusters = get_overlap_percentage_between_2_cluster_ts(presorted_table{compare_position,"timestamps"}{1},current_ts,config);
-
+    %function [overlap,matches_log,matches] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,time_delta)
+    [overlap_between_clusters,~,~] = find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(presorted_table{compare_position,"timestamps"}{1},current_ts,config.TIME_DELTA);
+    overlap_between_clusters = overlap_between_clusters * 100;
 
 
 

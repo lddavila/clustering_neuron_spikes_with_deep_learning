@@ -168,7 +168,8 @@ function grades = compute_gradings(aligned, timestamps, tvals, clusters, config)
         if any(dim_filt) && ~isempty(other_cf)
             m1 = mahal(peaks(:, dim_filt), peaks(:, dim_filt));
             t1 = median(m1) + 5 * std(m1);
-            m = mahal(all_peaks', peaks);
+            %OG LINE: m = mahal(all_peaks', peaks);
+            m = mahal_fixed_for_num_unstable(all_peaks', peaks);
             near_clust_idx = intersect(other_cf, find(m < t1));
             near_clust_peaks = all_peaks(:, near_clust_idx)';
             if length(near_clust_idx) > 0.2 * length(cluster_filter)

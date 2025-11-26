@@ -24,7 +24,8 @@ function lratio = compute_lratio(peaks, other_peaks, dim)
         dim = 1:numdims;
     end
     try
-        dist = mahal(peaks(:, dim), other_peaks(:, dim));
+        %OG_LINE: dist = mahal(peaks(:, dim), other_peaks(:, dim));
+        dist = mahal_fixed_for_num_unstable(peaks(:, dim), other_peaks(:, dim));
     catch
         lratio = Inf;
         return

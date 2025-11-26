@@ -1,60 +1,42 @@
-function [spike_slices,time_slices,spiking_channels,spike_slices_in_samples_format,sorted_spike_windows_for_current_tetrode] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor)
+function [] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_dir,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor,tetrode_number,dict_fpths)
 
-channels_data = cell(1,length(chan_of_art_tetrode));
+spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
+timing_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+spiking_channel_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+sorted_spike_windows_for_current_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
+% disp("Finished Creationg Dictionaries");
+channels_data = cell(length(chan_of_art_tetrode),1);
 for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
     % disp(fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat"))
     current_channel_recording_file_name = fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat");
-    channels_data{i} = importdata(current_channel_recording_file_name);
-    channels_data{i} = channels_data{i} * scale_factor;
+    % disp("current channel recording file name")
+    % disp(current_channel_recording_file_name);
+    channels_data{i} = (importdata(current_channel_recording_file_name) * scale_factor).';
 end
 
-spike_slices = {};
-time_slices = {};
-spiking_channels = {};
-spike_slices_in_samples_format = {};
+% disp("Finished importing data")
 
-%spike_windows_for_current_tetrode = [];
-number_of_rows_required = 0;
-number_of_cols_required = length(chan_of_art_tetrode);
-number_of_spikes_per_channel = zeros(1,length(chan_of_art_tetrode));
-for i=1:length(chan_of_art_tetrode)
+spike_windows = cell(length(chan_of_art_tetrode),1);
+for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
-    number_of_rows_required = number_of_rows_required+size(spike_windows{current_channel},2);
-    number_of_spikes_per_channel(i) = size(spike_windows{current_channel},2);
+    %disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
+    % disp("file that can't be loaded");
+    % disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
+    spike_windows{i} = importdata(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
 end
-spike_windows_for_current_tetrode = zeros(number_of_rows_required,number_of_cols_required);
+% disp("Finsihed Getting Spike Windows")
 
-for i=1:length(chan_of_art_tetrode)
-    current_channel = chan_of_art_tetrode(i);
-    spike_windows_for_current_channel = zeros(size(spike_windows{current_channel},2),size(chan_of_art_tetrode,2));
-    for j=1:size(spike_windows{current_channel},2)
-        if isempty(spike_windows_for_current_channel)
-            continue;
-        end
-        if isempty(spike_windows{current_channel}{j})
-            continue;
-        end
-        spike_windows_for_current_channel(j,1) = spike_windows{current_channel}{j}(1);
-        spike_windows_for_current_channel(j,2) = spike_windows{current_channel}{j}(2);
-        spike_windows_for_current_channel(j,3) = spike_windows{current_channel}{j}(3);
-        spike_windows_for_current_channel(j,4) = spike_windows{current_channel}{j}(4);
-    end
-    if isempty(spike_windows_for_current_channel)
-        continue;
-    end
-    if i==1
-        spike_windows_for_current_tetrode(1:number_of_spikes_per_channel(i),:) = spike_windows_for_current_channel;
-    else
-        spike_windows_for_current_tetrode(sum(number_of_spikes_per_channel(1:i-1))+1:sum(number_of_spikes_per_channel(1:i)),:) = spike_windows_for_current_channel;
-    end
-end
+spike_windows_for_current_tetrode =  vertcat(spike_windows{:});
 
 if isempty(spike_windows_for_current_tetrode)
     return;
 end
+
 sorted_spike_windows_for_current_tetrode = sortrows(spike_windows_for_current_tetrode,[1,3]);
-sorted_spike_windows_for_current_tetrode = rmmissing(sorted_spike_windows_for_current_tetrode);
+sorted_spike_windows_for_current_tetrode(any(sorted_spike_windows_for_current_tetrode==0,2),:) = []; %any rows that have a zero must be removed
+%this is because zero is an invalid index and indicates something went wrong
 
 %spike_slices: must be sorted in such a way that when you run the following code the output matches
 %[numwires, numspikes, numdp] = size(raw);
@@ -74,27 +56,58 @@ spike_slices_in_samples_format =zeros(number_of_dps_per_slice,size(chan_of_art_t
 
 time_slices = zeros(size(sorted_spike_windows_for_current_tetrode,1),number_of_dps_per_slice);
 spiking_channels = cell(1,size(sorted_spike_windows_for_current_tetrode,1));
+
+
+if isempty(sorted_spike_windows_for_current_tetrode)
+    return
+end
+% disp("About to getting time and spike slices")
+sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
+
+simple_channel_list = 1:numel(chan_of_art_tetrode);
+
+timing_matrix_const = parallel.pool.Constant(timing_matrix);
+channels_data_const = parallel.pool.Constant(channels_data);
 for i=1:size(sorted_spike_windows_for_current_tetrode,1)
-    if size(sorted_spike_windows_for_current_tetrode,2) == 0
-        break;
-    end
 
-    current_window = sorted_spike_windows_for_current_tetrode(i,:);
-    window_beginning = current_window(1);
-    window_end = current_window(2);
+    current_window = sliced_spike_windows{i};
 
-
-    if window_beginning == window_end || length(timing_matrix(window_beginning:window_end-1)) <10
+    if current_window(1,1) == current_window(1,2) 
         continue;
     end
-    
-    current_timing_slice = timing_matrix(window_beginning:window_end-1);
+
+    current_timing_slice = timing_matrix_const.Value(current_window(1,1):current_window(1,2) -1);
     time_slices(i,:) = current_timing_slice;
-    
-    for j=1:length(chan_of_art_tetrode)
-        spike_slices(j,i,:) = channels_data{j}(window_beginning:window_end-1);
-        spike_slices_in_samples_format(:,j,i) = channels_data{j}(window_beginning:window_end-1);
+
+    for j=simple_channel_list
+        spike_slices(j,i,:) = channels_data_const.Value{j}(current_window(1,1) :current_window(1,2) -1);
+        spike_slices_in_samples_format(:,j,i) = channels_data_const.Value{j}(current_window(1,1) :current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
 end
+
+
+
+
+% disp("Finished getting slices")
+spike_tetrode_dictionary("t"+string(tetrode_number)) = spike_slices;
+timing_tetrode_dictionary("t"+string(tetrode_number)) = time_slices;
+spiking_channel_tetrode_dictionary("t"+string(tetrode_number)) = spiking_channels;
+spike_tetrode_dictionary_samples_format("t"+string(tetrode_number)) = spike_slices_in_samples_format;
+sorted_spike_windows_for_current_tetrode_dictionary("t"+string(tetrode_number)) = sorted_spike_windows_for_current_tetrode;
+% disp("finished putting info into dictionaries")
+
+spike_tetrode_dictionary = struct("spike_tetrode_dictionary",spike_tetrode_dictionary);
+timing_tetrode_dictionary = struct("timing_tetrode_dictionary",timing_tetrode_dictionary);
+spiking_channel_tetrode_dictionary = struct("spiking_channel_tetrode_dictionary",spiking_channel_tetrode_dictionary);
+spike_tetrode_dictionary_samples_format = struct("spike_tetrode_dictionary_samples_format",spike_tetrode_dictionary_samples_format);
+sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
+% disp("Finished getting structs")
+% disp("Beginning Dictionary Saving")
+par_save(dict_fpths(2),spike_tetrode_dictionary)
+par_save(dict_fpths(3),timing_tetrode_dictionary)
+par_save(dict_fpths(5),spiking_channel_tetrode_dictionary)
+par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format);
+par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary);
+% disp("Finished Dictionary Saving")
 end

@@ -24,7 +24,12 @@ function cluster_core_idx = extract_core(features, cluster_idx, config)
         disp("will error")
         disp("occurs in extract_core.m")
     end
-    dists = mahal(cluster_features, cluster_features);
+    %OG LINE: dists = mahal(cluster_features, cluster_features);
+    %WE replace the og line in order to avoid the singular/badly scaled
+    %error
+    %in the case where normal mahal distance cannot be calculated we
+    %instead use the generalized Mahalanobis which should still be helpful
+    dists = mahal_fixed_for_num_unstable(cluster_features,cluster_features);
     [warnMsg, warnId] = lastwarn;
     if contains(warnMsg,'Matrix is close to singular or badly scaled. Results may be inaccurate')
         warning("");

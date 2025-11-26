@@ -1,7 +1,7 @@
 function [agent,critic,obs_info,action_info] = get_agent_and_critique_net_for_verbose_states(num_features,num_neurons_per_layer,num_layers,epsilon_num)
 
 obs_info = rlNumericSpec([1,num_features]);
-action_info = rlFiniteSetSpec([0,1,-1]);
+action_info = rlFiniteSetSpec([1,-1]);
 
 obs_path = [featureInputLayer(prod(obs_info.Dimension))];
 for i=1:num_layers

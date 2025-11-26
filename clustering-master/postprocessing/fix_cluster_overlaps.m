@@ -39,8 +39,10 @@ function cf = fix_cluster_overlaps(source, cf, config)
                         data_l(:, dim) = (1 - rl) * data_l(:, dim);
                     end
                     try
-                        m_k = mahal(data_isect(:, data_filt), data_k(:, data_filt));
-                        m_l = mahal(data_isect(:, data_filt), data_l(:, data_filt));
+                        %OG LINE: m_k = mahal(data_isect(:, data_filt), data_k(:, data_filt));
+                        m_k = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_k(:, data_filt));
+                        %OG LINE: m_l = mahal(data_isect(:, data_filt), data_l(:, data_filt));
+                        m_l = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_l(:, data_filt));
                     catch
                         m_k = 0;
                         m_l = 0;

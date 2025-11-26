@@ -23,6 +23,24 @@ for i=1:size(list_of_features_to_add,2)
         %current_feature= "under_unit_gradienceLevelN_minThresholdM";
     elseif current_feature=="size"
         assembled_data{i} =  get_size_of_cluster_from_bp_table(blind_pass_table);
+    elseif current_feature == "grades 2"
+         temp_data= vertcat(blind_pass_table{:,"grades"}{:});
+         assembled_data{i} = cell2mat(temp_data(:,config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST));
+    elseif contains(current_feature,"peak_caps")
+        assembled_data{i} = get_caps_of_peaks(blind_pass_table,current_feature);
+    elseif contains(current_feature,"rep_wire")
+        [assembled_data{i},~] = get_rep_wire_for_every_cluster(blind_pass_table);
+    elseif contains(current_feature,"channels")
+        [~,assembled_data{i}] = get_rep_wire_for_every_cluster(blind_pass_table); 
+    elseif current_feature=="above_below"
+        assembled_data{i} = get_above_below_probabilities_per_cluster(blind_pass_table);
+    elseif contains(current_feature,"valley")
+        assembled_data{i} =get_cv_of_valley_feature_of_nn(blind_pass_table,current_feature) ;
+    else 
+        disp("In list_of_features variable.")
+        disp(current_feature)
+        disp("Is not a valid feature.")
+        disp("assembled_data at "+string(i)+" will be empty.")
     end
 end
 

@@ -14,7 +14,7 @@ blind_pass_table = importdata(config.FP_TO_TABLE_OF_ALL_BP_CLUSTERS);
 parent_save_dir = config.parent_save_dir;
 disp("Finished Loading Data")
 
-dir_to_save_results_to = fullfile(parent_save_dir,"waves_hist_uu_acc_cats");
+dir_to_save_results_to = fullfile(parent_save_dir,"waves_hist_uu_5_acc_cats");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);
 end
@@ -59,7 +59,7 @@ idxs_of_under_unit = find(contains(list_of_features_to_add,"under_unit"));
 array_of_all_mean_wf_and_hist_combos = combvec(1:size(table_of_all_waveforms,1),1:size(table_of_all_hists,1)).';
 
 %set some hyperparameters for the series of trainings we will be doing
-number_of_accuracy_categories = [3];
+number_of_accuracy_categories = [5];
 number_of_layers = 1:15;
 filter_sizes = 5:5:20;
 num_mean_wave_and_hist_combos = 1:size(array_of_all_mean_wf_and_hist_combos);

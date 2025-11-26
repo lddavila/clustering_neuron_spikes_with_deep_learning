@@ -26,7 +26,9 @@ function [refined_cluster_idx, backup] = refine_cluster(features, peaks, cluster
     
     cluster_core_idx = extract_core(features, cluster_idx, config);
 
-    r_cluster_idx = smart_expand_cluster(features, cluster_core_idx, false, true, config);
+
+    r_cluster_idx = smart_expand_cluster_ver_2(features,cluster_core_idx,false,true,config);
+    
     if isempty(r_cluster_idx)
         refined_cluster_idx = [];
         return

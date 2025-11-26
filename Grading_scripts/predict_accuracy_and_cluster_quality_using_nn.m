@@ -3,8 +3,9 @@ quality_pred = NaN;
    
 colors = distinguishable_colors(1); %will always use the same colors
 my_gray = [0.5 0.5 0.5];
-hold on
-f = figure;
+%hold on
+f = figure('Visible','off');
+
 
 %to ensure that the peaks have the same dimension we ensure that the numer of rows is greater than number of cols
 %this should always be true because it's impossible to have more wires than spikes
@@ -18,6 +19,7 @@ scatter(peaks(:, first_dimension), peaks(:, second_dimension), 2,my_gray);
 
 if isempty(peaks_in_cluster)
     accuracy_pred = NaN;
+    close(f);
     return
 end
 
@@ -41,14 +43,10 @@ scatter(cluster_x, cluster_y, 2,colors(1,:))
 axis equal;
 axis off;
 
-randomized_temp_file_number_sequence = randi(1e9, 1, 10);
 
-file_save_name = strjoin(string(randomized_temp_file_number_sequence))+".png"; %this file will be deleted
-% so we just randomly generate 10 numbers between 1 and billion and use this as a file name to avoid a multi threaded process accidentally
-%reading the same file
-saveas(f,file_save_name);
+frame = getframe(f);
+RGB   = frame2im(frame);   % now proceed to gray + imresize
 close(f);
-RGB = imread(file_save_name);
 grayscaled_image =rgb2gray(RGB);
 resized_and_gray_scaled_image = imresize(grayscaled_image,[224,224]);
 pred_accuracy_class = predict(accuracy_nn,single(resized_and_gray_scaled_image));
@@ -62,7 +60,7 @@ accuracy_pred = accuracy_pred-1;
 mua_or_not_class = predict(mua_or_not_nn,single(resized_and_gray_scaled_image));
 [~,mua_or_not_pred] = max(mua_or_not_class);
 mua_or_not_pred = mua_or_not_pred-1;
-delete(file_save_name);
+%delete(file_save_name);
 %imshow(resized_and_gray_scaled_image)
 %imwrite(resized_and_gray_scaled_image,file_save_name);
 

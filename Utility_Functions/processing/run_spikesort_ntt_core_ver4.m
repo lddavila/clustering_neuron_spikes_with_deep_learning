@@ -1,4 +1,4 @@
-function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,iteration_number,sorted_spike_windows,dir_to_save_spike_windows_to)
+function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,iteration_number,sorted_spike_windows,dir_to_save_spike_windows_to,tetrode_id)
 %OG: [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes]
 %RUN_SPIKESORT_NTT_CORE Runs spike sorter on data extracted from the
 %tetrode.
@@ -50,13 +50,13 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes] = run_sp
         reg_timestamps = timestamps(reg_spikes_idx);
         reg_timestamps_of_the_spikes = timestamps(reg_spikes_idx,31);
         reg_sorted_spike_windows = sorted_spike_windows(reg_spikes_idx,:);
-        save(fullfile(dir_to_save_spike_windows_to,"t"+string(iteration_number)+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
+        save(fullfile(dir_to_save_spike_windows_to,tetrode_id+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
     else
         reg_interp_raw = good_interp_raw;
         reg_timestamps = timestamps(good_spikes_idx_inj);
         reg_timestamps_of_the_spikes = timestamps(good_spikes_idx_inj,31);
         reg_sorted_spike_windows = sorted_spike_windows(good_spikes_idx_inj,:);
-        save(fullfile(dir_to_save_spike_windows_to,"t"+string(iteration_number)+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
+        save(fullfile(dir_to_save_spike_windows_to,tetrode_id+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
     end
     %do an uncomment on everything below this line, do not include this line
     % Run the spikesort algorithm (with only the spike-sort related config
@@ -119,8 +119,6 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes] = run_sp
         end
     end
 
-    %means = cellmap(@(x) squeeze(mean(aligned(:, x, :), 2)), cf);
-    %[final_grades, confidence] = compute_final_grades(grades, config.spikesort);
     cleaned_clusters = cf;
     save_info_ver_2(filenames(iteration_number), filenames(iteration_number),timestamps_1,r_tvals,cleaned_clusters);
 end

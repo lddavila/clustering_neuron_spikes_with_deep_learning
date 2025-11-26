@@ -1,10 +1,17 @@
-function [spikes_matrix] = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,dir_with_z_scores,min_z_score,scale_factor,config)
-spikes_matrix_unmapped = cell(1,size(ordered_list_of_channels,2));
-spikes_matrix = cell(1,config.max_channel_number);
-num_iterations = size(ordered_list_of_channels,2);
-% status_file = fopen(config.FP_TO_STATUS_FILE,"a");
-parfor i=1:length(ordered_list_of_channels)
+function [] = detect_spikes_ver_2(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,dir_with_z_scores,min_z_score,scale_factor,config)
+%if the file doesn't already exist then we must create and save it
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+num_iterations = length(ordered_list_of_channels);
+print_status_bar(num_iterations,"detect_spikes_ver_2.m")
+already_done = config.ALREADY_DONE_FILES;
+for i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
+    if ismember(fullfile(spikes_per_channel_dir,current_channel),already_done)
+        send(q,[]);
+        continue;
+    end
+    %disp(fullfile(dir_with_channel_recordings,current_channel))
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel));
     channel_data = channel_data * scale_factor;
     z_score_data = importdata(fullfile(dir_with_z_scores,current_channel));
@@ -15,14 +22,7 @@ parfor i=1:length(ordered_list_of_channels)
     channel_data(abs(z_score_data) < min_z_score) = 0;
 
     [~,pk_locs] = findpeaks(channel_data);
-    spikes_matrix_unmapped{i} = pk_locs;
+    par_save(fullfile(spikes_per_channel_dir,current_channel),pk_locs);
+    send(q,[]);
 end
-channels = strrep(ordered_list_of_channels,"c","");
-channels = strrep(channels,".mat","");
-for i=1:length(channels)
-    spikes_matrix{str2double(channels(i))} = spikes_matrix_unmapped{i};
-end
-% status_message = "\n"+print_status_iter_message("detect_spikes_ver_2.m",i,num_iterations);
-% fprintf(status_file,status_message);
-% fclose(status_file);
 end
