@@ -195,7 +195,7 @@ for iteration = 1:numIterations
     trainLosses(iteration) = gather(extractdata(loss));
     valLosses(iteration)   = gather(extractdata(valLoss));
 
-    fprintf("iteration: %i/%i| training_loss: %.2f | validation_loss: %.2f\n",iteration,numIterations,trainLosses(iteration),valLosses(iteration));
+    fprintf("iteration: %i/%i| training_loss: %.8f | validation_loss: %.8f\n",iteration,numIterations,trainLosses(iteration),valLosses(iteration));
     % disp("Finished iteration: "+string(iteration)+"/"+string(numIterations))
 end
 
@@ -244,6 +244,9 @@ for k = 1:5
     % Compute average accuracy for the minibatch
     accuracy(k) = sum(Predictions == pairLabelsAcc)/accuracyBatchSize;
 end
+
+disp("Accuracy or something idk")
+disp(accuracy);
 
     function Y = forwardTwin(net,fcParams,X1,X2)
         % forwardTwin accepts the network and pair of cluster features, and
