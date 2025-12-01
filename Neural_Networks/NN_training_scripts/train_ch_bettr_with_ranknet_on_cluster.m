@@ -1,157 +1,165 @@
 function [] = train_ch_bettr_with_ranknet_on_cluster(varargin)
-%this function aims to try and solve the choose better problem using
-%ranknet algorithm which requires a siamese neural network
-%set the path
-[dir,name,ext] = fileparts(mfilename('fullpath'));
+% Train a Siamese RankNet-style model to choose the better cluster.
+% Uses scalar score s(x) and P(x1 > x2) = sigmoid(s(x1) - s(x2)).
+
+% --- Path & config ---
+[dir,~,~] = fileparts(mfilename('fullpath'));
 cd(dir);
 home_dir = cd("..");
 cd("..");
 addpath(genpath(pwd))
 cd(home_dir)
+disp("Finished adding path");
 
-%get the config
 config = spikesort_config();
+disp("Finished getting config");
 
-%create a directory to save the results to
-dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"ch_bttr_with_twin"));
+dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
+    fullfile(config.parent_save_dir,"ch_bttr_with_twin"));
+disp("Finished creating save dir");
 
-%import the blind pass data we will use for trainining
-if length(varargin)<1
+% --- Load blind pass table ---
+if nargin < 1
     blind_pass_table = importdata(config.FP_TO_6_to_10);
 else
     blind_pass_table = varargin{1};
 end
+disp("Finished loading blind pass table");
 
-%filter out any rows of blind pass table that have accuracy less than 1
-%we do this because they are MUA and MUA are unpredictable and can make
-%training unstable
-blind_pass_table(blind_pass_table{:,"accuracy"}<1,:) = [];
+% Filter out MUA (accuracy < 1)
+blind_pass_table(blind_pass_table{:,"accuracy"} < 1, :) = [];
+disp("Finished filtering blind pass");
 
-%first thing we can do is partition the blind pass table into
-%testing/training data
+% --- Partition into train / val / test at unit level ---
 partitioned_data = partition_bp_tables(blind_pass_table,0);
-test_data = partitioned_data{2};
+test_data    = partitioned_data{2};
 training_data = partitioned_data{1};
 
-%now further partition training data into training and validation
 partitioned_data = partition_bp_tables(training_data,0);
 training_data = partitioned_data{1};
-val_data = partitioned_data{2};
+val_data      = partitioned_data{2};
+disp("Finished partitioning training / val / test");
 
-%this partition occurs at the unit level
-%30 percent of of units are removed to validate/test
-%if we didn't do this then the neural network could cheat by learning a
-%particular unit's rough accuracy and then using that same information
-%during validation
-
-%set the features that will be used to train the neural net
+% --- Features ---
 list_of_features_to_add = ["grades 2","valley_1","valley_2"];
 
-%get the features
 training_features_array = assemble_data_for_neural_net(list_of_features_to_add,training_data,config);
 training_features_array = cell2mat(training_features_array);
+
 val_features_array = assemble_data_for_neural_net(list_of_features_to_add,val_data,config);
 val_features_array = cell2mat(val_features_array);
+
 test_features_array = assemble_data_for_neural_net(list_of_features_to_add,test_data,config);
 test_features_array = cell2mat(test_features_array);
 
+disp("Finished getting features");
 
-%normalize all features based on trainining data
+% Normalize based on training data
 col_min = min(training_features_array,[],1);
 col_max = max(training_features_array,[],1);
 
-training_features_array = rescale(training_features_array,0,1,"InputMax",col_max,"InputMin",col_min);
-val_features_array = rescale(val_features_array,0,1,"InputMax",col_max,"InputMin",col_min);
-test_features_array = rescale(test_features_array,0,1,"InputMax",col_max,"InputMin",col_min);
+training_features_array = rescale(training_features_array,0,1, ...
+    "InputMax",col_max,"InputMin",col_min);
+val_features_array = rescale(val_features_array,0,1, ...
+    "InputMax",col_max,"InputMin",col_min);
+test_features_array = rescale(test_features_array,0,1, ...
+    "InputMax",col_max,"InputMin",col_min);
 
-%ideally we want to train a single neural network to be able to generally
-%choose the cluster with higher accuracy
-%this might prove difficult because the task gets harder the closer the
-%accuracy gets
+% --- Pairwise comparisons ---
+% Debug: only use ~20% of rows to keep nchoosek small.
+nTrain = round(size(training_features_array,1)/5);
+nVal   = round(size(val_features_array,1)/5);
+nTest  = round(size(test_features_array,1)/5);
 
-%get every possible comparison
-training_all_comparisons = nchoosek(1:(round(size(training_features_array,1) / 5)),2); %only for local debugging
-val_all_comparisons = nchoosek(1:(round(size(val_features_array,1) / 5)),2); %only for local debugging
-test_all_comparisons = nchoosek(1:(round(size(test_features_array,1) / 5)),2); %only for local debugging
+training_all_comparisons = nchoosek(1:nTrain,2);
+val_all_comparisons      = nchoosek(1:nVal,2);
+test_all_comparisons     = nchoosek(1:nTest,2);
 
-%actual comparisons to be used on cluster
-% training_all_comparisons = nchoosek(1:size(training_features_array,1),2);
-% val_all_comparisons = nchoosek(1:size(val_features_array,1),2);
-% test_all_comparisons = nchoosek(1:size(test_features_array,1),2);
+% True class: 1 if left cluster better, 0 otherwise.
+train_true_class = training_data{training_all_comparisons(:,1),"accuracy"} > ...
+    training_data{training_all_comparisons(:,2),"accuracy"};
+val_true_class   = val_data{val_all_comparisons(:,1),"accuracy"} > ...
+    val_data{val_all_comparisons(:,2),"accuracy"};
+test_true_class  = test_data{test_all_comparisons(:,1),"accuracy"} > ...
+    test_data{test_all_comparisons(:,2),"accuracy"};
 
-%get the magnitude of the differences between their accuracy
-train_acc_diff_mag = abs(training_data{training_all_comparisons(:,1),"accuracy"} - training_data{training_all_comparisons(:,2),"accuracy"});
-val_acc_diff_mag = abs(val_data{val_all_comparisons(:,1),"accuracy"} - val_data{val_all_comparisons(:,2),"accuracy"});
-test_acc_diff_mag = abs(test_data{test_all_comparisons(:,1),"accuracy"} - test_data{test_all_comparisons(:,2),"accuracy"});
+% we'll also want to keep track of the magnitude of accuracy differences
+%this is necessary because the very easy choices are simple for the neural
+%network to make (large accuracy differrences are easy to identify)
 
-%get the true class for all the comparisons
-%1 = the "left" cluster is better
-%0 = the "right" cluster is better
-train_true_class = training_data{training_all_comparisons(:,1),"accuracy"} > training_data{training_all_comparisons(:,2),"accuracy"};
-val_true_class = val_data{val_all_comparisons(:,1),"accuracy"} > val_data{val_all_comparisons(:,2),"accuracy"};
-test_true_class = test_data{test_all_comparisons(:,1),"accuracy"} > test_data{test_all_comparisons(:,2),"accuracy"};
+%the goal is to find a general solution so we'll ensure that during
+%training/validating/testing that there's an equal distribution of
+%hard/easy cases hopefully preventing a misleading accuracy rate on test
+%data
+train_mag_differences = abs(training_data{training_all_comparisons(:,1),"accuracy"} - training_data{training_all_comparisons(:,2),"accuracy"});
+val_mag_differences = abs(val_data{val_all_comparisons(:,1),"accuracy"} - val_data{val_all_comparisons(:,2),"accuracy"});
+test_mag_differences = abs(test_data{test_all_comparisons(:,1),"accuracy"} - test_data{test_all_comparisons(:,2),"accuracy"});
+
+%set some buckets of difficulty
+difficulty_buckets = [0,1,5,10,20,30,40,50,60];
+
+%add the difficulty category to all test/training/val comparisons
+train_bucket = get_difficulty_buckets_array(train_mag_differences,difficulty_buckets);
+val_buckets = get_difficulty_buckets_array(val_mag_differences,difficulty_buckets);
+test_buckets = get_difficulty_buckets_array(test_mag_differences,difficulty_buckets);
 
 
-%get a neural network which we'll try to generalize
-%now get a neural network which will be used to train the current task
-%10=num neurons per layer
-%5 = num layers
-%2 = number of classes
-%4 = number of features in assembled data
-layers_of_net = dynamically_create_layers_for_nn(size(training_features_array,2),10,5,2);
+%randomly sample the test/training/validation data to ensure that all
+%difficulty classes are equally represented
+[training_all_comparisons,train_true_class,~] = sample_data_by_difficulty_bucket(training_all_comparisons,train_true_class,train_bucket);
+[val_all_comparisons,val_true_class,~] = sample_data_by_difficulty_bucket(val_all_comparisons,val_true_class,val_buckets);
+
+
+
+
+disp("Finished computing pairwise labels");
+
+% --- Build RankNet Siamese tower ---
+% Dynamically create a network that outputs a scalar score
+inputDim = size(training_features_array,2);
+layers_of_net = dynamically_create_layers_for_nn(inputDim,10,5,1);
+
+% Remove final softmax layer if present
+if isa(layers_of_net(end), 'nnet.cnn.layer.SoftmaxLayer')
+    layers_of_net(end) = [];
+end
 
 net = dlnetwork(layers_of_net);
 
-fcWeights = dlarray(0.01*randn(1,2));
-fcBias = dlarray(0.01*randn(1,1));
-
-fcParams = struct(...
-    "FcWeights",fcWeights,...
-    "FcBias",fcBias);
-
-%because matlab doesn't have a method of training siamese networkd directly
-%we'll have to define a custom loop
-
-%specify some training options
-numIterations = 10000;
-miniBatchSize = 180;
-%specify options for adam optimizer
-learningRate = 1e-3;
-gradDecay = 0.9;
-gradDecaySq = 0.99;
-
+% --- Training hyperparameters ---
+numIterations  = 10000;
+miniBatchSize  = 180;
+learningRate   = 1e-3;
+gradDecay      = 0.9;
+gradDecaySq    = 0.99;
 executionEnvironment = "auto";
-
-trailingAvgSubnet = [];
-trailingAvgSqSubnet = [];
-trailingAvgParams = [];
-trailingAvgSqParams = [];
 
 if canUseGPU
     gpu = gpuDevice;
     disp(gpu.Name + " GPU detected and available for training.")
 end
 
-
-
-% Loop over mini-batches.
-[valX1, valX2, valLabels] = getTwinBatch( ...
-    val_all_comparisons, miniBatchSize, val_true_class, val_features_array);
-
-valX1 = dlarray(single(valX1),"CB");
-valX2 = dlarray(single(valX2),"CB");
-valLabels = dlarray(single(valLabels),"CB");
-
-if (executionEnvironment == "auto" && canUseGPU) || executionEnvironment == "gpu"
-    valX1 = gpuArray(valX1);
-    valX2 = gpuArray(valX2);
-    valLabels = gpuArray(valLabels);
-end
-
 trainLosses = zeros(numIterations,1,'single');
 valLosses   = zeros(numIterations,1,'single');
 
+trailingAvgSubnet  = [];
+trailingAvgSqSubnet = [];
 
+% --- Build a fixed validation batch (for consistent val loss) ---
+[valX1, valX2, valLabels] = getTwinBatch( ...
+    val_all_comparisons, miniBatchSize, val_true_class, val_features_array);
+
+valX1     = dlarray(single(valX1),"CB");
+valX2     = dlarray(single(valX2),"CB");
+valLabels = dlarray(single(valLabels),"CB");  % 1×B, 0/1
+
+if (executionEnvironment == "auto" && canUseGPU) || executionEnvironment == "gpu"
+    valX1     = gpuArray(valX1);
+    valX2     = gpuArray(valX2);
+    valLabels = gpuArray(valLabels);
+end
+
+% --- Training loop ---
 for iteration = 1:numIterations
 
     % ---- training minibatch ----
@@ -160,7 +168,7 @@ for iteration = 1:numIterations
 
     X1 = dlarray(single(X1),"CB");
     X2 = dlarray(single(X2),"CB");
-    pairLabels = dlarray(single(pairLabels),"CB");
+    pairLabels = dlarray(single(pairLabels),"CB");  % 1×B
 
     if (executionEnvironment == "auto" && canUseGPU) || executionEnvironment == "gpu"
         X1 = gpuArray(X1);
@@ -170,26 +178,29 @@ for iteration = 1:numIterations
 
     % ---- loss + gradients ----
     [loss, gradientsNet] = dlfeval(@modelLoss, net, X1, X2, pairLabels);
-    [net, trailingAvgSubnet, trailingAvgSqSubnet] = adamupdate( ...
-    net, gradientsNet, trailingAvgSubnet, trailingAvgSqSubnet, ...
-    iteration, learningRate, gradDecay, gradDecaySq);
 
-    [fcParams,trailingAvgParams,trailingAvgSqParams] = adamupdate(fcParams,gradientsParams, ...
-        trailingAvgParams,trailingAvgSqParams,iteration,learningRate,gradDecay,gradDecaySq);
+    [net, trailingAvgSubnet, trailingAvgSqSubnet] = adamupdate( ...
+        net, gradientsNet, trailingAvgSubnet, trailingAvgSqSubnet, ...
+        iteration, learningRate, gradDecay, gradDecaySq);
 
     % ---- validation loss ----
-    Yval    = forwardTwin(net, fcParams, valX1, valX2);
-    valLoss = crossentropy(Yval, valLabels);
+    Yval = forwardTwin(net, valX1, valX2);  % [1 × B]
+    epsVal = 1e-7;
+    valLoss = -mean( ...
+        valLabels .* log(Yval + epsVal) + ...
+        (1 - valLabels) .* log(1 - Yval + epsVal), ...
+        'all');
 
     % ---- log losses ----
     trainLosses(iteration) = gather(extractdata(loss));
     valLosses(iteration)   = gather(extractdata(valLoss));
 
-    fprintf("iteration: %i/%i| training_loss: %.8f | validation_loss: %.8f\n",iteration,numIterations,trainLosses(iteration),valLosses(iteration));
-    % disp("Finished iteration: "+string(iteration)+"/"+string(numIterations))
+
+    fprintf("iteration: %i/%i | train_loss: %.6f | val_loss: %.6f\n", ...
+        iteration, numIterations, trainLosses(iteration), valLosses(iteration));
 end
 
-% build output table
+% --- Save metrics ---
 iterations = (1:numIterations).';
 metrics_tbl = table(iterations, trainLosses, valLosses, ...
     'VariableNames', {'Iteration','TrainLoss','ValLoss'});
@@ -197,126 +208,115 @@ metrics_tbl = table(iterations, trainLosses, valLosses, ...
 writetable(metrics_tbl, fullfile(dir_to_save_results_to,"ranknet_training_metrics.csv"));
 save(fullfile(dir_to_save_results_to,"ranknet_training_metrics.mat"), "metrics_tbl");
 
+% --- Save network ---
 net_struct = struct();
-net_struct.net = net;
+net_struct.net     = net;
 net_struct.col_min = col_min;
 net_struct.col_max = col_max;
-net_struct.fc_params = fcParams;
 
-%save the net
-par_save(fullfile(dir_to_save_results_to,"siamense_choose_better.mat"),net_struct)
+par_save(fullfile(dir_to_save_results_to,"siamese_choose_better.mat"), net_struct);
+
+% --- Evaluate on test pairs ---
 accuracy = zeros(1,5);
 accuracyBatchSize = miniBatchSize;
 
 for k = 1:5
-    % Extract mini-batch of image pairs and pair labels
     [X1,X2,pairLabelsAcc] = getTwinBatch( ...
         test_all_comparisons, miniBatchSize, test_true_class, test_features_array);
 
-    % Convert mini-batch of data to dlarray. Specify the dimension labels
-    % "SSCB" (spatial, spatial, channel, batch) for image data.
-    X1 = dlarray(X1,"CB");
-    X2 = dlarray(X2,"CB");
+    X1dl = dlarray(single(X1),"CB");
+    X2dl = dlarray(single(X2),"CB");
 
-    % If using a GPU, then convert data to gpuArray.
     if (executionEnvironment == "auto" && canUseGPU) || executionEnvironment == "gpu"
-        X1 = gpuArray(X1);
-        X2 = gpuArray(X2);
+        X1dl = gpuArray(X1dl);
+        X2dl = gpuArray(X2dl);
     end
 
-    % Evaluate predictions using trained network
-    Predictions = predictTwin(net,fcParams,X1,X2);
-
-    % Convert predictions to binary 0 or 1
+    Predictions = predictTwin(net, X1dl, X2dl);  % 1×B probabilities
     Predictions = gather(extractdata(Predictions));
-    Predictions = round(Predictions);
+    Predictions = round(Predictions);            % 0/1
 
-    % Compute average accuracy for the minibatch
-    accuracy(k) = sum(Predictions == pairLabelsAcc)/accuracyBatchSize;
+    accuracy(k) = sum(Predictions == pairLabelsAcc) / accuracyBatchSize;
 end
 
-disp("Accuracy or something idk")
+disp("Test accuracies over 5 mini-batches:");
 disp(accuracy);
+disp("Mean test accuracy:");
+disp(mean(accuracy));
 
-    function Y = forwardTwin(net,fcParams,X1,X2)
-        % forwardTwin accepts the network and pair of cluster features, and
-        % returns a prediction of the probability that of X1 being ranked higher
-        % than X2
+% --- Nested helper functions ---
 
-        % Pass the first set of features through the twin subnetwork
-        Y1 = forward(net,X1);
-        % Y1 = sigmoid(Y1);
-
-        % Pass the second set of features through twin subnetwork
-        Y2 = forward(net,X2);
-        % Y2 = sigmoid(Y2);
-
-        % Subtract the feature vectors
-        Y = sigmoid(Y1 - Y2);
-
-      
-
+    function Y = forwardTwin(netLocal, X1Local, X2Local)
+        % X1, X2: [features × batch]
+        s1 = forward(netLocal, X1Local);   % [1 × batch]
+        s2 = forward(netLocal, X2Local);   % [1 × batch]
+        Y  = sigmoid(s1 - s2);             % RankNet: P(X1 > X2)
     end
 
-    function [loss,gradientsNet] = modelLoss(net,fcParams,X1,X2,pairLabels)
+    function [loss, gradientsNet] = modelLoss(netLocal, X1Local, X2Local, pairLabelsLocal)
+        % pairLabelsLocal: numeric or dlarray, 0/1, size [1 × B]
+        s1 = forward(netLocal, X1Local);   % [1 × B]
+        s2 = forward(netLocal, X2Local);   % [1 × B]
+        probs = sigmoid(s1 - s2);          % [1 × B], P(X1 > X2)
 
-        % Pass the cluster feature pair through the network.
-        Y = forwardTwin(net,fcParams,X1,X2);
+        % Ensure labels are same type/device as probs
+        if ~isa(pairLabelsLocal,'dlarray')
+            pairLabelsLocal = dlarray(single(pairLabelsLocal),"CB");
+        end
+        if isa(probs,'gpuArray') && ~isaUnderlying(pairLabelsLocal,'gpuArray')
+            pairLabelsLocal = gpuArray(pairLabelsLocal);
+        end
 
-        % Calculate binary cross-entropy loss.
-        loss = crossentropy(Y,pairLabels,ClassificationMode="single-label");
+        epsVal = 1e-7;
+        loss = -mean( ...
+            pairLabelsLocal .* log(probs + epsVal) + ...
+            (1 - pairLabelsLocal) .* log(1 - probs + epsVal), ...
+            'all');
 
-        % Calculate gradients of the loss with respect to the network learnable
-        % parameters.
-        gradientsNet = dlgradient(loss,net.Learnables);
-
+        gradientsNet = dlgradient(loss, netLocal.Learnables);
     end
 
-    function Y = predictTwin(net,fcParams,X1,X2)
-        % predictTwin accepts the network and pair of images, and returns a
-        % prediction of the probability of X1 being a higher rank than X2.
-        % Use predictTwin during prediction.
-
-        % Pass the first set of features through the twin subnetwork.
-        Y1 = predict(net,X1);
-        % Y1 = sigmoid(Y1);
-
-        % Pass the second set of features through the twin subnetwork.
-        Y2 = predict(net,X2);
-        % Y2 = sigmoid(Y2);
-
-        % Subtract the feature vectors.
-        Y = sigmoid(Y1 - Y2);
-
+    function Y = predictTwin(netLocal, X1Local, X2Local)
+        s1 = predict(netLocal, X1Local);
+        s2 = predict(netLocal, X2Local);
+        Y  = sigmoid(s1 - s2);
     end
-    function [X1,X2,pair_labels] = getTwinBatch(all_combinations,mini_batch_size,true_combination_labels,features)
-        pair_labels = zeros(1,mini_batch_size);
-        X1 = zeros(size(features,2),mini_batch_size);
-        X2 = zeros(size(features,2),mini_batch_size);
 
-        %get all indexes where true_combination_labels ==0
-        [indexes_of_0,~]= find(~true_combination_labels);
-        %get all indexes where true_combination_labels ==1
-        [indexes_of_1,~] = find(true_combination_labels);
-        % Create batch examples where X1 has a higher/lower rank than X2
-        for i = 1:mini_batch_size
-            choice = rand(1);
+    function [X1,X2,pair_labels] = getTwinBatch(all_combinations, mini_batch_size, true_combination_labels, features)
+        % Sample a mini-batch of pairs with labels indicating whether
+        % the LEFT element is better (1) or not (0).
+        %
+        % all_combinations: [N_pairs × 2] indices into rows of `features` & data tables
+        % true_combination_labels: logical [N_pairs × 1], 1 if left > right
+        % features: [N_items × N_features]
 
-            % Randomly select instances where X1 has a higher/lower rank than X2
+        pair_labels = zeros(1,mini_batch_size, 'single');
+        X1 = zeros(size(features,2), mini_batch_size, 'single');
+        X2 = zeros(size(features,2), mini_batch_size, 'single');
+
+        % indexes where label == 0 or 1
+        idx0 = find(~true_combination_labels);
+        idx1 = find(true_combination_labels);
+
+        for ii = 1:mini_batch_size
+            choice = rand();
+
             if choice < 0.5
-                random_index_of_0 = randperm(length(indexes_of_0),1);
-                pair_idx_1 = all_combinations(indexes_of_0(random_index_of_0),1);
-                pair_idx_2 = all_combinations(indexes_of_0(random_index_of_0),2);
-                
+                % sample a "left not better" pair (label 0)
+                random_index = idx0(randi(numel(idx0)));
+                pair_labels(ii) = 0;
             else
-                random_index_of_1 = randperm(length(indexes_of_1),1);
-                pair_idx_1 = all_combinations(indexes_of_1(random_index_of_1),1);
-                pair_idx_2 = all_combinations(indexes_of_1(random_index_of_1),2);
-                pair_labels(i) = 1;
+                % sample a "left better" pair (label 1)
+                random_index = idx1(randi(numel(idx1)));
+                pair_labels(ii) = 1;
             end
 
-            X1(:,i) = features(pair_idx_1,:).';
-            X2(:,i) = features(pair_idx_2,:).';
+            pair_idx_1 = all_combinations(random_index,1);
+            pair_idx_2 = all_combinations(random_index,2);
+
+            X1(:,ii) = single(features(pair_idx_1,:)).';
+            X2(:,ii) = single(features(pair_idx_2,:)).';
         end
     end
+
 end
