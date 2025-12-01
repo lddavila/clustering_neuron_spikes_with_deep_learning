@@ -88,9 +88,9 @@ val_all_comparisons = nchoosek(1:(round(size(val_features_array,1) / 5)),2); %on
 test_all_comparisons = nchoosek(1:(round(size(test_features_array,1) / 5)),2); %only for local debugging
 
 %actual comparisons to be used on cluster
-% training_all_comparisons = nchoosek(1:size(training_features_array,1),2);
-% val_all_comparisons = nchoosek(1:size(val_features_array,1),2);
-% test_all_comparisons = nchoosek(1:size(test_features_array,1),2);
+training_all_comparisons = nchoosek(1:size(training_features_array,1),2);
+val_all_comparisons = nchoosek(1:size(val_features_array,1),2);
+test_all_comparisons = nchoosek(1:size(test_features_array,1),2);
 disp("finished getting all train/val/test comparisons")
 
 %get the true class for all the comparisons
