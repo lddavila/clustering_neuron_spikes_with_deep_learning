@@ -69,15 +69,6 @@ test_features_array = rescale(test_features_array,0,1,"InputMax",col_max,"InputM
 %this might prove difficult because the task gets harder the closer the
 %accuracy gets
 
-%to solve this we'll train via curriculum learning
-%where it will be begin with trivial examples (huge differences in
-%accuracy)
-%then make them closer and closer
-%Ensuring to preserve some of the earlier examples in every harder example
-%so that the neural net doesn't forget the early bits of training
-%we will mix recordings
-%recording with level 6 and level 10 noise are both in the training set
-
 %get every possible comparison
 training_all_comparisons = nchoosek(1:(round(size(training_features_array,1) / 5)),2); %only for local debugging
 val_all_comparisons = nchoosek(1:(round(size(val_features_array,1) / 5)),2); %only for local debugging
@@ -178,11 +169,10 @@ for iteration = 1:numIterations
     end
 
     % ---- loss + gradients ----
-    [loss,gradientsSubnet,gradientsParams] = dlfeval(@modelLoss,net,fcParams,X1,X2,pairLabels);
-
-    % update subnet + head
-    [net,trailingAvgSubnet,trailingAvgSqSubnet] = adamupdate(net,gradientsSubnet, ...
-        trailingAvgSubnet,trailingAvgSqSubnet,iteration,learningRate,gradDecay,gradDecaySq);
+    [loss, gradientsNet] = dlfeval(@modelLoss, net, X1, X2, pairLabels);
+    [net, trailingAvgSubnet, trailingAvgSqSubnet] = adamupdate( ...
+    net, gradientsNet, trailingAvgSubnet, trailingAvgSqSubnet, ...
+    iteration, learningRate, gradDecay, gradDecaySq);
 
     [fcParams,trailingAvgParams,trailingAvgSqParams] = adamupdate(fcParams,gradientsParams, ...
         trailingAvgParams,trailingAvgSqParams,iteration,learningRate,gradDecay,gradDecaySq);
@@ -262,17 +252,13 @@ disp(accuracy);
         % Y2 = sigmoid(Y2);
 
         % Subtract the feature vectors
-        Y = abs(Y1 - Y2);
+        Y = sigmoid(Y1 - Y2);
 
-        % Pass the result through a fullyconnect operation
-        Y = fullyconnect(Y,fcParams.FcWeights,fcParams.FcBias);
-
-        % Convert to probability between 0 and 1.
-        Y = sigmoid(Y);
+      
 
     end
 
-    function [loss,gradientsSubnet,gradientsParams] = modelLoss(net,fcParams,X1,X2,pairLabels)
+    function [loss,gradientsNet] = modelLoss(net,fcParams,X1,X2,pairLabels)
 
         % Pass the cluster feature pair through the network.
         Y = forwardTwin(net,fcParams,X1,X2);
@@ -282,7 +268,7 @@ disp(accuracy);
 
         % Calculate gradients of the loss with respect to the network learnable
         % parameters.
-        [gradientsSubnet,gradientsParams] = dlgradient(loss,net.Learnables,fcParams);
+        gradientsNet = dlgradient(loss,net.Learnables);
 
     end
 
@@ -300,13 +286,7 @@ disp(accuracy);
         % Y2 = sigmoid(Y2);
 
         % Subtract the feature vectors.
-        Y = abs(Y1 - Y2);
-
-        % Pass result through a fullyconnect operation.
-        Y = fullyconnect(Y,fcParams.FcWeights,fcParams.FcBias);
-
-        % Convert to probability between 0 and 1.
-        Y = sigmoid(Y);
+        Y = sigmoid(Y1 - Y2);
 
     end
     function [X1,X2,pair_labels] = getTwinBatch(all_combinations,mini_batch_size,true_combination_labels,features)

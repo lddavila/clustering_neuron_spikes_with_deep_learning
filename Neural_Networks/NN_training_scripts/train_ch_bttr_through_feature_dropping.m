@@ -83,14 +83,14 @@ test_features_array = rescale(test_features_array,0,1,"InputMax",col_max,"InputM
 
 
 %get every possible comparison
-training_all_comparisons = nchoosek(1:(round(size(training_features_array,1) / 5)),2); %only for local debugging
-val_all_comparisons = nchoosek(1:(round(size(val_features_array,1) / 5)),2); %only for local debugging
-test_all_comparisons = nchoosek(1:(round(size(test_features_array,1) / 5)),2); %only for local debugging
+training_all_comparisons = nchoosek(1:(round(size(training_features_array,1) / 3)),2); %only for local debugging
+val_all_comparisons = nchoosek(1:(round(size(val_features_array,1) / 3)),2); %only for local debugging
+test_all_comparisons = nchoosek(1:(round(size(test_features_array,1) / 3)),2); %only for local debugging
 
 %actual comparisons to be used on cluster
-training_all_comparisons = nchoosek(1:size(training_features_array,1),2);
-val_all_comparisons = nchoosek(1:size(val_features_array,1),2);
-test_all_comparisons = nchoosek(1:size(test_features_array,1),2);
+% training_all_comparisons = nchoosek(1:size(training_features_array,1),2);
+% val_all_comparisons = nchoosek(1:size(val_features_array,1),2);
+% test_all_comparisons = nchoosek(1:size(test_features_array,1),2);
 disp("finished getting all train/val/test comparisons")
 
 %get the true class for all the comparisons
