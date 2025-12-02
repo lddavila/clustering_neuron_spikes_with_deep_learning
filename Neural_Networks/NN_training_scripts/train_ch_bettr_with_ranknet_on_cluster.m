@@ -129,7 +129,7 @@ end
 net = dlnetwork(layers_of_net);
 
 % --- Training hyperparameters ---
-numIterations  = 100000;
+numIterations  = 5000000;
 miniBatchSize  = 180;
 learningRate   = 1e-3;
 gradDecay      = 0.9;
