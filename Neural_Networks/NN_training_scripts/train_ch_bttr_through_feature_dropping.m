@@ -221,7 +221,7 @@ fprintf("Baseline net accuracy is %.2f\n",baseline_test_accuracy*100);
 %it won't be perfect as sometimes new worker(s) will start before an old
 %worker determines a feature cannot be dropped, 
 never_remove_list = [];
-for i=2:length(table_of_feature_combos)
+for i=2:height(table_of_feature_combos)
     never_remove_list = unique(never_remove_list);
     current_features = table_of_feature_combos{i,"feature_combo"}{1};
     missing_features = setdiff(1:size(training_features_array,2),current_features);
