@@ -195,11 +195,11 @@ if ~isfile("all_feature_choose_better_net.mat")
 
     par_save("all_feature_choose_better_net.mat",net_struct);
 else
-   load("all_feature_choose_better_net.mat","net_struct");
-   default_net = data_to_save.net;
-   baseline_test_accuracy = net_struct.baseline_test_accuracy;
-   col_min = net_struct.column_min;
-   col_max = net_struct.column_max;
+   load("all_feature_choose_better_net.mat","data_to_save");
+   % default_net = data_to_save.net;
+   baseline_test_accuracy = data_to_save.baseline_test_accuracy;
+   % col_min = net_struct.column_min;
+   % col_max = net_struct.column_max;
    disp("Finished loading default net")
 end
 
