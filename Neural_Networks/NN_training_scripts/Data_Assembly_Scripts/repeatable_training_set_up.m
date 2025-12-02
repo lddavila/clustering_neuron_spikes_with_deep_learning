@@ -34,7 +34,7 @@ disp("Number of 1 class "+string(sum(training_data(:,end)==1)))
 training_data = training_data(randperm(size(training_data,1),size(training_data,1)),:);
 
 %now train
-[~,net] = test_nn_on_incremental_challenging_specify_stop_fcn(training_data,val_data,layers_of_net,32,@stop_on_max_acc_and_lack_of_improvement);
+[~,net] = test_nn_on_incremental_challenging_specify_stop_fcn(training_data,val_data,layers_of_net,128,@stop_on_max_acc_and_lack_of_improvement);
 % fprintf("Accuracy on training and validation data: %.2f\n",accuracy*100);
 
 %take the trained net and see its performance on the testing data
