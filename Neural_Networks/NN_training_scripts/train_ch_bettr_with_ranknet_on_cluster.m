@@ -67,9 +67,9 @@ test_features_array = rescale(test_features_array,0,1, ...
 
 % --- Pairwise comparisons ---
 % Debug: only use ~20% of rows to keep nchoosek small.
-nTrain = round(size(training_features_array,1)/5);
-nVal   = round(size(val_features_array,1)/5);
-nTest  = round(size(test_features_array,1)/5);
+nTrain = round(size(training_features_array,1)/2);
+nVal   = round(size(val_features_array,1)/2);
+nTest  = round(size(test_features_array,1)/2);
 
 training_all_comparisons = nchoosek(1:nTrain,2);
 val_all_comparisons      = nchoosek(1:nVal,2);
@@ -108,7 +108,9 @@ test_buckets = get_difficulty_buckets_array(test_mag_differences,difficulty_buck
 %difficulty classes are equally represented
 [training_all_comparisons,train_true_class,~] = sample_data_by_difficulty_bucket(training_all_comparisons,train_true_class,train_bucket);
 [val_all_comparisons,val_true_class,~] = sample_data_by_difficulty_bucket(val_all_comparisons,val_true_class,val_buckets);
-
+%we equalize test data to ensure that accuracy is not improperly inflated
+%from a large set of easy choices in the test data
+[test_all_comparisons,test_true_class,~] = sample_data_by_difficulty_bucket(test_all_comparisons,test_true_class,test_buckets);
 
 
 
@@ -127,7 +129,7 @@ end
 net = dlnetwork(layers_of_net);
 
 % --- Training hyperparameters ---
-numIterations  = 10000;
+numIterations  = 100000;
 miniBatchSize  = 180;
 learningRate   = 1e-3;
 gradDecay      = 0.9;
