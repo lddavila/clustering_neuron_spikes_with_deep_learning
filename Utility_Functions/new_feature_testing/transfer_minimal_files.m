@@ -78,7 +78,7 @@ for i = 1:num_files
 
     % Build remote directory under remote_base_dir (POSIX separators)
     sub_parts   = current_file_to_create(place_where_default_starts+1:end);
-    remote_sub  = strjoin(sub_parts, "/");
+    remote_sub  = strjoin(sub_parts, "\");
     remote_dir  = sprintf('%s/%s', remote_base_dir, remote_sub);
 
     try
