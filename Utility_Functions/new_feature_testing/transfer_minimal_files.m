@@ -83,7 +83,10 @@ for i = 1:num_files
 
     try
         % Just transfer; assume remote_dir already exists
-        mput(s, local_full, remote_dir);
+         cd(s, remote_dir);
+
+        % Upload the file into the current remote dir
+        mput(s, local_full);
         fprintf("Transferred %d/%d: %s -> %s\n", i, num_files, local_full, remote_dir);
     catch ME
         warning("Failed to transfer %s to %s: %s", local_full, remote_dir, ME.message);
