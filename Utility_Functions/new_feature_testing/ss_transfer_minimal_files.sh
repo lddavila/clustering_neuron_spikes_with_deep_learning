@@ -6,4 +6,4 @@
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 module load matlab/R2024b
-matlab -batch 'transfer_minimal_files("/scratch/cnheaton/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir", "G:\david_spikesorting_paper_data\OneDrive - The University of Texas at El Paso\all_data");exit;'
+matlab -batch 'transfer_minimal_files("/scratch/cnheaton/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir", "/G/david_spikesorting_paper_data/OneDrive - The University of Texas at El Paso/all_data");exit;'
