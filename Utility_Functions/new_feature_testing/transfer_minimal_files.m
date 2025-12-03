@@ -79,19 +79,18 @@ for i = 1:num_files
     % Build remote directory under remote_base_dir (POSIX separators)
     sub_parts   = current_file_to_create(place_where_default_starts+1:end);
     remote_sub  = strjoin(sub_parts, "\");
-    
+
     remote_dir = remote_base_dir+"\"+remote_sub;
+    cd(s, remote_dir);
 
-    try
-        % Just transfer; assume remote_dir already exists
-         cd(s, remote_dir);
+    % Upload the file into the current remote dir
+    disp("File about to be transfeered")
+    disp(local_full)
+    disp("Remote location")
+    disp(remote_dir)
+    mput(s, local_full);
 
-        % Upload the file into the current remote dir
-        mput(s, local_full);
-        fprintf("Transferred %d/%d: %s -> %s\n", i, num_files, local_full, remote_dir);
-    catch ME
-        warning("Failed to transfer %s to %s: %s", local_full, remote_dir, ME.message);
-    end
+    fprintf("Transferred %d/%d: %s -> %s\n", i, num_files, local_full, remote_dir);
 end
 
 % --- Cleanup ---
