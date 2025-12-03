@@ -77,7 +77,10 @@ function transfer_minimal_files(local_base_dir, remote_base_dir, varargin)
 
     if isempty(files_to_transfer)
         fprintf("No matching files found under %s\n", local_base_dir);
-        try, close(s); end
+        try
+            close(s); 
+        catch
+        end
         return;
     end
 
