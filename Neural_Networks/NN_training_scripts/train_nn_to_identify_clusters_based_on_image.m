@@ -80,7 +80,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(sliced_only_bad);
 print_status_bar(num_iterations,"getting_bad_images.m")
-for i=1:length(sliced_only_bad)
+parfor i=1:length(sliced_only_bad)
     % try
         current_data = sliced_only_bad{i};
         current_image_name = "z_score_"+current_data{1,"Z Score"}+"_tetrode_"+current_data{1,"Tetrode"}+"_"+current_data{1,"recording_name"}+".png";
@@ -92,7 +92,7 @@ for i=1:length(sliced_only_bad)
         current_channels = current_data{1,"grades"}{1}{49};
         current_aligned = importdata(current_data{1,"fp_to_aligned"});
         current_aligned = current_aligned.aligned;
-        current_image = produce_nth_dimensioal_view(current_aligned,current_channels);
+        current_image = produce_nth_dimensional_view(current_aligned,current_channels);
         imwrite(current_image_name,current_image)
         send(q,[]);
     % catch
@@ -103,7 +103,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(sliced_only_good);
 print_status_bar(num_iterations,"getting_good_images.m")
-for i=1:length(sliced_only_good)
+parfor i=1:length(sliced_only_good)
     % try
         current_data = sliced_only_good{i};
         current_image_name = "z_score_"+current_data{1,"Z Score"}+"_tetrode_"+current_data{1,"Tetrode"}+"_"+current_data{1,"recording_name"}+".png";
@@ -115,7 +115,7 @@ for i=1:length(sliced_only_good)
         current_channels = current_data{1,"grades"}{1}{49};
         current_aligned = importdata(current_data{1,"fp_to_aligned"});
         current_aligned = current_aligned.aligned;
-        current_image = produce_nth_dimensioal_view(current_aligned,current_channels);
+        current_image = produce_nth_dimensional_view(current_aligned,current_channels);
         imwrite(current_image_name,current_image)
         send(q,[]);
     % catch
