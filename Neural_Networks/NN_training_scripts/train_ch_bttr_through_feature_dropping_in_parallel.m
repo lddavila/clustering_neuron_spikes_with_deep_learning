@@ -236,7 +236,7 @@ disp("Finished setting vars for parallel.")
 %it won't be perfect as sometimes new worker(s) will start before an old
 %worker determines a feature cannot be dropped, 
 never_remove_list = [];
-number_of_features = length(table_of_feature_combos{1,1}{1});   
+number_of_features = size(training_features_array.Value,2);   
 pool = parpool('Threads');
 parfor i=2:length(table_of_feature_combos)
     current_data = table_of_feature_combos{i};
