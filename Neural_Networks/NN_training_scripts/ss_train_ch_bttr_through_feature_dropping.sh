@@ -6,4 +6,4 @@
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 module load matlab/R2024b
-matlab -batch 'train_ch_bttr_through_feature_dropping();exit;'
+matlab -batch 'train_ch_bttr_through_feature_dropping_in_parallel();exit;'
