@@ -93,7 +93,7 @@ parfor i=1:length(sliced_only_bad)
         current_aligned = importdata(current_data{1,"fp_to_aligned"});
         current_aligned = current_aligned.aligned;
         current_image = produce_nth_dimensional_view(current_aligned,current_channels);
-        imwrite(current_image_name,current_image)
+        imwrite(current_image,current_image_name)
         send(q,[]);
     % catch
     %     send(q,[]);
@@ -116,7 +116,7 @@ parfor i=1:length(sliced_only_good)
         current_aligned = importdata(current_data{1,"fp_to_aligned"});
         current_aligned = current_aligned.aligned;
         current_image = produce_nth_dimensional_view(current_aligned,current_channels);
-        imwrite(current_image_name,current_image)
+        imwrite(current_image,current_image_name)
         send(q,[]);
     % catch
     %     send(q,[]);
