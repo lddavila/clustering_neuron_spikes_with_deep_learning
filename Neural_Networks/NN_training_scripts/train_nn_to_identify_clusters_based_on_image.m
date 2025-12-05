@@ -135,6 +135,18 @@ disp("Finished setting the meta parameters")
 %create an image datastore which will be used for training
 imds = imageDatastore(sub_image_directory,"IncludeSubfolders",true,"LabelSource","foldernames");
 
+tbl = countEachLabel(imds);   % count images per class
+disp(tbl)
+
+minCount = min(tbl.Count);    % smallest class count
+
+% undersample to match minority class
+imds = splitEachLabel(imds, minCount, "randomized");
+
+% re-check
+disp("After balancing:")
+countEachLabel(imds)
+
 %now specify training and validation data
 [imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
 %now we get the neural network which we'll use to train the identifcation
