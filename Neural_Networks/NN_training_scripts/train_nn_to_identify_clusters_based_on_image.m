@@ -82,19 +82,19 @@ num_iterations = length(sliced_only_bad);
 print_status_bar(num_iterations,"getting_bad_images.m")
 parfor i=1:length(sliced_only_bad)
     % try
-        current_data = sliced_only_bad{i};
-        current_image_name = "z_score_"+current_data{1,"Z Score"}+"_tetrode_"+current_data{1,"Tetrode"}+"_"+current_data{1,"recording_name"}+".png";
-        current_image_name = fullfile(doesnt_have_cluster,current_image_name);
-        if isfile(current_image_name)
-            send(q,[]);
-            continue;
-        end
-        current_channels = current_data{1,"grades"}{1}{49};
-        current_aligned = importdata(current_data{1,"fp_to_aligned"});
-        current_aligned = current_aligned.aligned;
-        current_image = produce_nth_dimensional_view(current_aligned,current_channels);
-        imwrite(current_image,current_image_name)
+    current_data = sliced_only_bad{i};
+    current_image_name = "z_score_"+current_data{1,"Z Score"}+"_tetrode_"+current_data{1,"Tetrode"}+"_"+current_data{1,"recording_name"}+".png";
+    current_image_name = fullfile(doesnt_have_cluster,current_image_name);
+    if isfile(current_image_name)
         send(q,[]);
+        continue;
+    end
+    current_channels = current_data{1,"grades"}{1}{49};
+    current_aligned = importdata(current_data{1,"fp_to_aligned"});
+    current_aligned = current_aligned.aligned;
+    current_image = produce_nth_dimensional_view(current_aligned,current_channels);
+    imwrite(current_image,current_image_name)
+    send(q,[]);
     % catch
     %     send(q,[]);
     % end
@@ -105,23 +105,76 @@ num_iterations = length(sliced_only_good);
 print_status_bar(num_iterations,"getting_good_images.m")
 parfor i=1:length(sliced_only_good)
     % try
-        current_data = sliced_only_good{i};
-        current_image_name = "z_score_"+current_data{1,"Z Score"}+"_tetrode_"+current_data{1,"Tetrode"}+"_"+current_data{1,"recording_name"}+".png";
-        current_image_name = fullfile(has_cluster,current_image_name);
-        if isfile(current_image_name)
-            send(q,[]);
-            continue;
-        end
-        current_channels = current_data{1,"grades"}{1}{49};
-        current_aligned = importdata(current_data{1,"fp_to_aligned"});
-        current_aligned = current_aligned.aligned;
-        current_image = produce_nth_dimensional_view(current_aligned,current_channels);
-        imwrite(current_image,current_image_name)
+    current_data = sliced_only_good{i};
+    current_image_name = "z_score_"+current_data{1,"Z Score"}+"_tetrode_"+current_data{1,"Tetrode"}+"_"+current_data{1,"recording_name"}+".png";
+    current_image_name = fullfile(has_cluster,current_image_name);
+    if isfile(current_image_name)
         send(q,[]);
+        continue;
+    end
+    current_channels = current_data{1,"grades"}{1}{49};
+    current_aligned = importdata(current_data{1,"fp_to_aligned"});
+    current_aligned = current_aligned.aligned;
+    current_image = produce_nth_dimensional_view(current_aligned,current_channels);
+    imwrite(current_image,current_image_name)
+    send(q,[]);
     % catch
     %     send(q,[]);
     % end
 end
 
+%with the images now created we can actually proceed to train
+%identification
+
+%set some hyperparameters for training
+blocks        = [2 3];       % how many conv blocks (2–3)
+baseFilters_all   = [16 32];     % starting #filters (16 or 32)
+fcUnitsGrid   = [64 128];    % size of the FC layer
+disp("Finished setting the meta parameters")
+
+%create an image datastore which will be used for training
+imds = imageDatastore(sub_image_directory,"IncludeSubfolders",true,"LabelSource","foldernames");
+
+%now specify training and validation data
+[imdsTrain,imdsValidation] = splitEachLabel(imds,0.75,"randomized");
+%now we get the neural network which we'll use to train the identifcation
+%inputSize = size(grayscale_image);
+num_classes = 2;
+input_size = [200,300,1];
+
+%now specify training options
+options = trainingOptions("sgdm", ...
+    MaxEpochs=40, ...                      % fewer epochs; CNN learns faster
+    MiniBatchSize=64, ...
+    InitialLearnRate=1e-2, ...
+    Momentum=0.9, ...
+    ValidationData=imdsValidation, ...
+    ValidationFrequency=30, ...
+    ValidationPatience=5, ...              % early stopping on plateau
+    Shuffle="every-epoch", ...
+    Metrics="accuracy", ...
+    Plots="none", ...
+    Verbose=true, ...
+    ExecutionEnvironment="auto");          % use GPU if present
+disp("Finished setting options")
+
+
+for baseFilters = baseFilters_all
+    for num_blocks = blocks
+        for fcUnits = fcUnitsGrid
+            layers = makeTinyCNN(input_size, num_classes, num_blocks, baseFilters, fcUnits);
+
+            %now train
+            net = trainnet(imdsTrain,layers,"crossentropy",options);
+
+            %now get the accuracy of the net
+            accuracy = testnet(net,imdsValidation,"accuracy");
+            disp("Accuracy")
+            disp(accuracy);
+
+            par_save(fullfile(dir_to_save_results_to,sprintf("accuracy_%.2f_num_blocks_%i_fc_units_%i.mat",accuracy,num_blocks,fcUnits)),net);
+        end
+    end
+end
 
 end
