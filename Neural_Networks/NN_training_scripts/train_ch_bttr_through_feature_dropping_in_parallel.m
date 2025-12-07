@@ -238,10 +238,17 @@ disp("Finished setting vars for parallel.")
 never_remove_list = [];
 number_of_features = size(training_features_array.Value,2);   
 pool = parpool('Threads');
+cell_array_of_net_structs = length(table_of_feature_combos);
 parfor i=2:length(table_of_feature_combos)
     current_data = table_of_feature_combos{i};
     current_features = current_data{1,"feature_combo"}{1};
     if isfile("net_iteration"+string(i)+".mat") || length(current_features) ~= number_of_features-1
+        net_struct = importdata("net_iteration"+string(i)+".mat");
+        cell_array_of_net_structs{i} = net_struct;
+        continue;
+    end
+    if length(current_features) ~= number_of_features-1
+
         continue;
     end
     missing_features = setdiff(1:size(training_features_array,2),current_features);
@@ -265,10 +272,10 @@ parfor i=2:length(table_of_feature_combos)
     net_struct.current_accuracy = current_accuracy;
     net_struct.missing_features = missing_features;
     net_struct.used_features = current_features;
+    cell_array_of_net_structs{i} = net_struct;
 
-
-    par_save("net_iteration"+string(i)+".mat",net_struct);
-    
+    % par_save("net_iteration"+string(i)+".mat",net_struct);
 
 end
+par_save("all_nets.mat",cell_array_of_net_structs);
 end
