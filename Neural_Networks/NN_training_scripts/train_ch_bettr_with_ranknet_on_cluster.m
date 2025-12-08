@@ -164,6 +164,9 @@ end
 % --- Training loop ---
 for iteration = 1:numIterations
 
+    if iteration ==5000
+        learningRate   = 1e-5;
+    end
     % ---- training minibatch ----
     [X1,X2,pairLabels] = getTwinBatch( ...
         training_all_comparisons, miniBatchSize, train_true_class, training_features_array);
