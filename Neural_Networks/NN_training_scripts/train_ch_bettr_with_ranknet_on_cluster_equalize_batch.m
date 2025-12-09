@@ -148,7 +148,8 @@ valLosses   = zeros(numIterations,1,'single');
 trailingAvgSubnet  = [];
 trailingAvgSqSubnet = [];
 
-% --- Build a fixed validation batch (for consistent val loss) ---
+% --- Build a fixed validation 
+% batch (for consistent val loss) ---
 [valX1, valX2, valLabels] = getTwinBatch( ...
     val_all_comparisons, miniBatchSize, val_true_class, val_features_array,difficulty_buckets,val_buckets);
 
@@ -313,7 +314,7 @@ disp(mean(accuracy));
         position_counter = 1;
         og_loc = (1:length(true_combination_labels)).';
         for p=1:length(unique_difficulty_classes)
-            subset_of_combination_labels = true_combination_labels(diff_class_of_curr_data==unique_difficulty_classes(p));
+            subset_of_combination_labels = true_combination_labels(diff_class_of_curr_data==p-1);
             location_before_mask = og_loc(diff_class_of_curr_data==unique_difficulty_classes(p));
             % indexes where label == 0 or 1
             %we'll also want to make sure we have an even amount of left is
