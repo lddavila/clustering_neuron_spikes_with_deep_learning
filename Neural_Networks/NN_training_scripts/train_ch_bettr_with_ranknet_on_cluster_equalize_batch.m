@@ -314,8 +314,8 @@ disp(mean(accuracy));
         position_counter = 1;
         og_loc = (1:length(true_combination_labels)).';
         for p=1:length(unique_difficulty_classes)
-            subset_of_combination_labels = true_combination_labels(diff_class_of_curr_data==p-1);
-            location_before_mask = og_loc(diff_class_of_curr_data==unique_difficulty_classes(p));
+            subset_of_combination_labels = true_combination_labels(diff_class_of_curr_data==p);
+            location_before_mask = og_loc(diff_class_of_curr_data==p);
             % indexes where label == 0 or 1
             %we'll also want to make sure we have an even amount of left is
             %better vs right is better
