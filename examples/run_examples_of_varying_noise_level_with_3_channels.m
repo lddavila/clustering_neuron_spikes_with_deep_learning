@@ -31,10 +31,12 @@ end
 for i=beginning:the_end
     config = spikesort_config();
     config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
-    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME);
+    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME+"_3_channels");
     disp("Recording Name");
     disp(config.RECORDING_NAME)
     startup;
+    %get a new art_tetrode_array and set it in the config
+    new_tetrode_array = build_channel_configs(3,config);
     if contains(pwd,"10595")
         config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
         config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
