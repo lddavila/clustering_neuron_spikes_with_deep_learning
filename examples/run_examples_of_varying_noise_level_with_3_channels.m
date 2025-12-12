@@ -37,6 +37,7 @@ for i=beginning:the_end
     startup;
     %get a new art_tetrode_array and set it in the config
     new_tetrode_array = build_channel_configs(3,config);
+    config.ART_TETR_ARRAY = new_tetrode_array;
     if contains(pwd,"10595")
         config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
         config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
