@@ -54,4 +54,4 @@ export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_TH
 python -V
 python -c "import numpy, pandas; print('numpy', numpy.__version__, 'pandas', pandas.__version__)"
 
-python /scratch1/10595/lddavila/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/run_all_other_ss_on_available_recordings.py
+python /scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/test_other_spike_sorters/run_all_other_ss_on_available_recordings.py

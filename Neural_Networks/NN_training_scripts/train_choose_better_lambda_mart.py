@@ -126,3 +126,8 @@ if __name__ == "__main__":
     plt.plot(results["valid_0"]["ndcg@100"])
     plt.xlabel("Iteration")
     plt.ylabel("NDCG@100")
+    plt.savefig("lambda_mart_ndcg_curve.png")
+    plt.show()
+
+    #save the model
+    model.booster_.save_model("lambda_mart_model.txt")
