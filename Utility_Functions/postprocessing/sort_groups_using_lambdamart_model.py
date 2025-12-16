@@ -1,49 +1,24 @@
-def sort_grouped_clusters(grades_of_cluster_groups,fp_to_lambdamart_model):
-    """
-    Sorts groups of clusters using a pre-trained LambdaMART model.
+import numpy as np
+import lightgbm as lgb
 
-    Parameters:
-    - grades_of_cluster_groups: List of DataFrames, each containing features of clusters in a group.
-    - fp_to_lambdamart_model: File path to the pre-trained LambdaMART model.
+# MATLAB passes these in pyrunfile(...):
+# grades_of_cluster_groups  -> numeric matrix (n_items x n_features)
+# fp_to_lambdamart_model    -> path to model file
 
-    Returns:
-    - sorted_cluster_groups: List of DataFrames with clusters sorted by predicted relevance.
-    """
-    import lightgbm as lgb
-    import pandas as pd
+X = np.array(grades_of_cluster_groups, dtype=float)
 
-    # Load the pre-trained LambdaMART model
-    model = lgb.load(filename =fp_to_lambdamart_model)
+# Load model
+# If you saved via Booster.save_model(), use Booster(model_file=...)
+# If you saved via pickle/joblib, load accordingly.
+model = lgb.Booster(model_file=str(fp_to_lambdamart_model))
 
-    sorted_cluster_groups = []
+# Predict scores
+scores = model.predict(X)
 
-    X = grades_of_cluster_groups
-    
-    # Predict relevance scores using the LambdaMART model
-    predicted_scores = model.predict(X)
+# Sort indices by descending score (best first)
+sorted_positions = np.argsort(scores)[::-1]
+sorted_positions = sorted_positions + 1
 
-    # Add predicted scores to the DataFrame
-    cluster_group_df = cluster_group_df.copy()
-    cluster_group_df["predicted_score"] = predicted_scores
-
-    # Sort clusters by predicted scores in descending order
-    sorted_group_df = cluster_group_df.sort_values(by="predicted_score", ascending=False).reset_index(drop=True)
-
-    # Append sorted DataFrame to the result list
-    sorted_cluster_groups.append(sorted_group_df)
-
-    return sorted_cluster_groups
-
-    for cluster_group_df in grades_of_cluster_groups:
-        # Prepare features by dropping non-feature columns
-        features_to_drop = [
-            "recording",
-            "accuracy",
-            "z_score",
-            "tetrode",
-            "cluster",
-        ]
-        features_to_drop = [c for c in features_to_drop if c in cluster_group_df.columns]
         
 
         
