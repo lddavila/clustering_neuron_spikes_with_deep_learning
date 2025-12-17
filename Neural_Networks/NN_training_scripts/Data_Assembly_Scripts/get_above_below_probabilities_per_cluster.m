@@ -9,5 +9,5 @@ split_data = split(only_above_below_vars.',"_");
 sorted_thresholds = sort(str2double(split_data(:,end)));
 
 %create an array which will return the values
-threshold_probabilities = blind_pass_table{:,strcat("above_below_",string(sorted_thresholds))};
+threshold_probabilities = double(blind_pass_table{:,strcat("above_below_",string(sorted_thresholds))});
 end

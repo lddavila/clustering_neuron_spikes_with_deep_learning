@@ -15,6 +15,8 @@ model = lgb.Booster(model_file=str(fp_to_lambdamart_model))
 # Predict scores
 scores = model.predict(X)
 
+
+
 # Sort indices by descending score (best first)
 sorted_positions = np.argsort(scores)[::-1]
 sorted_positions = sorted_positions + 1
