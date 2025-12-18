@@ -76,6 +76,7 @@ parfor i=1:length(list_of_available_tetrodes)
 
     %check to make sure that every channel in the current dataset is
     %actually available
+    channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
         send(q,[]);
@@ -83,7 +84,6 @@ parfor i=1:length(list_of_available_tetrodes)
     end
     spike_tetrode_dictionary_samples_format =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
-    channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
     raw = spike_tetrode_dictionary(current_tetrode);
     if isempty(raw)
         continue
