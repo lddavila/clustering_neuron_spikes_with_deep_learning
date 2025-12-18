@@ -84,7 +84,7 @@ for i=beginning:the_end
     beginning_time = tic;
     if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_without_tags.txt"))
         default_cluster_groups = simple_grouping_parallel(blind_pass_table,config);
-        par_save(fullfile(config.parent_save_dir,"default_cluster_groups.mat"),default_cluster_groups)
+        par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"default_cluster_groups.mat"),default_cluster_groups)
         file_name = "finished_creating_cluster_groups_without_tags.txt";
         file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
         fclose(file_id);
