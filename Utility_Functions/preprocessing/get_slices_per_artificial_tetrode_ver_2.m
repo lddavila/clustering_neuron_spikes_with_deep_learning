@@ -1,4 +1,4 @@
-function [] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_dir,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor,tetrode_number,dict_fpths)
+function [] = get_slices_per_artificial_tetrode_ver_2(chan_of_art_tetrode,spike_windows_dir,dir_with_chan_recordings,timing_matrix,number_of_dps_per_slice,scale_factor,tetrode_number,dict_fpths,min_z_score)
 
 spike_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 spike_tetrode_dictionary_samples_format = containers.Map('KeyType','char','ValueType','any');
@@ -28,6 +28,9 @@ for i=1:length(spike_windows)
 end
 % disp("Finsihed Getting Spike Windows")
 
+
+
+
 spike_windows_for_current_tetrode =  vertcat(spike_windows{:});
 
 if isempty(spike_windows_for_current_tetrode)
@@ -37,6 +40,9 @@ end
 sorted_spike_windows_for_current_tetrode = sortrows(spike_windows_for_current_tetrode,[1,3]);
 sorted_spike_windows_for_current_tetrode(any(sorted_spike_windows_for_current_tetrode==0,2),:) = []; %any rows that have a zero must be removed
 %this is because zero is an invalid index and indicates something went wrong
+
+%remove any rows whose fifth column doesn't meet the minimum z score
+sorted_spike_windows_for_current_tetrode(any(abs(sorted_spike_windows_for_current_tetrode)<min_z_score,2),:) = [];
 
 %spike_slices: must be sorted in such a way that when you run the following code the output matches
 %[numwires, numspikes, numdp] = size(raw);

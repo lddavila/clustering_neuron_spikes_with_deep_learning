@@ -101,7 +101,9 @@ if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
         % step 9d: get maps of each tetrode to its spikes
         beginning_time = tic;
         dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
-        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config);
+        % disp("the dictionaries dir")
+        % disp(dictionaries_dir)
+        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_z_score);
         %tetrode_dictionary
         %keys: "t" + tetrode number
         %values: all channels which are part of the current dictionary

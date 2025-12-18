@@ -1,4 +1,4 @@
-function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_chan_recordings,timestamps,number_of_dps_per_slice,scale_factor,dictionaries_dir,config)
+function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_chan_recordings,timestamps,number_of_dps_per_slice,scale_factor,dictionaries_dir,config,min_z_score)
 %tetrode_dictionary
 %keys: "t" + tetrode number
 %values: all channels which are part of the current dictionary
@@ -27,7 +27,7 @@ function [] = get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_
 
 
 list_of_available_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
-disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
+% disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
 list_of_available_channels = string(list_of_available_channels{:,"name"});
 list_of_available_channels = strrep(list_of_available_channels,".mat","");
 list_of_available_channels = strrep(list_of_available_channels,"c","");
@@ -37,7 +37,7 @@ afterEach(q,@print_status_bar)
 num_iterations = size(art_tetr_array,1);
 print_status_bar(num_iterations,"get_dictionaries_of_all_spikes_ver_3.m")
 already_done = config.ALREADY_DONE_FILES;
-parfor i=1:size(art_tetr_array,1)
+for i=1:size(art_tetr_array,1)
     channels_in_current_tetrode = art_tetr_array(i,:);
     all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
     if ~all(any(all_channels_are_available))
@@ -65,7 +65,7 @@ parfor i=1:size(art_tetr_array,1)
     for j=1:length(channels_in_current_tetrode)
         channel_to_tetrode_dictionary("c"+string(channels_in_current_tetrode(j))) = i;
     end
-    get_slices_per_artificial_tetrode_ver_2(channels_in_current_tetrode,spike_windows_dir,dir_with_chan_recordings,timestamps,number_of_dps_per_slice,scale_factor,i,dict_fpths);
+    get_slices_per_artificial_tetrode_ver_2(channels_in_current_tetrode,spike_windows_dir,dir_with_chan_recordings,timestamps,number_of_dps_per_slice,scale_factor,i,dict_fpths,min_z_score);
     tetrode_dictionary = struct("tetrode_dictionary",tetrode_dictionary);
     channel_to_tetrode_dictionary = struct("channel_to_tetrode_dictionary",channel_to_tetrode_dictionary);
     par_save(fp_for_tetrode_dict,tetrode_dictionary);

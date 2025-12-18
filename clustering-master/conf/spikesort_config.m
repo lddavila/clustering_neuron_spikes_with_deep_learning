@@ -218,7 +218,8 @@ config.FP_TO_SIMPLE_GROUP_OR_DONT_NN = fullfile(config.base_file_path,"Neural_Ne
 config.table_of_boundary_nn = struct2table(dir(fullfile(config.base_file_path,"Neural_Networks","above_below_nets","*.mat")));
 config.FP_TO_6_to_10 = fullfile(config.base_file_path,"Data","rec_6_to_10_bp_table.mat");
 
-config.fp_to_lambdaMART_predictor = fullfile(config.base_file_path,"Neural_Networks","normalized_lambdamart/","lambda_mart_model_normalizes.txt");
+config.fp_to_lambdaMART_predictor = fullfile(config.base_file_path,"Neural_Networks","normalized_lambdamart","lambda_mart_model_normalizes.txt");
+config.fp_to_lambdaMART_normalizer = fullfile(config.base_file_path,"Neural_Networks","normalized_lambdamart","col_min_and_max_for_lambda_net_model.mat");
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

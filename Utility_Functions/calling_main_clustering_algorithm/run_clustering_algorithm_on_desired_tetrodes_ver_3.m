@@ -21,7 +21,15 @@ for i=1:length(list_of_available_tetrodes)
     sliced_channel_wise_means{i} = channel_wise_means(channels_in_current_tetrode);
     sliced_channel_stds{i} = channel_wise_std(channels_in_current_tetrode);
 end
+list_of_available_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
 config =parallel.pool.Constant(config);
+
+
+% disp(config.DIR_WITH_OG_CHANNEL_RECORDINGS);
+list_of_available_channels = string(list_of_available_channels{:,"name"});
+list_of_available_channels = strrep(list_of_available_channels,".mat","");
+list_of_available_channels = strrep(list_of_available_channels,"c","");
+list_of_available_channels = str2double(list_of_available_channels);
 
 % --- Stop any existing pool ---
 % in the case of too much memory we dramatically resudce the number of
@@ -33,7 +41,8 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
-parfor i=1:length(list_of_available_tetrodes)
+%there should be a parfor on line 37 when not testing
+for i=1:length(list_of_available_tetrodes)
      
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
@@ -65,6 +74,13 @@ parfor i=1:length(list_of_available_tetrodes)
 
 
 
+    %check to make sure that every channel in the current dataset is
+    %actually available
+    all_channels_are_available = channels_in_current_tetrode==list_of_available_channels;
+    if ~all(any(all_channels_are_available))
+        send(q,[]);
+        continue;
+    end
     spike_tetrode_dictionary_samples_format =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
