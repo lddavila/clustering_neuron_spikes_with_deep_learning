@@ -213,7 +213,7 @@ config.FP_TO_MASTER_TRAINING_BP_TABLE =fullfile(config.base_file_path,"Data","mi
 
 config.USE_SMART_EXPANSION_VER_2 = false;
 
-config.FP_TO_SIMPLE_GROUP_OR_DONT_NN = fullfile(config.base_file_path,"Neural_Networks","simplest_group_or_dont_no_size_wf_normalized","simplest_group_or_dont.mat");
+config.FP_TO_SIMPLE_GROUP_OR_DONT_NN = fullfile(config.base_file_path,"Neural_Networks","simplest_group_or_dont_without_filter","simplest_group_or_dont.mat");
 
 config.table_of_boundary_nn = struct2table(dir(fullfile(config.base_file_path,"Neural_Networks","above_below_nets","*.mat")));
 config.FP_TO_6_to_10 = fullfile(config.base_file_path,"Data","rec_6_to_10_bp_table.mat");
