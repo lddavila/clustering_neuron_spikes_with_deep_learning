@@ -33,19 +33,21 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
     else:
         sorting = si.sorters.run_sorter(job_list_current['sorter_name'],
             recording=job_list_current['recording'],
+            folder=out_dir,
             remove_existing_folder=job_list_current['remove_existing_folder'],
             singularity_image=job_list_current['singularity_image'],
-            verbose=job_list_current['verbose'])
+            verbose=job_list_current['verbose'],)
     print("Finished sorting for "+job_list_current['sorter_name'])
     print(sorting)
 
     #now save the sorting
-    sorting.save(folder=str(out_dir / 'sorting'), overwrite=True)
+    sorting.save(folder=str(out_dir / 'sorting'), overwrite=True,)
 
 
 
     #now compare the sorter to the ground truth
-    cmp_to_gt_results =sc.compare_sorter_to_ground_truth(sorting_true, sorting, exhaustive_gt=True,delta_time=0.2)
+    cmp_to_gt_results =sc.compare_sorter_to_ground_truth(sorting_true, sorting, exhaustive_gt=True,delta_time=0.2,compute_labels=True)
+    #cmp_to_gt_results.save_to_folder(out_dir / 'comparison_to_ground_truth')
 
     #now save the agreement matrix to the output folder to get accuracy results
      
@@ -60,3 +62,10 @@ def run_various_spike_sorters(sorting_true,job_list_current,out_dir):
      #                    };
     df = pd.DataFrame(cmp_to_gt_results.agreement_scores).T
     df.to_csv(out_dir / 'agreement_scores.csv')
+
+    perf = cmp_to_gt_results.get_performance()
+    perf.to_csv(out_dir / "performance.csv", index=True)
+
+    confusion_matrix = cmp_to_gt_results.get_confusion_matrix()
+    confusion_matrix.to_csv(out_dir / "confusion_matrix.csv", index=True)
+
