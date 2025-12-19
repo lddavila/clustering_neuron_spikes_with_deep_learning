@@ -29,6 +29,7 @@ end
 
 %create a directory where the results will be saved
 dir_to_save_results_to = fullfile(parent_save_dir,"simplest_group_or_dont_no_size_wf_normalized");
+dir_to_save_results_to = fullfile(parent_save_dir,"simplest_group_or_dont_no_size_wf_normalized_new_12_19_25_without_filter");
 if ~exist(dir_to_save_results_to,"dir")
     dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(dir_to_save_results_to);
 end
@@ -51,7 +52,7 @@ rng("default")
 disp("Finished setting seed")
 
 %remove any data that has accuracy less than 10
-blind_pass_table = blind_pass_table(blind_pass_table{:,"accuracy"}>10,:);
+% blind_pass_table = blind_pass_table(blind_pass_table{:,"accuracy"}>10,:);
 
 %partition the blind pass table into test training data
 paritioned_bp_table_array = partition_bp_tables(blind_pass_table,0);

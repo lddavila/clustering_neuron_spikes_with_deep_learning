@@ -99,17 +99,17 @@ for i=beginning:the_end
     fprintf("Finished forming groups it took %.2f seconds\n",end_time)
 
     beginning_time = tic;
-    if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_with_tags"))
-        new_groups = add_group_tags_col(default_cluster_groups,config);
-        par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"),new_groups)
-        file_name = "finished_creating_cluster_groups_with_tags.txt";
-        file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
-        fclose(file_id);
-    else
-        disp("new groups already formed");
-        new_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"));
-    end
-    end_time = toc(beginning_time);
-    fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
+    % if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_with_tags"))
+    %     new_groups = add_group_tags_col(default_cluster_groups,config);
+    %     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"),new_groups)
+    %     file_name = "finished_creating_cluster_groups_with_tags.txt";
+    %     file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
+    %     fclose(file_id);
+    % else
+    %     disp("new groups already formed");
+    %     new_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"));
+    % end
+    % end_time = toc(beginning_time);
+    % fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
     
 end
