@@ -13,6 +13,13 @@ precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 num_iterations = size(sliced_blind_pass_table,1);
 grades_table = cell(size(blind_pass_table,1),1);
 
+%for broken afriedman account close the parallel pool and reopen because
+%for some reason it doesn't have the expected behavior
+if contains(config.base_file_path,"afriedman")
+    delete(gcp('nocreate'));  % 'nocreate' prevents error if no pool exists
+    parpool('local_40', 40);
+end
+
 config =parallel.pool.Constant(config);
 
 q = parallel.pool.DataQueue;
