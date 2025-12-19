@@ -19,6 +19,9 @@ parfor i=1:size(sliced_bp_table,1)
 
     unit_that_cluster_has_max_overlap_with = current_data{1,"Max_Overlap_Unit"};
     gt_indexes =ground_truth.Value{unit_that_cluster_has_max_overlap_with} ;
+    %the gt_indexes are 0 based (because they come from python)
+    %so we'll add 1 to all the gt_indexes to make them line up
+    gt_indexes = gt_indexes+1;
     gt_ts = timestamps.Value(gt_indexes);
     cluster_spike_ts = current_data{1,"timestamps"}{1};
 

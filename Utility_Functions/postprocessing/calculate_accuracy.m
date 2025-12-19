@@ -1,4 +1,5 @@
 function [accuracy_array] = calculate_accuracy(gt_ts,cell_array_of_all_cluster_ts,config)
+%returns accuracy as a value between 0-1 
 accuracy_array = nan(1,size(cell_array_of_all_cluster_ts,2));
 for i=1:size(cell_array_of_all_cluster_ts,2)
     cluster_ts = cell_array_of_all_cluster_ts{i};
