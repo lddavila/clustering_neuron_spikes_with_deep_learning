@@ -18,15 +18,15 @@ end
 %%
 % step 2: Get the config Necessary for current Example
 if contains(config.base_file_path,"cnheaton")
-    beginning = 6;
-    the_end = 10;
+    beginning = 1;
+    the_end = 5;
 elseif contains(config.base_file_path,"afriedman")
     beginning=1;
     the_end = 5;
     parpool('local_40', 40);
 else
-    beginning = 6;
-    the_end = 10;
+    beginning = 1;
+    the_end = 5;
 end
 for i=beginning:the_end
     config = spikesort_config();

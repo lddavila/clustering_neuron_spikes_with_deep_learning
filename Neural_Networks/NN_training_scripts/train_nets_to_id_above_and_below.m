@@ -21,6 +21,7 @@ config = spikesort_config();
 
 %create a directory to save the results to 
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"above_below_nets"));
+dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"abve_below_nets_12_19_2025"));
 
 %import the blind pass data we will use for trainining
 if length(varargin)<1
@@ -30,7 +31,7 @@ else
 end
 
 %define the increments that the neural network will function for
-thresholds = 1:9:100;
+thresholds = [1, 10,20,30,40,50,60,70,80,90];
 cd(dir_to_save_results_to)
 for i=1:length(thresholds)
     current_threshold = thresholds(i);

@@ -7,10 +7,10 @@ blind_pass_table(blind_pass_table{:,"accuracy"}<1,:)=[];
 list_of_features_to_add = ["grades 2","valley_1","valley_2"];
 
 %select recording 6 this will be the training data
-training_data = blind_pass_table(blind_pass_table{:,"recording_name"}=="7_600Neuron300SecondRecordingWithLevel6Noise" | blind_pass_table{:,"recording_name"}=="8_600Neuron300SecondRecordingWithLevel8Noise",:);
+training_data = blind_pass_table(blind_pass_table{:,"recording_name"}=="7_600Neuron300SecondRecordingWithLevel7Noise",:);
 
 %select recording 7 this will be the validation data
-val_data = blind_pass_table(blind_pass_table{:,"recording_name"}=="9_600Neuron300SecondRecordingWithLevel7Noise" | blind_pass_table{:,"recording_name"}=="10_600Neuron300SecondRecordingWithLevel10Noise",:);
+val_data = blind_pass_table(blind_pass_table{:,"recording_name"}=="8_600Neuron300SecondRecordingWithLevel8Noise",:);
 
 %select recording 6 this will be used for testing data
 test_data = blind_pass_table(blind_pass_table{:,"recording_name"}=="6_600Neuron300SecondRecordingWithLevel6Noise",:);
