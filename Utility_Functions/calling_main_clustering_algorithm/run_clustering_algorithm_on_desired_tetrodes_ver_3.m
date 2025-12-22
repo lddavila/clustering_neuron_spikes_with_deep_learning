@@ -64,6 +64,7 @@ for i=1:length(list_of_available_tetrodes)
 
     tetrode_dictionary = importdata(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
+    disp(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     spike_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     spike_tetrode_dictionary = spike_tetrode_dictionary.spike_tetrode_dictionary;
     timing_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
