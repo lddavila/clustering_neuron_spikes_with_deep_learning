@@ -51,19 +51,25 @@ training_features_array = assemble_data_for_neural_net(list_of_features_to_add,t
 training_features_array = cell2mat(training_features_array);
 
 %filter out any rows that have a nan
-training_features_array = training_features_array(~(sum(isnan(training_features_array),2)>0),:);
+training_nan_mask = ~(sum(isnan(training_features_array),2)>0);
+training_features_array = training_features_array(training_nan_mask,:);
+training_data = training_data(training_nan_mask,:);
 
 val_features_array = assemble_data_for_neural_net(list_of_features_to_add,val_data,config);
 val_features_array = cell2mat(val_features_array);
 %filter out any rows that have nan
-val_features_array = val_features_array(~(sum(isnan(val_features_array),2)>0),:);
+val_nan_mask = ~(sum(isnan(val_features_array),2)>0);
+val_features_array = val_features_array(val_nan_mask,:);
+val_data = val_data(val_nan_mask,:);
+
 
 test_features_array = assemble_data_for_neural_net(list_of_features_to_add,test_data,config);
 test_features_array = cell2mat(test_features_array);
 
 %filter out any nans
-test_features_array = test_features_array(~(sum(isnan(test_features_array),2)>0),:);
-
+test_nan_mask = ~(sum(isnan(test_features_array),2)>0);
+test_features_array = test_features_array(test_nan_mask,:);
+test_data = test_data(test_nan_mask,:);
 disp("Finished getting features");
 
 % Normalize based on training data
