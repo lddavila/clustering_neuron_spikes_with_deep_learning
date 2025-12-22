@@ -147,9 +147,9 @@ end
 net = dlnetwork(layers_of_net);
 
 % --- Training hyperparameters ---
-numIterations  = 10000;
+numIterations  = 100000;
 miniBatchSize  = 180;
-learningRate   = 1e-3;
+learningRate   = 1e-6;
 gradDecay      = 0.9;
 gradDecaySq    = 0.99;
 executionEnvironment = "auto";
@@ -184,7 +184,7 @@ end
 for iteration = 1:numIterations
 
     if iteration ==5000
-        learningRate   = 1e-5;
+        learningRate   = 1e-8;
     end
     % ---- training minibatch ----
     [X1,X2,pairLabels] = getTwinBatch( ...
@@ -241,10 +241,10 @@ net_struct.col_max = col_max;
 par_save(fullfile(dir_to_save_results_to,"siamese_choose_better.mat"), net_struct);
 
 % --- Evaluate on test pairs ---
-accuracy = zeros(1,5);
+accuracy = zeros(1,100);
 accuracyBatchSize = miniBatchSize;
 
-for k = 1:5
+for k = 1:100
     [X1,X2,pairLabelsAcc] = getTwinBatch( ...
         test_all_comparisons, miniBatchSize, test_true_class, test_features_array,difficulty_buckets,test_buckets);
 
