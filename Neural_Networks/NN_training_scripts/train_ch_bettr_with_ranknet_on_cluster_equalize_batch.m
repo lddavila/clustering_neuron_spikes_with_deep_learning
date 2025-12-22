@@ -17,18 +17,21 @@ disp("Finished getting config");
 
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
     fullfile(config.parent_save_dir,"ch_bttr_with_twin"));
+
+dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
+    fullfile(config.parent_save_dir,"ranknet_ch_bttr_12_21_2025"));
 disp("Finished creating save dir");
 
 % --- Load blind pass table ---
 if nargin < 1
-    blind_pass_table = importdata(config.FP_TO_6_to_10);
+    blind_pass_table = importdata(config.FP_TO_ALL_RECORDINGS_TABLE);
 else
     blind_pass_table = varargin{1};
 end
 disp("Finished loading blind pass table");
 
 % Filter out MUA (accuracy < 1)
-blind_pass_table(blind_pass_table{:,"accuracy"} < 1, :) = [];
+% blind_pass_table(blind_pass_table{:,"accuracy"} < 1, :) = [];
 disp("Finished filtering blind pass");
 
 % --- Partition into train / val / test at unit level ---
@@ -47,11 +50,19 @@ list_of_features_to_add = ["grades 2","valley_1","valley_2"];
 training_features_array = assemble_data_for_neural_net(list_of_features_to_add,training_data,config);
 training_features_array = cell2mat(training_features_array);
 
+%filter out any rows that have a nan
+training_features_array = training_features_array(~(sum(isnan(training_features_array),2)>0),:);
+
 val_features_array = assemble_data_for_neural_net(list_of_features_to_add,val_data,config);
 val_features_array = cell2mat(val_features_array);
+%filter out any rows that have nan
+val_features_array = val_features_array(~(sum(isnan(val_features_array),2)>0),:);
 
 test_features_array = assemble_data_for_neural_net(list_of_features_to_add,test_data,config);
 test_features_array = cell2mat(test_features_array);
+
+%filter out any nans
+test_features_array = test_features_array(~(sum(isnan(test_features_array),2)>0),:);
 
 disp("Finished getting features");
 
@@ -59,11 +70,11 @@ disp("Finished getting features");
 col_min = min(training_features_array,[],1);
 col_max = max(training_features_array,[],1);
 
-training_features_array = rescale(training_features_array,0,1, ...
+training_features_array = rescale(training_features_array,0,100, ...
     "InputMax",col_max,"InputMin",col_min);
-val_features_array = rescale(val_features_array,0,1, ...
+val_features_array = rescale(val_features_array,0,100, ...
     "InputMax",col_max,"InputMin",col_min);
-test_features_array = rescale(test_features_array,0,1, ...
+test_features_array = rescale(test_features_array,0,100, ...
     "InputMax",col_max,"InputMin",col_min);
 
 % --- Pairwise comparisons ---
@@ -97,7 +108,7 @@ val_mag_differences = abs(val_data{val_all_comparisons(:,1),"accuracy"} - val_da
 test_mag_differences = abs(test_data{test_all_comparisons(:,1),"accuracy"} - test_data{test_all_comparisons(:,2),"accuracy"});
 
 %set some buckets of difficulty
-difficulty_buckets = [0,1,5,10,20,30,40,50,60];
+difficulty_buckets = [0,1,5,10,20,30,40,50,60,70,80,90];
 
 %add the difficulty category to all test/training/val comparisons
 train_bucket = get_difficulty_buckets_array(train_mag_differences,difficulty_buckets);
@@ -344,6 +355,12 @@ disp(mean(accuracy));
                 position_counter = position_counter+1;
             end
         end
+        %we want to eliminate any columns that have nan to make sure the
+        %neural network doesnt break
+        filtered_x1 = X1(:,~any(isnan(X1) | isnan(X2),1));
+        filtered_x2 = X2(:,~any(isnan(X1) | isnan(X2),1));
+        X1 = filtered_x1;
+        X2 = filtered_x2;
     end
 
 end

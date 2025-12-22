@@ -1,0 +1,9 @@
+level_1_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\1_600Neuron300SecondRecordingWithLevel1Noise\blind_pass_table.mat");
+level_2_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\2_600Neuron300SecondRecordingWithLevel2Noise\blind_pass_table.mat");
+level_3_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\3_600Neuron300SecondRecordingWithLevel3Noise\blind_pass_table.mat");
+level_4_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\4_600Neuron300SecondRecordingWithLevel4Noise\blind_pass_table.mat");
+level_6_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\6_600Neuron300SecondRecordingWithLevel6Noise\blind_pass_table.mat");
+level_7_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\7_600Neuron300SecondRecordingWithLevel7Noise\blind_pass_table.mat");
+level_8_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\8_600Neuron300SecondRecordingWithLevel8Noise\blind_pass_table.mat");
+level_9_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\9_600Neuron300SecondRecordingWithLevel9Noise\blind_pass_table.mat");
+level_10_bp_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\10_600Neuron300SecondRecordingWithLevel10Noise\blind_pass_table.mat");

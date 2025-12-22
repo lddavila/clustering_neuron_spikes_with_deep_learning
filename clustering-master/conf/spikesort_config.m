@@ -220,6 +220,9 @@ config.FP_TO_6_to_10 = fullfile(config.base_file_path,"Data","rec_6_to_10_bp_tab
 
 config.fp_to_lambdaMART_predictor = fullfile(config.base_file_path,"Neural_Networks","normalized_lambdamart","lambda_mart_model_normalizes.txt");
 config.fp_to_lambdaMART_normalizer = fullfile(config.base_file_path,"Neural_Networks","normalized_lambdamart","col_min_and_max_for_lambda_net_model.mat");
+
+
+config.FP_TO_ALL_RECORDINGS_TABLE = fullfile(config.base_file_path,"Data","all_recordings_table.mat");
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
