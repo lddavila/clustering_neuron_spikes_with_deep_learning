@@ -22,6 +22,7 @@ config = spikesort_config();
 %create a directory to save the results to 
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"above_below_nets"));
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"abve_below_nets_12_19_2025"));
+dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"abve_below_nets_12_22_2025"));
 
 %import the blind pass data we will use for trainining
 if length(varargin)<1
