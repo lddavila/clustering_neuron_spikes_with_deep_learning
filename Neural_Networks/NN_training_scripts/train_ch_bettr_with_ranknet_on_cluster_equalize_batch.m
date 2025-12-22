@@ -149,7 +149,7 @@ net = dlnetwork(layers_of_net);
 % --- Training hyperparameters ---
 numIterations  = 100000;
 miniBatchSize  = 180;
-learningRate   = 1e-6;
+learningRate   = 1e-5;
 gradDecay      = 0.9;
 gradDecaySq    = 0.99;
 executionEnvironment = "auto";
@@ -183,9 +183,9 @@ end
 % --- Training loop ---
 for iteration = 1:numIterations
 
-    if iteration ==5000
-        learningRate   = 1e-8;
-    end
+    % if iteration ==5000
+    %     learningRate   = 1e-8;
+    % end
     % ---- training minibatch ----
     [X1,X2,pairLabels] = getTwinBatch( ...
         training_all_comparisons, miniBatchSize, train_true_class, training_features_array,difficulty_buckets,train_bucket);
