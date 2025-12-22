@@ -55,7 +55,11 @@ for i=1:length(list_of_available_tetrodes)
     c2 = isfile(aligned_file_name);
     c3 = isfile(reg_ts_file_name);
     c4 = isfile(reg_ts_of_spikes_file_name);
-    if all([c1,c2,c3,c4])
+    c5 = isfile(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
+    c6 = isfile(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
+    c7 = isfile(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
+    c8 = isfile(fullfile(dictionaries_dir,current_tetrode+" sorted_spike_windows.mat"));
+    if all([c1,c2,c3,c4,c5,c6,c7,c8])
         send(q,[]);
         continue;
     end
