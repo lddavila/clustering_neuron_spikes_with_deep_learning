@@ -181,7 +181,10 @@ if __name__ == "__main__":
     train_mask = (
         (data["recording"] == "6_600Neuron300SecondRecordingWithLevel6Noise")
         | (data["recording"] == "7_600Neuron300SecondRecordingWithLevel7Noise")
-        | (data["recording"] == "8_600Neuron300SecondRecordingWithLevel8Noise")
+        | (data["recording"] == "1_600Neuron300SecondRecordingWithLevel1Noise")
+        | (data["recording"] == "2_600Neuron300SecondRecordingWithLevel2Noise")
+        | (data["recording"] == "3_600Neuron300SecondRecordingWithLevel3Noise")
+        | (data["recording"] == "4_600Neuron300SecondRecordingWithLevel4Noise")
     )
     val_mask = data["recording"] == "9_600Neuron300SecondRecordingWithLevel9Noise"
     test_mask = data["recording"] == "10_600Neuron300SecondRecordingWithLevel10Noise"
