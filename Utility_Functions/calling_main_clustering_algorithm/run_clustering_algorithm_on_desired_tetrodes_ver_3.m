@@ -42,7 +42,7 @@ afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
 %there should be a parfor on line 45 when not testing
-for i=1:length(list_of_available_tetrodes)
+parfor i=1:length(list_of_available_tetrodes)
      
     beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
@@ -61,6 +61,9 @@ for i=1:length(list_of_available_tetrodes)
         continue;
     end
 
+    %check for required files 
+    %if all the necessary files weren't created in the previous step then
+    %we cannot proceed to the next step
     c5 = isfile(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
     c6 = isfile(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     c7 = isfile(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
