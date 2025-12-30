@@ -52,8 +52,8 @@ def add_query_id(blind_pass_df):
 if __name__ == "__main__":
 
     #import data that will be used for training
-    data = pd.read_csv(r"C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\lambda_mart_features.csv")
-    data.head()
+    #data = pd.read_csv(r"C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\lambda_mart_features.csv")
+    #data.head()
 
     #filter the training data down to only recordings 6,7,8
     training_data = pd.read_csv(r"C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\lambda_mart_training_features_normalized.csv");

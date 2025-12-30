@@ -6,9 +6,9 @@ sorted_groups = cell(length(groups),1);
 for i=1:length(groups)
     data_to_export = assemble_data_for_neural_net(list_of_features_to_add,groups{i},config);
     data_to_export = cell2mat(data_to_export);
-    %normalize the data between 0-100 using the values that the training data
-    %was normalized by
-    % data_to_export = rescale(data_to_export,0,100,"InputMax",col_max,"InputMin",col_min);
+    % normalize the data between 0-1 using the values that the training data
+    % was normalized by
+    data_to_export = rescale(data_to_export,0,1,"InputMax",col_max,"InputMin",col_min);
 
     pyFile = fullfile(config.base_file_path,"Utility_Functions","postprocessing","sort_groups_using_lambdamart_model.py");
     [output_order,scores]= pyrunfile(pyFile, ["sorted_positions","scores"],...
