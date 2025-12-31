@@ -27,7 +27,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
         cleaned_clusters = cleaned_clusters.cleaned_clusters;
     catch
-        disp("Failed to load cleaned clusters file")
+        % disp("Failed to load cleaned clusters file")
         disp(current_data{1,"fp_to_cleaned_clusters"})
         send(q,[]);
         continue;
@@ -114,7 +114,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     for k=1:num_of_channels
         cell_array_of_waveforms_by_std = cell(size(current_data,1),1);
         for j=1:size(current_data,1)
-            fprintf("k:%i j:%i\n",k,j);
+            % fprintf("k:%i j:%i\n",k,j);
             cell_array_of_waveforms_by_std{j} = cell2mat(squeeze(mean_waveform_cell_array(j,k,:)));
         end
         current_data.("waveforms_by_std_"+string(k)) = cell_array_of_waveforms_by_std;
