@@ -19,7 +19,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"add_mean_wf_based_in_std_from_cluster_center.m")
-for i=1:size(sliced_blind_pass_table,1)
+for i=3:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
 
@@ -76,8 +76,11 @@ for i=1:size(sliced_blind_pass_table,1)
             %based on the cluster center
             %we'll slowly expand the standard and include more of the
             %cluster as we progress
-            legend_strings = repelem("",length(num_std));
+            % legend_strings = repelem("",length(num_std));
             for std_counter=1:length(num_std)
+                if j==1 && k==2
+                    disp("Something edge case")
+                end
                 %by default the idxs will ALWAYS include the cluster core
                 %idxs_to_build_mean_wf_from = cluster_center;
 
@@ -85,13 +88,22 @@ for i=1:size(sliced_blind_pass_table,1)
                 upper_bound_cond = cluster_mean(compare_wire) + (num_std(std_counter) * cluster_std(compare_wire));
                 all_idxs = peaks(compare_wire,:)<=upper_bound_cond;
 
-                %now we need to add any idxs that 
-                mean_waveform = mean(shiftdim(spikes(compare_wire, all_idxs, :), 1));
-                mean_waveform = mean_waveform - mean(mean_waveform);
-                mean_waveform_cell_array{j,k,std_counter} = mean_waveform;
-                % plot(mean_waveform)
-                % legend_strings(std_counter) =sprintf("# std dvns outside cluster: %.2f",num_std(std_counter)) ;
-                % hold on;
+                if sum(all_idxs) == 1
+                    %edge case to keep the value from collapsing into a 1x1
+                    %matrix
+                    mean_waveform_cell_array{j,k,std_counter} = shiftdim(spikes(compare_wire, all_idxs, :)).';
+                else
+                    %now we need to add any idxs that
+                    mean_waveform = mean(shiftdim(spikes(compare_wire, all_idxs, :), 1));
+                    mean_waveform = mean_waveform - mean(mean_waveform);
+                    mean_waveform_cell_array{j,k,std_counter} = mean_waveform;
+                    % plot(mean_waveform)
+                    % legend_strings(std_counter) =sprintf("# std dvns outside cluster: %.2f",num_std(std_counter)) ;
+                    % hold on;
+
+                end
+
+                
             end
             % legend(legend_strings)
             peaks(compare_wire,:) = nan;
@@ -102,6 +114,7 @@ for i=1:size(sliced_blind_pass_table,1)
     for k=1:num_of_channels
         cell_array_of_waveforms_by_std = cell(size(current_data,1),1);
         for j=1:size(current_data,1)
+            fprintf("k:%i j:%i\n",k,j);
             cell_array_of_waveforms_by_std{j} = cell2mat(squeeze(mean_waveform_cell_array(j,k,:)));
         end
         current_data.("waveforms_by_std_"+string(k)) = cell_array_of_waveforms_by_std;
