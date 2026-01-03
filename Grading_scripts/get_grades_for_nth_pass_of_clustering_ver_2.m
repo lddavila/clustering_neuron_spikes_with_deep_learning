@@ -25,7 +25,7 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
     
     %disp("Starting grading")
     current_data = sliced_blind_pass_table{i};
@@ -53,7 +53,7 @@ for i=1:size(sliced_blind_pass_table,1)
             end
         end
     else
-        array_of_tetrodes = build_artificial_tetrode();
+        array_of_tetrodes = config.Value.ART_TETR_ARRAY;
 
         channels_of_curr_tetr = array_of_tetrodes(tetrode_number,:);
         ts_and_r_vals_fp = current_data{1,"fp_to_timestamps_rtvals"};

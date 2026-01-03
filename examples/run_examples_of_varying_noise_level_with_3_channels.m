@@ -18,7 +18,7 @@ end
 %%
 % step 2: Get the config Necessary for current Example
 if contains(config.base_file_path,"cnheaton")
-    beginning = 6;
+    beginning = 1;
     the_end = 10;
 elseif contains(config.base_file_path,"afriedman")
     beginning=1;
