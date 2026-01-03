@@ -32,6 +32,7 @@ number_of_channels_to_use = [1,2,3,5,6,7,8,9,10];
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
+        try
         config = spikesort_config();
         config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
         config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
@@ -117,5 +118,7 @@ for k=1:length(number_of_channels_to_use)
         end_time = toc(beginning_time);
         fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
 
+        catch
+        end
     end
 end
