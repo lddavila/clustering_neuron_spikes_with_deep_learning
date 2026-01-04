@@ -89,36 +89,37 @@ for k=1:length(number_of_channels_to_use)
         end_time = toc(beginning_time);
         fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
 
-        beginning_time = tic;
-        if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_without_tags.txt"))
-            default_cluster_groups = simple_grouping_parallel(blind_pass_table,config);
-            par_save(fullfile(config.parent_save_dir,"default_cluster_groups.mat"),default_cluster_groups)
-            file_name = "finished_creating_cluster_groups_without_tags.txt";
-            file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
-            fclose(file_id);
-        else
-            default_cluster_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"default_cluster_groups.mat"));
-            disp("groups already formed")
-        end
-        disp("Finished forming groups")
-        end_time = toc(beginning_time);
-        fprintf("Finished forming groups it took %.2f seconds\n",end_time)
+        % beginning_time = tic;
+        % if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_without_tags.txt"))
+        %     default_cluster_groups = simple_grouping_parallel(blind_pass_table,config);
+        %     par_save(fullfile(config.parent_save_dir,"default_cluster_groups.mat"),default_cluster_groups)
+        %     file_name = "finished_creating_cluster_groups_without_tags.txt";
+        %     file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
+        %     fclose(file_id);
+        % else
+        %     default_cluster_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"default_cluster_groups.mat"));
+        %     disp("groups already formed")
+        % end
+        % disp("Finished forming groups")
+        % end_time = toc(beginning_time);
+        % fprintf("Finished forming groups it took %.2f seconds\n",end_time)
 
-        beginning_time = tic;
-        if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_with_tags"))
-            new_groups = add_group_tags_col(default_cluster_groups,config);
-            par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"),new_groups)
-            file_name = "finished_creating_cluster_groups_with_tags.txt";
-            file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
-            fclose(file_id);
-        else
-            disp("new groups already formed");
-            new_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"));
-        end
-        end_time = toc(beginning_time);
-        fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
+        % beginning_time = tic;
+        % if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_creating_cluster_groups_with_tags"))
+        %     new_groups = add_group_tags_col(default_cluster_groups,config);
+        %     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"),new_groups)
+        %     file_name = "finished_creating_cluster_groups_with_tags.txt";
+        %     file_id = fopen(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,file_name),'w');
+        %     fclose(file_id);
+        % else
+        %     disp("new groups already formed");
+        %     new_groups = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"revised_cluster_groups.mat"));
+        % end
+        % end_time = toc(beginning_time);
+        % fprintf("Finished Getting Group revisions it took %.2f seconds \n",end_time);
 
-        catch
+        catch ME
+            fprintf(2, getReport(ME, 'extended', 'hyperlinks', 'on')); 
         end
     end
 end
