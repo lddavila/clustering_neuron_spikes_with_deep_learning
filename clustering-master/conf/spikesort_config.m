@@ -107,6 +107,10 @@ config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST =   [2 40 54 55 46 23 12 36 18 13 2
 % config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST = [40 54 55 46 23 12 36 18 13 25 17 16 14 5 ];
 config.IDXS_OF_GRADES_THAT_ARE_BETTER_SMALLER = [2 23 54 12 36 18 13 17 16 14 5 8 11 19 46 51 52];
 
+config.expanded_grade_idxs = [ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25,...
+ 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 50,...
+ 51 52 53 54 55 58 60 61 62 65 66];
+
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO ="D:\cluster_neuronspikes\Data\limited_cluster_plots_pngs";
 config.DIR_TO_SAVE_CLUSTER_IMAGE_PNGS_TO_ON_HPC ="/scratch/lddavila/data_from_local_machine/100_by_100_cluster_pngs";
 
@@ -138,7 +142,7 @@ config.FP_TO_EXPAND_OR_DONT_NN_ON_HPC = "/home/lddavila/cluster_neuronspikes/exp
 
 
 config.WHAT_KIND_OF_CLUSTER_PLOT_TO_MAKE = "all"; %used by create_cluster_plots_as_png_on_hpc 
-                                               %'all' - will print every spike per tetrode configuration and the cluster in black
+                                       %'all' - will print every spike per tetrode configuration and the cluster in black
                                                %'limited' - will print the cluster and every spike within 6 standard deviations of the cluster mean 
 config.NUM_STDS_AROUND_CLUSTER = 10; % used by create_cluster_plots_as_png_on_hpc;
                                      % cuts a window around cluster which is this many standard deviations around the cluster mean (x and y)
@@ -223,6 +227,8 @@ config.fp_to_lambdaMART_normalizer = fullfile(config.base_file_path,"Neural_Netw
 
 
 config.FP_TO_ALL_RECORDINGS_TABLE = fullfile(config.base_file_path,"Data","all_recordings_table.mat");
+config.FP_TO_ODD_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","odd_recordings.mat");
+config.FP_TO_EVEN_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","even_recordings.mat");
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

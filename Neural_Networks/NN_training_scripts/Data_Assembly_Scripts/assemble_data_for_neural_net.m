@@ -36,6 +36,8 @@ for i=1:size(list_of_features_to_add,2)
         assembled_data{i} = get_above_below_probabilities_per_cluster(blind_pass_table);
     elseif contains(current_feature,"valley")
         assembled_data{i} =get_cv_of_valley_feature_of_nn(blind_pass_table,current_feature) ;
+    elseif current_feature == "grades 3"
+        
     else 
         disp("In list_of_features variable.")
         disp(current_feature)
