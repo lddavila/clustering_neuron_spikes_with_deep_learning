@@ -5,5 +5,5 @@
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 #SBATCH -t 48:00:00
-module load matlab/R2023b
+module load matlab/2023b
 matlab -batch "train_prob_dist_nn_equalize_difficulty_grades_3();exit;"
