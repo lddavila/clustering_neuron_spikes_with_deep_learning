@@ -107,7 +107,7 @@ config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST =   [2 40 54 55 46 23 12 36 18 13 2
 % config.GRADE_IDXS_THAT_ARE_USED_TO_PICK_BEST = [40 54 55 46 23 12 36 18 13 25 17 16 14 5 ];
 config.IDXS_OF_GRADES_THAT_ARE_BETTER_SMALLER = [2 23 54 12 36 18 13 17 16 14 5 8 11 19 46 51 52];
 
-config.expanded_grade_idxs = [ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25,...
+config.expanded_grade_idxs = [ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 21 22 23 24 25,...
  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 50,...
  51 52 53 54 55 58 60 61 62 65 66];
 
@@ -229,6 +229,10 @@ config.fp_to_lambdaMART_normalizer = fullfile(config.base_file_path,"Neural_Netw
 config.FP_TO_ALL_RECORDINGS_TABLE = fullfile(config.base_file_path,"Data","all_recordings_table.mat");
 config.FP_TO_ODD_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","odd_recordings.mat");
 config.FP_TO_EVEN_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","even_recordings.mat");
+
+config.dir_of_prob_dist_nets = fullfile(config.base_file_path,"Neural_Networks","probability_distr_nets");
+
+config.dir_of_prob_dist_nets = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\probability_distr_nets_equalized_difficulty";
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

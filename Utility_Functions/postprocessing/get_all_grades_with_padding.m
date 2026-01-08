@@ -1,4 +1,4 @@
-function [] = get_all_grades_with_padding(blind_pass_table,config)
+function [padded_grades] = get_all_grades_with_padding(blind_pass_table,config)
 %this function will be used to ensure that regardless of how many channels
 %might be used in a blind pass table we can get a single array that will
 %pad any missing values with 0s so that neural network training doesnt fail
@@ -6,6 +6,14 @@ function [] = get_all_grades_with_padding(blind_pass_table,config)
 all_grades = vertcat(blind_pass_table{:,"grades"}{:});
 %first we must get the grades for all the members of the blind pass table
 
+%transpose any grades that are nx1 and not 1xn
+for i=1:size(all_grades,2)
+    sizes_of_all_grades = cell2mat(cellfun(@size,all_grades(:,i),'UniformOutput',false));
+    grades_to_transpose = find(sizes_of_all_grades(:,1) > sizes_of_all_grades(:,2));
+    for j=1:length(grades_to_transpose)
+        all_grades{j,i} = all_grades{j,i}.';
+    end
+end
 
 %figure out which grades need to be padded
 all_lengths = cellfun(@length, all_grades);
@@ -24,6 +32,17 @@ for i=1:length(grade_idxs_to_be_used)
     for j=1:length(arrays_to_pad)
         how_many_to_pad =abs( max_grade_length(i)-non_padded_length(arrays_to_pad(j)));
         all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)} = [all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)}, zeros(1,how_many_to_pad)];
+        
     end
+    %the conditional below is to account for a strange edge case where when
+    %the values are only 0-1 and strangely matlab cast some of those as
+    %logical and some as doubles so we cast them all as doubles manually
+    if i==7
+        cell_array{i} = double(vertcat(all_grades{:,grade_idxs_to_be_used(i)}));
+    else
+        cell_array{i} = cell2mat(all_grades(:,grade_idxs_to_be_used(i)));
+    end
+    
 end
+padded_grades = horzcat(cell_array{:});
 end

@@ -1,12 +1,15 @@
-function [equalized_nn_data] = equalize_classes(nn_data)
+function [equalized_nn_data] = equalize_classes_specify_number_of_group_vars(nn_data,number_of_group_vars_at_end)
+%number_of_group_vars_at_end is the number of variables at the end which should be used for
+%grouping
+%ie if the last 2 should be used then group vars should be 2
 if class(nn_data)~="table"
     nn_data = array2table(nn_data);
 end
-counts_by_class = groupcounts(nn_data,string(nn_data.Properties.VariableNames(end)));
+counts_by_class = groupcounts(nn_data,string(nn_data.Properties.VariableNames(end-number_of_group_vars_at_end+1:end)));
 [min_counts,min_index] = min(counts_by_class{:,"GroupCount"});
 equalized_nn_data = cell(size(counts_by_class,1),1);
 for i=1:size(counts_by_class,1)
-    is_in_current_class = nn_data{:,end} == counts_by_class{i,1};
+    is_in_current_class = all(nn_data{:,string(nn_data.Properties.VariableNames(end-number_of_group_vars_at_end+1:end))} == counts_by_class{i,1:number_of_group_vars_at_end},2);
     if i==min_index
         equalized_nn_data{i} = nn_data(is_in_current_class,:);
     else

@@ -37,7 +37,7 @@ for i=1:size(list_of_features_to_add,2)
     elseif contains(current_feature,"valley")
         assembled_data{i} =get_cv_of_valley_feature_of_nn(blind_pass_table,current_feature) ;
     elseif current_feature == "grades 3"
-        
+        assembled_data{i} = get_all_grades_with_padding(blind_pass_table,config);
     else 
         disp("In list_of_features variable.")
         disp(current_feature)
