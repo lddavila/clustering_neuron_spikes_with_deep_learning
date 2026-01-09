@@ -89,14 +89,15 @@ if ~isempty(varargin) && varargin{1} && any(ismember(string(blind_pass_table.Pro
         hold on;
         plot(below_certainty(i,:));
         accuracy_density = -diff([1, adjusted_above_probabilities(i,:)]); 
-        plot(x, accuracy_density);
+        % plot(x, accuracy_density);
         p_a = adjusted_above_probabilities(i, :);
         p_b = adjusted_below_probabilities(i, :);
-        entropy_curve = -(p_a .* log2(p_a) + p_b .* log2(p_b));
-        plot(entropy_curve)
+        % entropy_curve = -(p_a .* log2(p_a) + p_b .* log2(p_b));
+        % plot(entropy_curve)
         xline(blind_pass_table{i,"accuracy"},'LineWidth',3,'Color','k','Label',"true_accuracy:"+string(blind_pass_table{i,"accuracy"}),"LineStyle","--");
         xlabel("accuracy")
-        legend("Above certainty","Below Certainty","Probability Density of Cluster Accuracy","entropy curve","true accuracy")
+        legend("Above certainty","Below Certainty")
+        %legend("Above certainty","Below Certainty","Probability Density of Cluster Accuracy","entropy curve","true accuracy")
         close all;
     end
 end
