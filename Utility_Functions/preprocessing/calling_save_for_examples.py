@@ -17,7 +17,8 @@ from extract_recordings import extract_recordings
 list_of_files = [f for f in os.listdir(os.getcwd()) if f.endswith('.h5')]
 
 #remove the template file from the list
-list_of_files.remove("templates_300_neuropixels.h5")
+
+#list_of_files.remove("templates_300_neuropixels.h5")
 
 #print the list of files to ensure we got it right
 print("List of files to process: ", list_of_files)
