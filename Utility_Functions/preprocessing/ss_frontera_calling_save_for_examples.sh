@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH -n 1
+#SBATCH -N 1
 #SBATCH -p small
 #SBATCH -o output.txt 
 #SBATCH -e output.txt
