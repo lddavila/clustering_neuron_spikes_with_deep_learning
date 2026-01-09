@@ -19,13 +19,38 @@ table_of_all_blind_pass_tables = struct2table(dir(string(fullfile(base_path,"Def
 table_of_all_blind_pass_tables = table_of_all_blind_pass_tables(string(table_of_all_blind_pass_tables{:,"name"})=="blind_pass_table.mat",:);
 
 %concatenate all blind pass tables into a single one
+col_names = [  "Z Score"
+    "Tetrode"
+    "Cluster"
+    "grades"
+    "fp_to_aligned"
+    "fp_to_cleaned_clusters"
+    "fp_to_reg_timestamps"
+    "fp_to_reg_timestamps_of_the_spikes"
+    "fp_to_sorted_spike_windows_after_purges"
+    "fp_to_timestamps_rtvals"
+    "cluster_idx"
+    "timestamps"
+    "mean_waveform_rep_wire_1"
+    "mean_waveform_rep_wire_2"
+    "waveforms_by_std_1"
+    "waveforms_by_std_2"
+    "is_neuron"
+    "recording_name"
+    "Max_Overlap_perc_With_Unit"
+    "Max_Overlap_Unit"
+    "overlap_perc_with_all_units"
+    "accuracy"];
+
 single_bp_table = cell(height(table_of_all_blind_pass_tables),1);
 for i=1:height(table_of_all_blind_pass_tables)
     current_dir = string(table_of_all_blind_pass_tables{i,"folder"});
     split_recording_dir = split(current_dir,filesep);
     recording_name = string(split_recording_dir(end));
-
+    fprintf("loading %s",fullfile(current_dir,"blind_pass_table.mat"))
     current_bp_table = importdata(fullfile(current_dir,"blind_pass_table.mat"));
+    fprintf("finished loading %s",fullfile(current_dir,"blind_pass_table.mat"))
+    current_bp_table = current_bp_table(:,col_names);
     
     current_bp_table.recording_name = repelem(recording_name,size(current_bp_table,1),1);
 end
