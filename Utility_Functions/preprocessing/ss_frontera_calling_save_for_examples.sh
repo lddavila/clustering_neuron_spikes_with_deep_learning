@@ -3,6 +3,7 @@
 #SBATCH -p small
 #SBATCH -o output.txt 
 #SBATCH -e output.txt
+#SBATCH -t 48:00:000
 export TMPDIR=/scratch2/$USER/temp
 mkdir -p $TMPDIR
 source /gpfs/scratch/afriedman/spike_gen_work/my_env/bin/activate
