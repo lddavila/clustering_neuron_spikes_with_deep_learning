@@ -18,7 +18,7 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and
     print_status_bar(num_iterations,"get_channel_wise_statistics.m")
     using_binary = config.USING_BINARY_FILES;
     if ~using_binary
-        parfor i=1:length(ordered_list_of_channels)
+        for i=1:length(ordered_list_of_channels)
             current_channel = sliced_list_of_channels{i};
             if ~exist(fullfile(z_score_dir,current_channel+".mat"),"file")
                 current_file = fullfile(dir_with_channel_data,current_channel);
