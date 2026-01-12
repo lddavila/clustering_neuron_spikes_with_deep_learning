@@ -40,11 +40,11 @@ function [aligned, cleaned_clusters, grades] = spikesort(raw, timestamps, ir, tv
     % Align spikes to peak, each wire independently
     aligned = align_to_peak(r_raw, r_tvals, r_ir);
     
-    if sum(wire_filter) < 2 % Need at least live 2 wires.
-        cleaned_clusters = {};
-        grades = [];
-        return
-    end
+    % if sum(wire_filter) < 2 % Need at least live 2 wires.
+    %     cleaned_clusters = {};
+    %     grades = [];
+    %     return
+    % end
     
     % Compute timestamp and SNR filters
     if config.USE_TIMESTAMP_FILTER && length(timestamps) > 20000

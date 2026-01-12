@@ -26,9 +26,9 @@ elseif contains(config.base_file_path,"afriedman")
     parpool('local_40', 40);
 else
     beginning = 1;
-    the_end = 10;
+    the_end = 1.5;
 end
-number_of_channels_to_use = [2,3,4,5,6,7,8,9,10];
+number_of_channels_to_use = [1,2,3,4,5,6,7,8,9,10];
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
