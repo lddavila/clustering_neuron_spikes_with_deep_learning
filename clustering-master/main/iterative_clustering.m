@@ -22,8 +22,8 @@ function clusters = iterative_clustering(aligned, ir, tvals, refine_spike_idx, s
 
             cp = peaks(cluster_idx, :);
             coeff = pca(cp);
-            peak_pcs = nan(size(peaks, 1), 2);
-            for p = 1:2
+            peak_pcs = nan(size(peaks, 1), min([size(aligned,1),2]));
+            for p = 1:size(peak_pcs,2)
                 peak_pcs(:, p) = peaks * coeff(:, p);
             end
             data = [peaks, peak_pcs];
