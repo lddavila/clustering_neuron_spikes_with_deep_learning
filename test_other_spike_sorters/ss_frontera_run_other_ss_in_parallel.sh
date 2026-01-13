@@ -5,7 +5,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 48:00:00
-#SBATCH --array=0-29
+#SBATCH --array=1-30
 #SBATCH -o output_%A_%a.txt
 #SBATCH -e output_%A_%a.txt
 
@@ -58,9 +58,10 @@ python -c "import numpy, pandas; print('numpy', numpy.__version__, 'pandas', pan
 # Map array task -> (recording, sorter)
 # -----------------------------
 TASK_ID="${SLURM_ARRAY_TASK_ID}"
+TASK0=$(( TASK_ID - 1 ))   # convert 1..30 -> 0..29
 
-REC_IDX=$(( TASK_ID / 3 ))
-SORT_IDX=$(( TASK_ID % 3 ))
+REC_IDX=$(( TASK0 / 3 ))
+SORT_IDX=$(( TASK0 % 3 ))
 
 SORTERS=(kilosort4 mountainsort4 ironclust)
 SORTER="${SORTERS[$SORT_IDX]}"
