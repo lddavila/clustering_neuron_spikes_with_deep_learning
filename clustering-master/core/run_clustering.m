@@ -1,4 +1,4 @@
-function [final_clusters, bad_clusters] = run_clustering(aligned, spike_idx, ir, tvals, refine_spike_idx, config)
+function [final_clusters, bad_clusters] = run_clustering(aligned, spike_idx, ir, tvals, refine_spike_idx, config,peak_pcs_file_name)
 %RUN_CLUSTERING Runs the clustering algorithm after preprocessing.
 %   clusters = RUN_CLUSTERING(aligned, spike_idx, timestamps, tvals,
 %   refine_spike_idx, config) returns the clusters and their grades after
@@ -31,7 +31,7 @@ function [final_clusters, bad_clusters] = run_clustering(aligned, spike_idx, ir,
     % Spikes to cluster
     spike_aligned = aligned(:, true_spike_idx, :);
     % plot_the_spikes_ver_2(spike_aligned,"In Run_clustering.m",[],[1,2,3,4],[])
-    raw_clusters = core_cluster_loop(spike_aligned, @extract_cluster_features, config);
+    raw_clusters = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name);
 
     % plot_the_cf(raw_clusters,aligned,["Called by run\_clustering.m","Before Refinment"]);
     

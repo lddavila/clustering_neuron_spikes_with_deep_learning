@@ -1,4 +1,4 @@
-function [aligned, cleaned_clusters, timestamps,r_tvals] = spikesort_ver_4(raw, timestamps, ir, tvals, config,channels)
+function [aligned, cleaned_clusters, timestamps,r_tvals,peak_pcs] = spikesort_ver_4(raw, timestamps, ir, tvals, config,channels,peak_pcs_file_name)
 %SPIKESORT Performs the main spike sorting algorithm.
 %   [aligned, new_cluster_filters, gradings] = SPIKESORT(raw, timestamps,
 %   ir, tvals, config)
@@ -115,9 +115,11 @@ function [aligned, cleaned_clusters, timestamps,r_tvals] = spikesort_ver_4(raw, 
     refine_spike_idx = find(refine_filter);
     
     % Run multiple iterations of the cluster algorithm
-    clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
-        refine_spike_idx, preproc_idx, config);
-    
+    [clusters,peak_pcs]= iterative_clustering_ver_2(aligned, r_ir, r_tvals, ...
+        refine_spike_idx, preproc_idx, config,peak_pcs_file_name);
+   %OG LINES RANGE FROM LINE 121-122
+   %  clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
+   %     refine_spike_idx, preproc_idx, config);
     % Optionally do PC1 cleaning afterward
     if ~isempty(clusters) && config.USE_PC1_CLEANING
         cleaned_clusters = cell(size(clusters));

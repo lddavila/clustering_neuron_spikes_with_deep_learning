@@ -1,4 +1,4 @@
-function [n, U] = cluster_prepare_data(filtered_raw, cluster_ns, extract_features_fn, config)
+function [n, U] = cluster_prepare_data(filtered_raw, cluster_ns, extract_features_fn, config,peak_pcs_file_name)
 
 %CLUSTER_PREPARE_DATA Prepares the data for clustering.
 %   [n, U] = CLUSTER_PREPARE_DATA(filtered_raw, cluster_ns, config) returns
@@ -11,7 +11,7 @@ function [n, U] = cluster_prepare_data(filtered_raw, cluster_ns, extract_feature
         return
     end
 
-    [cluster_data, supp_data] = extract_features_fn(filtered_raw);
+    [cluster_data, supp_data] = extract_features_fn(filtered_raw,config,peak_pcs_file_name);
     
     % Determine which clustering is best using the MPC validity index
     data = [cluster_data, supp_data];

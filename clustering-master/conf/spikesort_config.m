@@ -233,6 +233,8 @@ config.FP_TO_EVEN_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","e
 config.dir_of_prob_dist_nets = fullfile(config.base_file_path,"Neural_Networks","probability_distr_nets");
 
 config.dir_of_prob_dist_nets = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\probability_distr_nets_equalized_difficulty";
+
+config.peak_pcs_file_name = "";
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

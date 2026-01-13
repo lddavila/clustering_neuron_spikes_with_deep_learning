@@ -1,4 +1,4 @@
-function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_features_fn, config)
+function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_features_fn, config,peak_pcs_file_name)
 %spikes : 
 %   An array with the following dimensions:
 %   number_of_channels X number_of_spikes X number_of_data_points matrix
@@ -16,7 +16,7 @@ function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_fe
 %feature extraction and selection)
 % cluster_idx_inj: all the indexes for every spike
     
-    [n, U] = cluster_prepare_data(spikes, cluster_ns, extract_features_fn, config);
+    [n, U] = cluster_prepare_data(spikes, cluster_ns, extract_features_fn, config,peak_pcs_file_name);
     if n == 0 %means no clusters were found 
         clusters = {}; 
     elseif n == 1 %means only a single cluster was found

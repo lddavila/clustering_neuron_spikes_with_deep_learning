@@ -1,4 +1,4 @@
-function final_clusters = core_cluster_loop(spike_aligned, extract_features_fn, config)
+function final_clusters = core_cluster_loop(spike_aligned, extract_features_fn, config,peak_pcs_file_name)
     level = 1; %start the level
     done = false; %by default you are not done
     start_cl = struct(); %create a starting cluster struct object
@@ -17,7 +17,7 @@ function final_clusters = core_cluster_loop(spike_aligned, extract_features_fn, 
             cl = clusters{k}; %take cluster k from the data set
             if cl.subclust %check if cl should be sub clustered again 
                 done = false; %make sure the algorithm doesn't stop because the current cluster needs to be subclustered again 
-                subclusters = core_cluster(spike_aligned(:, cl.idx, :), cluster_ns, cl.idx, extract_features_fn, config); %get back subclusters from initial clutster
+                subclusters = core_cluster(spike_aligned(:, cl.idx, :), cluster_ns, cl.idx, extract_features_fn, config,peak_pcs_file_name); %get back subclusters from initial clutster
                 next_clusters = [next_clusters subclusters]; %add new subclusters to the list of clusters 
 
             else

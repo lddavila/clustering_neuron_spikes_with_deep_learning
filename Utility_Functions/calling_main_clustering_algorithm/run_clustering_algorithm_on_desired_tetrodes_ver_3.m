@@ -31,6 +31,8 @@ list_of_available_channels = strrep(list_of_available_channels,".mat","");
 list_of_available_channels = strrep(list_of_available_channels,"c","");
 list_of_available_channels = str2double(list_of_available_channels);
 
+
+
 % --- Stop any existing pool ---
 % in the case of too much memory we dramatically resudce the number of
 % workers 
@@ -43,13 +45,21 @@ num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
 %there should be a parfor on line 45 when not testing
 for i=1:length(list_of_available_tetrodes)
+    %get a local copy of config
+    local_config = config.Value;
+
+    
      
-    beginning_time = tic;
+    % beginning_time = tic;
     current_tetrode = list_of_available_tetrodes(i);
     output_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" output.mat");
     aligned_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
     reg_ts_file_name= fullfile(initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
     reg_ts_of_spikes_file_name =fullfile(initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
+    peak_pcs_file_name = fullfile(initial_tetrodes_results_dir,current_tetrode+" peak_pcs.mat");
+
+    %overwrite the field 
+    local_config.peak_pcs_file_name = peak_pcs_file_name;
 
     c1 = isfile(output_file_name);
     c2 = isfile(aligned_file_name);
@@ -135,7 +145,7 @@ for i=1:length(list_of_available_tetrodes)
 
     try
         %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
-        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config.Value,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir,current_tetrode);
+        [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,local_config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir,current_tetrode);
         %   - the first column contains the timestamps of the spikes in seconds
         %   - the second column contains the cluster classification of the spikes
         %       E.g., a value of '3' means that the spike belongs to cluster 3.
@@ -144,11 +154,14 @@ for i=1:length(list_of_available_tetrodes)
             aligned = struct("aligned",aligned);
             reg_timestamps = struct("reg_timestamps",reg_timestamps);
             reg_timestamps_of_the_spikes = struct("reg_timestamps_of_the_spikes",reg_timestamps_of_the_spikes);
+            % peak_pcs = struct("peak_pcs",peak_pcs);
+            
 
             par_save(output_file_name,output)
             par_save(aligned_file_name,aligned)
             par_save(reg_ts_file_name,reg_timestamps)
             par_save(reg_ts_of_spikes_file_name,reg_timestamps_of_the_spikes)
+            
 
         else
             disp("Went into catch")
@@ -156,7 +169,7 @@ for i=1:length(list_of_available_tetrodes)
             continue;
         end
     catch ME
-        end_time = toc(beginning_time);
+        % end_time = toc(beginning_time);
         fprintf("\n")
         disp("########################################################################################")
         fprintf(2, "%s\n", getReport(ME, "extended", "hyperlinks", "off"));

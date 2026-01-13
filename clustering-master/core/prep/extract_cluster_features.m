@@ -1,4 +1,4 @@
-function [cluster_data, supp_data] = extract_cluster_features(raw)
+function [cluster_data, supp_data] = extract_cluster_features(raw,config,peak_pcs_file_name)
 %EXTRACT_CLUSTER_FEATURES Extracts features from the spike waveforms.
 %   [cluster_data, supp_data] = EXTRACT_CLUSTER_FEATURES(raw) returns two
 %   sets of features:
@@ -36,10 +36,11 @@ function [cluster_data, supp_data] = extract_cluster_features(raw)
    %plot_pca_results(peakpcs);
     pcs = get_new_pcs(raw);
     pc1 = pcs(:, :, 1);
-%     pc2 = pcs(:, :, 2);
+    pc2 = pcs(:, :, 2);
 %     pcs = get_new_pcs(raw, true);
 %     pc1 = pcs(:, :, 1);
-    
+    peak_pcs = struct("pc1",pc1,"pc2",pc2);
+    par_save(peak_pcs_file_name,peak_pcs)
     cluster_data = zscore([peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'); % OG LINE
      cluster_data = [peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'; % OG LINE
    % cluster_data = zscore(peaks); %new line with pcs remsoved

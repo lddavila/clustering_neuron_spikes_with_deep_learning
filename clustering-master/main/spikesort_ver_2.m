@@ -115,8 +115,12 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
     refine_spike_idx = find(refine_filter);
     
     % Run multiple iterations of the cluster algorithm
-    clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
+    [clusters,peak_pcs] = iterative_clustering(aligned, r_ir, r_tvals, ...
         refine_spike_idx, preproc_idx, config);
+
+    %OG lines are from 122 to 123
+    %clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
+    %    refine_spike_idx, preproc_idx, config);
     
     % Optionally do PC1 cleaning afterward
     if ~isempty(clusters) && config.USE_PC1_CLEANING
