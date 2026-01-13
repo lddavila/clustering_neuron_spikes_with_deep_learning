@@ -5,7 +5,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 48:00:00
-#SBATCH --array=0-29%10
+#SBATCH --array=0-29
 #SBATCH -o output_%A_%a.txt
 #SBATCH -e output_%A_%a.txt
 
