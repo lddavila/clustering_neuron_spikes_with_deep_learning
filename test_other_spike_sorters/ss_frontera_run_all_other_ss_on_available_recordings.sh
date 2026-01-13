@@ -7,6 +7,8 @@
 #SBATCH -t 48:00:00
 #SBATCH -o output.txt
 #SBATCH -e output.txt
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=lddavila@miners.utep.edu
 
 set -eo pipefail
 
