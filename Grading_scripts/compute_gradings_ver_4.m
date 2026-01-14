@@ -94,9 +94,9 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         second_wire_thresh = tvals(second_compare_wire);
         second_set_of_compare_peaks = peaks_without_rep_wire(second_compare_wire, :);
 
-        if compare_wire==second_compare_wire
-            disp("Something Went Wrong")
-        end
+        % if compare_wire==second_compare_wire
+        %     disp("Something Went Wrong")
+        % end
 
         % Rate how good the cluster is based on how far away it is from the
         % rest of the spikes (including unclustered).
@@ -365,16 +365,20 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         %grade 54 will be how like an elipse the cluster is
         %grade 54 will be a measure of how circular a cluster is
         %grade 56 and 57 aren't used
-        [grades{k,54},grades{k,55}] = plot_cluster_as_png_and_return_elipse_rating(compare_peaks,second_set_of_compare_peaks,dir_of_template_figures);
-
+        if length(channels) <2
+            grades{k,54} =0;
+            grades{k,55} =0;
+        else
+            [grades{k,54},grades{k,55}] = plot_cluster_as_png_and_return_elipse_rating(compare_peaks,second_set_of_compare_peaks,dir_of_template_figures);
+        end
         %grade 58 will be a prediction of the cluster's accuracy based on an image of the cluster which uses a neural network trained on a dataset
-        %it will be 
-            %0 for less than 1 percent accuracy
-            %1 for between 1 and 50 accuracy
-            %2 for between 50 and 100 accuracy
-        
-       %grade 59 will be a prediction of cluster quality ranging from 0-5 with based on an image of the cluster 
-            %0 for clusters that have a very strange abstract shape or clusters that are so sparse they can't be seen
+        %it will be
+        %0 for less than 1 percent accuracy
+        %1 for between 1 and 50 accuracy
+        %2 for between 50 and 100 accuracy
+
+        %grade 59 will be a prediction of cluster quality ranging from 0-5 with based on an image of the cluster
+        %0 for clusters that have a very strange abstract shape or clusters that are so sparse they can't be seen
             %1 for clusters that are just MUA
             %2 for clusters that are barely separating from MUA i.e. pregnancy plots
             %3 for clusters that are in the right area, but do not fully encapsulate the actual cluster

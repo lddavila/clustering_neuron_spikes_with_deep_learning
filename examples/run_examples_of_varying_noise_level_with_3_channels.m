@@ -29,6 +29,7 @@ else
     the_end = 1.5;
 end
 number_of_channels_to_use = [1,2,3,4,5,6,7,8,9,10];
+number_of_channels_to_use = [1];
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
