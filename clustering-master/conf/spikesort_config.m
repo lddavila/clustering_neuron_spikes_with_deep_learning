@@ -235,6 +235,12 @@ config.dir_of_prob_dist_nets = fullfile(config.base_file_path,"Neural_Networks",
 config.dir_of_prob_dist_nets = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\probability_distr_nets_equalized_difficulty";
 
 config.peak_pcs_file_name = "";
+
+%parameters needed by the ironclust processing
+config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. to use high-pass set to [f_lo, nan], to use low-pass set to [nan, f_hi]
+config.vcFilter = 'bandpass';
+config.sample_rate_in_hertz = 1;
+config.freqLim_width = ;
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
