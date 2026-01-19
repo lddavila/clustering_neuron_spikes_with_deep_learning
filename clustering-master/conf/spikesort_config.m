@@ -239,8 +239,8 @@ config.peak_pcs_file_name = "";
 %parameters needed by the ironclust processing
 config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. to use high-pass set to [f_lo, nan], to use low-pass set to [nan, f_hi]
 config.vcFilter = 'bandpass';
-config.sample_rate_in_hertz = 1;
-config.freqLim_width = ;
+config.sample_rate_in_hertz = 30030;
+config.freqLim_width = [100, 1000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
 % ORIGINAL BEGINS HERE
 
 % Prints extra output

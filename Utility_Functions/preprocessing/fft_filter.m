@@ -36,11 +36,11 @@ NSKIP_MAX = 2^17; % fft work length
 nPad = 300;
 [nT, nC] = size(mrWav);
 nSkip = min(nT, NSKIP_MAX);
-[sRateHz, freqLim, freqLim_width, fGpu] = ...
-    struct_get_(P, 'sRateHz', 'freqLim', 'freqLim_width', 'fGpu');
+% [sRateHz, freqLim, freqLim_width, fGpu] = ...
+%     struct_get_(P, 'sRateHz', 'freqLim', 'freqLim_width', 'fGpu');
 sRateHz = P.sample_rate_in_hertz;
 freqLim = P.freqLim;
-freqLim_width = 
+freqLim_width = P.freqLim_width;
 if isempty(freqLim) && ~strcmpi(vcMode, 'clean')
     mrWav_filt = mrWav; return; 
 end
@@ -62,9 +62,9 @@ switch lower(vcMode)
         fh_make_filter = @fft_wiener_;
     otherwise, error(['fftfilt_: invalid option: ', vcMode]);
 end
-if ~fGpu, mrWav = gather_(mrWav); end
-
-
+% if ~fGpu, mrWav = gather_(mrWav); end
+fGpu = 0;
+scale_filter = 1;
 t1=tic;
 fft_thresh = get_set_(P, 'fft_thresh', 0);
 fft_thresh_low = get_(P, 'fft_thresh_low');
@@ -119,11 +119,11 @@ for iStart = 1:nSkip:nT
     mrWav1 = []; % clear memory
     if fVerbose, fprintf('.'); end
 end
-if ~isGpu_(mrWav), mrWav_filt = gather_(mrWav_filt); end
-if fGpu_out
-    mrWav_filt = gpuArray(mrWav_filt);
-end
-if fVerbose, fprintf(' took %0.1fs (fGpu=%d)\n', toc(t1), fGpu); end
+% if ~isGpu_(mrWav), mrWav_filt = gather_(mrWav_filt); end
+% if fGpu_out
+%     mrWav_filt = gpuArray(mrWav_filt);
+% end
+% if fVerbose, fprintf(' took %0.1fs (fGpu=%d)\n', toc(t1), fGpu); end
 end %func
 
 
