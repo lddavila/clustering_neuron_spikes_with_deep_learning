@@ -3,6 +3,7 @@ function run_spike_window_check_for_all_available_units(recording_name,loaded_ta
 current_script_file_path = mfilename('fullpath');
 [current_file_path,~,~] = fileparts(current_script_file_path);
 cd(current_file_path);
+cd ../..
 addpath(genpath(pwd));
 config = spikesort_config;
 tetrode = build_artificial_tetrode;
@@ -34,7 +35,6 @@ for i = 1:600
     
     % Check if all files exist
     if all(cellfun(@(fp) exist(fp, 'file') == 2, file_paths))
-        % ---- Your code here ----
         find_gt_unit_spike_window_overlap_for_specified_unit(i,recording_name,1,full_bp_table)
     end
     end

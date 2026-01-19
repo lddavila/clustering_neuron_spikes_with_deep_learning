@@ -3,6 +3,8 @@ function find_gt_unit_spike_window_overlap_for_specified_unit(unit_number,record
 current_script_file_path = mfilename('fullpath');
 [current_file_path,~,~] = fileparts(current_script_file_path);
 cd(current_file_path);
+cd ..
+cd ..
 addpath(genpath(pwd));
 config = spikesort_config;
 tetrode = build_artificial_tetrode;
@@ -49,9 +51,9 @@ combined_spike_windows_peak = combined_spike_windows(:,4);
 ground_truth = importdata(config.GT_FP);
 ground_truth_unit = ground_truth{unit_number};
 ground_truth_unit = ground_truth_unit+1;
-
+ground_truth_unit = double(ground_truth_unit);
 %% compare ground truth and spike windows spikes
-gt_spikes_kept = ismember(ground_truth_unit,combined_spike_windows_peak);
+gt_spikes_kept = ismembertol(ground_truth_unit,combined_spike_windows_peak,0.00001);
 gt_spikes_kept_count = sum(gt_spikes_kept);
 spikes_kept_accuracy = gt_spikes_kept_count/size(ground_truth_unit,2);
 disp(max_accuracy_row_for_specified_unit)

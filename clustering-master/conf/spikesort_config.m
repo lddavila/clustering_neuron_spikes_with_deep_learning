@@ -240,7 +240,7 @@ config.peak_pcs_file_name = "";
 config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. to use high-pass set to [f_lo, nan], to use low-pass set to [nan, f_hi]
 config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 1;
-config.freqLim_width = ;
+config.freqLim_width = [];
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
