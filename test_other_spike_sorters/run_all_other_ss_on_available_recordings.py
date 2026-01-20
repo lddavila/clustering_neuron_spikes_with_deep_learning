@@ -45,7 +45,7 @@ list_of_sorters = ['kilosort4','mountainsort4', 'ironclust']
 #now import each h5 file as a recording and run the sorters on it
 for j, rec_fp in enumerate(h5_files):
     #get the name of the file without the full path
-    if j != 9:
+    if j != 8:
         continue
     
 
