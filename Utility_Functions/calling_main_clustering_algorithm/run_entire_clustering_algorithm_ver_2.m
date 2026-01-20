@@ -38,7 +38,16 @@ else
     z_score_dir = fullfile(precomputed_dir,"z_score");
 end
 disp("Finished Creating Z Score Directory");
-% disp(z_score_dir);
+
+if config.use_bandpass
+    % create a file where bandpass filtered data will be stored
+    % we'll store it in the default output data is
+    dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"filtered_data"));
+    apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
+
+    %overwrite the channel directory with your filtered data
+    dir_with_channel_recordings = dir_to_store_filtered_data;
+end
 
 % step 7: get the mean and std of all channels the z score is also
 % calculated here
@@ -66,13 +75,16 @@ z_scores_to_check = sort(z_scores_to_check,'ascend');
 %for higher z score's we'll simply filter spike windows by the z score of
 %the spike
 %this provides a significant boost in performance
-beginning_time = tic;
 lower_bound_z_score = min(z_scores_to_check);
 lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(lower_bound_z_score)));
-detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);
+beginning_time = tic;
+if ~config.use_new_spike_detection
+    detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);    
+else
+    use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);
+end
 end_time = toc(beginning_time);
 fprintf("Finished cutting spikes per channel for z score %.2f, it took %.2f seconds\n",lower_bound_z_score,end_time);
-
 %step 9b get the spike windows of the smallest z score in the config
 %by all subsequent z score tests will be much faster as they will simply
 %perform a logical indexing of the lowest bound

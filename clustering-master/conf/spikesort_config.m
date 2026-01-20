@@ -237,6 +237,8 @@ config.dir_of_prob_dist_nets = "C:\Users\ldd77\clustering_neuron_spikes_with_dee
 config.peak_pcs_file_name = "";
 
 %parameters needed by the ironclust processing
+config.use_bandpass = true;
+config.use_new_spike_detection = true;
 config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. to use high-pass set to [f_lo, nan], to use low-pass set to [nan, f_hi]
 config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 30030;
