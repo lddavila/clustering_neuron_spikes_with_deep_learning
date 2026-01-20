@@ -9,4 +9,3 @@
 #SBATCH --mail-user=lddavila@miners.utep.edu
 module load matlab/2023b
 matlab -batch "run_examples_by_passed_param(1);exit;"
-
