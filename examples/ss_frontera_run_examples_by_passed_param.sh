@@ -2,8 +2,8 @@
 #SBATCH -N 1
 #SBATCH -p small
 #SBATCH -J examples
-#SBATCH -o output_6.txt 
-#SBATCH -e output_6.txt 
+#SBATCH -o output_7.txt 
+#SBATCH -e output_7.txt 
 #SBATCH -t 48:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu
