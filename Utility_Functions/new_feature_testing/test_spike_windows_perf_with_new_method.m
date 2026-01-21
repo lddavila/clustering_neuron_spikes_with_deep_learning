@@ -96,7 +96,7 @@ for i=1:height(table_of_all_blind_pass_tables)
     % disp()
     q = parallel.pool.DataQueue;
     afterEach(q,@print_status_bar)
-    num_iterations = length(length(maxed_acc_example_for_unit));
+    num_iterations = length(maxed_acc_example_for_unit);
     print_status_bar(num_iterations,current_recording +" with " +string(num_channels)+" channels")
     for j=1:length(maxed_acc_example_for_unit)
         current_maxed_example = maxed_acc_example_for_unit{j};
