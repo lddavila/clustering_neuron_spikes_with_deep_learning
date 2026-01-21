@@ -151,13 +151,20 @@ for i=1:height(table_of_all_blind_pass_tables)
     par_save(fullfile(fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.mat")),data_to_save_struct);
     %now create a line plot for each of them
     figure;
-    plot(default_overlap)
-    hold on;
-    plot(default_overlap_with_bandpass)
-    plot(ironclust_overlap_without_bandpass);
-    plot(ironclust_overlap_with_bandpass);
-    legend("Default","Default + banpass","ironclust - bandpass","ironclust + bandpass");
-    title(current_recording + " " + string(num_channels) + " Channels");
+    tiledlayout(4,1)
+    nexttile();
+    bar(default_overlap)
+    title("Default");
+    nexttile();
+    bar(default_overlap_with_bandpass)
+    title("Default + banpass")
+    nexttile("ironclust - bandpass");
+    bar(ironclust_overlap_without_bandpass);
+    nexttile();
+    bar(ironclust_overlap_with_bandpass);
+    title("ironclust + bandpass");
+    xlabel("Unit Number")
+    sgtitle(current_recording + " " + string(num_channels) + " Channels");
     saveas(gcf,fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.svg"))
     close(gcf);
 end
