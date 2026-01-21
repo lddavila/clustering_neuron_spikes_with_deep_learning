@@ -105,6 +105,7 @@ for i=1:height(table_of_all_blind_pass_tables)
     config = parallel.pool.Constant(config);
     parfor j=1:length(ground_truth_array)
         if isempty(maxed_acc_example_for_unit{j})
+            send(q,[]);
             continue;
         end
         current_maxed_example = maxed_acc_example_for_unit{j};
@@ -158,8 +159,9 @@ for i=1:height(table_of_all_blind_pass_tables)
     nexttile();
     bar(default_overlap_with_bandpass)
     title("Default + banpass")
-    nexttile("ironclust - bandpass");
+    nexttile();
     bar(ironclust_overlap_without_bandpass);
+    title("ironclust - bandpass");
     nexttile();
     bar(ironclust_overlap_with_bandpass);
     title("ironclust + bandpass");
