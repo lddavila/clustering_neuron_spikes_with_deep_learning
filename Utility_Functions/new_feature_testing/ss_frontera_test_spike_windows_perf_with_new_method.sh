@@ -1,7 +1,7 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -p small
-#SBATCH -J examples
+#SBATCH -J overlap_test
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 #SBATCH -t 48:00:00
