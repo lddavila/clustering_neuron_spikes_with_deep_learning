@@ -104,6 +104,9 @@ for i=1:height(table_of_all_blind_pass_tables)
     
     config = parallel.pool.Constant(config);
     parfor j=1:length(ground_truth_array)
+        if isempty(maxed_acc_example_for_unit{j})
+            continue;
+        end
         current_maxed_example = maxed_acc_example_for_unit{j};
         current_channels = current_maxed_example{1,"grades"}{1}{49};
         gt_data = ground_truth_array{j}+1;
