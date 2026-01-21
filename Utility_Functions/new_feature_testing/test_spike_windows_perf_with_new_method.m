@@ -122,6 +122,12 @@ for i=1:height(table_of_all_blind_pass_tables)
             disp(j);
         end
 
+        % default_overlap = zeros(length(ground_truth_array),1);
+        % default_overlap_with_bandpass = zeros(length(ground_truth_array),1);
+        % ironclust_overlap_without_bandpass = zeros(length(ground_truth_array),1);
+        % ironclust_overlap_with_bandpass = zeros(length(ground_truth_array),1);
+        data_to_save_struct = struct("default_overlap",default_overlap,"default_overlap_with_bandpass",default_overlap_with_bandpass,"ironclust_overlap_without_bandpass",ironclust_overlap_without_bandpass,"ironclust_overlap_with_bandpass",ironclust_overlap_with_bandpass);
+        par_save(fullfile(fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.mat")),data_to_save_struct);
         %now create a line plot for each of them
         figure;
         plot(default_overlap)
