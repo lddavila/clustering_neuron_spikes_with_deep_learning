@@ -49,95 +49,96 @@ for i=1:height(table_of_all_blind_pass_tables)
         config.GT_FP = fullfile(config.base_file_path,"Data",current_recording,"ground_truth","ground_truth.mat");
         config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",current_recording,"timestamps","timestamps.mat");
         config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",current_recording,"recordings_by_channel");
-        if contains(pwd,"C:\Users\ldd77\")
-            ext_drive_fp = "F:";
-            config.GT_FP = fullfile(ext_drive_fp,current_recording,"ground_truth","ground_truth.mat");
-            config.TIMESTAMP_FP = fullfile(ext_drive_fp,current_recording,"timestamps","timestamps.mat");
-            config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,current_recording,"recordings_by_channel");
-        end
-
-
-        %import the ground truth data for the recording
-        ground_truth_array = importdata(config.GT_FP);
-
-        %get a unique list of all units that appear in the current recording
-        unique_units = unique(current_bp_table{:,"Max_Overlap_Unit"});
-
-        maxed_acc_example_for_unit= cell(length(unique_units),1);
-        %for every unit that appears in the recording find where it's accuracy
-        %is maxed out
-        for j=1:length(unique_units)
-            current_unit = unique_units(j);
-            only_current_unit = current_bp_table(current_bp_table{:,"Max_Overlap_Unit"}==current_unit,:);
-            [~,max_appearence] = max(only_current_unit{:,"accuracy"});
-            maxed_acc_example_for_unit{j} = only_current_unit(max_appearence,:);
-        end
-
-        %for every highest accuracy get the % of unit spikes that appear in the
-        %raw data as a fraction
-        % unit_overlap_with_spike_windows =
-        % number_of_gt_spikes_found_by_spike_windows / length(gt_spikes_for_unit)
-        %get the same number using the ironclust data
-        %by default it is 0 because that means our blind pass didn't find the
-        %cluster at all and we have no comparison
-        default_overlap = zeros(length(ground_truth_array),1);
-        default_overlap_with_bandpass = zeros(length(ground_truth_array),1);
-        ironclust_overlap_without_bandpass = zeros(length(ground_truth_array),1);
-        ironclust_overlap_with_bandpass = zeros(length(ground_truth_array),1);
-        disp(current_recording +" with " +string(num_channels)+" channels")
-        for j=1:length(maxed_acc_example_for_unit)
-            current_maxed_example = maxed_acc_example_for_unit{j};
-            gt_unit_to_use = current_maxed_example{1,"Max_Overlap_Unit"};
-            current_channels = current_maxed_example{1,"grades"}{1}{49};
-            gt_data = ground_truth_array{gt_unit_to_use}+1;
-            desired_z_score = current_maxed_example{1,"Z Score"};
-            ordered_list_of_channels = strcat("c",string(sort(current_channels)),".mat");
-            %overwrite config to use default spike windows
-            config.use_new_spike_detection = false;
-            config.use_bandpass = false;
-            [~,default_overlap(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
-
-            %overwrite the config so that
-            %get_spike_windows_for_specific_channels will use the ironclust
-            %spike detection but not the bandpass filter
-            config.use_new_spike_detection = false;
-            config.use_bandpass = true;
-            [~,default_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
-
-
-            %overwrite the config so that
-            %get_spike_windows_for_specific_channels will use the ironclust
-            %spike detection and the bandpass filter
-            config.use_new_spike_detection = true;
-            config.use_bandpass = false;
-            [~,ironclust_overlap_without_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
-
-
-            %overwrite the config so that
-            %get_spike_windows_for_specific_channels will use the ironclust
-            %spike detection and the bandpass filter
-            config.use_new_spike_detection = true;
-            config.use_bandpass = true;
-            [~,ironclust_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
-            disp(j);
-        end
-
-        % default_overlap = zeros(length(ground_truth_array),1);
-        % default_overlap_with_bandpass = zeros(length(ground_truth_array),1);
-        % ironclust_overlap_without_bandpass = zeros(length(ground_truth_array),1);
-        % ironclust_overlap_with_bandpass = zeros(length(ground_truth_array),1);
-        data_to_save_struct = struct("default_overlap",default_overlap,"default_overlap_with_bandpass",default_overlap_with_bandpass,"ironclust_overlap_without_bandpass",ironclust_overlap_without_bandpass,"ironclust_overlap_with_bandpass",ironclust_overlap_with_bandpass);
-        par_save(fullfile(fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.mat")),data_to_save_struct);
-        %now create a line plot for each of them
-        figure;
-        plot(default_overlap)
-        hold on;
-        plot(default_overlap_with_bandpass)
-        plot(ironclust_overlap_without_bandpass);
-        plot(ironclust_overlap_with_bandpass);
-        legend("Default","Default + banpass","ironclust - bandpass","ironclust + bandpass");
-        title(current_recording + " " + string(num_channels) + " Channels");
-        saveas(gcf,fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.svg"))
-        close(gcf);
     end
+    if contains(pwd,"C:\Users\ldd77\")
+        ext_drive_fp = "F:";
+        config.GT_FP = fullfile(ext_drive_fp,current_recording,"ground_truth","ground_truth.mat");
+        config.TIMESTAMP_FP = fullfile(ext_drive_fp,current_recording,"timestamps","timestamps.mat");
+        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,current_recording,"recordings_by_channel");
+    end
+
+
+    %import the ground truth data for the recording
+    ground_truth_array = importdata(config.GT_FP);
+
+    %get a unique list of all units that appear in the current recording
+    unique_units = unique(current_bp_table{:,"Max_Overlap_Unit"});
+
+    maxed_acc_example_for_unit= cell(length(unique_units),1);
+    %for every unit that appears in the recording find where it's accuracy
+    %is maxed out
+    for j=1:length(unique_units)
+        current_unit = unique_units(j);
+        only_current_unit = current_bp_table(current_bp_table{:,"Max_Overlap_Unit"}==current_unit,:);
+        [~,max_appearence] = max(only_current_unit{:,"accuracy"});
+        maxed_acc_example_for_unit{j} = only_current_unit(max_appearence,:);
+    end
+
+    %for every highest accuracy get the % of unit spikes that appear in the
+    %raw data as a fraction
+    % unit_overlap_with_spike_windows =
+    % number_of_gt_spikes_found_by_spike_windows / length(gt_spikes_for_unit)
+    %get the same number using the ironclust data
+    %by default it is 0 because that means our blind pass didn't find the
+    %cluster at all and we have no comparison
+    default_overlap = zeros(length(ground_truth_array),1);
+    default_overlap_with_bandpass = zeros(length(ground_truth_array),1);
+    ironclust_overlap_without_bandpass = zeros(length(ground_truth_array),1);
+    ironclust_overlap_with_bandpass = zeros(length(ground_truth_array),1);
+    disp(current_recording +" with " +string(num_channels)+" channels")
+    for j=1:length(maxed_acc_example_for_unit)
+        current_maxed_example = maxed_acc_example_for_unit{j};
+        gt_unit_to_use = current_maxed_example{1,"Max_Overlap_Unit"};
+        current_channels = current_maxed_example{1,"grades"}{1}{49};
+        gt_data = ground_truth_array{gt_unit_to_use}+1;
+        desired_z_score = current_maxed_example{1,"Z Score"};
+        ordered_list_of_channels = strcat("c",string(sort(current_channels)),".mat");
+        %overwrite config to use default spike windows
+        config.use_new_spike_detection = false;
+        config.use_bandpass = false;
+        [~,default_overlap(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+
+        %overwrite the config so that
+        %get_spike_windows_for_specific_channels will use the ironclust
+        %spike detection but not the bandpass filter
+        config.use_new_spike_detection = false;
+        config.use_bandpass = true;
+        [~,default_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+
+
+        %overwrite the config so that
+        %get_spike_windows_for_specific_channels will use the ironclust
+        %spike detection and the bandpass filter
+        config.use_new_spike_detection = true;
+        config.use_bandpass = false;
+        [~,ironclust_overlap_without_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+
+
+        %overwrite the config so that
+        %get_spike_windows_for_specific_channels will use the ironclust
+        %spike detection and the bandpass filter
+        config.use_new_spike_detection = true;
+        config.use_bandpass = true;
+        [~,ironclust_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+        disp(j);
+    end
+
+    % default_overlap = zeros(length(ground_truth_array),1);
+    % default_overlap_with_bandpass = zeros(length(ground_truth_array),1);
+    % ironclust_overlap_without_bandpass = zeros(length(ground_truth_array),1);
+    % ironclust_overlap_with_bandpass = zeros(length(ground_truth_array),1);
+    data_to_save_struct = struct("default_overlap",default_overlap,"default_overlap_with_bandpass",default_overlap_with_bandpass,"ironclust_overlap_without_bandpass",ironclust_overlap_without_bandpass,"ironclust_overlap_with_bandpass",ironclust_overlap_with_bandpass);
+    par_save(fullfile(fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.mat")),data_to_save_struct);
+    %now create a line plot for each of them
+    figure;
+    plot(default_overlap)
+    hold on;
+    plot(default_overlap_with_bandpass)
+    plot(ironclust_overlap_without_bandpass);
+    plot(ironclust_overlap_with_bandpass);
+    legend("Default","Default + banpass","ironclust - bandpass","ironclust + bandpass");
+    title(current_recording + " " + string(num_channels) + " Channels");
+    saveas(gcf,fullfile(dir_to_save_results_to,current_recording + " " + string(num_channels) + " Channels.svg"))
+    close(gcf);
+end
 end
