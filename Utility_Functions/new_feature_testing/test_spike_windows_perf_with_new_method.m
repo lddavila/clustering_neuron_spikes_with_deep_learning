@@ -46,9 +46,9 @@ for i=1:height(table_of_all_blind_pass_tables)
     current_recording = current_bp_table{1,"recording_name"};
 
     if contains(pwd,"10595")
-        config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
-        config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
-        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
+        config.GT_FP = fullfile(config.base_file_path,"Data",current_recording,"ground_truth","ground_truth.mat");
+        config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",current_recording,"timestamps","timestamps.mat");
+        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",current_recording,"recordings_by_channel");
         if contains(pwd,"C:\Users\ldd77\")
             ext_drive_fp = "F:";
             config.GT_FP = fullfile(ext_drive_fp,current_recording,"ground_truth","ground_truth.mat");
