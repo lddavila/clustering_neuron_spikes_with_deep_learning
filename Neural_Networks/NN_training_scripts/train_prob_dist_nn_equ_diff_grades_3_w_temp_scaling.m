@@ -1,21 +1,22 @@
 function [] = train_prob_dist_nn_equ_diff_grades_3_w_temp_scaling(varargin)
 %the goal of this function is to use the neural network thresholding idea
 %at every possible accuracy
-%what we have observed in the past is that choose better will always fail
-%once the two samples are closer to each other
-%ie Cluster A is 55% accurate and Cluster B is 56% accuracte then choose
-%better will fail
-%Now this shouldn't matter, who cares about a 1% difference anyway
-%the problem is getting them in the right pots
-%ie make sure that all clusters within the 90-100% accurate pot are only
-%being compared to clusters in the same pot
-%We'll accomplish by training a series of neural networks to identify the
-%above/below probabilities at every possible accuracy threshold
-%ie 1%, 2%, 3%, ... 99%, 100% accurate
-%Using the fact that we know that choose better fails when the accuracies
-%are very close we can also assume that the degree of certainty each neural
-%network produces will gradually decrease as it approaches the true
-%accuracy and will increase once it gets father away from true accuracy
+%we know that neural networks are very successful when there is a large
+%difference between the true accuracy and the threshold that the neural
+%network is trained to identify 
+%ie if cluster has Accuracy 80% and the neural network is meant to predict
+%whether the cluster is above or below 1% accuracy then it will identify
+%with 90% accuracy that the cluster is above 1% accuracy
+%however for neural network's whose threshold is near the true accuracy
+%i.e. if the neural network that's trained with the threshold 79% accuracy
+%will be highly inaccurate with uncertainty being high
+%probability of above = .5 
+%probability of below = .5
+%using this phenomena we'll train neural networks at every accuracy
+%threshold
+%then we can identify the starting point of uncertainty and the ending
+%point of uncertainty as a reasonable window which approximates the
+%accuracy of the cluster
 
 [dir,~,~] = fileparts(mfilename('fullpath'));
 cd(dir);
@@ -63,7 +64,7 @@ for i=1:length(thresholds)
 
     thresh_mag_diff = abs(training_table{:,"accuracy"}-current_threshold);
     %set some buckets of difficulty to equalize by difficulty later
-    difficulty_buckets = [0,5,10,15,20,25];
+    difficulty_buckets = [0,5,10,15,20,25,Inf];
 
     training_diff_buckets = get_difficulty_buckets_array(thresh_mag_diff,difficulty_buckets,1);
     training_table.difficulty_buckets = training_diff_buckets;

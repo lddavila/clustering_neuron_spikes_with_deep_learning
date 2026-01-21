@@ -72,15 +72,18 @@ for i=1:height(table_of_all_blind_pass_tables)
     %get a unique list of all units that appear in the current recording
     unique_units = unique(current_bp_table{:,"Max_Overlap_Unit"});
 
-    maxed_acc_example_for_unit= cell(length(unique_units),1);
+    maxed_acc_example_for_unit= cell(length(ground_truth_array),1);
     %for every unit that appears in the recording find where it's accuracy
     %is maxed out
-    for j=1:length(unique_units)
-        current_unit = unique_units(j);
-        only_current_unit = current_bp_table(current_bp_table{:,"Max_Overlap_Unit"}==current_unit,:);
+    for j=1:length(maxed_acc_example_for_unit)
+        only_current_unit = current_bp_table(current_bp_table{:,"Max_Overlap_Unit"}==j,:);
+        if isempty(only_current_unit)
+            continue;
+        end
         [~,max_appearence] = max(only_current_unit{:,"accuracy"});
         maxed_acc_example_for_unit{j} = only_current_unit(max_appearence,:);
     end
+
 
     %for every highest accuracy get the % of unit spikes that appear in the
     %raw data as a fraction
@@ -96,42 +99,44 @@ for i=1:height(table_of_all_blind_pass_tables)
     % disp()
     q = parallel.pool.DataQueue;
     afterEach(q,@print_status_bar)
-    num_iterations = length(maxed_acc_example_for_unit);
+    num_iterations = length(ground_truth_array);
     print_status_bar(num_iterations,current_recording +" with " +string(num_channels)+" channels")
-    for j=1:length(maxed_acc_example_for_unit)
+    
+    config = parallel.pool.Constant(config);
+    parfor j=1:length(ground_truth_array)
         current_maxed_example = maxed_acc_example_for_unit{j};
-        gt_unit_to_use = current_maxed_example{1,"Max_Overlap_Unit"};
         current_channels = current_maxed_example{1,"grades"}{1}{49};
-        gt_data = ground_truth_array{gt_unit_to_use}+1;
+        gt_data = ground_truth_array{j}+1;
         desired_z_score = current_maxed_example{1,"Z Score"};
         ordered_list_of_channels = strcat("c",string(sort(current_channels)),".mat");
         %overwrite config to use default spike windows
-        config.use_new_spike_detection = false;
-        config.use_bandpass = false;
-        [~,default_overlap(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+        local_config = config.Value;
+        local_config.use_new_spike_detection = false;
+        local_config.use_bandpass = false;
+        [~,default_overlap(j)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,local_config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,local_config);
 
         %overwrite the config so that
         %get_spike_windows_for_specific_channels will use the ironclust
         %spike detection but not the bandpass filter
-        config.use_new_spike_detection = false;
-        config.use_bandpass = true;
-        [~,default_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+        local_config.use_new_spike_detection = false;
+        local_config.use_bandpass = true;
+        [~,default_overlap_with_bandpass(j)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,local_config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,local_config);
 
 
         %overwrite the config so that
         %get_spike_windows_for_specific_channels will use the ironclust
         %spike detection and the bandpass filter
-        config.use_new_spike_detection = true;
-        config.use_bandpass = false;
-        [~,ironclust_overlap_without_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+        local_config.use_new_spike_detection = true;
+        local_config.use_bandpass = false;
+        [~,ironclust_overlap_without_bandpass(j)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,local_config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,local_config);
 
 
         %overwrite the config so that
         %get_spike_windows_for_specific_channels will use the ironclust
         %spike detection and the bandpass filter
-        config.use_new_spike_detection = true;
-        config.use_bandpass = true;
-        [~,ironclust_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
+        local_config.use_new_spike_detection = true;
+        local_config.use_bandpass = true;
+        [~,ironclust_overlap_with_bandpass(j)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,local_config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,local_config);
         send(q,[]);
     end
 
