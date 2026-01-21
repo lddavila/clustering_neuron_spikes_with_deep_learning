@@ -31,8 +31,10 @@ sliced_table = slice_table_for_parallel_processing(table_of_all_blind_pass_table
 num_dps = config.NUM_DPTS_TO_SLICE;
 
 %cycle through every recording
+
 for i=1:height(table_of_all_blind_pass_tables)
     current_table = sliced_table{i};
+    disp(current_table);
     current_bp_table = importdata(fullfile(string(current_table{1,"folder"}),string(current_table{1,"name"})));
     current_folder_name = current_table{1,"folder"};
 
@@ -61,6 +63,12 @@ for i=1:height(table_of_all_blind_pass_tables)
     %import the ground truth data for the recording
     ground_truth_array = importdata(config.GT_FP);
 
+    %sometimes a bp table might not have the required cols due to unknown
+    %errors
+    %in this case we skip it
+    if ~ismember(string(current_bp_table.Properties.VariableNames),"Max_Overlap_Unit")
+        continue;
+    end
     %get a unique list of all units that appear in the current recording
     unique_units = unique(current_bp_table{:,"Max_Overlap_Unit"});
 
@@ -85,7 +93,11 @@ for i=1:height(table_of_all_blind_pass_tables)
     default_overlap_with_bandpass = zeros(length(ground_truth_array),1);
     ironclust_overlap_without_bandpass = zeros(length(ground_truth_array),1);
     ironclust_overlap_with_bandpass = zeros(length(ground_truth_array),1);
-    disp(current_recording +" with " +string(num_channels)+" channels")
+    % disp()
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_status_bar)
+    num_iterations = length(length(maxed_acc_example_for_unit));
+    print_status_bar(num_iterations,current_recording +" with " +string(num_channels)+" channels")
     for j=1:length(maxed_acc_example_for_unit)
         current_maxed_example = maxed_acc_example_for_unit{j};
         gt_unit_to_use = current_maxed_example{1,"Max_Overlap_Unit"};
@@ -120,7 +132,7 @@ for i=1:height(table_of_all_blind_pass_tables)
         config.use_new_spike_detection = true;
         config.use_bandpass = true;
         [~,ironclust_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
-        disp(j);
+        % disp(j);
     end
 
     % default_overlap = zeros(length(ground_truth_array),1);
