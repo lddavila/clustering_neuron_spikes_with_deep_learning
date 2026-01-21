@@ -34,7 +34,7 @@ num_dps = config.NUM_DPTS_TO_SLICE;
 
 for i=1:height(table_of_all_blind_pass_tables)
     current_table = sliced_table{i};
-    disp(current_table);
+    % disp(current_table);
     current_bp_table = importdata(fullfile(string(current_table{1,"folder"}),string(current_table{1,"name"})));
     current_folder_name = current_table{1,"folder"};
 
@@ -132,7 +132,7 @@ for i=1:height(table_of_all_blind_pass_tables)
         config.use_new_spike_detection = true;
         config.use_bandpass = true;
         [~,ironclust_overlap_with_bandpass(gt_unit_to_use)] = get_spike_windows_for_specific_channels(ordered_list_of_channels,config.DIR_WITH_OG_CHANNEL_RECORDINGS,desired_z_score,num_dps,gt_data,config);
-        % disp(j);
+        send(q,[]);
     end
 
     % default_overlap = zeros(length(ground_truth_array),1);
