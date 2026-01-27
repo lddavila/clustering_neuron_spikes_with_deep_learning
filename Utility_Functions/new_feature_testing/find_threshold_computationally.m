@@ -46,22 +46,22 @@ else
 end
 
 %get the ground truth data
-config.GT_FP = fullfile(config.base_file_path,recording_name,"ground_truth","ground_truth.mat");
+config.GT_FP = fullfile(config.base_file_path,config.RECORDING_NAME,"ground_truth","ground_truth.mat");
 disp(config.GT_FP)
 unit_gr_tr = importdata(config.GT_FP);
 
 %get the channel locations 
-channel_locs = importdata(fullfile(config.base_file_path,recording_name,"ground_truth","channel_locations.mat"));
+channel_locs = importdata(fullfile(config.base_file_path,config.RECORDING_NAME,"ground_truth","channel_locations.mat"));
 
 %get the unit locations
-unit_locs = importdata(fullfile(config.base_file_path,recording_name,"ground_truth","neuron_unit_locations.mat"));
+unit_locs = importdata(fullfile(config.base_file_path,config.RECORDING_NAME,"ground_truth","neuron_unit_locations.mat"));
 
 %get the timestamp data
-config.TIMESTAMP_FP = fullfile(config.base_file_path,recording_name,"timestamps","timestamps.mat");
+config.TIMESTAMP_FP = fullfile(config.base_file_path,config.RECORDING_NAME,"timestamps","timestamps.mat");
 timestamps = importdata(config.TIMESTAMP_FP);
 
 %set the channel filepath
-config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,recording_name,"recordings_by_channel");
+config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,config.RECORDING_NAME,"recordings_by_channel");
 
 %get table of channels
 table_of_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
