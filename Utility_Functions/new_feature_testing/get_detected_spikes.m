@@ -1,4 +1,4 @@
-function [threshold_data] = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr,config)
+function [unit_ratio,noise_ratio] = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr,config)
 %INPUT:
 %current_channel_data:
 %   an array with the channel data in microvolts
@@ -19,14 +19,16 @@ function [threshold_data] = get_detected_spikes(current_channel_data,default_thr
 %the ratio can be calculated via the following formula
 %   # of detected spikes that have a correlation in ground truth / # of spikes detected
 
-threshold_data = nan;
+unit_ratio = nan;
+noise_ratio = nan;
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 
 if ~config.use_new_spike_detection
     %get the z score data for the current channel
     channel_wise_z_score = zscore(current_channel_data* config.SCALE_FACTOR);
-    threshold_data= zeros(length(unit_gr_tr),length(default_thresholds));
+    unit_ratio= zeros(length(unit_gr_tr),length(default_thresholds));
+    noise_ratio = zeros(length(unit_gr_tr),length(default_thresholds));
     num_iterations = length(unit_gr_tr)*length(default_thresholds);
     print_status_bar(num_iterations,"")
     for i=1:length(default_thresholds)
@@ -39,7 +41,8 @@ if ~config.use_new_spike_detection
             [~,spikes_for_current_channel] = findpeaks(mutated_channel_data);
 
             %now use the ground truth how much of the desired unit is actually in the
-            threshold_data(k,i)= sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all") / length(ground_truth_spike_idxs);
+            unit_ratio(k,i)= sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all") / length(ground_truth_spike_idxs);
+            noise_ratio(k,i) = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all") / length(spikes_for_current_channel);
             send(q,[]);
         end
     end
@@ -50,13 +53,15 @@ else
     num_iterations = length(unit_gr_tr) *length(ironclust_thresholds);
     print_status_bar(num_iterations,"")
     current_channel_data = filt_car_(current_channel_data,config);
-    threshold_data= zeros(length(unit_gr_tr),length(ironclust_thresholds));
+    unit_ratio= zeros(length(unit_gr_tr),length(ironclust_thresholds));
+    noise_ratio = zeros(length(unit_gr_tr),length(ironclust_thresholds));
     for i=1:length(ironclust_thresholds)
         P = struct('spkThresh', [], 'qqFactor', ironclust_thresholds(i));
         spikes_for_current_channel = spikeDetectSingle_fast_(current_channel_data,P);
         for k=1:length(unit_gr_tr)
             ground_truth_spike_idxs = unit_gr_tr{k};
-            threshold_data(k,i) = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all") / length(ground_truth_spike_idxs);
+            unit_ratio(k,i) = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all") / length(ground_truth_spike_idxs);
+            noise_ratio(k,i) = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all")/ length(spikes_for_current_channel);
             send(q,[])
         end
 

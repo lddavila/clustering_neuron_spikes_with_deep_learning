@@ -109,16 +109,18 @@ for i=1:height(table_of_channels)
 
     %now run both spike detection methods for the current channel
     disp("Running new spike detection for c"+string(i));
-    ironclust_spike_det_results = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config);
+    [ironclust_spike_det_results,ironclust_noise_ratio ]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config);
     config.use_new_spike_detection = false;
     disp("Running default spike detection for c"+string(i));
-    default_spikes_det_results= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config);
+    [default_spikes_det_results,default_noise_ratio]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config);
     
     %create a struct to save this data to avoid repitition
     data_struct = struct;
     data_struct.("iron_clust_ratios") = ironclust_spike_det_results;
     data_struct.("default_spikes_det_results") = default_spikes_det_results;
     data_struct.("table_of_distance") =table_of_distance;
+    data_struct.("ironclust_noise_ratio") = ironclust_noise_ratio;
+    data_struct.("default_noise_ratio") = default_noise_ratio;
 
     
     
