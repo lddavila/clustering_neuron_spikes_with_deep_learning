@@ -45,6 +45,7 @@ end
 
 %get the ground truth data
 config.GT_FP = fullfile(config.base_file_path,recording_name,"ground_truth","ground_truth.mat");
+disp(config.GT_FP)
 unit_gr_tr = importdata(config.GT_FP);
 
 %get the channel locations 
