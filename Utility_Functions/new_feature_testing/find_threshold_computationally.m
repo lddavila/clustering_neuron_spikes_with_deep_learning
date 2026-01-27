@@ -41,6 +41,8 @@ config.RECORDING_NAME = recording_name;
 %path which should be used instead of the default created by the config
 if ~isempty(varargin)
     config.base_file_path = varargin{1};
+else
+    config.RECORDING_NAME = "Data/"+recording_name;
 end
 
 %get the ground truth data
