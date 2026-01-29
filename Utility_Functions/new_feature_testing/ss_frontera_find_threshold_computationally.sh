@@ -8,4 +8,4 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu
 module load matlab/2023b
-matlab -batch "find_threshold_computationally('5_600Neuron300SecondRecordingWithLevel5Noise');exit;"
+matlab -batch "find_threshold_computationally('10_600Neuron300SecondRecordingWithLevel10Noise');exit;"
