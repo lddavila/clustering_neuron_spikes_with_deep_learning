@@ -71,7 +71,9 @@ if ~config.use_new_spike_detection
         
         hold on;
         actual_y_line_value = abs(current_channel_data(find(abs(channel_wise_z_score)>=desired_z_score,1)));
-        yline(actual_y_line_value,'Label',sprintf("%.2f",actual_y_line_value));
+        if ~isempty(actual_y_line_value)
+            yline(actual_y_line_value,'Label',sprintf("%.2f",actual_y_line_value));
+        end
         counter = counter+1;
 
         if counter==10 || i==length(default_thresholds)
