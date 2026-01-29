@@ -1,4 +1,4 @@
-function [unit_ratio,noise_ratio,raw_unit_numbers,raw_noise_numbers] = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr,config,fp_to_save_to)
+function [unit_ratio,noise_ratio,raw_unit_numbers,raw_noise_numbers,thresholds] = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr,config,fp_to_save_to)
 %INPUT:
 %current_channel_data:
 %   an array with the channel data in microvolts
@@ -27,13 +27,15 @@ unit_ratio = nan;
 noise_ratio = nan;
 raw_noise_numbers = nan;
 raw_unit_numbers = nan;
+thresholds = nan;
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 
 if ~config.use_new_spike_detection
     %get the z score data for the current channel
+    thresholds = zeros(length(default_thresholds));
 
-    channel_wise_z_score = zscore(current_channel_data* config.SCALE_FACTOR);
+    [channel_wise_z_score,mu,sigma ]= zscore(current_channel_data* config.SCALE_FACTOR);
     unit_ratio= zeros(length(unit_gr_tr),length(default_thresholds));
     noise_ratio = zeros(length(unit_gr_tr),length(default_thresholds));
     raw_noise_numbers = zeros(length(unit_gr_tr),length(default_thresholds));
@@ -43,6 +45,7 @@ if ~config.use_new_spike_detection
     print_status_bar(num_iterations,"")
     for i=1:length(default_thresholds)
         desired_z_score = default_thresholds(i);
+        thresholds(i) = mu+(sigma*desired_z_score);
         mutated_channel_data = current_channel_data;
         mutated_channel_data(abs(channel_wise_z_score) < desired_z_score) = 0;
 
@@ -58,7 +61,7 @@ if ~config.use_new_spike_detection
             raw_unit_numbers(k,i) = raw_unit_number;
             raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number ;
             unit_ratio(k,i)= raw_unit_number / length(ground_truth_spike_idxs);
-            noise_ratio(k,i) = raw_unit_number/ length(spikes_for_current_channel);
+            noise_ratio(k,i) = (length(spikes_for_current_channel) -raw_unit_number)/ length(spikes_for_current_channel);
             send(q,[]);
         end
 
@@ -92,31 +95,35 @@ else
     %apply bandpass filter to data
     num_iterations = length(unit_gr_tr) *length(ironclust_thresholds);
     print_status_bar(num_iterations,"")
-    current_channel_data = filt_car_(current_channel_data,config);
+    current_channel_data_mut = filt_car_(current_channel_data,config);
 
     unit_ratio= zeros(length(unit_gr_tr),length(ironclust_thresholds));
     noise_ratio = zeros(length(unit_gr_tr),length(ironclust_thresholds));
     raw_noise_numbers = zeros(length(unit_gr_tr),length(ironclust_thresholds));
     raw_unit_numbers = zeros(length(unit_gr_tr),length(ironclust_thresholds));
+    thresholds = zeros(length(default_thresholds));
     for i=1:length(ironclust_thresholds)
         P = struct('spkThresh', [], 'qqFactor', ironclust_thresholds(i));
-        [spikes_for_current_channel, ~, thresh1] = spikeDetectSingle_fast_(current_channel_data,P);
-
+        [spikes_for_current_channel, ~, thresh1] = spikeDetectSingle_fast_(current_channel_data_mut,P);
+        thresholds(i) = thresh1;
         parfor k=1:length(unit_gr_tr)
             ground_truth_spike_idxs = unit_gr_tr{k};
-            raw_unit_number =sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.0001),"all") ;
-            raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number
+            raw_unit_number =sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.00001),"all") ;
+            raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number;
+            if raw_noise_numbers(k,i) < 0
+                disp("something wrong/weird")
+            end
             raw_unit_numbers(k,i) = raw_unit_number;
 
             unit_ratio(k,i) = raw_unit_number / length(ground_truth_spike_idxs);
-            noise_ratio(k,i) = raw_unit_number/ length(spikes_for_current_channel);
+            noise_ratio(k,i) = (length(spikes_for_current_channel) -raw_unit_number)/ length(spikes_for_current_channel);
             send(q,[])
         end
 
         if mod(ironclust_thresholds(i),1)==0
             f =figure;
             counter = 0;
-            plot(current_channel_data(1:min([10000,length(current_channel_data)])))
+            plot(current_channel_data_mut(1:min([10000,length(current_channel_data_mut)])))
         end
         
         hold on;
