@@ -10,11 +10,11 @@ function [] = find_threshold_computationally(recording_name,varargin)
 %neuron C is distance 2.0 * x from channel 1
 %Let a theoretical threshold theta exist
 %With the threshold theta we detect the following:
-% 99% of Neuron A's activity + a hundred MUA spikes 
+% 99% of Neuron A's activity + a hundred MUA spikes
 % 50% of Neuron B's activity + one MUA spike
 %10% of Neuron C's activity + 0 MUA spikes
-%if we select a less strict threshold, called beta we might detect 
-% 100% of Neuron A's activity + a thousand MUA spikes 
+%if we select a less strict threshold, called beta we might detect
+% 100% of Neuron A's activity + a thousand MUA spikes
 % 90% of Neuron B's activity + a hundred MUA spikes
 %50% of Neuron C's activity + 10 MUA spikes
 
@@ -50,7 +50,7 @@ config.GT_FP = fullfile(config.base_file_path,config.RECORDING_NAME,"ground_trut
 disp(config.GT_FP)
 unit_gr_tr = importdata(config.GT_FP);
 
-%get the channel locations 
+%get the channel locations
 channel_locs = importdata(fullfile(config.base_file_path,config.RECORDING_NAME,"ground_truth","channel_locations.mat"));
 
 %get the unit locations
@@ -58,7 +58,7 @@ unit_locs = importdata(fullfile(config.base_file_path,config.RECORDING_NAME,"gro
 
 %get the timestamp data
 config.TIMESTAMP_FP = fullfile(config.base_file_path,config.RECORDING_NAME,"timestamps","timestamps.mat");
-timestamps = importdata(config.TIMESTAMP_FP);
+% timestamps = importdata(config.TIMESTAMP_FP);
 
 %set the channel filepath
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,config.RECORDING_NAME,"recordings_by_channel");
@@ -74,20 +74,24 @@ table_of_channels.channel_number = str2double(strrep(strrep(string(table_of_chan
 table_of_channels = sortrows(table_of_channels,"channel_number","ascend");
 
 %set some thresholds that will be used for the default method and ironclust
-default_thresholds = 2:0.1:100;
-ironclust_thresholds = 2:0.1:100;
+default_thresholds = 10:0.1:50;
+ironclust_thresholds = 10:0.1:50;
+
+
 
 %now for every channel we'll want to see how many ground truth units can be
 %detected while adding the least amount of noise possible
 
-%create a file where the distances will be saved to 
-save_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,recording_name,"channel_distances_to_units"));
+%create a file where the distances will be saved to
+save_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,config.RECORDING_NAME,"channel_distances_to_units"));
 
 %this will be accomplished by sorting the ground truth units by their
 %distance to the current channel
 for i=1:height(table_of_channels)
     %get the distance between the current channel and all the ground truth
     %units
+    save_file_name = fullfile(save_dir,"c"+string(i)+".mat");
+
     dists = vecnorm(channel_locs(i,:) - unit_locs(:,1:2), 2, 2);
     disp("Finished computing distances")
 
@@ -112,27 +116,34 @@ for i=1:height(table_of_channels)
 
     %now run both spike detection methods for the current channel
     disp("Running new spike detection for c"+string(i));
-    [ironclust_spike_det_results,ironclust_noise_ratio ]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config);
+    fp_to_save_ironclust_images = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_dir,"c"+string(i)+"_ironclust_thresholds"));
+    [ironclust_spike_det_results,ironclust_noise_ratio,ironclust_raw_unit_numbers,ironclust_raw_noise_numbers]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config,fp_to_save_ironclust_images);
     config.use_new_spike_detection = false;
     disp("Running default spike detection for c"+string(i));
-    [default_spikes_det_results,default_noise_ratio]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config);
-    
+    fp_to_save_default_images = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_dir,"c"+string(i)+"_default_thresholds"));
+    [default_spikes_det_results,default_noise_ratio,default_raw_unit_numbers,default_raw_noise_number]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config,fp_to_save_default_images);
+
     %create a struct to save this data to avoid repitition
     data_struct = struct;
-    data_struct.("iron_clust_ratios") = ironclust_spike_det_results;
-    data_struct.("default_spikes_det_results") = default_spikes_det_results;
-    data_struct.("table_of_distance") =table_of_distance;
+    data_struct.("ironclust_ratios") = ironclust_spike_det_results;
     data_struct.("ironclust_noise_ratio") = ironclust_noise_ratio;
+    data_struct.("ironclust_raw_unit_numbers")= ironclust_raw_unit_numbers;
+    data_struct.("ironclust_raw_noise_numbers") = ironclust_raw_noise_numbers;
+
+    data_struct.("default_spikes_det_results") = default_spikes_det_results;
     data_struct.("default_noise_ratio") = default_noise_ratio;
+    data_struct.("default_raw_unit_numbers") =default_raw_unit_numbers;
+    data_struct.("default_raw_noise_number") =default_raw_noise_number;
+    data_struct.("table_of_distance") =table_of_distance;
 
-    
-    
-    par_save(fullfile(save_dir,"c"+string(i)+".mat"),data_struct)
+    par_save(save_file_name,data_struct)
     disp("Finished saving for c"+string(i));
-    
 
 
-    
+
+
+
+
 end
 
 end
