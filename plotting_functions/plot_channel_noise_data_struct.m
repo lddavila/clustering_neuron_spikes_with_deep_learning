@@ -5,19 +5,19 @@ function [] = plot_channel_noise_data_struct(rec_ch_data_struct,how_many_units_t
 % "ironclust_noise_ratio"
 % "ironclust_raw_unit_numbers"
 % "ironclust_raw_noise_numbers"
-raw_channel_count = rec_ch_data_struct.("ironclust_noise_ratio");
-raw_noise_count = rec_ch_data_struct.("ironclust_ratios");
+raw_noise_ratio = rec_ch_data_struct.("ironclust_noise_ratio");
+raw_signal_ratio = rec_ch_data_struct.("ironclust_ratios");
 
-threshold_data = rec_ch_data_struct.("default_thresholds");
+threshold_data = rec_ch_data_struct.("ironclust_thresholds");
 
 figure;
 yyaxis left
-plot(threshold_data(:,1),raw_channel_count(1:how_many_units_to_plot,:).')
+plot(threshold_data(:,1),raw_signal_ratio(1:how_many_units_to_plot,:).')
 ylabel("Signal Ratio")
 % ylim([0,1])
 
 yyaxis right
-plot(threshold_data(:,1),raw_noise_count(1:how_many_units_to_plot,:).')
+plot(threshold_data(:,1),raw_noise_ratio(1:how_many_units_to_plot,:).')
 ylabel("Noise Ratio")
 % ylim([0,1])
 title(recording_name+ " Iron Clust Spike Detection")

@@ -106,8 +106,8 @@ else
         P = struct('spkThresh', [], 'qqFactor', ironclust_thresholds(i));
         [spikes_for_current_channel, ~, thresh1] = spikeDetectSingle_fast_(current_channel_data_mut,P);
         thresholds(i) = thresh1;
-        for k=1:length(unit_gr_tr)
-            ground_truth_spike_idxs = unit_gr_tr{k};
+        parfor k=1:length(unit_gr_tr)
+            ground_truth_spike_idxs = unit_gr_tr{k}+1;
             raw_unit_number = nnz(ismember(ground_truth_spike_idxs, spikes_for_current_channel));   % exact matches ;
             raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number;
             
