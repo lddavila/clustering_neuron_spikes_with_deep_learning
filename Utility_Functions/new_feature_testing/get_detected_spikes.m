@@ -108,7 +108,7 @@ else
         thresholds(i) = thresh1;
         parfor k=1:length(unit_gr_tr)
             ground_truth_spike_idxs = unit_gr_tr{k}+1;
-            raw_unit_number = nnz(ismember(ground_truth_spike_idxs, spikes_for_current_channel));   % exact matches ;
+            raw_unit_number = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.00001),"all") ;   % exact matches ;
             raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number;
             
             raw_unit_numbers(k,i) = raw_unit_number;

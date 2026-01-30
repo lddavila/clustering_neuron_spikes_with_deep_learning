@@ -135,7 +135,7 @@ for i=1:height(table_of_channels)
     % data_struct.("default_noise_ratio") = default_noise_ratio;
     % data_struct.("default_raw_unit_numbers") =default_raw_unit_numbers;
     % data_struct.("default_raw_noise_number") =default_raw_noise_number;
-    % data_struct.("table_of_distance") =table_of_distance;
+    data_struct.("table_of_distance") =table_of_distance;
     % data_struct.("default_thresholds") = d_thresholds;
 
     par_save(save_file_name,data_struct)
