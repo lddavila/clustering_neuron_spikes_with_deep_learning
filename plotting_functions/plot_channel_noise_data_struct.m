@@ -12,12 +12,12 @@ threshold_data = rec_ch_data_struct.("default_thresholds");
 
 figure;
 yyaxis left
-plot(threshold_data(:,1),raw_channel_count(1:how_many_units_to_plot,:))
+plot(threshold_data(:,1),raw_channel_count(1:how_many_units_to_plot,:).')
 ylabel("Signal Ratio")
-ylim([0,1])
+% ylim([0,1])
 
 yyaxis right
-plot(threshold_data(:,1),raw_noise_count(1:how_many_units_to_plot,:))
+plot(threshold_data(:,1),raw_noise_count(1:how_many_units_to_plot,:).')
 ylabel("Noise Ratio")
 % ylim([0,1])
 title(recording_name+ " Iron Clust Spike Detection")

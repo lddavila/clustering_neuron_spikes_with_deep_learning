@@ -33,7 +33,7 @@ afterEach(q,@print_status_bar)
 
 if ~config.use_new_spike_detection
     %get the z score data for the current channel
-    thresholds = zeros(length(default_thresholds));
+    thresholds = zeros(length(default_thresholds),1);
 
     [channel_wise_z_score,mu,sigma ]= zscore(current_channel_data* config.SCALE_FACTOR);
     unit_ratio= zeros(length(unit_gr_tr),length(default_thresholds));
@@ -101,21 +101,22 @@ else
     noise_ratio = zeros(length(unit_gr_tr),length(ironclust_thresholds));
     raw_noise_numbers = zeros(length(unit_gr_tr),length(ironclust_thresholds));
     raw_unit_numbers = zeros(length(unit_gr_tr),length(ironclust_thresholds));
-    thresholds = zeros(length(default_thresholds));
+    thresholds = zeros(length(default_thresholds),1);
     for i=1:length(ironclust_thresholds)
         P = struct('spkThresh', [], 'qqFactor', ironclust_thresholds(i));
         [spikes_for_current_channel, ~, thresh1] = spikeDetectSingle_fast_(current_channel_data_mut,P);
         thresholds(i) = thresh1;
-        parfor k=1:length(unit_gr_tr)
+        for k=1:length(unit_gr_tr)
             ground_truth_spike_idxs = unit_gr_tr{k};
-            raw_unit_number =sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.00001),"all") ;
+            raw_unit_number = nnz(ismember(ground_truth_spike_idxs, spikes_for_current_channel));   % exact matches ;
             raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number;
-            if raw_noise_numbers(k,i) < 0
-                disp("something wrong/weird")
-            end
+            
             raw_unit_numbers(k,i) = raw_unit_number;
 
             unit_ratio(k,i) = raw_unit_number / length(ground_truth_spike_idxs);
+            if raw_noise_numbers(k,i) < 0 || raw_unit_number < 0
+                disp("something wrong/weird")
+            end
             noise_ratio(k,i) = (length(spikes_for_current_channel) -raw_unit_number)/ length(spikes_for_current_channel);
             send(q,[])
         end

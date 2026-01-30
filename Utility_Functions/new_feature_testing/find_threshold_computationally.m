@@ -120,8 +120,8 @@ for i=1:height(table_of_channels)
     [ironclust_spike_det_results,ironclust_noise_ratio,ironclust_raw_unit_numbers,ironclust_raw_noise_numbers,ic_thresholds]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config,fp_to_save_ironclust_images);
     config.use_new_spike_detection = false;
     disp("Running default spike detection for c"+string(i));
-    fp_to_save_default_images = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_dir,"c"+string(i)+"_default_thresholds"));
-    [default_spikes_det_results,default_noise_ratio,default_raw_unit_numbers,default_raw_noise_number,d_thresholds]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config,fp_to_save_default_images);
+    % fp_to_save_default_images = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_dir,"c"+string(i)+"_default_thresholds"));
+    % [default_spikes_det_results,default_noise_ratio,default_raw_unit_numbers,default_raw_noise_number,d_thresholds]= get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr(table_of_distance.Unit),config,fp_to_save_default_images);
 
     %create a struct to save this data to avoid repitition
     data_struct = struct;
@@ -131,12 +131,12 @@ for i=1:height(table_of_channels)
     data_struct.("ironclust_raw_noise_numbers") = ironclust_raw_noise_numbers;
     data_struct.("ironclust_thresholds") = ic_thresholds;
 
-    data_struct.("default_spikes_det_results") = default_spikes_det_results;
-    data_struct.("default_noise_ratio") = default_noise_ratio;
-    data_struct.("default_raw_unit_numbers") =default_raw_unit_numbers;
-    data_struct.("default_raw_noise_number") =default_raw_noise_number;
-    data_struct.("table_of_distance") =table_of_distance;
-    data_struct.("default_thresholds") = d_thresholds;
+    % data_struct.("default_spikes_det_results") = default_spikes_det_results;
+    % data_struct.("default_noise_ratio") = default_noise_ratio;
+    % data_struct.("default_raw_unit_numbers") =default_raw_unit_numbers;
+    % data_struct.("default_raw_noise_number") =default_raw_noise_number;
+    % data_struct.("table_of_distance") =table_of_distance;
+    % data_struct.("default_thresholds") = d_thresholds;
 
     par_save(save_file_name,data_struct)
     disp("Finished saving for c"+string(i));
