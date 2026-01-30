@@ -74,8 +74,8 @@ table_of_channels.channel_number = str2double(strrep(strrep(string(table_of_chan
 table_of_channels = sortrows(table_of_channels,"channel_number","ascend");
 
 %set some thresholds that will be used for the default method and ironclust
-default_thresholds = 10:0.1:50;
-ironclust_thresholds = 10:0.1:50;
+default_thresholds = 2:0.1:50;
+ironclust_thresholds = 2:0.1:50;
 
 
 
