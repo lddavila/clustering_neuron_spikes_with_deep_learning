@@ -1,4 +1,4 @@
-function [spike_windows,overlap_of_unit_in_cluster_windows] = get_spike_windows_for_specific_channels(ordered_list_of_channels,fp_to_channels,desired_z_score,desired_number_of_data_points,ground_truth_spike_idxs,config)
+function [spike_windows,overlap_of_unit_in_cluster_windows,thresh1,ch_data] = get_spike_windows_for_specific_channels(ordered_list_of_channels,fp_to_channels,desired_z_score,desired_number_of_data_points,ground_truth_spike_idxs,config,varargin)
 %each array is made up of 5 numbers:
 %the first is the beginning of the spike window
 %the second is the end of the spike_window
@@ -7,6 +7,7 @@ function [spike_windows,overlap_of_unit_in_cluster_windows] = get_spike_windows_
 %the fifth is the z score of the peak of the spike according to find_peaks
 %this version is used to determine the spike windows for the specified
 %tetrode and channels
+thresh1 = nan;
 if ~config.use_new_spike_detection
     spike_windows_as_cell= cell(length(ordered_list_of_channels),1);
     for i=1:length(ordered_list_of_channels)
@@ -87,10 +88,16 @@ else
         if config.use_bandpass
             current_channel_data = filt_car_(current_channel_data,config);
         end
+        if ~isempty(varargin)
+            [spike_windows_as_cell,~,thresh1 ]= spikeDetectSingle_fast_(current_channel_data,varargin{1});
+        else
+            spike_windows_as_cell = spikeDetectSingle_fast_(current_channel_data);
+        end
 
-        spike_windows_as_cell = spikeDetectSingle_fast_(current_channel_data);
+        
     end
 
+    channel_number = str2double(strrep(strrep(ordered_list_of_channels(1),"c",""),".mat",""));
     spike_windows = vertcat(spike_windows_as_cell);
 
 
@@ -104,8 +111,15 @@ else
     %finally get back to spike_windows
     spike_windows = table2array(spike_windows_as_table);
 
+    %now get the beginning of the spike windows
+    beginning = spike_windows - round(config.NUM_DPTS_TO_SLICE/2);
+    end_of_spike = spike_windows + round(config.NUM_DPTS_TO_SLICE/2);
     %now use the ground truth how much of the desired unit is actually in the
     overlap_of_unit_in_cluster_windows = sum(ismembertol(double(ground_truth_spike_idxs),spike_windows,0.0001),"all") / length(ground_truth_spike_idxs);
 
+   
+    spike_windows = [beginning,end_of_spike,repelem(channel_number,length(spike_windows),1),spike_windows];
+    %filter out invalid indexes
+    spike_windows(spike_windows(:,1)<0 | spike_windows(:,2) > length(current_channel_data)) = [];
 end
 end
