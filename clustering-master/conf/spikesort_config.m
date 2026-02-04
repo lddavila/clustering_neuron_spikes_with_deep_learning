@@ -243,7 +243,10 @@ config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass
 config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 30030;
 config.freqLim_width = [100, 1000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
-config.Multipliers = 2.6:.01:3.5;
+config.Multipliers = 2.6:.1:3.5;
+config.struct_of_neuron_distance = fullfile(config.base_file_path,"Data","full_struct.mat");
+
+
 % ORIGINAL BEGINS HERE
 
 % Prints extra output
@@ -317,6 +320,9 @@ config.spikesort.USE_SNR_FILTER = true;
 % Density/Border removal filter - change depending on your data (keep by
 % default)
 config.spikesort.USE_DENSITY_FILTER = true;
+
+%which verson of extract_cluster_features should be used david addition
+config.spikesort.use_pc2 = false; %david addition
 
 % Cluster/Subcluster parameters:
 % Maximum number of clusters to try in FCM

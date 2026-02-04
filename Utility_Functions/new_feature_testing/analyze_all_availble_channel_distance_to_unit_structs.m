@@ -6,7 +6,7 @@ list_of_all_files = list_of_all_files(contains(string(list_of_all_files{:,"folde
 
 %import all the available data
 if ~isfile(fullfile(dir_to_save_plots_to,"full_struct.mat"))
-    data_cell_array = cell(size(list_of_all_files,1),5);
+    data_cell_array = cell(size(list_of_all_files,1),8);
     for i=1:height(list_of_all_files)
         data_fp = fullfile(string(list_of_all_files{i,"folder"}),string(list_of_all_files{i,"name"}));
         split_fp = split(data_fp,filesep,2);
@@ -17,6 +17,7 @@ if ~isfile(fullfile(dir_to_save_plots_to,"full_struct.mat"))
         data_cell_array{i,5} = data_cell_array{i,1}.ironclust_thresholds.';
         data_cell_array{i,6} = split_fp(2);
         data_cell_array{i,7} = split_fp(3);
+        data_cell_array{i,8} = string(list_of_all_files{i,"name"});
         fprintf("%i/%i\n",i,height(list_of_all_files));
 
     end
@@ -30,6 +31,7 @@ data_table = cell2table(data_cell_array);
 unique_recording_names = unique(string(data_cell_array(:,6)));
 
 some_thing = [];
+
 for i=1:length(unique_recording_names)
     figure;
     current_data = data_cell_array(data_table{:,"data_cell_array6"}==unique_recording_names(i),:);
@@ -43,7 +45,8 @@ for i=1:length(unique_recording_names)
     filter_values = cell2mat(current_data(:,5));
     average_filter_values = mean(filter_values,1);
 
-    tiledlayout(2,3)
+    tiledlayout(4,5)
+    cell_array_of_vals = cell(length(distance_bins)-1,1);
     for j=1:length(distance_bins)-1
         nexttile;
         % yyaxis left
@@ -73,13 +76,19 @@ for i=1:length(unique_recording_names)
             vals(k) = average_filter_values(loc);
             xline(average_filter_values(loc),"LineWidth",2,"Color",'k','Label',"Avg Coverage Drops below:"+string(threshs_found(k))+" || "+sprintf("%.2f",average_filter_values(loc)),'LabelHorizontalAlignment','left');
         end
+        cell_array_of_vals{j} = vals.';
         title("From "+string(distance_bins(j))+" To "+string(distance_bins(j+1)))
+        
         try
-            xlim([min(vals)-5,max(vals)])
+            xlim([min(vals)-15,max(vals)+15])
         catch
         end
+        
     end
+    avg_thresholds = mean(cell2mat(cell_array_of_vals),1,"omitnan");
+    disp(avg_thresholds);
     sgtitle(unique_recording_names(i));
+    
 end
 % sgtitle("Closest "+string(closest_n_neurons)+" Ranging from "+string(min_dist) +" to "+string(max_dist) )
 % xlabel("Threshold in microvolts")

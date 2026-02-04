@@ -5,6 +5,9 @@ function [] = get_lowest_bound_spike_windows(ordered_list_of_channels,spikes_per
 %the third is the original channel of the spike
 %the fourth is the original the peak of the spike according to find_peaks'
 %the fifth is the z score of the peak of the spike according to find_peaks
+    %if using the new spike detection method then we will not use z score,
+    %but instead the value of the peak which will be used similarly to
+    %filter
 number_of_iterations = length(ordered_list_of_channels);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
@@ -12,10 +15,13 @@ print_status_bar(number_of_iterations,"get_lowest_bound_spike_windows.m")
 
 
 already_done = config.ALREADY_DONE_FILES;
+use_new_spike_detection = config.use_new_spike_detection;
+config = parallel.pool.Constant(config);
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
+    current_channel_number = str2double(strrep(strrep(current_channel,".mat",""),"c",""));
 
-    
+
 
     if ismember(fullfile(spike_windows_dir,current_channel),already_done)
         send(q,[])
@@ -23,6 +29,7 @@ parfor i=1:length(ordered_list_of_channels)
     end
 
     channel_wise_z_score = importdata(fullfile(dir_with_channel_z_scores,current_channel));
+    channel_data = importdata(fullfile(config.Value.DIR_WITH_OG_CHANNEL_RECORDINGS,current_channel));
     spikes_for_current_channel = importdata(fullfile(spikes_per_channel_dir,current_channel));
     spike_windows = zeros(length(spikes_for_current_channel),5);
     for j=1:length(spikes_for_current_channel)
@@ -32,11 +39,11 @@ parfor i=1:length(ordered_list_of_channels)
             %if peak is too early or too late don't use it
             spike_windows(j,:) = [0,0,0,0,0]; %zero is used as a flag since they should never be 0 as it is an invalid matlab index
         else
-            if abs(channel_i_peak_j_z_score) >= desired_z_score
+            if abs(channel_i_peak_j_z_score) >= desired_z_score && ~use_new_spike_detection
                 if channel_i_peak_j - fix(desired_number_of_data_points/2) ~= 0 && channel_i_peak_j + fix(desired_number_of_data_points/2) <= length(channel_wise_z_score)
                     spike_windows(j,:) = [channel_i_peak_j - fix(desired_number_of_data_points/2),...
                         channel_i_peak_j + fix(desired_number_of_data_points/2),...
-                        i,...
+                        current_channel_number,...
                         channel_i_peak_j, ...
                         channel_i_peak_j_z_score];
                 else
@@ -47,12 +54,19 @@ parfor i=1:length(ordered_list_of_channels)
                 %the second is the end of the spike_window
                 %the third is the original channel of the spike
                 %the fourth is the original the peak of the spike according to
+            elseif use_new_spike_detection
+                spike_windows(j,:) = [channel_i_peak_j - fix(desired_number_of_data_points/2),...
+                    channel_i_peak_j + fix(desired_number_of_data_points/2),...
+                    current_channel_number,...
+                    channel_i_peak_j, ...
+                    channel_data(channel_i_peak_j)];
 
             else
                 spike_windows(j,:) = [0,0,0,0,0];
             end
         end
     end
+    spike_windows(spike_windows(:,1)==0,:) = [];
     par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
     send(q,[]);
 end

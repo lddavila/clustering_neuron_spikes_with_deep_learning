@@ -4,7 +4,7 @@ function [cluster_data, supp_data] = extract_cluster_features(raw,config,peak_pc
 %   sets of features:
 %   - 'cluster_data' are necessary features for clustering
 %   - 'supp_data' are supplementary features for clustering
-%   
+%
 %   'raw' is a 3d array with the dimensions:
 %   1) wire number
 %   2) spike number
@@ -29,22 +29,25 @@ function [cluster_data, supp_data] = extract_cluster_features(raw,config,peak_pc
 %   making each feature comparable in the clustering algorithm.
 %
 %   See also GET_PEAKS, PCA, GET_NEW_PCS.
-    peaks = get_peaks(raw, true);
-   % plot_peaks(peaks.',"in extract cluster features.m",[])
-    num_peaks = size(peaks, 1);
-    [~, peakpcs] = pca(peaks');
-   %plot_pca_results(peakpcs);
-    pcs = get_new_pcs(raw);
-    pc1 = pcs(:, :, 1);
-    pc2 = pcs(:, :, 2);
+peaks = get_peaks(raw, true);
+% plot_peaks(peaks.',"in extract cluster features.m",[])
+num_peaks = size(peaks, 1);
+[~, peakpcs] = pca(peaks');
+%plot_pca_results(peakpcs);
+pcs = get_new_pcs(raw);
+pc1 = pcs(:, :, 1);
+pc2 = pcs(:, :, 2);
 %     pcs = get_new_pcs(raw, true);
 %     pc1 = pcs(:, :, 1);
-    peak_pcs = struct("pc1",pc1,"pc2",pc2);
-    par_save(peak_pcs_file_name,peak_pcs)
-    cluster_data = zscore([peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'); % OG LINE
-     cluster_data = [peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'; % OG LINE
-   % cluster_data = zscore(peaks); %new line with pcs remsoved
+peak_pcs = struct("pc1",pc1,"pc2",pc2);
+par_save(peak_pcs_file_name,peak_pcs)
+cluster_data = zscore([peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']');
+cluster_data = [peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'; % OG LINE
+if config.use_pc2
+    cluster_data = [peaks ; pc1 ; pc2;peakpcs(:, 1:num_peaks-1)']'; % OG LINE
+end
+% cluster_data = zscore(peaks); %new line with pcs remsoved
 %     supp_data = zscore(pc2');
-    supp_data = [];
-    
+supp_data = [];
+
 end

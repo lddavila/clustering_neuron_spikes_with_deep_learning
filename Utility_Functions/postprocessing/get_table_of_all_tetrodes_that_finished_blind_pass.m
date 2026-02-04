@@ -10,7 +10,7 @@ precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 all_files_in_precomputed_dir = struct2table(dir(fullfile(precomputed_dir, '**', '*'))); % '**' searches subdirectories
 simplified_foldernames = string(all_files_in_precomputed_dir{:,"folder"});
 if isnan(optional_z_score)
-    all_files_in_precomputed_dir = all_files_in_precomputed_dir(contains(simplified_foldernames,fullfile(precomputed_dir,"initial_pass_results min z_score")),:); 
+    all_files_in_precomputed_dir = all_files_in_precomputed_dir(contains(simplified_foldernames,fullfile(precomputed_dir,"initial_pass_results ")),:); 
 else
     all_files_in_precomputed_dir = all_files_in_precomputed_dir(contains(simplified_foldernames,fullfile(precomputed_dir,"initial_pass_results min z_score "+optional_z_score)),:); 
 end
@@ -56,8 +56,11 @@ for i=1:size(unique_z_score_dirs,1)
         output_table{output_table_counter,"fp_to_reg_timestamps_of_the_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_the_spikes.mat");
         output_table{output_table_counter,"fp_to_reg_timestamps"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+"reg_timestamps.mat");
         output_table{output_table_counter,"fp_to_sorted_spike_windows_after_purges"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" sorted_spike_windows_after_purges.mat");
-        output_table{output_table_counter,"fp_to_timestamps_rtvals"} = fullfile(precomputed_dir,"initial_pass min z_score"+string(current_z_score),unique_tetrodes(j)+".mat");
-        
+        if ~config.use_new_spike_detection
+            output_table{output_table_counter,"fp_to_timestamps_rtvals"} = fullfile(precomputed_dir,"initial_pass min z_score"+string(current_z_score),unique_tetrodes(j)+".mat");
+        else
+            output_table{output_table_counter,"fp_to_timestamps_rtvals"} = fullfile(precomputed_dir,"initial_pass min multiplier"+string(current_z_score),unique_tetrodes(j)+".mat");
+        end
         output_table_counter = output_table_counter+1;
     end
 

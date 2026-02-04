@@ -1,5 +1,5 @@
 function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table)
-blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
+% blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)

@@ -1,4 +1,9 @@
-function [blind_pass_table,fp_to_blind_pass_table,config] = run_entire_clustering_algorithm_ver_2(config)
+function [blind_pass_table,fp_to_blind_pass_table,config] = run_entire_clustering_algorithm_ver_2(config,varargin)
+%varagin will overwrite specific values if they are passed with certain key_value pairs
+%these are used to overwrite the default and allow for easier testing since
+%much of the pipeline depends on this function
+%valid key-pairs
+%"ordered_list_of_channels": string array in the format ["c1.mat","c2.mat","c3.mat"]
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
@@ -22,7 +27,12 @@ rows_to_exclude = string(list_of_existing_files{:,"name"}) == "." | string(list_
 list_of_existing_files(rows_to_exclude,:) = [];
 
 % Step 4: Get ordered List of Channels
-ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
+if isempty(varargin) || all(~cell2mat(cellfun(@(x) x=="ordered_list_of_channels", varargin, 'UniformOutput', false)))
+    ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
+else
+    ordered_list_of_channels = varargin{find(cell2mat(cellfun(@(x) x=="ordered_list_of_channels", varargin, 'UniformOutput', false)),1)+1};
+end
+
 
 % Step 5: Get the Min Threshold
 min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
@@ -64,8 +74,6 @@ art_tetr_array = config.ART_TETR_ARRAY;
 
 %step 9 use a for loop to cycle through all z-scores listed in the config
 %file
-z_scores_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
-z_scores_to_check = sort(z_scores_to_check,'ascend');
 
 
 
@@ -75,47 +83,72 @@ z_scores_to_check = sort(z_scores_to_check,'ascend');
 %for higher z score's we'll simply filter spike windows by the z score of
 %the spike
 %this provides a significant boost in performance
-lower_bound_z_score = min(z_scores_to_check);
-lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(lower_bound_z_score)));
+if ~config.use_new_spike_detection
+    lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min(config.DEFAULT_CLUSTERING_Z_SCORES))));
+else
+    lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_mult "+string(min(config.Multipliers))));
+end
 beginning_time = tic;
 if ~config.use_new_spike_detection
-    detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);    
+    detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
+    end_time = toc(beginning_time);
+    fprintf("Finished cutting spikes per channel for z score %.2f, it took %.2f seconds\n",min(config.DEFAULT_CLUSTERING_Z_SCORES),end_time);
+
 else
-    use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,lower_bound_z_score,scale_factor,config);
+    %multipliers_in_mv is the threshold values
+    %these will be used later on
+    multipliers_in_mv = use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
+    config.Multipliers_in_mv = multipliers_in_mv;
 end
-end_time = toc(beginning_time);
-fprintf("Finished cutting spikes per channel for z score %.2f, it took %.2f seconds\n",lower_bound_z_score,end_time);
+
 %step 9b get the spike windows of the smallest z score in the config
 %by all subsequent z score tests will be much faster as they will simply
 %perform a logical indexing of the lowest bound
 %this offers a significant increase in performance
 
-lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lower_bound_z_score) + " num dps "+ string(num_dps)));
-get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lower_bound_z_score,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
+%depending on the method we will either filter spikes by their z score or
+%by the thresholds returned by use_ic_spike_det
+if ~config.use_new_spike_detection
+    thresholds_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
+    thresholds_to_check = sort(thresholds_to_check,'ascend');
+else
+    thresholds_to_check = sort(multipliers_in_mv);
+end
+lowest_bound_threshold = min(thresholds_to_check);
+
+lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
+get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
+
+
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
-    for min_z_score=z_scores_to_check
+    for threshold_idx=1:length(thresholds_to_check)
         % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
         %   each element of "what_is_precomputed" is a string telling you
         %   what is already done
         % step 9c; Get all the data points from the potential spikes
-        if ~min_z_score==lower_bound_z_score
+        min_threshold = thresholds_to_check(threshold_idx);
+        if ~min_threshold==lowest_bound_threshold
             beginning_time = tic;
-            spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-            get_spike_windows_ver_3(channels_without_formatting,min_z_score,lowest_bound_spike_windows_dir,spike_windows_dir,config);
+            spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_threshold) + " num dps "+ string(num_dps)));
+            get_spike_windows_ver_3(channels_without_formatting,min_threshold,lowest_bound_spike_windows_dir,spike_windows_dir,config);
             end_time = toc(beginning_time);
-            fprintf("Finished getting spike windows for z score %.2f, it took %.2f seconds\n",min_z_score,end_time);
+            fprintf("Finished getting spike windows for z score %.2f, it took %.2f seconds\n",min_threshold,end_time);
         else
             spike_windows_dir = lowest_bound_spike_windows_dir;
         end
 
         % step 9d: get maps of each tetrode to its spikes
         beginning_time = tic;
-        dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
+        if ~config.use_new_spike_detection
+            dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_threshold)+ " num_dps "+string(num_dps)));
+        else
+            dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries multiplier "+string(config.Multipliers(threshold_idx))+ " num_dps "+string(num_dps)));
+        end
         % disp("the dictionaries dir")
         % disp(dictionaries_dir)
-        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_z_score);
+        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
         %tetrode_dictionary
         %keys: "t" + tetrode number
         %values: all channels which are part of the current dictionary
@@ -150,15 +183,22 @@ if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
 
         % Step 9e: Run Clustering Algorithm
         beginning_time = tic;
-        initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
-        initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
-        run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config,min_z_score);
+        if ~config.use_new_spike_detection
+            initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_threshold)));
+            initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_threshold)));
+            z_score_or_mult = min_threshold;
+        else
+            z_score_or_mult = config.Multipliers(threshold_idx);
+            initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier"+string(z_score_or_mult)));
+            initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min multiplier " + string(z_score_or_mult)));
+        end
+        run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config,z_score_or_mult);
         end_time = toc(beginning_time);
-        fprintf("Core Clustering for z score %.2f finished, it took %.2f seconds\n",min_z_score,end_time);
+        fprintf("Core Clustering for z score %.2f finished, it took %.2f seconds\n",min_threshold,end_time);
     end
-        file_name = "blind_pass.txt";
-        file_id = fopen(fullfile(precomputed_dir,file_name),'w');
-        fclose(file_id);
+    file_name = "blind_pass.txt";
+    file_id = fopen(fullfile(precomputed_dir,file_name),'w');
+    fclose(file_id);
 else
     disp("Blind pass has already been run.")
     disp("If you'd like it to be recomputed then delete blind_pass.txt or change the save directory")
@@ -198,7 +238,7 @@ fprintf("Finished grading, it took %.2f seconds\n",end_time);
 if ~isfile(fullfile(precomputed_dir,"finished_adding_mw.txt"))
     blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
     %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
-    par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);    
+    par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
     file_name = "finished_adding_mw.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');
     fclose(file_id);

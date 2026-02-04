@@ -44,7 +44,7 @@ afterEach(q,@print_status_bar)
 num_iterations = length(list_of_available_tetrodes);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_3: Z Score "+sprintf('%.2f',current_z_score)+".m")
 %there should be a parfor on line 45 when not testing
-parfor i=1:length(list_of_available_tetrodes)
+for i=1:length(list_of_available_tetrodes)
     %get a local copy of config
     local_config = config.Value;
 

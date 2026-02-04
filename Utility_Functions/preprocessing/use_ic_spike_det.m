@@ -1,4 +1,4 @@
-function [] = use_ic_spike_det(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,dir_with_z_scores,min_z_score,scale_factor,config)
+function [thresh_mv] = use_ic_spike_det(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,P_threshold)
 
 %if the file doesn't already exist then we must create and save it
 q = parallel.pool.DataQueue;
@@ -15,15 +15,8 @@ for i=1:length(ordered_list_of_channels)
     %disp(fullfile(dir_with_channel_recordings,current_channel))
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel));
     channel_data = channel_data * scale_factor;
-    z_score_data = importdata(fullfile(dir_with_z_scores,current_channel));
-    if class(z_score_data) == "struct"
-        z_score_data = z_score_data.channel_wize_z_score_data;
-    end
-
-    channel_data(abs(z_score_data) < min_z_score) = 0;
-
-
-    pk_locs = spikeDetectSingle_fast_(channel_data);
+    P = struct('spkThresh', [], 'qqFactor', P_threshold);
+    [pk_locs,~,thresh_mv ]= spikeDetectSingle_fast_(channel_data,P);
     par_save(fullfile(spikes_per_channel_dir,current_channel),pk_locs);
     send(q,[]);
 end
