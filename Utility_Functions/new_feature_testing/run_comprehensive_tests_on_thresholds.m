@@ -93,11 +93,14 @@ if ~isfile(fullfile(results_file,"all_table.mat"))
         end
     end
     %now do the exact same thing, but configure the code to use PC2
-    parallel_config.Value.spikesort.use_pc2 = true;
+    parallel_config_1.Value.spikesort.use_pc2 = true;
+
+    config.spikesort.use_pc2 = true;
+    parallel_config_1 = parallel.pool.Constant(config);
     all_pc2_tables = cell(length(size(random_test_data,1)),1);
     for i=1:size(random_test_data,1)
         current_data = random_test_data(i,:);
-        local_config = parallel_config.Value;
+        local_config = parallel_config_1.Value;
         % get the recording name for the data
         recording_name = current_data{1,6};
 

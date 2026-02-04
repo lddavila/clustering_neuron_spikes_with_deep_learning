@@ -243,7 +243,7 @@ config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass
 config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 30030;
 config.freqLim_width = [100, 1000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
-config.Multipliers = 2.6:.1:50;
+config.Multipliers = 2.6:.1:3.5;
 config.struct_of_neuron_distance = fullfile(config.base_file_path,"Data","full_struct.mat");
 
 
