@@ -114,42 +114,41 @@ if ~isfile(fullfile(results_file,"all_table.mat"))
         local_config.ART_TETR_ARRAY = channel_number;
         local_config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(results_file,recording_name+"_c"+string(channel_number))+"_pc2");
 
-        try
-            if ~isfile(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table","blind_pass_table.mat"))
-                [blind_pass_table,fp_to_bp_table,local_config]= run_entire_clustering_algorithm_ver_2(local_config,'ordered_list_of_channels',ordered_list_of_channels);
-                fp_to_bp_table =fullfile(fp_to_bp_table,"blind_pass_table.mat");
-            else
-                fp_to_bp_table = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table","blind_pass_table.mat");
-                blind_pass_table = importdata(fp_to_bp_table);
-            end
-            %get accuracy and overlap for this test bp table
 
-            %add a group label to the test_bp_table
-            blind_pass_table.which_pc = repelem("PC2",size(blind_pass_table,1),1);
-
-            %add a channel number
-            blind_pass_table.channels = repelem({channel_number},size(blind_pass_table,1),1);
-
-
-            beginning_time = tic;
-            local_config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
-            timestamps = importdata(local_config.TIMESTAMP_FP);
-            if ~isfile(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
-                blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,local_config,timestamps);
-                par_save(fp_to_bp_table,blind_pass_table);
-                disp("Finished finding max overlap unit")
-                blind_pass_table= add_accuracy_col(local_config,blind_pass_table);
-                par_save(fp_to_bp_table,blind_pass_table);
-            else
-                disp("Overlap are already in your table.")
-                disp("To recompute delete finished_adding_overlap_and_accuracy.txt");
-            end
-            disp("Finished Saving Accuracy");
-            end_time = toc(beginning_time);
-            fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
-            all_pc2_tables{i} = blind_pass_table;
-        catch
+        if ~isfile(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table","blind_pass_table.mat"))
+            [blind_pass_table,fp_to_bp_table,local_config]= run_entire_clustering_algorithm_ver_2(local_config,'ordered_list_of_channels',ordered_list_of_channels);
+            fp_to_bp_table =fullfile(fp_to_bp_table,"blind_pass_table.mat");
+        else
+            fp_to_bp_table = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table","blind_pass_table.mat");
+            blind_pass_table = importdata(fp_to_bp_table);
         end
+        %get accuracy and overlap for this test bp table
+
+        %add a group label to the test_bp_table
+        blind_pass_table.which_pc = repelem("PC2",size(blind_pass_table,1),1);
+
+        %add a channel number
+        blind_pass_table.channels = repelem({channel_number},size(blind_pass_table,1),1);
+
+
+        beginning_time = tic;
+        local_config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
+        timestamps = importdata(local_config.TIMESTAMP_FP);
+        if ~isfile(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
+            blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,local_config,timestamps);
+            par_save(fp_to_bp_table,blind_pass_table);
+            disp("Finished finding max overlap unit")
+            blind_pass_table= add_accuracy_col(local_config,blind_pass_table);
+            par_save(fp_to_bp_table,blind_pass_table);
+        else
+            disp("Overlap are already in your table.")
+            disp("To recompute delete finished_adding_overlap_and_accuracy.txt");
+        end
+        disp("Finished Saving Accuracy");
+        end_time = toc(beginning_time);
+        fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
+        all_pc2_tables{i} = blind_pass_table;
+
     end
     %concatenate the tables so we can look at them
     all_table = [vertcat(all_pc2_tables);vertcat(all_pc1_tables)];
