@@ -34,7 +34,7 @@ if ~isempty(varargin)
 end
 
 %create a file to save everything to
-results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"PC1_vs_PC2_thresholds_with_thresholds"));
+results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"PC1_vs_PC2_thresholds_with_thresholds"));
 %store config in parallel variable to enable the
 if ~isfile(fullfile(results_file,"all_table.mat"))
     parallel_config = parallel.pool.Constant(config);
@@ -47,9 +47,9 @@ if ~isfile(fullfile(results_file,"all_table.mat"))
 
         %get the channel number
         %mutate the config to fir the current sample
-        local_config.GT_FP = fullfile(local_config.base_file_path,recording_name,"ground_truth","ground_truth.mat");
-        local_config.TIMESTAMP_FP = fullfile(local_config.base_file_path,recording_name,"timestamps","timestamps.mat");
-        local_config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(local_config.base_file_path,recording_name,"recordings_by_channel");
+        local_config.GT_FP = fullfile(local_config.base_file_path,"Data",recording_name,"ground_truth","ground_truth.mat");
+        local_config.TIMESTAMP_FP = fullfile(local_config.base_file_path,"Data",recording_name,"timestamps","timestamps.mat");
+        local_config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(local_config.base_file_path,"Data",recording_name,"recordings_by_channel");
         ordered_list_of_channels = current_data{1,8};
         channel_number = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
         local_config.ART_TETR_ARRAY = channel_number;
