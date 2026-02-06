@@ -45,7 +45,7 @@ for i=1:length(unique_recording_names)
     filter_values = cell2mat(current_data(:,5));
     average_filter_values = mean(filter_values,1);
 
-    tiledlayout(4,5)
+    tiledlayout(2,3)
     cell_array_of_vals = cell(length(distance_bins)-1,1);
     for j=1:length(distance_bins)-1
         nexttile;

@@ -1,4 +1,4 @@
-function [unit_ratio,noise_ratio,raw_unit_numbers,raw_noise_numbers,thresholds] = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr,config,fp_to_save_to)
+function [unit_ratio,noise_ratio,raw_unit_numbers,raw_noise_numbers,thresholds] = get_detected_spikes(current_channel_data,default_thresholds,ironclust_thresholds,unit_gr_tr,config,fp_to_save_to,tol)
 %INPUT:
 %current_channel_data:
 %   an array with the channel data in microvolts
@@ -66,23 +66,23 @@ if ~config.use_new_spike_detection
         end
 
 
-        if mod(desired_z_score,1)==0
-            f = figure;
-            plot(current_channel_data(1:min([10000,length(current_channel_data)])))
-            counter = 0;
-        end
-        
-        hold on;
-        actual_y_line_value = abs(current_channel_data(find(abs(channel_wise_z_score)>=desired_z_score,1)));
-        if ~isempty(actual_y_line_value)
-            yline(actual_y_line_value,'Label',sprintf("%.2f",actual_y_line_value));
-        end
-        counter = counter+1;
-
-        if counter==10 || i==length(default_thresholds)
-            saveas(f,fullfile(fp_to_save_to,"thresholds "+string(i-10)+" to "+string(i)+".fig"));
-            close(f);
-        end
+        % if mod(desired_z_score,1)==0
+        %     f = figure;
+        %     plot(current_channel_data(1:min([10000,length(current_channel_data)])))
+        %     counter = 0;
+        % end
+        % 
+        % hold on;
+        % actual_y_line_value = abs(current_channel_data(find(abs(channel_wise_z_score)>=desired_z_score,1)));
+        % if ~isempty(actual_y_line_value)
+        %     yline(actual_y_line_value,'Label',sprintf("%.2f",actual_y_line_value));
+        % end
+        % counter = counter+1;
+        % 
+        % if counter==10 || i==length(default_thresholds)
+        %     saveas(f,fullfile(fp_to_save_to,"thresholds "+string(i-10)+" to "+string(i)+".fig"));
+        %     close(f);
+        % end
         
 
 
@@ -106,9 +106,9 @@ else
         P = struct('spkThresh', [], 'qqFactor', ironclust_thresholds(i));
         [spikes_for_current_channel, ~, thresh1] = spikeDetectSingle_fast_(current_channel_data_mut,P);
         thresholds(i) = thresh1;
-        parfor k=1:length(unit_gr_tr)
+        parfor k=1:2%length(unit_gr_tr)
             ground_truth_spike_idxs = unit_gr_tr{k}+1;
-            raw_unit_number = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,0.00001),"all") ;   % exact matches ;
+            raw_unit_number = sum(ismembertol(double(ground_truth_spike_idxs),spikes_for_current_channel,tol),"all") ;   % exact matches ;
             raw_noise_numbers(k,i) = length(spikes_for_current_channel) - raw_unit_number;
             
             raw_unit_numbers(k,i) = raw_unit_number;
@@ -121,20 +121,20 @@ else
             send(q,[])
         end
 
-        if mod(ironclust_thresholds(i),1)==0
-            f =figure;
-            counter = 0;
-            plot(current_channel_data_mut(1:min([10000,length(current_channel_data_mut)])))
-        end
+        % if mod(ironclust_thresholds(i),1)==0
+        %     f =figure;
+        %     counter = 0;
+        %     plot(current_channel_data_mut(1:min([10000,length(current_channel_data_mut)])))
+        % end
         
-        hold on;
-        yline(thresh1,'Label',sprintf("%.2f",thresh1));
-        counter = counter+1;
-
-        if counter==10 || i==length(ironclust_thresholds)
-            saveas(f,fullfile(fp_to_save_to,"thresholds "+string(i-10)+" to "+string(i)+".fig"));
-            close(f);
-        end
+        % hold on;
+        % yline(thresh1,'Label',sprintf("%.2f",thresh1));
+        % counter = counter+1;
+        % 
+        % if counter==10 || i==length(ironclust_thresholds)
+        %     saveas(f,fullfile(fp_to_save_to,"thresholds "+string(i-10)+" to "+string(i)+".fig"));
+        %     close(f);
+        % end
 
 
     end

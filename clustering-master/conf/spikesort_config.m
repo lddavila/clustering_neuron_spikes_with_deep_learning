@@ -6,6 +6,7 @@ function config = spikesort_config()
 config = struct();
 %get the base file path of the github directory
 config.base_file_path = get_base_filepath();
+config.data_dir = fullfile(config.base_file_path,"Data");
 
 config.RECORDING_NAME = ""; % by default this is empty, if you add a name then it will create a nested file path
 
