@@ -1,9 +1,9 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -p small
-#SBATCH -J rec_5
-#SBATCH -o output_5.txt 
-#SBATCH -e output_5.txt
+#SBATCH -J rec_1
+#SBATCH -o output.txt 
+#SBATCH -e output.txt
 #SBATCH -t 48:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu

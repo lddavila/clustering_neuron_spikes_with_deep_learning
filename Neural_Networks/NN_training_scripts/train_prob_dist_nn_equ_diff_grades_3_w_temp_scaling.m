@@ -116,20 +116,23 @@ for i=1:length(thresholds)
 
     tabulate(training_above_below_class);
 
+    
+
     if i~=1
         %if not on the first neural network then we'll use the certainty
         %from the last net as a feature in the next net
         %this will hopefully be a usefull feature
-        
-        layers_of_net = dynamically_create_layers_for_nn(size(training_data,2),10,5,2);
+        training_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,training_data);
     end
 
-    %rescale the data between -1,1 to aid in convergence
+    %rescale the data between 0,1 to aid in convergence
     %preserve the col min/max in order to rescale the validation/testing
     %data in a consistent way
     col_min = min(training_data,[],1);
     col_max = max(training_data,[],1);
-    training_data = rescale(training_data,-1,1,"InputMax",col_max,"InputMin",col_min);
+    training_data = rescale(training_data,0,1,"InputMax",col_max,"InputMin",col_min);
+
+    
 
     %now get a neural network which will be used to train the current task
     %10=num neurons per layer
@@ -149,24 +152,25 @@ for i=1:length(thresholds)
     test_data = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,testing_table,config));
 
 
+    
+
     if i~=1
         %if not on the first neural network then we'll use the certainty
         %from the last net as a feature in the next net
         %this will hopefully be a usefull feature
-        val_data_scaled_as_last = rescale(val_data,-1,1,"InputMax",last_col_max,'InputMin',last_col_min);
-        results_of_last_net = predict(layers_of_last_net,val_data_scaled_as_last);
-        certainty = results_of_last_net(:,2) - results_of_last_net(:,1);
-        val_data = [val_data,certainty];
-        test_data_scaled_as_last = rescale(test_data,-1,1,"InputMax",last_col_max,"InputMin",last_col_min);
-        results_of_last_net = predict(layers_of_last_net,test_data_scaled_as_last);
-        certainty = results_of_last_net(:,2) - results_of_last_net(:,1);
-        test_data = [test_data,certainty];
+        val_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,val_data);
+        
+        test_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,test_data);
     end
 
     %rescale the validation data based on the training data
     %we don't equalize val data because there's no guarantee of
     %probability in the real scenario
-    val_data = rescale(val_data,-1,1,"InputMax",col_max,"InputMin",col_min);
+    val_data = rescale(val_data,0,1,"InputMax",col_max,"InputMin",col_min);
+
+    %rescale the test data to match the training
+    test_data =rescale(test_data,0,1,"InputMax",col_max,"InputMin",col_min);
+    
     %get validation data true class
     val_above_below_class = val_table{:,"accuracy"} > current_threshold;
     %append the class to val_data
@@ -206,8 +210,7 @@ for i=1:length(thresholds)
 
     
 
-    %rescale the data to match the training
-    test_data =rescale(test_data,-1,1,"InputMax",col_max,"InputMin",col_min);
+    
 
     %get the true class for test data
     test_true_class = testing_table{:,"accuracy"} >current_threshold;
@@ -257,26 +260,7 @@ for i=1:length(thresholds)
 end
 
 end
-function T = fit_temperature_binary(p, y)
-% Fits temperature T > 0 by minimizing NLL on a validation set.
-% p : Nx1 uncalibrated probabilities for class 1
-% y : Nx1 true labels in {0,1}
 
-p = clamp_probs(p);
-
-% Convert probs to logits
-z = log(p) - log(1 - p);
-
-% Objective: NLL of calibrated probabilities
-obj = @(T) nll_from_logits_temp(z, y, T);
-
-% Constrain T to a sensible range; expand if needed
-T_lower = 0.05;
-T_upper = 10.0;
-
-% 1D bounded minimization
-T = fminbnd(obj, T_lower, T_upper);
-end
 
 
 

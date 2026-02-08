@@ -16,10 +16,11 @@ config = spikesort_config();
 %overwrite the base path if testing locally
 if ~isempty(varargin)
     config.data_dir = varargin{1};
+    config.parent_save_dir = varargin{1};
 end
 
 %create a file to save everything to
-results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"PC1_vs_PC2_thresholds_with_varying_ch_nums"));
+results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"PC1_vs_PC2_thresholds_with_varying_ch_nums_2"));
 
 %get all unit location files
 list_of_all_files = struct2table(dir(fullfile(config.data_dir, '**', '*')));
