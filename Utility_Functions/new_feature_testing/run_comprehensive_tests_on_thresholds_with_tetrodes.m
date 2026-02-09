@@ -28,13 +28,13 @@ list_of_all_files = list_of_all_files(string(list_of_all_files{:,"name"})=="neur
 
 %meta deta parameters for testing
 num_neurons_to_test_per_rec = 5;
-number_of_channels_to_try = 2:1:6;
+number_of_channels_to_try = [4,3,2,5,6];
 multipliers_to_try = 6:.1:15;
 config.Multipliers = multipliers_to_try;
 all_table = {};
 recording_names_array = ["10_600Neuron300SecondRecordingWithLevel10Noise","1_600Neuron300SecondRecordingWithLevel1Noise","5_600Neuron300SecondRecordingWithLevel5Noise"];
 
-for rec_count=3:height(list_of_all_files)
+for rec_count=1:height(list_of_all_files)
     %set the randoms seed for reproducability
     rng(0);
     unit_loc = importdata(fullfile(list_of_all_files{rec_count,"folder"}{1},list_of_all_files{rec_count,"name"}{1}));
