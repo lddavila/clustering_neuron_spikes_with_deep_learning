@@ -20,7 +20,7 @@ if ~isempty(varargin)
 end
 
 %create a file to save everything to
-results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"PC1_vs_PC2_thresholds_with_varying_ch_nums_2"));
+results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"PC1_vs_PC2_thresholds_with_varying_ch_nums_3"));
 
 %get all unit location files
 list_of_all_files = struct2table(dir(fullfile(config.data_dir, '**', '*')));
@@ -71,7 +71,7 @@ for rec_count=1:height(list_of_all_files)
 
 
             for use_pc2=0:1
-                try
+                % try
                     if use_pc2
                         add_to = "PC2";
                     else
@@ -107,9 +107,9 @@ for rec_count=1:height(list_of_all_files)
                     disp("Finished Saving Accuracy");
                     end_time = toc(beginning_time);
                     fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
-                catch
-                    blind_pass_table = [];
-                end
+                % catch
+                %     blind_pass_table = [];
+                % end
                 all_table{end+1} = blind_pass_table;
             end
         end

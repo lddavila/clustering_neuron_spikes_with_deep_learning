@@ -6,7 +6,7 @@ function [blind_pass_table] = add_mean_wf_based_in_std_from_cluster_center(blind
 %and the farthest to be the 
 
 %first make sure the fpths are relevant to host machine
-blind_pass_table = update_fpths(blind_pass_table,config);
+% blind_pass_table = update_fpths(blind_pass_table,config);
 
 %if the blind pass is a mix of multiple recordings then we also have to
 %slice the data on that level as well

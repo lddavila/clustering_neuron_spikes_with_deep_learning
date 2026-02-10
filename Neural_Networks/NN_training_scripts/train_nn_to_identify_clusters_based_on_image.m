@@ -32,7 +32,7 @@ disp("Finshed loading blind pass directory");
 blind_pass_table.og_idx = (1:size(blind_pass_table,1)).';
 
 %update fpth to local
-blind_pass_table = update_fpths(blind_pass_table,config);
+% blind_pass_table = update_fpths(blind_pass_table,config);
 disp("finished updating fpths")
 
 %we'll create 2 folders in the sub image directory

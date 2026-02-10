@@ -23,7 +23,7 @@ if ~config.use_new_spike_detection
         send(q,[]);
     end
 else
-    parfor i=1:length(channels)
+    for i=1:length(channels)
         if isfile(fullfile(precomputed_dir, "c"+string(channels(i))+".mat"))
             send(q,[]);
             continue;

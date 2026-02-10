@@ -1,7 +1,7 @@
 function [] = compare_ic_cutting_to_default(default_example,ic_example,config)
 
-default_example = update_fpths(default_example,config);
-ic_example = update_fpths(ic_example,config);
+% default_example = update_fpths(default_example,config);
+% ic_example = update_fpths(ic_example,config);
 default_aligned = importdata(default_example{1,"fp_to_aligned"}).aligned;
 ic_aligned = importdata(ic_example{1,"fp_to_aligned"}).aligned;
 

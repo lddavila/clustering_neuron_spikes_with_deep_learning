@@ -2,7 +2,7 @@ function [cell_array_of_images] = get_image_to_group_clusters(blind_pass_table,c
 %cycle through all comparisons
 cell_array_of_images = cell(size(comparisons,1),1);
 %first update the blind pass data fpths to match the local machine
-blind_pass_table = update_fpths(blind_pass_table,config);
+% blind_pass_table = update_fpths(blind_pass_table,config);
 
 %get a graph which will be used for calculating which waveforms should be
 %plotted together
