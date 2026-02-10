@@ -7,9 +7,10 @@ home_dir = cd("..");
 cd("..");
 addpath(genpath(pwd));
 cd(home_dir)
+disp("Finished Setting path")
 
 config = spikesort_config();
-
+disp("Finished getting config")
 
 
 
@@ -18,14 +19,15 @@ if ~isempty(varargin)
     config.data_dir = varargin{1};
     config.parent_save_dir = varargin{1};
 end
-
+disp("Finished overwriting")
 %create a file to save everything to
 results_file = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"PC1_vs_PC2_thresholds_with_varying_ch_nums_3"));
-
+disp('Finished creating the results file')
+disp(results_file);
 %get all unit location files
 list_of_all_files = struct2table(dir(fullfile(config.data_dir, '**', '*')));
 list_of_all_files = list_of_all_files(string(list_of_all_files{:,"name"})=="neuron_unit_locations.mat",:);
-
+disp("Finished getting all unit location files")
 %meta deta parameters for testing
 num_neurons_to_test_per_rec = 5;
 number_of_channels_to_try = [4,3,2,5,6];
@@ -33,7 +35,7 @@ multipliers_to_try = 6:.1:15;
 config.Multipliers = multipliers_to_try;
 all_table = {};
 recording_names_array = ["10_600Neuron300SecondRecordingWithLevel10Noise","1_600Neuron300SecondRecordingWithLevel1Noise","5_600Neuron300SecondRecordingWithLevel5Noise"];
-
+disp("Finished getting meta parameters")
 for rec_count=1:height(list_of_all_files)
     %set the randoms seed for reproducability
     rng(0);
