@@ -1,4 +1,4 @@
-function [] = get_spike_windows_ver_3(channels,desired_z_score,lowest_bound_spike_windows_dir,new_spike_windows_dir,config)
+function [] = get_spike_windows_ver_3(channels,threshold,lowest_bound_spike_windows_dir,new_spike_windows_dir,config,varargin)
 
 %differs from get_spike_windows_ver_2 because instead of creating the spike windows array per channel
 %this function reads an existing spike windows z score and eliminates any
@@ -18,19 +18,20 @@ if ~config.use_new_spike_detection
         end
         current_channel = channels(i);
         previously_found_spike_windows = importdata(fullfile(lowest_bound_spike_windows_dir,"c"+string(current_channel)+".mat"));
-        spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,5)>=desired_z_score,:);
+        spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,5)>=threshold,:);
         par_save(fullfile(new_spike_windows_dir,"c"+string(current_channel)+".mat"),spike_windows)
         send(q,[]);
     end
 else
-    for i=1:length(channels)
+    cell_array_of_thresholds_in_mv = varargin{1};
+    parfor i=1:length(channels)
         if isfile(fullfile(precomputed_dir, "c"+string(channels(i))+".mat"))
             send(q,[]);
             continue;
         end
         current_channel = channels(i);
         previously_found_spike_windows = importdata(fullfile(lowest_bound_spike_windows_dir,"c"+string(current_channel)+".mat"));
-        spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,4)>=desired_z_score,:);
+        spike_windows = previously_found_spike_windows(previously_found_spike_windows(:,4)>=cell_array_of_thresholds_in_mv{current_channel}(threshold),:);
         par_save(fullfile(new_spike_windows_dir,"c"+string(current_channel)+".mat"),spike_windows)
         send(q,[]);
 

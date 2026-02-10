@@ -112,7 +112,7 @@ if ~config.use_new_spike_detection
     thresholds_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
     thresholds_to_check = sort(thresholds_to_check,'ascend');
 else
-    thresholds_to_check = sort(multipliers_in_mv);
+    thresholds_to_check = 1:length(config.Multipliers);
 end
 lowest_bound_threshold = min(thresholds_to_check);
 
