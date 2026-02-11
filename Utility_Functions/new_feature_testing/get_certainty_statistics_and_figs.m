@@ -27,7 +27,7 @@ distance_from_min_uncertainty = abs(idx_of_lowest-true_accuracy);
 
 disp("Median Distance uncertainty midpoint: "+string(median(distance_from_min_uncertainty)))
 figure;
-histogram(distance_from_min_uncertainty);
+histogram(distance_from_min_uncertainty,"BinEdges",[1:99,100]);
 ylabel("Frequency");
 xlabel("Distance From Min certainty point")
 hold on;

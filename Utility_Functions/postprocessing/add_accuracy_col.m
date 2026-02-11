@@ -10,7 +10,7 @@ num_iterations = length(sliced_bp_table);
 print_status_bar(num_iterations,"add_accuracy_col.m")
 timestamps = parallel.pool.Constant(timestamps);
 ground_truth = parallel.pool.Constant(ground_truth);
-parfor i=1:size(sliced_bp_table,1)
+for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     %blind_pass_table.("Max_Overlap_perc_With_Unit") = max_overlap_percentages;
 %blind_pass_table.("Max_Overlap_Unit") = max_overlap_unit;
