@@ -113,6 +113,8 @@ for rec_count=1:height(list_of_all_files)
                 %     blind_pass_table = [];
                 % end
                 all_table{end+1} = blind_pass_table;
+                %save the table at every stage
+                par_save(fullfile(results_file,"all_table.mat"),vertcat(all_table))
             end
         end
     end
