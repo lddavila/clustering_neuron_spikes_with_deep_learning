@@ -98,6 +98,7 @@ for rec_count=1:height(list_of_all_files)
                         fp_to_bp_table = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"blind_pass_table","blind_pass_table.mat");
                         disp(fp_to_bp_table);
                         blind_pass_table = importdata(fp_to_bp_table);
+                        disp("Finished loading the blind pass table")
                     end
                     %get accuracy and overlap for this test bp table
                     beginning_time = tic;

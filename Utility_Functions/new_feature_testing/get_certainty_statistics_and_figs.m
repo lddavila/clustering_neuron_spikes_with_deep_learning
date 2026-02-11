@@ -11,9 +11,7 @@ net_nums = arrayfun(@(i) split_net_names(i, where_below_ends(i)+1), ...
 table_of_nets.threshold = str2double(net_nums);
 table_of_nets = sortrows(table_of_nets,"threshold","ascend");
 
-distance_from_min_uncertainty = nan(height(blind_pass_table),1);
 
-% current_data = grades_array(i,:);
 true_accuracy = blind_pass_table{:,"accuracy"};
 [~,unscaled_certainties ]= get_certainties_of_all_previous_nets(string(table_of_nets.name),dir_to_nn_sets,grades_array);
 if plot_figs
@@ -35,12 +33,13 @@ xlabel("Distance From Min certainty point")
 hold on;
 xline(median(distance_from_min_uncertainty),'Label',"median distance from min certainty:"+string(median(distance_from_min_uncertainty)))
 
-[row,col] = find(distance_from_min_uncertainty>90);
+[row,~] = find(distance_from_min_uncertainty>90);
 if plot_worst_case
     for i=1:length(row)
         f = figure;
         bar(unscaled_certainties(row(i),:),1)
         xline(blind_pass_table{row(i),"accuracy"},'Label',"True Accuracy"+sprintf("%.2f",blind_pass_table{row(i),"accuracy"}))
+        title("Min Certainty:"+string(unscaled_certainties(row(i),idx_of_lowest(row(i)))))
         close(f);
     end
 end
