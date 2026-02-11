@@ -1,9 +1,9 @@
-function updated_data = get_certainties_of_all_previous_nets(list_of_all_previous_nets, fp_with_nets, data)
+function [updated_data,unscaled_certainties]= get_certainties_of_all_previous_nets(list_of_all_previous_nets, fp_with_nets, data)
 
 n = size(data,1);
 m = length(list_of_all_previous_nets);
 previous_certainties = nan(n, m);
-
+unscaled_certainties = nan(size(data,1),length(list_of_all_previous_nets));
 for i = 1:m
     netS = importdata(fullfile(fp_with_nets, list_of_all_previous_nets(i)));
     net  = netS.net;
@@ -28,6 +28,7 @@ for i = 1:m
 
     % Certainty in [-1,1]
     previous_certainties(:, i) = 2*p1_cal - 1;
+    unscaled_certainties(:,i) = 2*p1_cal -1;
 end
 
 updated_data = [data, previous_certainties];
