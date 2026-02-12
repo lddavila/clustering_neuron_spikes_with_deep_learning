@@ -16,11 +16,19 @@ true_accuracy = blind_pass_table{:,"accuracy"};
 [~,unscaled_certainties ]= get_certainties_of_all_previous_nets(string(table_of_nets.name),dir_to_nn_sets,grades_array);
 if plot_figs
     for i=1:height(blind_pass_table)
-        figure;
+        f = figure;
         bar(unscaled_certainties(i,:),1)
-        xline(true_accuracy,"True Accuracy"+sprintf("%.2f",true_accuracy))
+        xline(true_accuracy(i),'Label',"True Accuracy"+sprintf("%.2f",true_accuracy(i)))
+        close(f);
     end
 end
+%eliminate any row that doesn't have a certainty close to 0
+%these rows seem to be a result of unstable MUA 
+all_positive =all(unscaled_certainties>0,2) | sum(unscaled_certainties>0,2)>80 ;
+all_negative = all(unscaled_certainties<0,2) | sum(unscaled_certainties<0,2)>80;
+to_eliminate = all_positive | all_negative;
+true_accuracy(to_eliminate) = [];
+unscaled_certainties(to_eliminate,:) = [];
 [~,idx_of_lowest] = min(abs(unscaled_certainties),[],2);
 distance_from_min_uncertainty = abs(idx_of_lowest-true_accuracy);
 

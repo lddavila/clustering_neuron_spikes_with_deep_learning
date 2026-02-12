@@ -19,14 +19,14 @@ end
 
 beginning = which_recording;
 the_end = which_recording+.5;
-number_of_channels_to_use = [1,2,3,4,5,6,7,8,9,10];
+number_of_channels_to_use = [4,3,2,1,5,6];
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
         try
             config = spikesort_config();
             config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
-            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
+            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
             disp("Recording Name");
             disp(config.RECORDING_NAME)
             startup;
