@@ -1,4 +1,4 @@
-
+% % 
 function config = spikesort_config()
 %SPIKESORT_CONFIG Generates the global config for spikesort
 %   config = SPIKESORT_CONFIG()
