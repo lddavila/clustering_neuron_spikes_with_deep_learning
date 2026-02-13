@@ -231,9 +231,9 @@ config.FP_TO_ALL_RECORDINGS_TABLE = fullfile(config.base_file_path,"Data","all_r
 config.FP_TO_ODD_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","odd_recordings.mat");
 config.FP_TO_EVEN_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","even_recordings.mat");
 
-config.dir_of_prob_dist_nets = fullfile(config.base_file_path,"Neural_Networks","probability_distr_nets");
+config.dir_of_prob_dist_nets = fullfile(config.base_file_path,"Neural_Networks","probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling");
 
-config.dir_of_prob_dist_nets = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\probability_distr_nets_equalized_difficulty";
+% config.dir_of_prob_dist_nets = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\probability_distr_nets_equalized_difficulty";
 
 config.peak_pcs_file_name = "";
 
