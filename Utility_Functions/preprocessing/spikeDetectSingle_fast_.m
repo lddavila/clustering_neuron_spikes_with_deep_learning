@@ -38,7 +38,7 @@ thresh1 = cast(thresh1, 'like', vrWav1); % JJJ 11/5/17
 % pick spikes crossing at least three samples
 nneigh_min = get_set_(P, 'nneigh_min_detect', 0);  %set the nneigh_min_detect to 0 in the struct p and return 0 once the param is set
 viSpk1 = find_peak_(vrWav1, min(thresh1), nneigh_min);  
-if get_set_(P, 'fDetectBipolar', 0) %if you want spikes on both sides run the detection again, but flip polarity
+if get_set_(P, 'fDetectBipolar', 1) %if you want spikes on both sides run the detection again, but flip polarity
    viSpk1 = [viSpk1; find_peak_(-vrWav1, min(thresh1), nneigh_min)]; %append the spikes
    viSpk1 = sort(viSpk1); %sort the spikes
 end
