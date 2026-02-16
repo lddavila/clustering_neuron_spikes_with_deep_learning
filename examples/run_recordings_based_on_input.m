@@ -32,7 +32,9 @@ for k=1:length(number_of_channels_to_use)
         startup;
         %get a new art_tetrode_array and set it in the config
         new_tetrode_array = build_channel_configs(current_number_of_channels,config);
-        config.ART_TETR_ARRAY = new_tetrode_array;
+        if current_number_of_channels ~= 4
+            config.ART_TETR_ARRAY = new_tetrode_array;
+        end
         if contains(pwd,"10595")
             config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
             config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
