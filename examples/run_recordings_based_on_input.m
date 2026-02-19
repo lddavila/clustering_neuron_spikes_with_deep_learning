@@ -13,9 +13,12 @@ if contains(pwd,"10595")
     parpool(10);
     c.JobStorageLocation = pwd;
 elseif ~contains(config.base_file_path,"afriedman")
+    disp("Using the afriedman")
     c = parcluster('local');
     parpool(c.NumWorkers)
     c.JobStorageLocation = pwd;
+    disp("Job Storage Location");
+    disp(c.JobStorageLocation);
 end
 % step 2: Get the config Necessary for current Example
 
