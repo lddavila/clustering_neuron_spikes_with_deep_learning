@@ -12,7 +12,7 @@ if contains(pwd,"10595")
     c = parcluster('local');
     parpool(10);
     c.JobStorageLocation = pwd;
-elseif ~contains(config.base_file_path,"afriedman")
+elseif contains(config.base_file_path,"afriedman")
     disp("Using the afriedman")
     c = parcluster('local');
     parpool(c.NumWorkers)
