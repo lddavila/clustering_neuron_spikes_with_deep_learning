@@ -10,7 +10,7 @@ config = spikesort_config();
 % Put JobStorageLocation on node-local temp, NOT on GPFS
 if contains(pwd,"10595")
     c = parcluster('local');
-    parpool(c,56)
+    parpool(c,10)
 elseif ~contains(config.base_file_path,"afriedman")
     c = parcluster('local');
     parpool(c.NumWorkers)
