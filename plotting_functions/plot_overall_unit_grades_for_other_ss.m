@@ -74,5 +74,15 @@ for i=1:length(all_keys)
     sgtitle([strrep(current_key_wo_end,"_","\_"), "Need at least 80% accuracy to be detected"]);
     save_plots_in_all_formats(f,fullfile(dir_to_save_figs_to,current_key_wo_end));
     close(f);
+
+    f = figure('units','normalized','OuterPosition',[0 0 1 1]);
+    tiledlayout(1,2)
+    nexttile();
+    bar([number_of_found,number_of_missing])
+    title("Sum of 2 bars is total # of neurons in the recording")
+    nexttile();
+    bar([number_of_mua,number_of_found])
+    title("Sum Of 2 bars is total # clusters found")
+    close(f);
 end
 end

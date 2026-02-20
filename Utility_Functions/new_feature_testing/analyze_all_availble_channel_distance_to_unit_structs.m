@@ -89,6 +89,7 @@ for i=1:length(unique_recording_names)
     disp(avg_thresholds);
     sgtitle(unique_recording_names(i));
     
+    
 end
 % sgtitle("Closest "+string(closest_n_neurons)+" Ranging from "+string(min_dist) +" to "+string(max_dist) )
 % xlabel("Threshold in microvolts")
