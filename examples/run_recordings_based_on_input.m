@@ -13,13 +13,16 @@ if contains(pwd,"10595")
     parpool(10);
     c.JobStorageLocation = pwd;
 elseif contains(config.base_file_path,"afriedman")
+    beginning = tic;
     disp("Using the afriedman")
     c = parcluster('local');
     
     c.JobStorageLocation = pwd;
     disp("Job Storage Location");
     disp(c.JobStorageLocation);
-    parpool(c.NumWorkers)
+    parpool(c.NumWorkers, 'IdleTimeout', inf);
+    ending_time = toc(beginning);
+    fprintf("Starting Parallel Pool took %.2f seconds",ending_time);
 elseif contains(config.base_file_path,"C:\Users\ldd77\") %for local testing
 
 end
