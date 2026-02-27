@@ -1,3 +1,4 @@
+%this file has been edited by Luis D. Davila and Alexander Friedman 
 function [final_clusters, bad_clusters] = run_clustering(aligned, spike_idx, ir, tvals, refine_spike_idx, config,peak_pcs_file_name)
 %RUN_CLUSTERING Runs the clustering algorithm after preprocessing.
 %   clusters = RUN_CLUSTERING(aligned, spike_idx, timestamps, tvals,

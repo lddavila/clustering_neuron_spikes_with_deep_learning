@@ -8,6 +8,11 @@ scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
+if config.use_new_spike_detection
+    z_score_or_multiplier = "Multiplier";
+else
+    z_score_or_multiplier = "Z Score";
+end
 %create the directory for the template files
 create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.base_file_path,"Shape_Template_PNGs"));
 
@@ -92,7 +97,7 @@ beginning_time = tic;
 if ~config.use_new_spike_detection
     detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
     end_time = toc(beginning_time);
-    fprintf("Finished cutting spikes per channel for z score %.2f, it took %.2f seconds\n",min(config.DEFAULT_CLUSTERING_Z_SCORES),end_time);
+    fprintf("Finished cutting spikes per channel for "+z_score_or_multiplier+" %.2f, it took %.2f seconds\n",min(config.DEFAULT_CLUSTERING_Z_SCORES),end_time);
 
 else
     %multipliers_in_mv is the threshold values
@@ -119,7 +124,46 @@ lowest_bound_threshold = min(thresholds_to_check);
 lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
 get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
 
-
+% step 9d: get maps of each tetrode to its spikes
+beginning_time = tic;
+if ~config.use_new_spike_detection
+    dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(config.DEFAULT_CLUSTERING_Z_SCORES(1))+ " num_dps "+string(num_dps)));
+else
+    dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries multiplier "+string(config.Multipliers(1))+ " num_dps "+string(num_dps)));
+end
+% disp("the dictionaries dir")
+% disp(dictionaries_dir)
+get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
+%tetrode_dictionary
+%keys: "t" + tetrode number
+%values: all channels which are part of the current dictionary
+%spike_tetrode_dictionary
+%keys: "t" + tetrode number
+%values: the spikes for the current tetrode organized as follows
+%[numwires, numspikes, numdp] = size(raw);
+%numwires: number of channels
+%numspikes: number of spikes
+%numdp: number of datapoints
+%timing_tetrode_dictionary
+%channel_to_tetrode_dictionary
+%keys: "c" + channel number
+%values: tetrode which the current channel belongs to
+%spiking_channel_tetrode_dictionary
+%keys: "t"+ tetrode number
+%values: a list of which channel was the actual spiking channel, ordered in the same way as spike_tetrode_dictionary
+%spike_tetrode_dictionary_samples_format
+%keys: "t"+tetrode number
+%values: the spikes for the current tetrode organzied as follows
+%[numdp, numspikes, numswires] = size(raw);
+%numwires: number of channels
+%numspikes: number of spikes
+%numdp: number of datapoints
+%timing_tetrode_dictionary
+% number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
+% disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
+% clc;
+end_time = toc(beginning_time);
+fprintf('Getting dictionaries took: %f\n',end_time)
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
@@ -129,56 +173,18 @@ if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
         %   what is already done
         % step 9c; Get all the data points from the potential spikes
         min_threshold = thresholds_to_check(threshold_idx);
-        if ~min_threshold==lowest_bound_threshold
-            beginning_time = tic;
-            spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_threshold) + " num dps "+ string(num_dps)));
-            get_spike_windows_ver_3(channels_without_formatting,min_threshold,lowest_bound_spike_windows_dir,spike_windows_dir,config);
-            end_time = toc(beginning_time);
-            fprintf("Finished getting spike windows for z score %.2f, it took %.2f seconds\n",min_threshold,end_time);
-        else
-            spike_windows_dir = lowest_bound_spike_windows_dir;
-        end
+        % if ~(min_threshold==lowest_bound_threshold)
+        %     beginning_time = tic;
+        %     spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_threshold) + " num dps "+ string(num_dps)));
+        %     get_spike_windows_ver_3(channels_without_formatting,min_threshold,lowest_bound_spike_windows_dir,spike_windows_dir,config);
+        %     end_time = toc(beginning_time);
+        %     fprintf("Finished getting spike windows for "+z_score_or_multiplier+" %.2f, it took %.2f seconds\n",min_threshold,end_time);
+        % 
+        % else
+        %     spike_windows_dir = lowest_bound_spike_windows_dir;
+        % end
 
-        % step 9d: get maps of each tetrode to its spikes
-        beginning_time = tic;
-        if ~config.use_new_spike_detection
-            dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_threshold)+ " num_dps "+string(num_dps)));
-        else
-            dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries multiplier "+string(config.Multipliers(threshold_idx))+ " num_dps "+string(num_dps)));
-        end
-        % disp("the dictionaries dir")
-        % disp(dictionaries_dir)
-        get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
-        %tetrode_dictionary
-        %keys: "t" + tetrode number
-        %values: all channels which are part of the current dictionary
-        %spike_tetrode_dictionary
-        %keys: "t" + tetrode number
-        %values: the spikes for the current tetrode organized as follows
-        %[numwires, numspikes, numdp] = size(raw);
-        %numwires: number of channels
-        %numspikes: number of spikes
-        %numdp: number of datapoints
-        %timing_tetrode_dictionary
-        %channel_to_tetrode_dictionary
-        %keys: "c" + channel number
-        %values: tetrode which the current channel belongs to
-        %spiking_channel_tetrode_dictionary
-        %keys: "t"+ tetrode number
-        %values: a list of which channel was the actual spiking channel, ordered in the same way as spike_tetrode_dictionary
-        %spike_tetrode_dictionary_samples_format
-        %keys: "t"+tetrode number
-        %values: the spikes for the current tetrode organzied as follows
-        %[numdp, numspikes, numswires] = size(raw);
-        %numwires: number of channels
-        %numspikes: number of spikes
-        %numdp: number of datapoints
-        %timing_tetrode_dictionary
-        % number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
-        % disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
-        % clc;
-        end_time = toc(beginning_time);
-        fprintf('Getting dictionaries took: %f\n',end_time)
+
 
 
         % Step 9e: Run Clustering Algorithm
@@ -188,13 +194,13 @@ if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
             initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_threshold)));
             z_score_or_mult = min_threshold;
         else
-            z_score_or_mult = config.Multipliers(threshold_idx);
+            z_score_or_mult = thresholds_to_check(threshold_idx);
             initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier"+string(z_score_or_mult)));
             initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min multiplier " + string(z_score_or_mult)));
         end
         run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config,z_score_or_mult);
         end_time = toc(beginning_time);
-        fprintf("Core Clustering for z score %.2f finished, it took %.2f seconds\n",min_threshold,end_time);
+        fprintf("Core Clustering for "+z_score_or_multiplier+" %.2f finished, it took %.2f seconds\n",min_threshold,end_time);
     end
     file_name = "blind_pass.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');

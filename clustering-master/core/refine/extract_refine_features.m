@@ -1,4 +1,5 @@
-function features = extract_refine_features(spikes)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function the_features = extract_refine_features(the_spikes_aka_waveforms)
 %EXTRACT_REFINE_FEATURES Extracts features for refinement.
 %   features = EXTRACT_REFINE_FEATURES(spikes) returns the features used in
 %   the refinement step of clustering.
@@ -15,12 +16,12 @@ function features = extract_refine_features(spikes)
 %   The features are also min-max normalized in groups to strip units and
 %   thus unintentional weight for one feature versus another.
 
-    peaks = get_peaks(spikes, true);
-    pcs = get_new_pcs(spikes);
+    peaks = get_peaks(the_spikes_aka_waveforms, true);
+    pcs = get_new_pcs(the_spikes_aka_waveforms);
     pc1 = pcs(:, :, 1);
 
 %     pcs = get_new_pcs(spikes, true);
 %     pc1 = pcs(:, :, 1);
     
-    features = zscore([peaks ; pc1]');
+    the_features = zscore([peaks ; pc1]');
 end

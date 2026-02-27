@@ -76,13 +76,17 @@ for i=1:length(all_keys)
     close(f);
 
     f = figure('units','normalized','OuterPosition',[0 0 1 1]);
-    tiledlayout(1,2)
-    nexttile();
-    bar([number_of_found,number_of_missing])
+    % tiledlayout(1,2)
+    % nexttile();
+    x = ["Number of units found","Number of missing units","Number of clusters fabricated"];
+    bar(x,[number_of_found,number_of_missing,number_of_mua])
     title("Sum of 2 bars is total # of neurons in the recording")
-    nexttile();
-    bar([number_of_mua,number_of_found])
-    title("Sum Of 2 bars is total # clusters found")
+    
+    title(strrep(current_key_wo_end,"_","\_"), "Need at least 80% accuracy to be detected");
+    % nexttile();
+    % bar([number_of_mua,number_of_found])
+    % title("Sum Of 2 bars is total # clusters found")
+    save_plots_in_all_formats(f,fullfile(dir_to_save_figs_to,current_key_wo_end+"_bar"));
     close(f);
 end
 end

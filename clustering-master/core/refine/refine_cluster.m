@@ -1,4 +1,5 @@
-function [refined_cluster_idx, backup] = refine_cluster(features, peaks, cluster_idx, ir, tvals, config)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [the_refined_cluster_idx, the_backup] = refine_cluster(the_features, the_peaks, the_cluster_idx, the_ir, the_tvals, the_new_config)
 %REFINE_CLUSTER Refines a particular cluster in a given feature space.
 %   refined_cluster_idx = REFINE_CLUSTER(features, cluster_idx,
 %   is_bad_isolation) returns in the indices of the refined cluster,
@@ -17,41 +18,41 @@ function [refined_cluster_idx, backup] = refine_cluster(features, peaks, cluster
 
 % TODO: Add special behavior for clusters near tvals
 
-    backup = [];
-    refined_cluster_idx = [];
-    peak_filt = find_singular_cols(peaks(cluster_idx, :)); %checks if any columns have less than 5% unique values 
+    the_backup = [];
+    the_refined_cluster_idx = [];
+    peak_filt = find_singular_cols(the_peaks(the_cluster_idx, :)); %checks if any columns have less than 5% unique values 
     if ~any(peak_filt)
         return
     end
     
-    cluster_core_idx = extract_core(features, cluster_idx, config);
+    cluster_core_idx = extract_core(the_features, the_cluster_idx, the_new_config);
 
 
-    r_cluster_idx = smart_expand_cluster_ver_2(features,cluster_core_idx,false,true,config);
+    r_cluster_idx = smart_expand_cluster_ver_2(the_features,cluster_core_idx,false,true,the_new_config);
     
     if isempty(r_cluster_idx)
-        refined_cluster_idx = [];
+        the_refined_cluster_idx = [];
         return
     end
     
-    non_cluster_idx = setdiff(1:size(features,1), r_cluster_idx);
-    rating = compute_lratio(peaks(r_cluster_idx, :), peaks(non_cluster_idx, :));
-    mean_peaks = mean(peaks(r_cluster_idx, :));
+    non_cluster_idx = setdiff(1:size(the_features,1), r_cluster_idx);
+    rating = compute_lratio(the_peaks(r_cluster_idx, :), the_peaks(non_cluster_idx, :));
+    mean_peaks = mean(the_peaks(r_cluster_idx, :));
     
-    far_thresh = config.TRUST_FAR_NEURONS && ...
-        any(mean_peaks > config.params.TF_NUM_THRESH * tvals' & mean_peaks ./ ir' > config.params.TF_IR_PERCENT);
-    if rating < config.params.RF_GOOD_RATING || far_thresh
-        new_core = extract_core(features, extract_core(features, r_cluster_idx, config), config);
+    far_thresh = the_new_config.TRUST_FAR_NEURONS && ...
+        any(mean_peaks > the_new_config.params.TF_NUM_THRESH * the_tvals' & mean_peaks ./ the_ir' > the_new_config.params.TF_IR_PERCENT);
+    if rating < the_new_config.params.RF_GOOD_RATING || far_thresh
+        new_core = extract_core(the_features, extract_core(the_features, r_cluster_idx, the_new_config), the_new_config);
         if isempty(new_core)
-            refined_cluster_idx = [];
+            the_refined_cluster_idx = [];
             return;
         end
         clean = ~far_thresh;
-        peak_filt = find_singular_cols(peaks(new_core, :));
+        peak_filt = find_singular_cols(the_peaks(new_core, :));
         
-        refined_cluster_idx = smart_expand_cluster(peaks(:, peak_filt), new_core, true, clean, config);
-        backup = r_cluster_idx;
+        the_refined_cluster_idx = smart_expand_cluster(the_peaks(:, peak_filt), new_core, true, clean, the_new_config);
+        the_backup = r_cluster_idx;
     else
-        refined_cluster_idx = r_cluster_idx;
+        the_refined_cluster_idx = r_cluster_idx;
     end
 end

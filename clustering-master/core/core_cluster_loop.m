@@ -1,15 +1,16 @@
-function final_clusters = core_cluster_loop(spike_aligned, extract_features_fn, config,peak_pcs_file_name)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function the_final_clusters = core_cluster_loop(the_spike_aligned, the_extract_features_fn, the_new_config,the_peak_pcs_file_name)
     level = 1; %start the level
     done = false; %by default you are not done
     start_cl = struct(); %create a starting cluster struct object
     start_cl.subclust = true; %set the subcluster property of the starting cluster equal to true
-    start_cl.idx = 1:size(spike_aligned, 2); % put all spikes in spike_aligned into the initial cluster 
+    start_cl.idx = 1:size(the_spike_aligned, 2); % put all spikes in spike_aligned into the initial cluster 
     clusters = {start_cl}; %the initial clusters to be subclustered is just the starting cluster object
-    while ~done && level <= config.MAX_SUBCLUSTER_DEPTH % by default this is 5
+    while ~done && level <= the_new_config.MAX_SUBCLUSTER_DEPTH % by default this is 5
         if level == 1
-            cluster_ns = config.CLUSTER_NS; %default value is 6
+            cluster_ns = the_new_config.CLUSTER_NS; %default value is 6
         else
-            cluster_ns = config.SUBCLUSTER_NS; %default subcluster number is 4
+            cluster_ns = the_new_config.SUBCLUSTER_NS; %default subcluster number is 4
         end
         next_clusters = {}; %will store each pass of clusters found by core_cluster
         done = true; %for stopping purposes 
@@ -17,7 +18,7 @@ function final_clusters = core_cluster_loop(spike_aligned, extract_features_fn, 
             cl = clusters{k}; %take cluster k from the data set
             if cl.subclust %check if cl should be sub clustered again 
                 done = false; %make sure the algorithm doesn't stop because the current cluster needs to be subclustered again 
-                subclusters = core_cluster(spike_aligned(:, cl.idx, :), cluster_ns, cl.idx, extract_features_fn, config,peak_pcs_file_name); %get back subclusters from initial clutster
+                subclusters = core_cluster(the_spike_aligned(:, cl.idx, :), cluster_ns, cl.idx, the_extract_features_fn, the_new_config,the_peak_pcs_file_name); %get back subclusters from initial clutster
                 next_clusters = [next_clusters subclusters]; %add new subclusters to the list of clusters 
 
             else
@@ -30,6 +31,6 @@ function final_clusters = core_cluster_loop(spike_aligned, extract_features_fn, 
         level = level + 1; %increase the subcluster level
         % close all;
      end
-    final_clusters = cellmap(@(x) x.idx, clusters); %returns the result of all subclustering
+    the_final_clusters = cellmap(@(x) x.idx, clusters); %returns the result of all subclustering
                                                     %result is a 1xnumber_of_clusters cell array where each item is the index of the spikes located in the kth cluster
 end

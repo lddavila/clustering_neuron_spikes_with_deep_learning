@@ -3,6 +3,7 @@ function [] = run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_me
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
+% list_of_available_tetrodes = "t1";
 
 
 sliced_channel_wise_means = cell(size(list_of_available_tetrodes,2),1);
@@ -87,7 +88,7 @@ parfor i=1:length(list_of_available_tetrodes)
 
     tetrode_dictionary = importdata(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
-    disp(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
+    % disp(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     spike_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     spike_tetrode_dictionary = spike_tetrode_dictionary.spike_tetrode_dictionary;
     timing_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
@@ -109,6 +110,44 @@ parfor i=1:length(list_of_available_tetrodes)
     spike_tetrode_dictionary_samples_format =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
+
+    %record raw's size before cutting
+    raw_size_before = size(raw);
+
+    %here we will implement the process that will allow us to save much
+    %compute time in saving/loading
+    %instead of getting new dictionaries for every threshold we will simply
+    %apply the desired threshold indicated by the current_z_score variable
+    
+    %get the max peak value for each waveform
+    max_peak_vals = max(raw,[],[1,3]).';
+    %get which channel each max peak value belongs to
+    which_channel = sorted_spike_windows(:,3);
+    %get the appropriate filter value for the given channels and current
+    %min_z_score
+    
+    flat_multipliers = cell2mat(local_config.Multipliers_in_mv);
+    per_channel_thresholds_for_curr_z_sc= flat_multipliers(:,current_z_score);
+    per_spike_thresholds = per_channel_thresholds_for_curr_z_sc(which_channel);
+    has_already_been_run = check_if_current_data_has_already_been_run(max_peak_vals,which_channel,flat_multipliers,current_z_score,raw);
+    if has_already_been_run
+        continue;
+    end
+    %now filter out any values in raw that do not meet the threshold
+    raw(:,max_peak_vals<per_spike_thresholds,:) = [];
+
+    %get the new size of raw after the filter
+    new_raw_size = size(raw);
+    
+    %we will continue if the new filter didn't affect the size because that
+    %means the filter did not filter anything out and thus running it will
+    %result clustering the exact same data again which would be wasted
+    %compute time
+    if all(new_raw_size==raw_size_before)
+        % disp("No new data continuing ...")
+        continue;
+    end
+
     if isempty(raw)
         continue
     end
@@ -116,6 +155,8 @@ parfor i=1:length(list_of_available_tetrodes)
 
     raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
 
+    %repeat the same process with raw_in_samples_format
+    raw_in_samples_format(:,:,max_peak_vals<per_spike_thresholds) = [];
 
 
     mean_of_relevant_channels =sliced_channel_wise_means{i};

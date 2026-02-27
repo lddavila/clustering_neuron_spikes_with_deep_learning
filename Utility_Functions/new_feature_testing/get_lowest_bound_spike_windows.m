@@ -49,11 +49,13 @@ parfor i=1:length(ordered_list_of_channels)
                 else
                     spike_windows(j,:)=[0,0,0,0,0];
                 end
-                %each  is made up of 4 numbers:
+                %each  is made up of 5 numbers:
                 %the first is the beginning of the spike window
                 %the second is the end of the spike_window
                 %the third is the original channel of the spike
-                %the fourth is the original the peak of the spike according to
+                %the fourth is the original the peak of the spike according
+                %to ironclust's spike detection
+                %the fifth is the actual peak value in microvolts
             elseif use_new_spike_detection
                 spike_windows(j,:) = [channel_i_peak_j - fix(desired_number_of_data_points/2),...
                     channel_i_peak_j + fix(desired_number_of_data_points/2),...

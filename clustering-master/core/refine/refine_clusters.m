@@ -1,3 +1,4 @@
+%this file has been edited by Luis D. Davila and Alexander Friedman 
 function refined_clusters = refine_clusters(spikes, refine_idx_inj, clusters, ir, tvals, config)
 %REFINE_CLUSTERS Manages refinement of all of the clusters after
 %clustering.

@@ -1,4 +1,5 @@
-function [U_new, center, obj_fcn] = mod_stepfcm(data, U, cluster_n, expo)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [U_new, the_cluster_center, the_obj_fcn] = mod_stepfcm(the_data, the_original_U, cluster_number, the_expo)
 %MOD_STEPFCM One step in fuzzy c-mean clustering. Modified for efficiency.
 %   [U_NEW, CENTER, ERR] = STEPFCM(DATA, U, CLUSTER_N, EXPO)
 %   performs one iteration of fuzzy c-mean clustering, where
@@ -21,10 +22,10 @@ function [U_new, center, obj_fcn] = mod_stepfcm(data, U, cluster_n, expo)
 %   Copyright 1994-2002 The MathWorks, Inc. 
 %   $Revision: 1.13 $  $Date: 2002/04/14 22:21:02 $
 
-mf = U.^expo;       % MF matrix after exponential modification
+mf = the_original_U.^the_expo;       % MF matrix after exponential modification
 mf_sum = sum(mf, 2);
-center = mf*data./mf_sum(:, ones(1, size(data, 2))); % new center
-dist = distfcm(center, data);       % fill the distance matrix
-obj_fcn = sum(sum((dist.^2).*mf));  % objective function
-tmp = 1./(dist .^ (2/(expo-1)));      % calculate new U, suppose expo != 1
-U_new = tmp./repmat(sum(tmp), cluster_n, 1);
+the_cluster_center = mf*the_data./mf_sum(:, ones(1, size(the_data, 2))); % new center
+dist = distfcm(the_cluster_center, the_data);       % fill the distance matrix
+the_obj_fcn = sum(sum((dist.^2).*mf));  % objective function
+tmp = 1./(dist .^ (2/(the_expo-1)));      % calculate new U, suppose expo != 1
+U_new = tmp./repmat(sum(tmp), cluster_number, 1);

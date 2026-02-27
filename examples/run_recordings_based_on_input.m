@@ -20,6 +20,8 @@ elseif contains(config.base_file_path,"afriedman")
     disp("Job Storage Location");
     disp(c.JobStorageLocation);
     parpool(c.NumWorkers)
+elseif contains(config.base_file_path,"C:\Users\ldd77\") %for local testing
+
 end
 % step 2: Get the config Necessary for current Example
 
@@ -50,6 +52,8 @@ for k=1:length(number_of_channels_to_use)
             config.GT_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"ground_truth","ground_truth.mat");
             config.TIMESTAMP_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"timestamps","timestamps.mat");
             config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,config.RECORDING_NAME,"recordings_by_channel");
+            % config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1,:);
+            config.BLIND_PASS_DIR_PRECOMPUTED = strrep(config.BLIND_PASS_DIR_PRECOMPUTED,fullfile(config.base_file_path,"Default_Results_Dir"),"F:");
         else
 
             config.GT_FP = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");

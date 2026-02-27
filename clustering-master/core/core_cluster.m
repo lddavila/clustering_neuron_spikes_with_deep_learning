@@ -1,3 +1,4 @@
+%this file has been edited by Luis D. Davila and Alexander Friedman 
 function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_features_fn, config,peak_pcs_file_name)
 %spikes : 
 %   An array with the following dimensions:

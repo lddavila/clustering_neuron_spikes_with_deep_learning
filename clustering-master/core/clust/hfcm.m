@@ -1,4 +1,5 @@
-function [center, U, mpc] = hfcm(X, k, config)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [the_center, the_U_value, the_mpc_value] = hfcm(the_X, the_k, the_new_config)
 %HFCM Heuristic FCM algorithm which is at least consistent, if not optimal.
 %   [center, U, mpc] = HFCM(X, k) returns the information for the best
 %   cluster configuration given parameter 'n' as the number of clusters for
@@ -24,26 +25,26 @@ function [center, U, mpc] = hfcm(X, k, config)
 %
 %   See also MOD_FCM.
 
-    N = size(X, 1); % Number of observations
-    V = cell(k, 1); % Number of configurations
+    N = size(the_X, 1); % Number of observations
+    V = cell(the_k, 1); % Number of configurations
     
     % Initialize the first center to be the mean of the observations.
-    V{1} = mean(X);
+    V{1} = mean(the_X);
     
-    mpcs = zeros(k, 1);
-    Us = cell(k, 1);
+    mpcs = zeros(the_k, 1);
+    Us = cell(the_k, 1);
     
-    epsilon = config.params.CL_HFCM_EPSILON; % Small value for FCM's objective function
+    epsilon = the_new_config.params.CL_HFCM_EPSILON; % Small value for FCM's objective function
     
-    for c = 2:k
+    for c = 2:the_k
         curV = V{c-1};
         
         % For each existing center, compute the distance of each
         % observation to the center, and add them all up.
         ksum = zeros(N, 1);
         for q = 1:c-1
-            center = curV(q*ones(N, 1), :);
-            ksum = ksum +  sum((X - center) .^ 2, 2);
+            the_center = curV(q*ones(N, 1), :);
+            ksum = ksum +  sum((the_X - the_center) .^ 2, 2);
         end
         
         % Take the argmin of ksum to get the observation closest to the
@@ -52,21 +53,21 @@ function [center, U, mpc] = hfcm(X, k, config)
         
         % Make the new center that observation + epsilon to avoid
         % singularities when running FCM.
-        Vc = [curV ; X(alpha, :) + epsilon];
+        Vc = [curV ; the_X(alpha, :) + epsilon];
         
         % Use the new centers as parameters to FCM.
-        options = [2 config.params.CL_HFCM_NUM_ITER epsilon 0];
-        [center, U] = mod_fcm(X, Vc, c, options);
+        options = [2 the_new_config.params.CL_HFCM_NUM_ITER epsilon 0];
+        [the_center, the_U_value] = mod_fcm(the_X, Vc, c, options);
         
-        V{c} = center;
-        Us{c} = U;
-        mpc = calculate_mpc(U);
-        mpcs(c) = mpc;
+        V{c} = the_center;
+        Us{c} = the_U_value;
+        the_mpc_value = calculate_mpc(the_U_value);
+        mpcs(c) = the_mpc_value;
     end
     
     % Only return the information concerning the cluster configuration with
     % maximum MPC.
-    [mpc, ind] = max(mpcs);
-    center = V{ind};
-    U = Us{ind};
+    [the_mpc_value, ind] = max(mpcs);
+    the_center = V{ind};
+    the_U_value = Us{ind};
 end

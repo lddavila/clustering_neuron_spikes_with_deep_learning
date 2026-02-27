@@ -1,4 +1,5 @@
-function out = distfcm(center, data)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function output = distfcm(the_center, the_data)
 %DISTFCM Distance measure in fuzzy c-mean clustering.
 %	OUT = DISTFCM(CENTER, DATA) calculates the Euclidean distance
 %	between each row in CENTER and each row in DATA, and returns a
@@ -12,16 +13,16 @@ function out = distfcm(center, data)
 %       Copyright 1994-2002 The MathWorks, Inc. 
 %       $Revision: 1.13 $  $Date: 2002/04/14 22:20:29 $
 
-out = zeros(size(center, 1), size(data, 1));
+output = zeros(size(the_center, 1), size(the_data, 1));
 
 % fill the output matrix
 
-if size(center, 2) > 1,
-    for k = 1:size(center, 1),
-	out(k, :) = sqrt(sum(((data-ones(size(data, 1), 1)*center(k, :)).^2)'));
+if size(the_center, 2) > 1,
+    for k = 1:size(the_center, 1),
+	output(k, :) = sqrt(sum(((the_data-ones(size(the_data, 1), 1)*the_center(k, :)).^2)'));
     end
 else	% 1-D data
-    for k = 1:size(center, 1),
-	out(k, :) = abs(center(k)-data)';
+    for k = 1:size(the_center, 1),
+	output(k, :) = abs(the_center(k)-the_data)';
     end
 end

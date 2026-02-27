@@ -1,4 +1,5 @@
-function [n, U] = get_best_configuration(data, try_ns, config)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [n, U] = get_best_configuration(the_data, try_ns_1, config_new)
 %GET_BEST_CONFIGURATION Finds the best cluster configuration for given
 %data.
 %   [n, U] = GET_BEST_CONFIGURATION(data, try_ns) returns the number of
@@ -17,9 +18,9 @@ function [n, U] = get_best_configuration(data, try_ns, config)
 %
 %   See also CALCULATE_WEIGHTS, HFCM, CALCULATE_MPC.
 
-    [~, U, mpc] = hfcm(data, try_ns, config);
-    num_dims = size(data, 2);
-    if num_dims == 1 && mpc < config.params.CL_MPC_THRESHOLD
+    [~, U, mpc] = hfcm(the_data, try_ns_1, config_new);
+    num_dims_aka_channels = size(the_data, 2);
+    if num_dims_aka_channels == 1 && mpc < config_new.params.CL_MPC_THRESHOLD
         n = 1;
     else
         n = size(U, 1);

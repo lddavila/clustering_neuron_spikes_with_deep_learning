@@ -1,4 +1,5 @@
-function [weights, dim_clusters] = calculate_weights(data, try_ns, config)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [the_calculated_weights, the_dim_aka_channel_clusters] = calculate_weights(the_data, try_ns, config)
 %CALCULATE_WEIGHTS Calculates the weights of each dimension, as guided by
 %FCM and MPC.
 %   [weights, dim_clusters] = CALCULATE_WEIGHTS(data, try_ns,
@@ -24,11 +25,11 @@ function [weights, dim_clusters] = calculate_weights(data, try_ns, config)
 %
 %   See also GET_BEST_CONFIGURATION, CALCULATE_MPC.
 
-    numdims = size(data, 2);
-    weights = nan(1, numdims);
-    dim_clusters = cell(1, try_ns);
+    numdims = size(the_data, 2);
+    the_calculated_weights = nan(1, numdims);
+    the_dim_aka_channel_clusters = cell(1, try_ns);
     for k = 1:numdims
-        [n, U] = get_best_configuration(data(:, k), try_ns, config);
+        [n, U] = get_best_configuration(the_data(:, k), try_ns, config);
         if n > 1
             % If there was more than one cluster in the best configuration,
             % get information about the clusters in case we do redundant
@@ -36,17 +37,17 @@ function [weights, dim_clusters] = calculate_weights(data, try_ns, config)
             maxU = max(U);
             clusters = cellmap(@find, num2cell(repmat(maxU, [n, 1]) == U, 2));
             s = struct('mpc', calculate_mpc(U), 'clusters', {clusters}, 'dimnum', k);
-            if isempty(dim_clusters{n})
-                dim_clusters{n} = s;
+            if isempty(the_dim_aka_channel_clusters{n})
+                the_dim_aka_channel_clusters{n} = s;
             else
-                dim_clusters{n} = [dim_clusters{n} s];
+                the_dim_aka_channel_clusters{n} = [the_dim_aka_channel_clusters{n} s];
             end
         end
         
         % Assign the weight of the dimension based on the number of
         % clusters found in the best configuration.
         weight = (n-1)^2;
-        weights(k) = weight;
+        the_calculated_weights(k) = weight;
     end
 %         for d1 = 1:numdims-1
 %             if isnan(weights(d1))
@@ -66,10 +67,10 @@ function [weights, dim_clusters] = calculate_weights(data, try_ns, config)
     % always be 'false' for now.
     if config.REDUNDANT_DIMENSION_SELECTION
         for k = 2:try_ns
-            ss = dim_clusters{k};
+            ss = the_dim_aka_channel_clusters{k};
             for q = 1:length(ss)-1
                 cl1 = ss(q);
-                if weights(cl1.dimnum) == 0
+                if the_calculated_weights(cl1.dimnum) == 0
                     continue
                 end
                 for r = q+1:length(ss)
@@ -77,10 +78,10 @@ function [weights, dim_clusters] = calculate_weights(data, try_ns, config)
                     overlaps = compute_overlaps(cl1.clusters, cl2.clusters);
                     if min(min(max(overlaps))) > config.params.CL_MIN_REDUNDANT_OVERLAP
                         if cl1.mpc < cl2.mpc
-                            weights(cl1.dimnum) = 0;
+                            the_calculated_weights(cl1.dimnum) = 0;
                             break
                         else
-                            weights(cl2.dimnum) = 0;
+                            the_calculated_weights(cl2.dimnum) = 0;
                         end
                     end
                 end

@@ -1,4 +1,5 @@
-function [center, U, obj_fcn] = mod_fcm(data, V, cluster_n, options)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [the_cluster_center, the_U_value, obj_fcn] = mod_fcm(the_data, V, cluster_number, options)
 %MOD_FCM Data set clustering using fuzzy c-means clustering. Modified to
 %use initial centers V instead of random sampling.
 %
@@ -80,15 +81,15 @@ display = options(4);		% Display info or not
 
 obj_fcn = zeros(max_iter, 1);	% Array for objective function
 
-dist = distfcm(V, data);
+dist = distfcm(V, the_data);
 tmp = 1./(dist .^ (2/(expo-1)));      % calculate new U, suppose expo != 1
 tmp_sum = sum(tmp);
-U = tmp./tmp_sum(ones(cluster_n, 1), :);
-U(isnan(U)) = 1;
+the_U_value = tmp./tmp_sum(ones(cluster_number, 1), :);
+the_U_value(isnan(the_U_value)) = 1;
 
 % Main loop
 for i = 1:max_iter,
-	[U, center, obj_fcn(i)] = mod_stepfcm(data, U, cluster_n, expo);
+	[the_U_value, the_cluster_center, obj_fcn(i)] = mod_stepfcm(the_data, the_U_value, cluster_number, expo);
 	if display, 
 		fprintf('Iteration count = %d, obj. fcn = %f\n', i, obj_fcn(i));
 	end

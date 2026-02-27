@@ -1,3 +1,4 @@
+%this file has been edited by Luis D. Davila and Alexander Friedman 
 function cluster_core_idx = extract_core(features, cluster_idx, config)
 %EXTRACT_CORE Extracts the core of a cluster in a given feature space.
 %   cluster_core_idx = EXTRACT_CORE(features, cluster_idx) returns the

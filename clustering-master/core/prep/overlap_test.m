@@ -1,4 +1,5 @@
-function [passed, good] = overlap_test(dim, config,dimension_number)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function [the_passed_value, the_good_value] = overlap_test(dim_aka_channel, the_new_config,dimension_number)
 %OVERLAP_TEST Performs the overlap test as part of dimension selection.
 %   [passed, good] = OVERLAP_TEST(dim) returns whether the dimension passed
 %   the overlap test, as well as whether it can be considered a "good"
@@ -8,14 +9,14 @@ function [passed, good] = overlap_test(dim, config,dimension_number)
 %   evaluating the relationship between the valley and the two surrounding
 %   peaks.
     
-    passed = false;
-    good = false;
+    the_passed_value = false;
+    the_good_value = false;
     
     % k * width estimation derived from ksdensity, assuming sig = 1 because
     % of zscore normalization.
-    k = config.params.OT_WIDTH_SCALING_FACTOR;
-    width = k * (4/(3 * length(dim)))^(1/5);
-    [f, xi] = ksdensity(dim, 'width', width);
+    k = the_new_config.params.OT_WIDTH_SCALING_FACTOR;
+    width = k * (4/(3 * length(dim_aka_channel)))^(1/5);
+    [f, xi] = ksdensity(dim_aka_channel, 'width', width);
     % 
     % figure();
     % plot(xi,f);
@@ -36,15 +37,15 @@ function [passed, good] = overlap_test(dim, config,dimension_number)
     pks = pks{1};
     valleys = valleys{1};
     
-    if ~isempty(pks) && length(dim) > config.params.OT_MIN_SPIKES_LARGE_CLUSTER
+    if ~isempty(pks) && length(dim_aka_channel) > the_new_config.params.OT_MIN_SPIKES_LARGE_CLUSTER
         [p, ind] = max(f(pks));
         pkind = pks(ind);
-        vals = abs(diff(f)) < config.params.OT_EPSILON;
-        start = max(pkind - config.params.OT_PEAK_RADIUS, 1);
-        fin   = min(pkind + config.params.OT_PEAK_RADIUS, length(vals));
+        vals = abs(diff(f)) < the_new_config.params.OT_EPSILON;
+        start = max(pkind - the_new_config.params.OT_PEAK_RADIUS, 1);
+        fin   = min(pkind + the_new_config.params.OT_PEAK_RADIUS, length(vals));
         vals(start:fin) = false;
-        if any(f(vals) ./ p > config.params.OT_HIGH_VALLEY_THRESH)
-            passed = true;
+        if any(f(vals) ./ p > the_new_config.params.OT_HIGH_VALLEY_THRESH)
+            the_passed_value = true;
             return
         end
     end
@@ -61,20 +62,20 @@ function [passed, good] = overlap_test(dim, config,dimension_number)
             
             if minpk == pkval_before
                 maxpk = pkval_after;
-                csum = sum(dim < xi(valley));
+                csum = sum(dim_aka_channel < xi(valley));
             else
                 maxpk = pkval_before;
-                csum = sum(dim > xi(valley));
+                csum = sum(dim_aka_channel > xi(valley));
             end
-            min_size = min(config.params.OT_MIN_CLUSTER_PERCENT * length(dim), ...
-                           config.params.OT_MIN_CLUSTER_SIZE_UPPER_BOUND);
-            if val < config.params.OT_MAX_VALLEY_PERCENT * maxpk && csum > min_size
+            min_size = min(the_new_config.params.OT_MIN_CLUSTER_PERCENT * length(dim_aka_channel), ...
+                           the_new_config.params.OT_MIN_CLUSTER_SIZE_UPPER_BOUND);
+            if val < the_new_config.params.OT_MAX_VALLEY_PERCENT * maxpk && csum > min_size
                 % Significant dip
-                passed = true;
-                if val < config.params.OT_MAX_SIG_VALLEY_PERCENT * maxpk || ...
-                        (minpk > config.params.OT_HEIGHT_THRESH * maxpk && ...
-                            val < config.params.OT_HEIGHT_THRESH * maxpk)
-                    good = true;
+                the_passed_value = true;
+                if val < the_new_config.params.OT_MAX_SIG_VALLEY_PERCENT * maxpk || ...
+                        (minpk > the_new_config.params.OT_HEIGHT_THRESH * maxpk && ...
+                            val < the_new_config.params.OT_HEIGHT_THRESH * maxpk)
+                    the_good_value = true;
                 end
                 return
             end

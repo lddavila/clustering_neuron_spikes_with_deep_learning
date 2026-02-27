@@ -1,4 +1,5 @@
-function new_cluster_idx = smart_expand_cluster(features, cluster_idx, only_peaks, clean, config)
+%this file has been edited by Luis D. Davila and Alexander Friedman 
+function the_new_cluster_idx = smart_expand_cluster(the_features, the_cluster_idx, only_the_peaks, the_clean, the_new_config)
 %SMART_EXPAND_CLUSTER Performs a less "safe" method of expanding the
 %cluster, but does so in a smart way to avoid errors.
 %   expanded_cluster_idx = SMART_EXPAND_CLUSTER(features, cluster_idx,
@@ -13,42 +14,42 @@ function new_cluster_idx = smart_expand_cluster(features, cluster_idx, only_peak
 %
 %   'clean' is a flag for whether we want to clean the expanded cluster
 
-    if ~only_peaks
-        num_spikes = size(features, 1);
-        non_cluster_idx = setdiff(1:num_spikes, cluster_idx);
-        data_filt = find_singular_cols(features(non_cluster_idx, :));
-        features = features(:, data_filt);
+    if ~only_the_peaks
+        num_spikes = size(the_features, 1);
+        non_cluster_idx = setdiff(1:num_spikes, the_cluster_idx);
+        data_filt = find_singular_cols(the_features(non_cluster_idx, :));
+        the_features = the_features(:, data_filt);
     end
-    features = transform_features(features, cluster_idx);
+    the_features = transform_features(the_features, the_cluster_idx);
     
-    [m, thresh] = get_thresh(features, cluster_idx, clean, config);
+    [m, thresh] = get_thresh(the_features, the_cluster_idx, the_clean, the_new_config);
     if isnan(thresh)
-        new_cluster_idx = [];
+        the_new_cluster_idx = [];
         return
     end
     
     in_expan = find(m < thresh);
     
-    if clean
-        if only_peaks
-            num_std = config.params.RF_NUM_STD_PEAKS;
+    if the_clean
+        if only_the_peaks
+            num_std = the_new_config.params.RF_NUM_STD_PEAKS;
         else
-            num_std = config.params.RF_NUM_STD;
+            num_std = the_new_config.params.RF_NUM_STD;
         end
         try
             %OG LINE: m2 = mahal(features(in_expan, :), features(in_expan, :));
             %replaced the og line to use the guarded version of mhal
             %distance which subs in generalized Mahalanobis when the matrix
             %is unstable
-            m2 = mahal_fixed_for_num_unstable(features(in_expan,:),features(in_expan,:));
+            m2 = mahal_fixed_for_num_unstable(the_features(in_expan,:),the_features(in_expan,:));
         catch
-            new_cluster_idx = cluster_idx;
+            the_new_cluster_idx = the_cluster_idx;
             return
         end
         fin_expan = in_expan(m2 < median(m2) + num_std * std(m2));
-        new_cluster_idx = fin_expan;
+        the_new_cluster_idx = fin_expan;
     else
-        new_cluster_idx = in_expan;
+        the_new_cluster_idx = in_expan;
     end
 end
 

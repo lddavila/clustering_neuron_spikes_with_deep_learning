@@ -51,6 +51,7 @@ parfor i=1:size(art_tetr_array,1)
     fp_to_spiking_channel_tetrode_dict = fullfile(dictionaries_dir,"t"+string(i)+" spiking_channel_tetrode_dictionary.mat");
     fp_to_spike_tetrode_dictionary_samples_format = fullfile(dictionaries_dir,"t"+string(i)+" spike_tetrode_dictionary_samples_format.mat");
     fp_to_sorted_spike_windows = fullfile(dictionaries_dir,"t"+string(i)+" sorted_spike_windows.mat");
+    % fp_to_peak_values = fullfile(dictionaries_dir,"t"+string(i)+" peak_val.mat");
     dict_fpths = [fp_for_tetrode_dict,fp_for_spike_tetrode_dict,fp_for_timing_tetrode_dict,fp_for_channel_to_tetrode_dict,fp_to_spiking_channel_tetrode_dict,fp_to_spike_tetrode_dictionary_samples_format,fp_to_sorted_spike_windows];
     if all(ismember(dict_fpths,already_done))
         send(q,[]);
@@ -65,7 +66,7 @@ parfor i=1:size(art_tetr_array,1)
     for j=1:length(channels_in_current_tetrode)
         channel_to_tetrode_dictionary("c"+string(channels_in_current_tetrode(j))) = i;
     end
-    get_slices_per_artificial_tetrode_ver_2(channels_in_current_tetrode,spike_windows_dir,dir_with_chan_recordings,timestamps,number_of_dps_per_slice,scale_factor,i,dict_fpths,min_z_score);
+    get_slices_per_artificial_tetrode_ver_2(channels_in_current_tetrode,spike_windows_dir,dir_with_chan_recordings,timestamps,number_of_dps_per_slice,scale_factor,i,dict_fpths,min_z_score,config);
     tetrode_dictionary = struct("tetrode_dictionary",tetrode_dictionary);
     channel_to_tetrode_dictionary = struct("channel_to_tetrode_dictionary",channel_to_tetrode_dictionary);
     par_save(fp_for_tetrode_dict,tetrode_dictionary);
