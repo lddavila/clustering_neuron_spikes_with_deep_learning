@@ -9,9 +9,14 @@ config = spikesort_config();
 % SKIPPABLE STEP: HERE I SET THE job location to a directory, need not be run generally
 % Put JobStorageLocation on node-local temp, NOT on GPFS
 if contains(pwd,"10595")
+    beginning = tic;
     c = parcluster('local');
     parpool(15);
     c.JobStorageLocation = pwd;
+    disp(c.JobStorageLocation);
+    parpool(c.NumWorkers, 'IdleTimeout', inf);
+    ending_time = toc(beginning);
+    fprintf("Starting Parallel Pool took %.2f seconds",ending_time);
 elseif contains(config.base_file_path,"afriedman")
     beginning = tic;
     disp("Using the afriedman")
