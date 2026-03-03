@@ -1,4 +1,5 @@
-function lratio = compute_lratio(peaks, other_peaks, dim)
+%updated by Luis David Davila and Alexander Friedman
+function the_computed_lratio = compute_lratio(the_waveform_peaks, the_other_cluster_peaks, the_dim)
 %COMPUTE_LRATIO Computes the LRatio between the cluster and the rest of the
 %recording based on peaks.
 %   lratio = compute_lratio(peaks, other_peaks) returns the lratio for all
@@ -14,21 +15,21 @@ function lratio = compute_lratio(peaks, other_peaks, dim)
 %   them.
 %
 %   See also RATE_CLUSTERS, COMPUTE_GRADINGS.
-    if isempty(other_peaks)
-        lratio = 0;
+    if isempty(the_other_cluster_peaks)
+        the_computed_lratio = 0;
         return
     end
-    num_cluster_spikes = size(peaks, 1);
-    numdims = size(peaks, 2);
+    num_cluster_spikes = size(the_waveform_peaks, 1);
+    numdims = size(the_waveform_peaks, 2);
     if nargin == 2
-        dim = 1:numdims;
+        the_dim = 1:numdims;
     end
     try
         %OG_LINE: dist = mahal(peaks(:, dim), other_peaks(:, dim));
-        dist = mahal_fixed_for_num_unstable(peaks(:, dim), other_peaks(:, dim));
+        dist = mahal_fixed_for_num_unstable(the_waveform_peaks(:, the_dim), the_other_cluster_peaks(:, the_dim));
     catch
-        lratio = Inf;
+        the_computed_lratio = Inf;
         return
     end
-    lratio = sum(1 - chi2cdf(dist, length(dim)))/num_cluster_spikes;
+    the_computed_lratio = sum(1 - chi2cdf(dist, length(the_dim)))/num_cluster_spikes;
 end

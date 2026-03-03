@@ -1,3 +1,4 @@
+%updated by Luis David Davila and Alexander Friedman
 function [final_grades, confidence] = compute_final_grades(grades, config)
 %COMPUTE_FINAL_GRADES Computes a final grade for each cluster based on the
 %various grades computed.

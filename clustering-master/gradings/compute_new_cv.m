@@ -1,12 +1,13 @@
-function [cv, mean_snr] = compute_new_cv(rep_wire, percent)
-    mean_spike = mean(rep_wire);
-    [starthalfpk, endhalfpk] = get_halfpeak_range(mean_spike, percent);
+%updated by Luis David Davila and Alexander Friedman
+function [the_cv, the_mean_snr] = compute_new_cv(the_rep_wire, the_percent)
+    mean_spike = mean(the_rep_wire);
+    [starthalfpk, endhalfpk] = get_halfpeak_range(mean_spike, the_percent);
     if isnan(starthalfpk) || isnan(endhalfpk)
-        cv = NaN;
-        mean_snr = NaN;
+        the_cv = NaN;
+        the_mean_snr = NaN;
         return
     end
-    halfpk = rep_wire(:, starthalfpk:endhalfpk);
+    halfpk = the_rep_wire(:, starthalfpk:endhalfpk);
     V = bsxfun(@minus, halfpk', mean(halfpk'))';
     mean_halfpk = mean_spike(starthalfpk:endhalfpk);
     mean_halfpk_cent = mean_halfpk - mean(mean_halfpk);
@@ -15,8 +16,8 @@ function [cv, mean_snr] = compute_new_cv(rep_wire, percent)
     A = sum(S .^ 2, 2);
     Err = sum(V .^ 2, 2) - A;
     snr = A ./ Err;
-    mean_snr = median(snr);
+    the_mean_snr = median(snr);
     each_cv = std(halfpk) ./ mean(halfpk);
-    cv = max(each_cv);
-    mean_snr = sum(A ./ sum(V .^2, 2) < 0.7) / length(A);
+    the_cv = max(each_cv);
+    the_mean_snr = sum(A ./ sum(V .^2, 2) < 0.7) / length(A);
 end

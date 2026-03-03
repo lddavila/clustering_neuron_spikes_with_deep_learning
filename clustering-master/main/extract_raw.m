@@ -1,4 +1,5 @@
-function [raw, timestamps, good_spike_idx, inputrange, threshvals, errmsg] = extract_raw(ntt_file, config)
+%updated by Luis David Davila and Alexander Friedman
+function [the_raw_data, the_timestamps, the_good_spike_idx, inputrange, threshvals, errmsg] = extract_raw(the_ntt_file, the_config)
 %EXTRACT_RAW Extracts information from an NTT file.
 %   [raw, timestamps, good_spike_idx, inputrange, threshvals, errmsg] =
 %   EXTRACT_RAW(ntt_file, config)
@@ -25,9 +26,9 @@ function [raw, timestamps, good_spike_idx, inputrange, threshvals, errmsg] = ext
 %   See also RUN_SPIKESORT_NTT_CORE, RUN_SPIKESORT_NTT, RUN_SPIKESORT.
 
     % Initialized return variables in case we need to return early.
-    raw = [];
-    timestamps = [];
-    good_spike_idx = [];
+    the_raw_data = [];
+    the_timestamps = [];
+    the_good_spike_idx = [];
     admax_val = NaN;
     adbit_vals = [];
     inputrange = [];
@@ -35,27 +36,27 @@ function [raw, timestamps, good_spike_idx, inputrange, threshvals, errmsg] = ext
     errmsg = '';
     
     try
-        [timestamps, samples, header] = dg_readSpike(ntt_file);
+        [the_timestamps, samples, header] = dg_readSpike(the_ntt_file);
     catch
         errmsg = 'Error reading NTT file.';
         return
     end
     
     % Clean up samples and timestamps in case there are timestamps of '0'
-    samples(:, :, timestamps == 0) = [];
-    timestamps(timestamps == 0) = [];
+    samples(:, :, the_timestamps == 0) = [];
+    the_timestamps(the_timestamps == 0) = [];
     
     if isempty(samples)
         errmsg = 'Empty tetrode.';
         return
     end
     
-    is_high_firing_rate = size(samples, 3) / (timestamps(end) - timestamps(1)) * 1e6 > config.MAX_FIRING_RATE;
-    is_too_many_spikes = size(samples, 3) > config.MAX_NUM_SPIKES;
+    is_high_firing_rate = size(samples, 3) / (the_timestamps(end) - the_timestamps(1)) * 1e6 > the_config.MAX_FIRING_RATE;
+    is_too_many_spikes = size(samples, 3) > the_config.MAX_NUM_SPIKES;
     
     if is_high_firing_rate || is_too_many_spikes
         % Probably horrible data.
-        timestamps = [];
+        the_timestamps = [];
         errmsg = 'Firing rate too high or too many spikes.';
         return
     end
@@ -97,13 +98,13 @@ function [raw, timestamps, good_spike_idx, inputrange, threshvals, errmsg] = ext
     numspikes = size(samples, 3);
     dp_volts = samples .* repmat(adbit_vals, [32 1 numspikes]);
     dp_mv = dp_volts * 1e6; % Microvolts
-    raw = permute(dp_mv, [2 3 1]);
+    the_raw_data = permute(dp_mv, [2 3 1]);
     
     if isempty(threshvals)
-        [~, repind] = max(max(raw, [], 3), [], 1);
-        threshvals = nan(size(raw, 1), 1);
-        for w = 1:size(raw, 1)
-            threshvals(w) = min(max(raw(w, repind==w, :), [], 3));
+        [~, repind] = max(max(the_raw_data, [], 3), [], 1);
+        threshvals = nan(size(the_raw_data, 1), 1);
+        for w = 1:size(the_raw_data, 1)
+            threshvals(w) = min(max(the_raw_data(w, repind==w, :), [], 3));
         end
     end
     if isempty(inputrange)
@@ -111,17 +112,17 @@ function [raw, timestamps, good_spike_idx, inputrange, threshvals, errmsg] = ext
     end
     
     % Find samples in which all four wires reach admax_val
-    wire_filter = find_live_wires(raw);
+    wire_filter = find_live_wires(the_raw_data);
     nonzero_samples = samples(:, wire_filter, :);
     
     minpeaks = shiftdim(min(max(nonzero_samples), [], 2), 2);
     maxvals = shiftdim(max(min(nonzero_samples), [], 2), 2);
     
     good_spike_filter = minpeaks < admax_val & maxvals > (-admax_val);
-    if sum(good_spike_filter) < config.MIN_NUMBER_OF_SPIKES
-        errmsg = sprintf('Fewer than %d good spikes', config.MIN_NUMBER_OF_SPIKES);
+    if sum(good_spike_filter) < the_config.MIN_NUMBER_OF_SPIKES
+        errmsg = sprintf('Fewer than %d good spikes', the_config.MIN_NUMBER_OF_SPIKES);
         return
     end
     
-    good_spike_idx = find(good_spike_filter);
+    the_good_spike_idx = find(good_spike_filter);
 end

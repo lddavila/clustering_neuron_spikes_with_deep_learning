@@ -1,4 +1,4 @@
-function output = prepare_manual_output(manual_clustered, filenames)
+function the_output = prepare_manual_output(the_manual_clustered, the_filenames)
 %PREPARE_MANUAL_OUTPUT Prepares manually clustered .mat files so that
 %future functions can work with a standardized structure.
 %   output = PREPARE_MANUAL_OUTPUT(manual_clustered, basename)
@@ -18,15 +18,15 @@ function output = prepare_manual_output(manual_clustered, filenames)
 %   - the second column contains the cluster classification of the spikes
 %       E.g., a value of '3' means that the spike belongs to cluster 3.
 
-    is_manual_clustered = exist(manual_clustered, 'dir');
+    is_manual_clustered = exist(the_manual_clustered, 'dir');
 
-    output = [];
+    the_output = [];
     
     if is_manual_clustered
         % First get a list of the .mat files that could correspond the NTT
         % file.
         
-        ttnum_r = regexp(lower(filenames.basename), '\d+', 'match');
+        ttnum_r = regexp(lower(the_filenames.basename), '\d+', 'match');
         ttnum = str2double(ttnum_r);
         
         % KYLE FORMAT:
@@ -36,21 +36,21 @@ function output = prepare_manual_output(manual_clustered, filenames)
         % KATY FORMAT:
 %         format_str = sprintf('*_%02d.mat', ttnum);
         % ALEXANDER FORMAT:
-        format_str = sprintf('%s*.mat', filenames.basename);
+        format_str = sprintf('%s*.mat', the_filenames.basename);
         
-        mat_files = dir(fullfile(manual_clustered, format_str));
+        mat_files = dir(fullfile(the_manual_clustered, format_str));
         manual_output = [];
         
         % If the number of such corresponding files is exactly 1, that's
         % the one. Otherwise, choose the one that matches best.
         if isscalar(mat_files)
-            clustered = load(fullfile(manual_clustered, mat_files.name));
+            clustered = load(fullfile(the_manual_clustered, mat_files.name));
         else
             clustered = [];
             for l = 1:length(mat_files)
                 f = mat_files(l);
-                if strcmp(f.name, sprintf('%s.mat', lower(filenames.basename)))
-                    clustered = load(fullfile(manual_clustered, f.name));
+                if strcmp(f.name, sprintf('%s.mat', lower(the_filenames.basename)))
+                    clustered = load(fullfile(the_manual_clustered, f.name));
                     break
                 end
             end
@@ -90,7 +90,7 @@ function output = prepare_manual_output(manual_clustered, filenames)
             % Only if we find those columns can we make our final output
             % matrix.
             if ~isempty(timestamp_col) && ~isempty(cluster_col)
-                output = [timestamp_col cluster_col];
+                the_output = [timestamp_col cluster_col];
             end
         end
     end

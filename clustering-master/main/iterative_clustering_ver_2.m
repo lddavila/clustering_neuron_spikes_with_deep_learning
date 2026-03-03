@@ -1,35 +1,36 @@
-function [clusters,peak_pcs ]= iterative_clustering_ver_2(aligned, ir, tvals, refine_spike_idx, subsets, config,peak_pcs_file_name)
-%version 2 returns the pcas AS WELL AS the clusters that the original
+%updated by Luis David Davila and Alexander Friedman
+function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_spikes, the_ir, the_tvals, the_refine_spike_idx, the_subsets, the_config,the_peak_pcs_file_name)
+%version 2 returns the pcs AS WELL AS the clusters that the original
 %returns
 %ITERATIVE_CLUSTERING Performs several iterations/passes of the same clustering
 %algorithm
 %   clusters = ITERATIVE_CLUSTERING(aligned, ir, tvals, refine_spike_idx,
 %   subsets, config) returns the final clusters.
 
-    peak_pcs = nan;
-    clusters = {};
-    peaks = get_peaks(aligned, true)';
-    total_num_spikes = size(aligned, 2);
+    the_peak_pcs = nan;
+    the_clusters = {};
+    peaks = get_peaks(the_aligned_spikes, true)';
+    total_num_spikes = size(the_aligned_spikes, 2);
     
-    num_std = config.params.IC_NUM_STD_REMOVE_CLUSTER;
+    num_std = the_config.params.IC_NUM_STD_REMOVE_CLUSTER;
     
     bad = {};
     %close all;
-    for k = 1:length(subsets)
-        filtered_idx = subsets{k};
+    for k = 1:length(the_subsets)
+        filtered_idx = the_subsets{k};
         
         % For each cluster, remove its mean + num_std*std for each of the peak
         % dimensions.
-        for c = 1:length(clusters)
-            cluster_idx = clusters{c};
+        for c = 1:length(the_clusters)
+            cluster_idx = the_clusters{c};
 
             cp = peaks(cluster_idx, :);
             coeff = pca(cp);
-            peak_pcs = nan(size(peaks, 1), min([size(aligned,1),2]));
-            for p = 1:size(peak_pcs,2)
-                peak_pcs(:, p) = peaks * coeff(:, p);
+            the_peak_pcs = nan(size(peaks, 1), min([size(the_aligned_spikes,1),2]));
+            for p = 1:size(the_peak_pcs,2)
+                the_peak_pcs(:, p) = peaks * coeff(:, p);
             end
-            data = [peaks, peak_pcs];
+            data = [peaks, the_peak_pcs];
             
             ints = true(total_num_spikes, 1);
            % close all;
@@ -57,18 +58,18 @@ function [clusters,peak_pcs ]= iterative_clustering_ver_2(aligned, ir, tvals, re
         
         % Run clustering with this pass of filtering as specified in
         % subsets, with everything removed above.
-        [cf, bad_tmp] = run_clustering(aligned, filtered_idx, ir, tvals, refine_spike_idx, config,peak_pcs_file_name);
+        [cf, bad_tmp] = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name);
         
-        if config.DO_BAD_CLUSTER_ROUND && ~isempty(bad)
+        if the_config.DO_BAD_CLUSTER_ROUND && ~isempty(bad)
             for c = 1:length(bad)
                 cluster_idx = bad{c};
                 cp = peaks(cluster_idx, :);
                 coeff = pca(cp);
-                peak_pcs = nan(size(peaks, 1), min([size(aligned,1),2]));
-                for p = 1:size(peak_pcs,2)
-                    peak_pcs(:, p) = peaks * coeff(:, p);
+                the_peak_pcs = nan(size(peaks, 1), min([size(the_aligned_spikes,1),2]));
+                for p = 1:size(the_peak_pcs,2)
+                    the_peak_pcs(:, p) = peaks * coeff(:, p);
                 end
-                data = [peaks, peak_pcs];
+                data = [peaks, the_peak_pcs];
 
                 ints = true(total_num_spikes, 1);
                 for d = 1:size(data, 2)
@@ -90,14 +91,14 @@ function [clusters,peak_pcs ]= iterative_clustering_ver_2(aligned, ir, tvals, re
             end
 
             % Run clustering again with bad clusters also removed.
-            cf_bad = run_clustering(aligned, filtered_idx, ir, tvals, refine_spike_idx, config,peak_pcs_file_name);
+            cf_bad = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name);
         else
             cf_bad = {};
         end
         
         % In case any of the new clusters overlap with the old ones, fix
         % overlaps.
-        clusters = fix_cluster_overlaps(aligned, [clusters, cf, cf_bad], config);
+        the_clusters = fix_cluster_overlaps(the_aligned_spikes, [the_clusters, cf, cf_bad], the_config);
         % disp("Length of Clusters" + string(length(clusters)));
         bad = bad_tmp;
     end

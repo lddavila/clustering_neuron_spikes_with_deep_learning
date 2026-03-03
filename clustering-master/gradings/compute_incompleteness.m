@@ -1,4 +1,5 @@
-function below_threshold = compute_incompleteness(peaks, tval)
+%updated by Luis David Davila and Alexander Friedman
+function is_it_below_threshold = compute_incompleteness(the_waveform_peaks, the_channel_tval)
 %COMPUTE_INCOMPLETENESS Computes the incompleteness grade of the cluster.
 %   below_threshold = COMPUTE_INCOMPLETENESS(peaks, tvals) returns the
 %   percent of the cluster theoretically below threshold (i.e., how
@@ -10,7 +11,7 @@ function below_threshold = compute_incompleteness(peaks, tval)
 %   'tval' is the threshold values for the representative wire in
 %   microvolts.
 
-    [n, xout] = hist(peaks, 21);
+    [n, xout] = hist(the_waveform_peaks, 21);
     % mean_of_data = mean(peaks,"all");
     % mode_of_data = mode(peaks,"all");
     % median_of_data = median(peaks,"all");
@@ -25,7 +26,7 @@ function below_threshold = compute_incompleteness(peaks, tval)
     theo_vals = [theo_bottom_half xout(max_n) xout(max_n + 1:end)];
     half = n(max_n+1:end);
     theo_n = [half(end:-1:1) n(max_n) half];
-    below_threshold = sum(theo_n(theo_vals < tval))/sum(theo_n);
+    is_it_below_threshold = sum(theo_n(theo_vals < the_channel_tval))/sum(theo_n);
 
 end
 

@@ -1,4 +1,5 @@
-function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, ir, tvals, config,channels)
+%this function has been edited by Luis David Davila and Alexander Friedman
+function [the_aligned, the_cleaned_clusters, the_grades] = spikesort_ver_2(the_raw, the_timestamps, the_ir, the_tvals, the_config,the_channels)
 %SPIKESORT Performs the main spike sorting algorithm.
 %   [aligned, new_cluster_filters, gradings] = SPIKESORT(raw, timestamps,
 %   ir, tvals, config)
@@ -25,20 +26,20 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
 %   is the number of grades.
 
     % Remove wires with no data.
-    wire_filter = find_live_wires(raw);
+    wire_filter = find_live_wires(the_raw);
     
-    r_raw = raw(wire_filter, :, :);
-    r_ir = ir(wire_filter);
-    r_tvals = tvals(wire_filter);
-    if ~config.DEBUG
-        clear raw ir tvals
+    r_raw = the_raw(wire_filter, :, :);
+    r_ir = the_ir(wire_filter);
+    r_tvals = the_tvals(wire_filter);
+    if ~the_config.DEBUG
+        clear the_raw the_ir the_tvals
     end
     
     num_spikes = size(r_raw, 2);
     default_filter = true(num_spikes, 1); % Ignores no spikes
     
     % Align spikes to peak, each wire independently
-    aligned = align_to_peak_ver_2(r_raw, r_tvals, r_ir);
+    the_aligned = align_to_peak_ver_2(r_raw, r_tvals, r_ir);
     
     % if sum(wire_filter) < 2 % Need at least live 2 wires.
     %     cleaned_clusters = {};
@@ -47,18 +48,18 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
     % end
     
     % Compute timestamp and SNR filters
-    if config.USE_TIMESTAMP_FILTER && length(timestamps) > 20000
-        timestamp_filter = compute_timestamp_filter(timestamps);
+    if the_config.USE_TIMESTAMP_FILTER && length(the_timestamps) > 20000
+        timestamp_filter = compute_timestamp_filter(the_timestamps);
     else
         timestamp_filter = default_filter;
     end
     
-    num_iterations = max(config.NUM_ITERATIONS, 1);
+    num_iterations = max(the_config.NUM_ITERATIONS, 1);
     snr_filters = repmat(default_filter, [1, num_iterations]);
     
-    if config.USE_SNR_FILTER && num_spikes > 10000
+    if the_config.USE_SNR_FILTER && num_spikes > 10000
         good_filters = true(num_iterations, 1);
-        pmv = compute_snr_statistic(aligned, r_raw, r_tvals, r_ir);
+        pmv = compute_snr_statistic(the_aligned, r_raw, r_tvals, r_ir);
         if num_iterations == 2
             snr_threshs = 0;
         elseif num_iterations == 3
@@ -82,7 +83,7 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
     end
     
     % Compute the whitening filter on the space of peaks
-    peaks = get_peaks(aligned, true)'; 
+    peaks = get_peaks(the_aligned, true)'; 
     %a s by c array
         %c: number of channels
         %s: number of spikes
@@ -97,7 +98,7 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
         % function back into the original set of indices
         combined_idx_inj = find(combined_filter);
         
-        if config.USE_DENSITY_FILTER && ...
+        if the_config.USE_DENSITY_FILTER && ...
             (num_iterations == 1 || k < num_iterations)
             % Only apply density filter on the final iteration if there is
             % only one iteration to do.
@@ -115,17 +116,17 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
     refine_spike_idx = find(refine_filter);
     
     % Run multiple iterations of the cluster algorithm
-    [clusters,peak_pcs] = iterative_clustering(aligned, r_ir, r_tvals, ...
-        refine_spike_idx, preproc_idx, config);
+    [clusters,peak_pcs] = iterative_clustering(the_aligned, r_ir, r_tvals, ...
+        refine_spike_idx, preproc_idx, the_config);
 
     %OG lines are from 122 to 123
     %clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
     %    refine_spike_idx, preproc_idx, config);
     
     % Optionally do PC1 cleaning afterward
-    if ~isempty(clusters) && config.USE_PC1_CLEANING
-        cleaned_clusters = cell(size(clusters));
-        pcs = get_new_pcs(aligned, true);
+    if ~isempty(clusters) && the_config.USE_PC1_CLEANING
+        the_cleaned_clusters = cell(size(clusters));
+        pcs = get_new_pcs(the_aligned, true);
         pc1 = pcs(:,:,1)';
         for c = 1:length(clusters)
             cl_idx = clusters{c};
@@ -139,12 +140,12 @@ function [aligned, cleaned_clusters, grades] = spikesort_ver_2(raw, timestamps, 
             
             %OG LINE:m2 = mahal(cl2(:, dim_filter), cl2(:, dim_filter));
             m2 = mahal_fixed_for_num_unstable(cl2(:, dim_filter), cl2(:, dim_filter));
-            cleaned_clusters{c} = cl2_idx(m2 < median(m2) + 2*std(m2));
+            the_cleaned_clusters{c} = cl2_idx(m2 < median(m2) + 2*std(m2));
         end
     else
-        cleaned_clusters = clusters;
+        the_cleaned_clusters = clusters;
     end
     
     % Finally compute grades
-    grades = compute_gradings_ver_2(aligned, timestamps, r_tvals, cleaned_clusters, config);
+    the_grades = compute_gradings_ver_2(the_aligned, the_timestamps, r_tvals, the_cleaned_clusters, the_config);
 end

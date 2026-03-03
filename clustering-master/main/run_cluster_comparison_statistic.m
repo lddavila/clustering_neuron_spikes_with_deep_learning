@@ -1,4 +1,5 @@
-function run_cluster_comparison_statistic(aligned, tvals, timestamps, output, manual_output, stat_filename, config)
+%updated by Luis David Davila and Alexander Friedman
+function run_cluster_comparison_statistic(the_aligned_wf, the_tvals, the_timestamps, the_output, the_manual_output, the_stat_filename, the_config)
 %RUN_CLUSTER_COMPARISON_STATISTIC Compares algorithm's output to manually
 %clustered output, and saves the result to a file.
 %   RUN_CLUSTER_COMPARISON_STATISTIC(aligned, tvals, timestamps, output,
@@ -23,14 +24,14 @@ function run_cluster_comparison_statistic(aligned, tvals, timestamps, output, ma
 %
 %   'stat_filename' is the filename to which to save the results.
 
-    ts_seconds = timestamps / 1e6;
-    peaks = get_peaks(aligned, true)';
-    if isempty(output)
+    ts_seconds = the_timestamps / 1e6;
+    peaks = get_peaks(the_aligned_wf, true)';
+    if isempty(the_output)
         cf = {};
     else
-        cf = extract_clusters_from_output(ts_seconds, output, config.spikesort);
+        cf = extract_clusters_from_output(ts_seconds, the_output, the_config.spikesort);
     end
-    cf_manual = extract_clusters_from_output(ts_seconds, manual_output, config.spikesort);
+    cf_manual = extract_clusters_from_output(ts_seconds, the_manual_output, the_config.spikesort);
     found = false(size(cf_manual));
     stat = nan(length(cf_manual), length(cf));
     for c1 = 1:length(cf)
@@ -47,6 +48,6 @@ function run_cluster_comparison_statistic(aligned, tvals, timestamps, output, ma
         end
     end
     clusters_found = find(found);
-    manual_gradings = compute_gradings_ver_2(aligned, timestamps, tvals, cf_manual, config.spikesort);
-    save_stat(stat_filename, stat, clusters_found, manual_gradings);
+    manual_gradings = compute_gradings_ver_2(the_aligned_wf, the_timestamps, the_tvals, cf_manual, the_config.spikesort);
+    save_stat(the_stat_filename, stat, clusters_found, manual_gradings);
 end
