@@ -1,4 +1,5 @@
-function [count edges mid loc] = histcn(X, varargin)
+%edited by Luis David Davila and Alexander Friedman
+function [the_count the_edges the_mid the_loc] = histcn(the_X, varargin)
 % function [count edges mid loc] = histcn(X, edge1, edge2, ..., edgeN)
 %
 % Purpose: compute n-dimensional histogram
@@ -59,7 +60,7 @@ function [count edges mid loc] = histcn(X, varargin)
 % Bruno Luong: <brunoluong@yahoo.com>
 % Last update: 25/August/2011
 
-if ndims(X)>2
+if ndims(the_X)>2
     error('histcn: X requires to be an (M x N) array of M points in R^N');
 end
 DEFAULT_NBINS = 32;
@@ -82,30 +83,30 @@ if ~isempty(split)
 end
 
 % Get the dimension
-nd = size(X,2);
-edges = varargin;
-if nd<length(edges)
-    nd = length(edges); % wasting CPU time warranty
+nd = size(the_X,2);
+the_edges = varargin;
+if nd<length(the_edges)
+    nd = length(the_edges); % wasting CPU time warranty
 else
-    edges(end+1:nd) = {DEFAULT_NBINS};
+    the_edges(end+1:nd) = {DEFAULT_NBINS};
 end
 
 % Allocation of array loc: index location of X in the bins
-loc = zeros(size(X));
+the_loc = zeros(size(the_X));
 sz = zeros(1,nd);
 % Loop in the dimension
 for d=1:nd
-    ed = edges{d};
-    Xd = X(:,d);
+    ed = the_edges{d};
+    Xd = the_X(:,d);
     if isempty(ed)
         ed = DEFAULT_NBINS;
     end
     if isscalar(ed) % automatic linear subdivision
         ed = linspace(min(Xd),max(Xd),ed+1);
     end
-    edges{d} = ed;
+    the_edges{d} = ed;
     % Call histc on this dimension
-    [dummy loc(:,d)] = histc(Xd, ed, 1);
+    [dummy the_loc(:,d)] = histc(Xd, ed, 1);
     % Use sz(d) = length(ed); to create consistent number of bins
     sz(d) = length(ed)-1;
 end % for-loop
@@ -114,10 +115,10 @@ end % for-loop
 clear dummy
 
 % This is need for seldome points that hit the right border
-sz = max([sz; max(loc,[],1)]);
+sz = max([sz; max(the_loc,[],1)]);
 
 % Compute the mid points
-mid = cellfun(@(e) 0.5*(e(1:end-1)+e(2:end)), edges, ...
+the_mid = cellfun(@(e) 0.5*(e(1:end-1)+e(2:end)), the_edges, ...
               'UniformOutput', false);
           
 % Count for points where all coordinates are falling in a corresponding
@@ -126,11 +127,11 @@ if nd==1
     sz = [sz 1]; % Matlab doesn't know what is one-dimensional array!
 end
 
-hasdata = all(loc>0, 2);
+hasdata = all(the_loc>0, 2);
 if ~isempty(AccumData)
-    count = accumarray(loc(hasdata,:), AccumData(hasdata), sz, Fun{:});
+    the_count = accumarray(the_loc(hasdata,:), AccumData(hasdata), sz, Fun{:});
 else
-    count = accumarray(loc(hasdata,:), 1, sz);
+    the_count = accumarray(the_loc(hasdata,:), 1, sz);
 end
 
 return

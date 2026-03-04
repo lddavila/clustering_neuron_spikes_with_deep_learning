@@ -1,4 +1,5 @@
-function new_statistics(results)
+%edited by Luis David Davila and Alexander Friedman
+function new_statistics(the_results)
 %NEW_STATISTICS New way of analyzing statistics results.
 %   NEW_STATISTICS(results)
 %
@@ -7,7 +8,7 @@ function new_statistics(results)
 %   See also GET_STATS.
 
     fprintf('Manual clusters found by computer:\n')
-    [tc1, mtc1, btc1, find_ratio, med_find_ratio, bad_find_ratio, hgs, gs] = new_statistics_inner(results, true);
+    [tc1, mtc1, btc1, find_ratio, med_find_ratio, bad_find_ratio, hgs, gs] = new_statistics_inner(the_results, true);
     fprintf('5 find ratio: %.2f\n', 100* gs.g5.fc/gs.g5.tc);
     fprintf('4 find ratio: %.2f\n', 100* gs.g4.fc/gs.g4.tc);
     fprintf('3 find ratio: %.2f\n', 100 * gs.g3.fc/gs.g3.tc);

@@ -1,3 +1,4 @@
+%edited by Luis David Davila and Alexander Friedman
 % NLX2MATSPIKE Imports data from Neuralynx NSE, NST and NTT files to Matlab variables.
 %
 %  [Timestamps, ScNumbers, CellNumbers, Features, Samples, Header] =Nlx2MatSpike( Filename, FieldSelectionFlags,HeaderExtractionFlag, ExtractMode, ExtractionModeVector);

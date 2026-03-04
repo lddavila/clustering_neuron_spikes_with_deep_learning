@@ -1,10 +1,11 @@
-function run_kk_compare(filename, clu_dir, out_dir)
-    f = fopen(filename);
+%edited by Luis David Davila and Alexander Friedman
+function run_kk_compare(the_filename, the_clu_dir, the_out_dir)
+    f = fopen(the_filename);
     g = textscan(f,'%s','delimiter','\n');
     fclose(f);
     ntt_files = sort(g{1});
     
-    clu_files = dir(fullfile(clu_dir, '*.clu.0'));
+    clu_files = dir(fullfile(the_clu_dir, '*.clu.0'));
     if isempty(clu_files)
         fprintf('Clustered files not found.\n')
         return
@@ -20,7 +21,7 @@ function run_kk_compare(filename, clu_dir, out_dir)
     count = 0;
     
     for k = 1:length(clu_files)
-        clu_filename = fullfile(clu_dir, clu_files{k});
+        clu_filename = fullfile(the_clu_dir, clu_files{k});
         [~, basename, ~] = fileparts(clu_filename);
         ntt_scan = textscan(basename, 'tt%d');
         ntt_idx = ntt_scan{1};
@@ -47,7 +48,7 @@ function run_kk_compare(filename, clu_dir, out_dir)
         % Work with the clustered files now
         [kk_cf, kk_output] = get_kk_cf(clu_filename, ts_seconds);
         
-        run_comparison(raw, timestamps, ir, tvals, config, output, kk_cf, kk_output, basename, out_dir);
+        run_comparison(raw, timestamps, ir, tvals, config, output, kk_cf, kk_output, basename, the_out_dir);
         count = count + 1;
     end
     fprintf('Count: %d\n', count);

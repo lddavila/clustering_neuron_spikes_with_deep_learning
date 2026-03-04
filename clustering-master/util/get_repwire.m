@@ -1,10 +1,11 @@
-function repwire = get_repwire(raw, tvals, ir)
+%edited by Luis David Davila and Alexander Friedman
+function the_repwire = get_repwire(the_raw, the_tvals, the_ir)
 %GET_REPWIRE Gets the representative recording of each spike
-    numwires = size(raw, 1);
-    numspikes = size(raw, 2);
-    numdp = size(raw, 3);
-    [peaks, pks_idx] = max(raw, [], 3);
-    maxvals = repmat(ir, 1, numspikes) - 0.1;
+    numwires = size(the_raw, 1);
+    numspikes = size(the_raw, 2);
+    numdp = size(the_raw, 3);
+    [peaks, pks_idx] = max(the_raw, [], 3);
+    maxvals = repmat(the_ir, 1, numspikes) - 0.1;
     peaks(peaks >= maxvals) = -inf;
     
     [~, ind] = sort(peaks, 'descend');
@@ -16,10 +17,10 @@ function repwire = get_repwire(raw, tvals, ir)
 %         
 %     end
     
-    repwire = nan(numspikes, numdp);
+    the_repwire = nan(numspikes, numdp);
     for wire = 1:numwires
         vals = find(ind(1, :) == wire);
-        r = squeeze(raw(wire, vals, :));
+        r = squeeze(the_raw(wire, vals, :));
         valleys_idx = find_peaks(r * (-1));
         for s = 1:length(vals)
             val = vals(s);
@@ -28,14 +29,14 @@ function repwire = get_repwire(raw, tvals, ir)
             if ~isempty(first_valley_before)
                 for w2 = 2:size(ind, 1)
                     wire2 = ind(w2, val);
-                    if peaks(wire2, val) >= tvals(wire2) - 0.1 && ...
+                    if peaks(wire2, val) >= the_tvals(wire2) - 0.1 && ...
                             abs(pks_idx(wire2, val) - first_valley_before) <= max_pos_spike_dist
-                        r(s, :) = squeeze(raw(ind(w2, val), val, :));
+                        r(s, :) = squeeze(the_raw(ind(w2, val), val, :));
                         break
                     end
                 end
             end
         end
-        repwire(vals, :) = r;
+        the_repwire(vals, :) = r;
     end
 end

@@ -1,3 +1,4 @@
+%edited by Luis David Davila and Alexander Friedman
 % MAT2NLXSPIKE   Exports data from Matlab into a Neuralynx NSE, NST or NTT file.
 %
 %   Mat2NlxSpike( Filename, AppendToFileFlag, ExportMode, ExportModeVector,

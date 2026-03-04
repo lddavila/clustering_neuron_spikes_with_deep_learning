@@ -1,4 +1,5 @@
-function results = get_stats(directory)
+%edited by Luis David Davila and Alexander Friedman
+function the_results = get_stats(the_directory)
 %GET_STATS Finds all "_stat" output files and collects statistics for a
 %given directory of spike sorting results.
 %   results = GET_STATS(directory)
@@ -7,24 +8,24 @@ function results = get_stats(directory)
 %
 %   'results' is a cell array containing results for each stat file found.
 
-    results = [];
-    mat_files = dir(fullfile(directory, '*.mat'));
+    the_results = [];
+    mat_files = dir(fullfile(the_directory, '*.mat'));
     if isempty(mat_files)
         % Look at all subdirectories
-        all_files = dir(directory);
+        all_files = dir(the_directory);
         folders = all_files([all_files.isdir]);
         folders = sort({folders.name});
         for folder = folders
             name = folder{1};
             if ~isempty(name) && ~strcmp(name(1), '.')
-                tmp = get_stats(fullfile(directory, name));
-                results = [results tmp];
+                tmp = get_stats(fullfile(the_directory, name));
+                the_results = [the_results tmp];
             end
         end
         return
     end
     mat_files = sort({mat_files.name});
-    results = cell(1, length(mat_files));
+    the_results = cell(1, length(mat_files));
     for k = 1:length(mat_files)
         filename = mat_files{k};
         if ~isempty(regexp(filename, '.+_(coact|new|multispike|info|class|stat)\.', 'match'))
@@ -32,10 +33,10 @@ function results = get_stats(directory)
         end
         [~, corename, ~] = fileparts(filename);
         try
-            info_file = fullfile(directory, sprintf('%s_info.mat', corename));
-            stat_file = fullfile(directory, sprintf('%s_stat.mat', corename));
+            info_file = fullfile(the_directory, sprintf('%s_info.mat', corename));
+            stat_file = fullfile(the_directory, sprintf('%s_stat.mat', corename));
             if ~exist(stat_file, 'file') || ~exist(info_file, 'file')
-                fprintf('%s missing stat file\n', fullfile(directory, filename));
+                fprintf('%s missing stat file\n', fullfile(the_directory, filename));
                 continue
             end
             info = load(info_file);
@@ -120,7 +121,7 @@ function results = get_stats(directory)
                         'manual_gradings', stats.manual_gradings, ...
                         'clusters_found', stats.clusters_found, ...
                         'orig', info.orig_filename);
-        results{k} = result;
+        the_results{k} = result;
     end
-    results = cell2mat(results(~cellfun(@isempty, results)));
+    the_results = cell2mat(the_results(~cellfun(@isempty, the_results)));
 end

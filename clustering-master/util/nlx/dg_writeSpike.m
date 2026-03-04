@@ -1,4 +1,5 @@
-function dg_writeSpike(filename, TS, Samples, Hdr, varargin)
+%edited by Luis David Davila and Alexander Friedman
+function dg_writeSpike(the_filename, the_TS, the_Samples, the_Hdr, varargin)
 %dg_writeSpike(filename, TS, Samples, Hdr)
 % Only works for Windows.  Writes in Single Electrode format if <Samples>
 % is 2-D or has just a single column; Stereotrode format if <Samples> has
@@ -37,7 +38,7 @@ while argnum <= length(varargin)
 end
 
 if isempty(cellnums)
-    cellnums = zeros(size(TS));
+    cellnums = zeros(size(the_TS));
 else
     cellnums = reshape(cellnums, 1, []);
 end
@@ -45,29 +46,29 @@ end
 % NOTE: Mat2NlxSE_411 seems to have some sort of problem with header lines
 % that contain more than 126 characters, and replaces characters number 127
 % and 128 with a line break (CR/LF, I assume).
-if nargin < 4 || isempty(Hdr)
-    Hdr = {'######## Neuralynx Data File Header '
-        sprintf('## File Name: %s ', filename)
+if nargin < 4 || isempty(the_Hdr)
+    the_Hdr = {'######## Neuralynx Data File Header '
+        sprintf('## File Name: %s ', the_filename)
         sprintf('## Time Opened: %s ', datestr(now))
         '## written by dg_writeSpike '
         ' '
         };
 end
 
-if size(Samples,1) ~= 32
+if size(the_Samples,1) ~= 32
     error('dg_writeSpike:Samples', 'There must be 32 Samples per trigger');
 end
 
-if length(size(Samples)) < 3 || size(Samples,2) == 1
+if length(size(the_Samples)) < 3 || size(the_Samples,2) == 1
     numwires = 1;
-elseif size(Samples,2) == 2
+elseif size(the_Samples,2) == 2
     numwires = 2;
-elseif size(Samples,2) == 4
+elseif size(the_Samples,2) == 4
     numwires = 4;
 else
     error('dg_writeSpike:Samples2', 'Bad format for Samples');
 end
-[p, n, ext] = fileparts(filename);
+[p, n, ext] = fileparts(the_filename);
 switch upper(ext)
     case '.NSE'
         if numwires ~= 1
@@ -89,18 +90,18 @@ switch upper(ext)
         end
 end
 if ispc
-    Mat2NlxTT_411(filename, 0, 1, 1, length(TS), [1 0 1 0 1 1], TS, ...
-                cellnums, Samples, Hdr);
+    Mat2NlxTT_411(the_filename, 0, 1, 1, length(the_TS), [1 0 1 0 1 1], the_TS, ...
+                cellnums, the_Samples, the_Hdr);
 else
     switch numwires
         case 1
-            Mat2NlxSE(filename, 0, 1, 1, length(TS), [1 0 1 0 1 1], TS, ...
-                cellnums, Samples, Hdr);
+            Mat2NlxSE(the_filename, 0, 1, 1, length(the_TS), [1 0 1 0 1 1], the_TS, ...
+                cellnums, the_Samples, the_Hdr);
         case 2
-            Mat2NlxTS(filename, 0, 1, 1, length(TS), [1 0 1 0 1 1], TS, ...
-                cellnums, Samples, Hdr);
+            Mat2NlxTS(the_filename, 0, 1, 1, length(the_TS), [1 0 1 0 1 1], the_TS, ...
+                cellnums, the_Samples, the_Hdr);
         case 4
-            Mat2NlxTT(filename, 0, 1, 1, length(TS), [1 0 1 0 1 1], TS, ...
-                cellnums, Samples, Hdr);
+            Mat2NlxTT(the_filename, 0, 1, 1, length(the_TS), [1 0 1 0 1 1], the_TS, ...
+                cellnums, the_Samples, the_Hdr);
     end
 end

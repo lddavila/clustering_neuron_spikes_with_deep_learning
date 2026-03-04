@@ -1,4 +1,5 @@
-function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps, tvals)
+%edited by Luis David Davila and Alexander Friedman
+function [the_extracted_spikes, the_new_timestamps] = extract_spikes(the_spikes, the_timestamps, the_tvals)
 %EXTRACT_SPIKES Extracts spikes from a single recording window.
 %   [extracted_spikes, new_timestamps] = EXTRACT_SPIKES(spikes, timestamps,
 %   tvals)
@@ -19,8 +20,8 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
 %   spikes to more accurately distinguish the multiple spikes in the
 %   window.
 
-    [numwires, numspikes, numdp] = size(spikes);
-    p_spikes = permute(spikes, [3 1 2]);
+    [numwires, numspikes, numdp] = size(the_spikes);
+    p_spikes = permute(the_spikes, [3 1 2]);
     
     mindist = ceil(0.25 * numdp); % 250 Microseconds, min distance between the peaks of two spikes
     
@@ -29,7 +30,7 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
     
     % Find peaks and valleys for all spikes (local min/max)
     for w = 1:numwires
-        wire = shiftdim(spikes(w, :, :), 1);
+        wire = shiftdim(the_spikes(w, :, :), 1);
         pks(w, :) = find_peaks(wire);
         vals(w, :) = find_peaks(wire * (-1));
     end
@@ -37,8 +38,8 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
     % Process each spike
     extended_len = numdp;
     spike_buffer = 2*numspikes;
-    extracted_spikes = zeros(numwires, spike_buffer, extended_len);
-    new_timestamps = nan(1, spike_buffer);
+    the_extracted_spikes = zeros(numwires, spike_buffer, extended_len);
+    the_new_timestamps = nan(1, spike_buffer);
     cur_spike = 1;
     for s = 1:numspikes
         spike = p_spikes(:, :, s);
@@ -52,7 +53,7 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
             peak_idx = pks{w, s};
             vals_idx = vals{w, s};
             
-            poss_peaks = peak_idx(x(peak_idx) >= 0.99 * tvals(w));
+            poss_peaks = peak_idx(x(peak_idx) >= 0.99 * the_tvals(w));
             [~, ind] = max(spike(poss_peaks, :), [], 2);
             test_peaks = poss_peaks(ind == w);
             
@@ -65,7 +66,7 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
                 if isempty(p2)
                     p2 = numdp;
                 end
-                low_valley = find(p1 < vals_idx & vals_idx < p2 & x(vals_idx) < tvals(w)/2, 1);
+                low_valley = find(p1 < vals_idx & vals_idx < p2 & x(vals_idx) < the_tvals(w)/2, 1);
                 if ~isempty(low_valley)
                     keep_peaks(end+1) = p1;
                 end
@@ -182,8 +183,8 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
                 % TODO: Offset the other wires by the same offset as the
                 % peak instead of just using spike_range for all wires
                 extracted_spike = spike(spike_range, :);
-                extracted_spikes(:, cur_spike, insert_idx) = extracted_spike';
-                new_timestamps(cur_spike) = timestamps(s) + (lower - 1)*1e3/numdp;
+                the_extracted_spikes(:, cur_spike, insert_idx) = extracted_spike';
+                the_new_timestamps(cur_spike) = the_timestamps(s) + (lower - 1)*1e3/numdp;
                 cur_spike = cur_spike + 1;
             end
             if corrupted
@@ -192,6 +193,6 @@ function [extracted_spikes, new_timestamps] = extract_spikes(spikes, timestamps,
         end
     end
     extra_range = cur_spike:spike_buffer;
-    extracted_spikes(:, extra_range, :) = [];
-    new_timestamps(extra_range) = [];
+    the_extracted_spikes(:, extra_range, :) = [];
+    the_new_timestamps(extra_range) = [];
 end

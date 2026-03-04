@@ -1,4 +1,4 @@
-function dg_cutClust2Nlx(clustfile, nlxfile)
+function dg_cutClust2Nlx(the_clustfile, the_nlxfile)
 %dg_cutClust2Nlx(clustfile, nlxfile)
 % Creates an appropriately formatted Neuralynx file to represent the data
 % in <clustfile>.  Uses the CellNumbers field to store cluster numbers.  If
@@ -18,7 +18,7 @@ function dg_cutClust2Nlx(clustfile, nlxfile)
 %$Date: 2012-11-14 17:33:14 -0500 (Wed, 14 Nov 2012) $
 %$Author: dgibson $
 
-S = load(clustfile);
+S = load(the_clustfile);
 fields = fieldnames(S);
 % <clustdata> is in spikes X [TS clustnum samples] format:
 clustdata = S.(fields{1});
@@ -62,7 +62,7 @@ switch size(datapts,2)
 end
 Hdr = {
     '######## Neuralynx Data File Header'
-    sprintf('## File Name: %s ', clustfile)
+    sprintf('## File Name: %s ', the_clustfile)
     sprintf('## Time Opened: (m/d/y): %s  At Time: %s ', ...
     datestr(now, 2), datestr(now, 2))
     '## Converted by dg_cutClust2Nlx '
@@ -73,7 +73,7 @@ Hdr = {
     sprintf('-NumADChannels %d ', size(datapts,2));
     ' '
     };
-dg_writeSpike( nlxfile, round(1e6 * reshape(clustdata(:,1), 1, [])), ...
+dg_writeSpike( the_nlxfile, round(1e6 * reshape(clustdata(:,1), 1, [])), ...
     round(datapts/adbitmicrovolts), Hdr, 'cellnums', ...
     reshape(clustdata(:,2), 1, []) );
 

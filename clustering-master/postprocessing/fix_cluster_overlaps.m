@@ -1,4 +1,5 @@
-function cf = fix_cluster_overlaps(source, cf, config)
+%edited by Luis David Davila and Alexander Friedman
+function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config)
 %FIX_CLUSTER_OVERLAPS Settles ties between clusters when a certain spike
 %appears in two clusters. If many spikes overlap, the clusters are merged.
 %   cf = FIX_CLUSTER_OVERLAPS(source, cf)
@@ -10,16 +11,16 @@ function cf = fix_cluster_overlaps(source, cf, config)
 %
 %   'cf' is a cell array of indices for each cluster.
 
-    if length(cf) > 1
-        peaks = get_peaks(source, true);
+    if length(the_cf) > 1
+        peaks = get_peaks(the_source, true);
         data = peaks';
-        for k = 1:length(cf)-1
-            ck = cf{k};
+        for k = 1:length(the_cf)-1
+            ck = the_cf{k};
             if isempty(ck)
                 continue
             end
-            for l = k+1:length(cf)
-                cl = cf{l};
+            for l = k+1:length(the_cf)
+                cl = the_cf{l};
                 if isempty(cl)
                     continue
                 end
@@ -49,25 +50,25 @@ function cf = fix_cluster_overlaps(source, cf, config)
                     end
                     both_clusters = union(ck, cl);
                     thresh_min = min(length(ck), length(cl)) * ...
-                        config.params.FO_MIN_OVERLAP_PERCENT;
+                        the_config.params.FO_MIN_OVERLAP_PERCENT;
                     if length(isect) > thresh_min
                         if sum(m_k < m_l) > sum(m_l < m_k)
                             ck = both_clusters;
                             cl = [];
                         else
-                            cf{k} = [];
-                            cf{l} = both_clusters;
+                            the_cf{k} = [];
+                            the_cf{l} = both_clusters;
                             break
                         end
                     else
                         ck = union(excl_ck, isect(m_k < m_l));
                         cl = union(excl_cl, isect(m_l < m_k));
                     end
-                    cf{k} = ck;
-                    cf{l} = cl;
+                    the_cf{k} = ck;
+                    the_cf{l} = cl;
                 end
             end
         end
     end
-    cf = cf(~cellfun('isempty', cf));
+    the_cf = the_cf(~cellfun('isempty', the_cf));
 end

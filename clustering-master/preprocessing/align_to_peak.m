@@ -1,4 +1,5 @@
-function aligned = align_to_peak(spikes, tvals, ir)
+%edited by Luis David Davila and Alexander Friedman
+function the_aligned = align_to_peak(the_spikes, the_tvals, the_ir)
 %ALIGN_TO_PEAK Aligns spikes so that the peak for all spikes is in the same
 %index.
 %   aligned = ALIGN_TO_PEAK(spikes, tvals, ir)
@@ -19,15 +20,15 @@ function aligned = align_to_peak(spikes, tvals, ir)
 %   It is the same as 'raw', but with spikes aligned to have the same peak
 %   index.
 
-    [numwires, numspikes, numdp] = size(spikes);
+    [numwires, numspikes, numdp] = size(the_spikes);
     % rep = get_repwire(spikes, tvals, ir);
     
     align_peak = round(numdp * 0.2); % 200 microsecond mark
     
     numaligneddp = round(numdp*1.25);
-    aligned = zeros(numwires, numspikes, numaligneddp);
+    the_aligned = zeros(numwires, numspikes, numaligneddp);
     
-    p_spikes = permute(spikes, [3 1 2]);
+    p_spikes = permute(the_spikes, [3 1 2]);
     
     new_align_peak = round(0.75 * (numaligneddp - numdp)) + align_peak;
     for w = 1:numwires
@@ -50,7 +51,7 @@ function aligned = align_to_peak(spikes, tvals, ir)
             else
                 al_spike = p_spikes(:, w, s);
             end
-            aligned(w, s, n_range) = al_spike;
+            the_aligned(w, s, n_range) = al_spike;
         end
     end
 end

@@ -1,4 +1,5 @@
-function [TS, Samples, Hdr] = dg_readSpike(filename, varargin)
+%edited by Luis David Davila and Alexander Friedman
+function [the_TS, the_Samples, the_Hdr] = dg_readSpike(the_filename, varargin)
 % Does not read return values that are not used.  Note that this is based
 % purely on the number of return values, so values whose return is
 % suppressed by using '~' *do* still get read.  Uses the v3 unix versions
@@ -32,8 +33,8 @@ function [TS, Samples, Hdr] = dg_readSpike(filename, varargin)
 %$Date: 2012-08-07 20:42:07 -0400 (Tue, 07 Aug 2012) $
 %$Author: dgibson $
 
-TS = [];
-Samples = [];
+the_TS = [];
+the_Samples = [];
 if nargout >= 2
     selectary = [1, 0, 0, 0, 1];
 else
@@ -63,19 +64,19 @@ while argnum <= length(varargin)
     end
     argnum = argnum + 1;
 end
-[p, n, ext] = fileparts(filename); %#ok<ASGLU>
+[p, n, ext] = fileparts(the_filename); %#ok<ASGLU>
 if strcmpi(ext, '.dat')
     warning('dg_readSpike:ext', ...
         'This Nlx function requires .ncs extension; making temporary copy of %s.', ...
-        filename );
+        the_filename );
     tempfn = [tempname '.ntt'];
     while exist(tempfn) %#ok<EXIST>
         tempfn = [tempname '.ntt'];
     end
-    dg_copyfile(filename, tempfn);
+    dg_copyfile(the_filename, tempfn);
     file2read = tempfn;
 else
-    file2read = filename;
+    file2read = the_filename;
 end
 
 if ispc
@@ -84,17 +85,17 @@ if ispc
         modearg = modearg - 1;
     end
     if headeronly
-        Hdr = Nlx2MatSpike(file2read, [0, 0, 0, 0, 0], 1, 1);
+        the_Hdr = Nlx2MatSpike(file2read, [0, 0, 0, 0, 0], 1, 1);
     else
         if nargout > 2
-            [TS, Samples, Hdr] = Nlx2MatSpike(file2read, selectary, ...
+            [the_TS, the_Samples, the_Hdr] = Nlx2MatSpike(file2read, selectary, ...
                 readheader, modenum, modearg);
         elseif nargout == 2
-            [TS, Samples] = Nlx2MatSpike(file2read, selectary, ...
+            [the_TS, the_Samples] = Nlx2MatSpike(file2read, selectary, ...
                 readheader, modenum, modearg);
         else
             % nargout must be 1
-            TS = Nlx2MatSpike(file2read, selectary, ...
+            the_TS = Nlx2MatSpike(file2read, selectary, ...
                 readheader, modenum, modearg);
         end
     end
@@ -104,17 +105,17 @@ elseif ismac || isunix
         modearg = modearg - 1;
     end
     if headeronly
-        Hdr = Nlx2MatSpike_v3(file2read, [0, 0, 0, 0, 0], 1, 1);
+        the_Hdr = Nlx2MatSpike_v3(file2read, [0, 0, 0, 0, 0], 1, 1);
     else
         if nargout > 2
-            [TS, Samples, Hdr] = Nlx2MatSpike_v3(file2read, selectary, ...
+            [the_TS, the_Samples, the_Hdr] = Nlx2MatSpike_v3(file2read, selectary, ...
                 readheader, modenum, modearg);
         elseif nargout == 2
-            [TS, Samples] = Nlx2MatSpike_v3(file2read, selectary, ...
+            [the_TS, the_Samples] = Nlx2MatSpike_v3(file2read, selectary, ...
                 readheader, modenum, modearg);
         else
             % nargout must be 1
-            TS = Nlx2MatSpike_v3(file2read, selectary, ...
+            the_TS = Nlx2MatSpike_v3(file2read, selectary, ...
                 readheader, modenum, modearg);
         end
     end
@@ -126,7 +127,7 @@ else
         'Unrecognized computer platform');
 end
 if exist('Hdr', 'var') && ...
-        (isempty(Hdr{end}) || ~isempty(regexp(Hdr{end}, '^\s*$', 'once' )))
-    Hdr(end) = [];
+        (isempty(the_Hdr{end}) || ~isempty(regexp(the_Hdr{end}, '^\s*$', 'once' )))
+    the_Hdr(end) = [];
 end
 

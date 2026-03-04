@@ -1,4 +1,5 @@
-function pmv = compute_snr_statistic(aligned, raw, tvals, ir)
+%edited by Luis David Davila and Alexander Friedman
+function the_pmv = compute_snr_statistic(the_aligned, the_raw, the_tvals, the_ir)
 %COMPUTE_SNR_STATISTIC Computes an SNR statistic for each spike which
 %corresponds to the maximum difference between peak and valley across the
 %four channels, divided by their threshold values so that it is a fair
@@ -23,9 +24,9 @@ function pmv = compute_snr_statistic(aligned, raw, tvals, ir)
 %   'tvals' are the threshold values for each wire in microvolts.
 %
 %   'ir' are the input range values for each wire in microvolts.
-    p = get_peaks(aligned, true)';
-    nv = get_peaks(raw * (-1), false, tvals, ir)'; % Valleys
+    p = get_peaks(the_aligned, true)';
+    nv = get_peaks(the_raw * (-1), false, the_tvals, the_ir)'; % Valleys
     
     score = zscore(p + nv);
-    pmv = zscore(max(score, [], 2));
+    the_pmv = zscore(max(score, [], 2));
 end

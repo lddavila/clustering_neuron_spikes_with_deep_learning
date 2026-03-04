@@ -1,24 +1,24 @@
-function matdata = af2mat(cf, raw, timestamps, save_data)
+function the_matdata = af2mat(the_cluster_filter, the_raw, the_timestamps, the_save_data)
 if nargin == 3
-    save_data = false;
+    the_save_data = false;
 end
-if iscell(cf)
-    numclust = length(cf);
-    clustnums = zeros(size(raw,2),1);
+if iscell(the_cluster_filter)
+    numclust = length(the_cluster_filter);
+    clustnums = zeros(size(the_raw,2),1);
     for k = 1:numclust
-        clustnums(cf{k}) = k;
+        clustnums(the_cluster_filter{k}) = k;
     end
 else
-    clustnums = cf(:);
+    clustnums = the_cluster_filter(:);
 end
 
-timestamps = timestamps(:);
+the_timestamps = the_timestamps(:);
 % permute from wire X spike X sample to sample X wire X spike, then reshape
 % to sample X spike to concatenate wires, and transpose to spike X sample:
-if save_data
-    matdata = [1e-6*timestamps clustnums ...
-                reshape(permute(raw, [3 1 2]), [], size(raw,2)).' ];
+if the_save_data
+    the_matdata = [1e-6*the_timestamps clustnums ...
+                reshape(permute(the_raw, [3 1 2]), [], size(the_raw,2)).' ];
 else
-    matdata = [1e-6*timestamps clustnums ];
-    matdata(matdata(:, 2) == 0, :) = [];
+    the_matdata = [1e-6*the_timestamps clustnums ];
+    the_matdata(the_matdata(:, 2) == 0, :) = [];
 end

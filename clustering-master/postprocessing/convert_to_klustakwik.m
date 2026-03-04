@@ -1,9 +1,10 @@
-function convert_to_klustakwik(filename, output_filename)
-    filename = regexprep(filename, '^~', getenv('HOME'));
+%edited by Luis David Davila and Alexander Friedman
+function convert_to_klustakwik(the_filename, the_output_filename)
+    the_filename = regexprep(the_filename, '^~', getenv('HOME'));
     config = spikesort_config();
     raw = [];
     try
-        raw = extract_raw(filename, config);
+        raw = extract_raw(the_filename, config);
     catch
     end
     if isempty(raw)
@@ -25,7 +26,7 @@ function convert_to_klustakwik(filename, output_filename)
     end
     spikes = reshape(permute(pcs, [2, 1, 3]), [numspikes, numwires * 3]);
     
-   	f = fopen(output_filename, 'w');
+   	f = fopen(the_output_filename, 'w');
     fprintf(f, '%d\n', numwires * 3);
     for spike = 1:numspikes
         fprintf(f, '%f ', spikes(spike, :));

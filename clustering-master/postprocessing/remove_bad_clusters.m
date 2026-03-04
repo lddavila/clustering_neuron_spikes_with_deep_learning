@@ -1,4 +1,5 @@
-function good_filt = remove_bad_clusters(aligned, cfs, ir, tvals, config)
+%edited by Luis David Davila and Alexander Friedman
+function the_good_filt = remove_bad_clusters(the_aligned, the_cfs, the_ir, the_tvals, the_config)
 %REMOVE_BAD_CLUSTERS Removes obviously bad clusters before they can do any
 %harm!
 %   good_filt = REMOVE_BAD_CLUSTERS(aligned, cfs)
@@ -17,12 +18,12 @@ function good_filt = remove_bad_clusters(aligned, cfs, ir, tvals, config)
 
 % TODO: special behavior for clusters far from tvals.
 
-    good_filt = true(1, length(cfs));
-    all_peaks = get_peaks(aligned, true)';
-    for k = 1:length(cfs)
-        cf = cfs{k};
+    the_good_filt = true(1, length(the_cfs));
+    all_peaks = get_peaks(the_aligned, true)';
+    for k = 1:length(the_cfs)
+        cf = the_cfs{k};
         peaks = all_peaks(cf, :);
-        if config.params.RB_TRUST_SMALL_ISOLATED && length(cf) < 1000
+        if the_config.params.RB_TRUST_SMALL_ISOLATED && length(cf) < 1000
             non_cluster_idx = setdiff(1:size(all_peaks, 1), cf);
             bdist = bhat_dist(peaks, all_peaks(non_cluster_idx, :));
             if bdist > 2
@@ -33,7 +34,7 @@ function good_filt = remove_bad_clusters(aligned, cfs, ir, tvals, config)
         end
         
         mean_peaks = mean(peaks);
-        far_thresh = config.TRUST_FAR_NEURONS && any(mean_peaks > 3 * tvals' & mean_peaks ./ ir' > 0.6);
+        far_thresh = the_config.TRUST_FAR_NEURONS && any(mean_peaks > 3 * the_tvals' & mean_peaks ./ the_ir' > 0.6);
         if far_thresh
             % Very distant cluster from thresh - do not attempt bad cluster removal
             continue
@@ -41,9 +42,9 @@ function good_filt = remove_bad_clusters(aligned, cfs, ir, tvals, config)
         num_peaks = size(peaks, 2);
         [~, peakpcs] = pca(peaks);
         data = zscore([peaks, peakpcs(:, 1:num_peaks-1)]);
-        dim_filter = select_dimensions_dip(data, config);
-        good_filt(k) = ~any(dim_filter); %if any of the dimensions are bad then the entire cluster is scrapped
-        if ~good_filt(k) 
+        dim_filter = select_dimensions_dip(data, the_config);
+        the_good_filt(k) = ~any(dim_filter); %if any of the dimensions are bad then the entire cluster is scrapped
+        if ~the_good_filt(k) 
             % disp("Cluster " + string(k) + " had " + string(sum(dim_filter))+" bad dimensions and will be removed");
         end
     end

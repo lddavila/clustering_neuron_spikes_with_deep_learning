@@ -1,4 +1,5 @@
-function str = dg_thing2str(thing)
+%edited by Luis David Davila and Alexander Friedman
+function the_str = dg_thing2str(the_cthing)
 %Creates some kind of a string representation of <thing> come hell or high
 %water.
 
@@ -6,37 +7,37 @@ function str = dg_thing2str(thing)
 %$Date: 2009-03-31 21:56:57 -0400 (Tue, 31 Mar 2009) $
 %$Author: dgibson $
 
-switch(class(thing))
+switch(class(the_thing))
     case {'double' 'char'}
-        if length(size(thing)) < 3
-            if numel(thing) < 100
-                str = mat2str(thing);
+        if length(size(the_thing)) < 3
+            if numel(the_thing) < 100
+                the_str = mat2str(the_thing);
             else
-                str = sprintf('{%dx%d %s}', size(thing,1), size(thing, 2), class(thing));
+                the_str = sprintf('{%dx%d %s}', size(the_thing,1), size(the_thing, 2), class(the_thing));
             end
         else
-            str = sprintf('{multi-D %s}', class(thing));
+            the_str = sprintf('{multi-D %s}', class(the_thing));
         end
     case 'cell'
-        if length(size(thing)) > 2
-            str = sprintf('{multi-D %s}', class(thing));
-        elseif numel(thing) ~= length(thing)
-            str = sprintf('{%dx%d %s}', size(thing,1), size(thing, 2), class(thing));
+        if length(size(the_thing)) > 2
+            the_str = sprintf('{multi-D %s}', class(the_thing));
+        elseif numel(the_thing) ~= length(the_thing)
+            the_str = sprintf('{%dx%d %s}', size(the_thing,1), size(the_thing, 2), class(the_thing));
         else
-            if numel(thing) < 100
-                str = '{';
-                for k=1:length(thing)
-                    str = [ str ' ' dg_thing2str(thing{k}) ];
+            if numel(the_thing) < 100
+                the_str = '{';
+                for k=1:length(the_thing)
+                    the_str = [ the_str ' ' dg_thing2str(the_thing{k}) ];
                 end
-                str = [ str ' }'];
+                the_str = [ the_str ' }'];
             else
-                str = sprintf('{%dx%d %s}', size(thing,1), size(thing, 2), class(thing));
+                the_str = sprintf('{%dx%d %s}', size(the_thing,1), size(the_thing, 2), class(the_thing));
             end
         end
     otherwise
-        if length(size(thing)) < 3
-            str = sprintf('{%dx%d %s}', size(thing,1), size(thing, 2), class(thing));
+        if length(size(the_thing)) < 3
+            the_str = sprintf('{%dx%d %s}', size(the_thing,1), size(the_thing, 2), class(the_thing));
         else
-            str = sprintf('{multi-D %s}', class(thing));
+            the_str = sprintf('{multi-D %s}', class(the_thing));
         end
 end

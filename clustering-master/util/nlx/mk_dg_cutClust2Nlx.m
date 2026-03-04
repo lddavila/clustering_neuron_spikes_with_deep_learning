@@ -1,4 +1,5 @@
-function mk_dg_cutClust2Nlx(clustdata, nlxfile, ir, tvals)
+%edited by Luis David Davila and Alexander Friedman
+function mk_dg_cutClust2Nlx(the_clustdata, the_nlxfile, the_ir, the_tvals)
 %mk_dg_cutClust2Nlx(clustfile, nlxfile)
 % Creates an appropriately formatted Neuralynx file to represent the data
 % in <clustfile>.  Uses the CellNumbers field to store cluster numbers.  If
@@ -24,20 +25,20 @@ function mk_dg_cutClust2Nlx(clustdata, nlxfile, ir, tvals)
 % fields = fieldnames(S);
 % <clustdata> is in spikes X [TS clustnum samples] format:
 % clustdata = S.(fields{1});
-numpts = size(clustdata,2) - 2;
+numpts = size(the_clustdata,2) - 2;
 if numpts <= 32
-    datapts = zeros(32, 1, size(clustdata,1));
+    datapts = zeros(32, 1, size(the_clustdata,1));
     if numpts > 0
-        datapts(1:numpts, 1, :) = clustdata(:, 3:end);
+        datapts(1:numpts, 1, :) = the_clustdata(:, 3:end);
     end
 elseif numpts > 32 && numpts <=64
-    datapts = clustdata(:, 3:end);
+    datapts = the_clustdata(:, 3:end);
     if numpts < 64
         datapts = [datapts zeros(size(datapts,1), 64 - numpts)];
     end
     datapts = reshape(datapts', 32, 2, []);
 else
-    datapts = clustdata(:, 3:end);
+    datapts = the_clustdata(:, 3:end);
     if numpts < 128
         datapts = [datapts zeros(size(datapts,1), 128 - numpts)];
     elseif numpts > 128
@@ -64,7 +65,7 @@ switch size(datapts,2)
 end
 Hdr = {
     '######## Neuralynx Data File Header'
-    sprintf('## File Name: %s ', nlxfile)
+    sprintf('## File Name: %s ', the_nlxfile)
     sprintf('## Time Opened: (m/d/y): %s  At Time: %s ', ...
     datestr(now, 2), datestr(now, 2))
     '## Converted by dg_cutClust2Nlx '
@@ -74,12 +75,12 @@ Hdr = {
     sprintf('-NumADChannels %d ', size(datapts,2));
     ''
     '-InputInverted True'
-    sprintf('-InputRange %d %d %d %d', ir);
-    sprintf('-ThreshVal %d %d %d %d', tvals);
+    sprintf('-InputRange %d %d %d %d', the_ir);
+    sprintf('-ThreshVal %d %d %d %d', the_tvals);
     ''
     ' '
     };
-dg_writeSpike( nlxfile, round(1e6 * reshape(clustdata(:,1), 1, [])), ...
+dg_writeSpike( the_nlxfile, round(1e6 * reshape(the_clustdata(:,1), 1, [])), ...
     round(datapts./repmat(adbitmicrovolts, [32, 1, size(datapts, 3)])), Hdr, 'cellnums', ...
-    reshape(clustdata(:,2), 1, []) );
+    reshape(the_clustdata(:,2), 1, []) );
 

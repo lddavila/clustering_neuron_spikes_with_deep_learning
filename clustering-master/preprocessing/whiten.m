@@ -1,13 +1,14 @@
-function whiten_filt = whiten(peaks)
-    [numspikes, numwires] = size(peaks);
-    whiten_filt = true(numspikes, 1);
+%edited by Luis David Davila and Alexander Friedman
+function the_whiten_filt = whiten(the_peaks)
+    [numspikes, numwires] = size(the_peaks);
+    the_whiten_filt = true(numspikes, 1);
 %     numbins = repmat(32, 1, numwires);
-    numbins = round(range(peaks) ./ 10);
+    numbins = round(range(the_peaks) ./ 10);
     if ~all(numbins > 1) || prod(numbins) > prod([60 60 60 60])
         return
     end
     bins = num2cell(numbins);
-    [N, ~, ~, loc] = histcn(peaks, bins{:});
+    [N, ~, ~, loc] = histcn(the_peaks, bins{:});
     
     
 %     gauss = gauss2d(3);
@@ -15,7 +16,7 @@ function whiten_filt = whiten(peaks)
 %     N = convn(N, gauss, 'same');
 
 %     mw = ones(repmat(7, 1, numwires));
-    windowsize = ceil(std(peaks) ./ 7);
+    windowsize = ceil(std(the_peaks) ./ 7);
     if all(windowsize == 1) || prod(windowsize) > prod([10 10 10 10])
         return
     end
@@ -31,7 +32,7 @@ function whiten_filt = whiten(peaks)
     inds = sub2ind(size(N), loc2{:});
     ns = N(inds);
     ms = M(inds);
-    whiten_filt = (ns > 1 | (ns == 1 & ms > 1)) & ns > 1.25 * ms;
+    the_whiten_filt = (ns > 1 | (ns == 1 & ms > 1)) & ns > 1.25 * ms;
 %     whiten_filt = ns > 1.25 * ms;
 %     for s = 1:numspikes
 %         n = N(loc2{s, :});

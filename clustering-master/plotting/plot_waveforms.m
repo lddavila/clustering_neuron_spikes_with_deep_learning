@@ -1,11 +1,12 @@
-function plot_waveforms(cluster_filters, raw)
+%edited by Luis David Davila and Alexander Friedman
+function plot_waveforms(the_cluster_filters, the_raw_data)
 %PLOT_WAVEFORMS Plots the clusters individually in their raw waveform
 %representations
-    numdp = size(raw, 3);
-    combined = reshape(permute(raw, [2 3 1]), [], numdp * 4);
+    numdp = size(the_raw_data, 3);
+    combined = reshape(permute(the_raw_data, [2 3 1]), [], numdp * 4);
     total_spikes = 1:size(combined, 1);
     
-    for c = 1:length(cluster_filters)
+    for c = 1:length(the_cluster_filters)
 %         colordef black
         figure
         set(gcf, 'Visible', 'off')
@@ -14,7 +15,7 @@ function plot_waveforms(cluster_filters, raw)
         ymin = min(min(combined, [], 2));
         ymax = max(max(combined, [], 2));
         ylim([ymin ymax])
-        cluster = cluster_filters{c};
+        cluster = the_cluster_filters{c};
         cluster_spikes = combined(cluster, :);
         other_spikes = combined(setdiff(total_spikes, cluster), :);
         

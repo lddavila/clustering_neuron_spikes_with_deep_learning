@@ -1,4 +1,5 @@
-function idx = extract_clusters_from_output(timestamps, output, config)
+%edited by Luis David Davila and Alexander Friedman
+function the_idx = extract_clusters_from_output(the_timestamps, the_output_data, the_config)
 %EXTRACT_CLUSTERS_FROM_OUTPUT Converts the standard output format of spike
 %sorting into a format that's easier to work with (a cell array of indices
 %for each cluster).
@@ -13,15 +14,15 @@ function idx = extract_clusters_from_output(timestamps, output, config)
 %
 %   'idx' is a cell array of indices for each cluster.
 
-    ids = unique(output(:, 2));
+    ids = unique(the_output_data(:, 2));
     ids = sort(ids(ids > 0));
-    idx = cell(length(ids), 1);
+    the_idx = cell(length(ids), 1);
     for k = 1:length(ids)
-        cluster_timestamps = output(output(:, 2) == ids(k), 1);
-        idx{k} = get_idx_from_timestamps(timestamps, cluster_timestamps);
+        cluster_timestamps = the_output_data(the_output_data(:, 2) == ids(k), 1);
+        the_idx{k} = get_idx_from_timestamps(the_timestamps, cluster_timestamps);
         % if length(idx{k}) < config.MIN_NUMBER_OF_SPIKES
         %     idx{k} = [];
         % end
     end
-    idx = idx(~cellfun('isempty', idx));
+    the_idx = the_idx(~cellfun('isempty', the_idx));
 end

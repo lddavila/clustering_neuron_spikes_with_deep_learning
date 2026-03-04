@@ -1,3 +1,4 @@
+%edited by Luis David Davila and Alexander Friedman
 % Help for file Mat2NlxSE
 % Version 4.1.1
 %

@@ -1,4 +1,4 @@
-function dg_copyfile(src, dest)
+function dg_copyfile(the_src, the_dest)
 %dg_copyfile(src, dest)
 % This is a replacement for Matlab's 'copyfile', which can do bad things on
 % a Mac.
@@ -8,9 +8,9 @@ function dg_copyfile(src, dest)
 %$Author: dgibson $
 
 if ispc
-    system(sprintf('copy "%s" "%s"', src, dest));
+    system(sprintf('copy "%s" "%s"', the_src, the_dest));
 elseif ismac || isunix
-    system(sprintf('cp "%s" "%s"', src, dest));
+    system(sprintf('cp "%s" "%s"', the_src, the_dest));
 else
     error('dg_copyfile:arch', ...
         'Unrecognized computer platform');
