@@ -167,41 +167,19 @@ fprintf('Getting dictionaries took: %f\n',end_time)
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
-    for threshold_idx=1:length(thresholds_to_check)
-        % if what_is_pre_computed is not empty then we can skip several of the steps and just load the data
-        %   each element of "what_is_precomputed" is a string telling you
-        %   what is already done
-        % step 9c; Get all the data points from the potential spikes
-        min_threshold = thresholds_to_check(threshold_idx);
-        % if ~(min_threshold==lowest_bound_threshold)
-        %     beginning_time = tic;
-        %     spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_threshold) + " num dps "+ string(num_dps)));
-        %     get_spike_windows_ver_3(channels_without_formatting,min_threshold,lowest_bound_spike_windows_dir,spike_windows_dir,config);
-        %     end_time = toc(beginning_time);
-        %     fprintf("Finished getting spike windows for "+z_score_or_multiplier+" %.2f, it took %.2f seconds\n",min_threshold,end_time);
-        % 
-        % else
-        %     spike_windows_dir = lowest_bound_spike_windows_dir;
-        % end
+    % min_threshold = thresholds_to_check(threshold_idx);
 
 
 
 
-        % Step 9e: Run Clustering Algorithm
-        beginning_time = tic;
-        if ~config.use_new_spike_detection
-            initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_threshold)));
-            initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_threshold)));
-            z_score_or_mult = min_threshold;
-        else
-            z_score_or_mult = thresholds_to_check(threshold_idx);
-            initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier"+string(z_score_or_mult)));
-            initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min multiplier " + string(z_score_or_mult)));
-        end
-        run_clustering_algorithm_on_desired_tetrodes_ver_3(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config,z_score_or_mult);
-        end_time = toc(beginning_time);
-        fprintf("Core Clustering for "+z_score_or_multiplier+" %.2f finished, it took %.2f seconds\n",min_threshold,end_time);
-    end
+
+    % Step 9e: Run Clustering Algorithm
+    beginning_time = tic;
+    run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,config);
+    % run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,config)
+    end_time = toc(beginning_time);
+    fprintf("Core Clustering "+z_score_or_multiplier+" finished, it took %.2f seconds\n",end_time);
+
     file_name = "blind_pass.txt";
     file_id = fopen(fullfile(precomputed_dir,file_name),'w');
     fclose(file_id);
