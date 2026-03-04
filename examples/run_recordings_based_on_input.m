@@ -35,7 +35,7 @@ end
 
 beginning = which_recording;
 the_end = which_recording+.5;
-number_of_channels_to_use = [4,3,2,1,5,6];
+number_of_channels_to_use = [4,1,2,3,5,6];
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
