@@ -161,10 +161,10 @@ parfor i=1:length(sliced_every_permutation_of_both)
         end
         if j~=1
             %now filter out any values in raw that do not meet the threshold
-            raw(:,max_peak_vals<per_spike_thresholds,:) = [];
+            mutated_raw = raw(:,max_peak_vals>=per_spike_thresholds,:);
 
             %get the new size of raw after the filter
-            new_raw_size = size(raw);
+            new_raw_size = size(mutated_raw);
 
             %we will continue if the new filter didn't affect the size because that
             %means the filter did not filter anything out and thus running it will
@@ -177,7 +177,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
             end
         end
 
-        if isempty(raw)
+        if isempty(mutated_raw)
             send(q,[]);
             continue
         end
@@ -186,7 +186,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
         raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
 
         %repeat the same process with raw_in_samples_format
-        raw_in_samples_format(:,:,max_peak_vals<per_spike_thresholds) = [];
+        mutated_raw_in_samples_format = raw_in_samples_format(:,:,max_peak_vals>=per_spike_thresholds);
 
 
         mean_of_relevant_channels =current_data{j,"sliced_channel_wise_means"};
@@ -194,7 +194,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
 
         wire_filter = find_live_wires(raw);
         % wire_filter = [1 2 3 4];
-        nonzero_samples = raw_in_samples_format(:,wire_filter,:);
+        nonzero_samples = mutated_raw_in_samples_format(:,wire_filter,:);
         minpeaks = shiftdim(min(max(nonzero_samples),[],2),2);
         maxvals = shiftdim(max(min(nonzero_samples),[],2),2);
         admax_val = 32767;
@@ -203,6 +203,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
         % good_spike_idx = 1:size(raw,2);
 
         timestamps_for_current_tetrode = timing_tetrode_dictionary(current_tetrode);
+        mutated_ts_for_current_tetrode = timestamps_for_current_tetrode(max_peak_vals>=per_spike_thresholds,:);
         ir = calculate_input_range_for_raw_by_channel_ver_3(channels_in_current_tetrode,dir_with_channel_recordings);
         ir = ir.';
 
@@ -217,7 +218,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
         try
             %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
             local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier " + string(j)));
-            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,local_config,channels_in_current_tetrode,i,sorted_spike_windows,local_tetrode_results_dir,current_tetrode);
+            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,filenames,local_config,channels_in_current_tetrode,i,sorted_spike_windows,local_tetrode_results_dir,current_tetrode);
             %   - the first column contains the timestamps of the spikes in seconds
             %   - the second column contains the cluster classification of the spikes
             %       E.g., a value of '3' means that the spike belongs to cluster 3.
