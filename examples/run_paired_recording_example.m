@@ -11,7 +11,7 @@ config = spikesort_config();
 if contains(pwd,"10595")
     beginning = tic;
     c = parcluster('local');
-    parpool(15,'IdleTimeout', inf);
+    parpool(22,'IdleTimeout', inf);
     c.JobStorageLocation = pwd;
     disp(c.JobStorageLocation);
     % parpool(c.NumWorkers, 'IdleTimeout', inf);
