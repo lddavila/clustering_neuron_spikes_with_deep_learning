@@ -3,6 +3,11 @@ function [blind_pass_table] = add_overlap_percentage_col_and_max_overlap_unit_op
 
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
 ground_truth = importdata(config.GT_FP);
+if string(class(ground_truth)) ~= "cell"
+    ground_truth_temp = double(ground_truth);
+    ground_truth = cell(1,1);
+    ground_truth{1} = ground_truth_temp;
+end
 time_delta = config.TIME_DELTA;
 max_overlap_unit = nan(size(blind_pass_table,1),1);
 overlap_percentages = cell(size(blind_pass_table,1),1);

@@ -60,7 +60,7 @@ afterEach(q,@print_status_bar)
 num_iterations = height(every_permutation_of_both);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_4");
 %there should be a parfor on line 65 when not testing
-parfor i=1:length(sliced_every_permutation_of_both)
+for i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
@@ -104,7 +104,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
     for j=1:height(current_data)
-
+        current_filename = current_data{j,"filenames"};
         %check to make sure that every channel in the current dataset is
         %actually available
         channels_in_current_tetrode = tetrode_dictionary(current_tetrode);
@@ -159,28 +159,29 @@ parfor i=1:length(sliced_every_permutation_of_both)
             send(q,[]);
             continue;
         end
-        if j~=1
-            %now filter out any values in raw that do not meet the threshold
-            mutated_raw = raw(:,max_peak_vals>=per_spike_thresholds,:);
+        % if j~=1
+        %now filter out any values in raw that do not meet the threshold
+        mutated_raw = raw(:,max_peak_vals>=per_spike_thresholds,:);
 
-            %get the new size of raw after the filter
-            new_raw_size = size(mutated_raw);
+        %get the new size of raw after the filter
+        new_raw_size = size(mutated_raw);
 
-            %we will continue if the new filter didn't affect the size because that
-            %means the filter did not filter anything out and thus running it will
-            %result clustering the exact same data again which would be wasted
-            %compute time
-            if all(new_raw_size==raw_size_before)
-                % disp("No new data continuing ...")
-                send(q,[]);
-                continue;
-            end
+        %we will continue if the new filter didn't affect the size because that
+        %means the filter did not filter anything out and thus running it will
+        %result clustering the exact same data again which would be wasted
+        %compute time
+        if all(new_raw_size==raw_size_before)
+            % disp("No new data continuing ...")
+            send(q,[]);
+            continue;
         end
-
         if isempty(mutated_raw)
             send(q,[]);
             continue
         end
+        % end
+
+        
 
 
         raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
@@ -216,9 +217,9 @@ parfor i=1:length(sliced_every_permutation_of_both)
 
 
         try
-            %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,filenames,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
+            %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
             local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier " + string(j)));
-            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,filenames,local_config,channels_in_current_tetrode,i,sorted_spike_windows,local_tetrode_results_dir,current_tetrode);
+            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,local_config,channels_in_current_tetrode,sorted_spike_windows,local_tetrode_results_dir,current_tetrode);
             %   - the first column contains the timestamps of the spikes in seconds
             %   - the second column contains the cluster classification of the spikes
             %       E.g., a value of '3' means that the spike belongs to cluster 3.

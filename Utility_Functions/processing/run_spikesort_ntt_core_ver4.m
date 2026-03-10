@@ -1,4 +1,4 @@
-function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,iteration_number,sorted_spike_windows,dir_to_save_spike_windows_to,tetrode_id)
+function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,dir_to_save_spike_windows_to,tetrode_id)
 %OG: [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes]
 %RUN_SPIKESORT_NTT_CORE Runs spike sorter on data extracted from the
 %tetrode.
@@ -120,5 +120,5 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs]
     end
 
     cleaned_clusters = cf;
-    save_info_ver_2(filenames(iteration_number), filenames(iteration_number),timestamps_1,r_tvals,cleaned_clusters);
+    save_info_ver_2(filenames, filenames,timestamps_1,r_tvals,cleaned_clusters);
 end

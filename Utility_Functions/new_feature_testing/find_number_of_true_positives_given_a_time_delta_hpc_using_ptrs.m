@@ -31,7 +31,7 @@ matches = 0;
 matches_log = nan(min([spike_train_1_length,spike_train_2_length]),2); % preallocating for speed, will likely not need all of the preallocated rows in practice 
 matches_log_counter = 1;
 while spike_train_1_pointer <= spike_train_1_length && spike_train_2_pointer <= spike_train_2_length
-    if abs(cluster_1_ts(spike_train_1_pointer)- cluster_2_ts(spike_train_2_pointer)) < time_delta
+    if abs(cluster_1_ts(spike_train_1_pointer)- cluster_2_ts(spike_train_2_pointer)) <= time_delta
         matches = matches +1;
         matches_log(matches_log_counter,:) = [spike_train_1_pointer,spike_train_2_pointer];
         matches_log_counter = matches_log_counter+1;

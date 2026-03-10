@@ -61,7 +61,7 @@ config.SCALE_FACTOR = -1;
 
 config.NUM_DPTS_TO_SLICE = 60;
 
-config.NUM_OF_STD_ABOVE_MEAN = 20;
+config.NUM_OF_STD_ABOVE_MEAN = 1;
 
 config.NUM_DIMS_TO_USE_FOR_RECLUSTERING = 3;
 config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING) +" Channels";
@@ -245,6 +245,7 @@ config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 30030;
 config.freqLim_width = [100, 1000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
 config.Multipliers = 6:.1:15;
+config.Multipliers = 6:1:15;
 config.struct_of_neuron_distance = fullfile(config.base_file_path,"Data","full_struct.mat");
 
 

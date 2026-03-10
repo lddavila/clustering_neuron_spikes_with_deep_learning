@@ -1,6 +1,11 @@
 function [table_of_clusters] = add_accuracy_col(config,table_of_clusters)
 accuracy_array = nan(size(table_of_clusters,1),1);
 ground_truth = importdata(config.GT_FP);
+if string(class(ground_truth)) ~= "cell"
+    ground_truth_temp = ground_truth;
+    ground_truth = cell(1,1);
+    ground_truth{1} = ground_truth_temp;
+end
 timestamps = importdata(config.TIMESTAMP_FP);
 % accuracy_category = nan(size(table_of_clusters,1),1);
 sliced_bp_table = slice_table_for_parallel_processing(table_of_clusters,[]);
@@ -10,7 +15,7 @@ num_iterations = length(sliced_bp_table);
 print_status_bar(num_iterations,"add_accuracy_col.m")
 timestamps = parallel.pool.Constant(timestamps);
 ground_truth = parallel.pool.Constant(ground_truth);
-parfor i=1:size(sliced_bp_table,1)
+for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     %blind_pass_table.("Max_Overlap_perc_With_Unit") = max_overlap_percentages;
 %blind_pass_table.("Max_Overlap_Unit") = max_overlap_unit;
@@ -18,12 +23,26 @@ parfor i=1:size(sliced_bp_table,1)
 
 
     unit_that_cluster_has_max_overlap_with = current_data{1,"Max_Overlap_Unit"};
+    if isnan(unit_that_cluster_has_max_overlap_with)
+        accuracy_array(i) = 0;
+        send(q,[])
+        continue;
+    end
     gt_indexes =ground_truth.Value{unit_that_cluster_has_max_overlap_with} ;
-    %the gt_indexes are 0 based (because they come from python)
-    %so we'll add 1 to all the gt_indexes to make them line up
-    gt_indexes = gt_indexes+1;
-    gt_ts = timestamps.Value(gt_indexes);
-    cluster_spike_ts = current_data{1,"timestamps"}{1};
+
+    %paired recordings data is saved already in timestamps so we don't need
+    %to index timestamps like we do in simulated data
+    if all(mod(gt_indexes,1)==0)
+        %the gt_indexes are 0 based (because they come from python)
+        %so we'll add 1 to all the gt_indexes to make them line up
+        gt_indexes = gt_indexes+1;
+        gt_ts = timestamps.Value(gt_indexes);
+        
+    else
+        gt_ts = gt_indexes;
+    end
+    
+   cluster_spike_ts = current_data{1,"timestamps"}{1};
 
     accuracy_array(i) = calculate_accuracy(gt_ts,{cluster_spike_ts},config) * 100;
     send(q,[]);

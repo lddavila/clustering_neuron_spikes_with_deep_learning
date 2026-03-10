@@ -1,4 +1,4 @@
-function [] = run_recordings_based_on_input(which_recording)
+function [] = run_paired_recording_example(which_recording)
 % STEP 1: Add functions to your path
 examples_dir = cd("..");
 addpath(genpath(pwd));
@@ -41,7 +41,7 @@ for k=1:length(number_of_channels_to_use)
     for i=beginning:the_end
         % try
         config = spikesort_config();
-        config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
+        config.RECORDING_NAME = "cell_"+string(i);
         config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
         disp("Recording Name");
         disp(config.RECORDING_NAME)
@@ -60,7 +60,7 @@ for k=1:length(number_of_channels_to_use)
             config.GT_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"ground_truth","ground_truth.mat");
             config.TIMESTAMP_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"timestamps","timestamps.mat");
             config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,config.RECORDING_NAME,"recordings_by_channel");
-            config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1,:);
+            % config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1,:);
             config.BLIND_PASS_DIR_PRECOMPUTED = strrep(config.BLIND_PASS_DIR_PRECOMPUTED,fullfile(config.base_file_path,"Default_Results_Dir"),"F:");
         else
 
@@ -92,7 +92,7 @@ for k=1:length(number_of_channels_to_use)
         % is provided
         % in this example the data is simulated and the ground truth is available
         beginning_time = tic;
-        config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
+        config.TIME_DELTA = 0.002; %changing time delta to match kilosort4 delta used when computing matching score
         timestamps = importdata(config.TIMESTAMP_FP);
         if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
             blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);

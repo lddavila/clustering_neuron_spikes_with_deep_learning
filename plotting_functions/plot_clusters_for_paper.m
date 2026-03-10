@@ -1,7 +1,7 @@
 function [] = plot_clusters_for_paper(table_of_clusters_to_plot,dir_to_save_figs_to,sample)
-unique_cluster_fp = unique(table_of_clusters_to_plot{:,"dir_to_aligned"});
+unique_cluster_fp = unique(table_of_clusters_to_plot{:,"fp_to_aligned"});
 for i=1:size(unique_cluster_fp,1)
-    current_rows = table_of_clusters_to_plot(table_of_clusters_to_plot{:,"dir_to_aligned"}==unique_cluster_fp(i),:);
+    current_rows = table_of_clusters_to_plot(table_of_clusters_to_plot{:,"fp_to_aligned"}==unique_cluster_fp(i),:);
     current_aligned = importdata(unique_cluster_fp(i));
     current_grades = current_rows{1,"grades"}{1};
     current_channels = current_grades{49};
