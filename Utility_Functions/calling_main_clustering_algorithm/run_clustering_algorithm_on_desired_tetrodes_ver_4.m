@@ -60,7 +60,7 @@ afterEach(q,@print_status_bar)
 num_iterations = height(every_permutation_of_both);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_4");
 %there should be a parfor on line 65 when not testing
-for i=1:length(sliced_every_permutation_of_both)
+parfor i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
