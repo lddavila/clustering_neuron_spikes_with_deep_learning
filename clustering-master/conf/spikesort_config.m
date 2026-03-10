@@ -61,7 +61,7 @@ config.SCALE_FACTOR = -1;
 
 config.NUM_DPTS_TO_SLICE = 60;
 
-config.NUM_OF_STD_ABOVE_MEAN = 1;
+config.NUM_OF_STD_ABOVE_MEAN = 20;
 
 config.NUM_DIMS_TO_USE_FOR_RECLUSTERING = 3;
 config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING) +" Channels";
