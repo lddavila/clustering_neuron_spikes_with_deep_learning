@@ -8,4 +8,4 @@
 #SBATCH --mail-type=ALL	
 #SBATCH --mail-user=lddavila@miners.utep.edu
 module load matlab/2023b
-matlab -batch "run_paired_recording_example(1);exit;"
+matlab -batch "run_paired_recording_example(10);exit;"
