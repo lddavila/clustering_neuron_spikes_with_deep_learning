@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH -n 40
+#SBATCH -n 56
 #SBATCH -p medium
 #SBATCH -J rec_10_ic
 #SBATCH -o output_10.txt 
