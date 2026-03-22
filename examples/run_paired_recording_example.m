@@ -92,7 +92,7 @@ for k=1:length(number_of_channels_to_use)
         % is provided
         % in this example the data is simulated and the ground truth is available
         beginning_time = tic;
-        config.TIME_DELTA = 0.002; %changing time delta to match kilosort4 delta used when computing matching score
+        config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
         timestamps = importdata(config.TIMESTAMP_FP);
         if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
             blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);

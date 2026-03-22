@@ -1,6 +1,58 @@
 function [grouped_clusters] = simple_grouping_parallel(blind_pass_table,config)
 net = importdata(config.FP_TO_SIMPLE_GROUP_OR_DONT_NN);
 
+%get the raw data required for the neural network
+list_of_features_to_add = ["grades 3"];
+grades_array = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config))];
+
+%get a table which displays all the nets that we
+table_of_nets = struct2table(dir(fullfile(config.dir_of_prob_dist_nets,"*.mat")));
+net_names = string(table_of_nets.name);
+split_net_names = split(net_names,"_");
+[~,where_below_ends ]= find(split_net_names=="below");
+net_nums = arrayfun(@(i) split_net_names(i, where_below_ends(i)+1), ...
+    (1:size(split_net_names,1))');
+
+%sort the nets by their threshold so that we have an ordered list of
+%thresholds
+table_of_nets.threshold = str2double(net_nums);
+table_of_nets = sortrows(table_of_nets,"threshold","ascend");
+
+%get the all the certainties for the all the grades
+[~,unscaled_certainties ]= get_certainties_of_all_previous_nets(string(table_of_nets.name),config.dir_of_prob_dist_nets,grades_array);
+disp("Finished getting certainties first time")
+
+%use the first 5 nets
+%those first 5 are trained to identify above/below thresholds [1, 2, 3, 4, 5]
+%while none of the nets are 100% accurate they all have 88%+ accuracy
+%we will take the consensus of their outputs as a way to filter out
+%clusters that have less than 5% accuracy
+first_five_certainties = unscaled_certainties(:,1:5);
+
+%unscaled_certainties is a nx91 array where each value ranges between [-1,1]
+%n: number of rows in blind_pass_table
+%91: the number of thresholds that we have a neural network to identify
+%above/below
+%network 1 is for threshold 1
+%network 2 is for threshold 2
+%...
+%network 91 is for threshold 91
+%Certainty Close to 1 : indicates the network i is highly certain that row n has a higher
+% accuracy than threshold i
+%Certainty Close to -1: indicates the network i is highly certain that row n has a lower
+% accuracy than threshold i
+%Certainty Close to 0: indicates the network is not certain one way or
+%the other
+
+%if the majority of the first 5 networks all determine with a high degree of certainty
+%that the example is above the first 5 thresholds then we can likely mark
+%it as MUA and continue
+elimination_condition =~(sum(first_five_certainties>=.9,2)>3);
+blind_pass_table(elimination_condition, :) = [];
+% unscaled_certainties(elimination_condition,:) = [];
+disp("Determined that "+string(sum(elimination_condition,"all"))+" were MUA and eliminated them from process")
+
+
 %build arrray to identify which clusters are already grouped
 is_grouped = zeros(size(blind_pass_table,1),1);
 

@@ -7,6 +7,8 @@ function [blind_pass_table] = update_fpths(blind_pass_table,config)
 %define the blind_pass_table variables with file paths
 file_path_names = ["fp_to_aligned","fp_to_cleaned_clusters","fp_to_reg_timestamps","fp_to_reg_timestamps_of_the_spikes","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"];
 
+%find where the data storage occurs
+
 for i=1:length(file_path_names)
     %take 1 example of the filepath for the current file and find the base
     %file path
@@ -31,7 +33,8 @@ for i=1:length(file_path_names)
     %now navigate through the split example until you find the base file
     %path
     counter = 1;
-    while counter <= length(split_example) && split_example(counter)~="clustering_neuron_spikes_with_deep_learning"
+    
+    while counter <= length(split_example) && split_example(counter)~=config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END
         if counter==1 && split_example(counter)==" "
             starts_with_slash=true;
         end
@@ -56,9 +59,9 @@ for i=1:length(file_path_names)
 
     %now replace what's in the blind pass_table
     if og_fpth_is_linux
-        blind_pass_table.(file_path_names(i)) = strrep(strrep(blind_pass_table{:,file_path_names(i)},part_to_replace,config.base_file_path),"/",filesep);
+        blind_pass_table.(file_path_names(i)) = strrep(strrep(blind_pass_table{:,file_path_names(i)},part_to_replace,config.BLIND_PASS_DIR_PRECOMPUTED),"/",filesep);
     else
-        blind_pass_table.(file_path_names(i)) = strrep(blind_pass_table{:,file_path_names(i)},part_to_replace,config.base_file_path);
+        blind_pass_table.(file_path_names(i)) = strrep(blind_pass_table{:,file_path_names(i)},part_to_replace,config.BLIND_PASS_DIR_PRECOMPUTED);
     end
 end
 

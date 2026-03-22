@@ -43,6 +43,7 @@ for k=1:length(number_of_channels_to_use)
         config = spikesort_config();
         config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
         config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
+        config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END = "new_ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels";
         disp("Recording Name");
         disp(config.RECORDING_NAME)
         startup;
@@ -60,7 +61,7 @@ for k=1:length(number_of_channels_to_use)
             config.GT_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"ground_truth","ground_truth.mat");
             config.TIMESTAMP_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"timestamps","timestamps.mat");
             config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,config.RECORDING_NAME,"recordings_by_channel");
-            config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1,:);
+            % config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1,:);
             config.BLIND_PASS_DIR_PRECOMPUTED = strrep(config.BLIND_PASS_DIR_PRECOMPUTED,fullfile(config.base_file_path,"Default_Results_Dir"),"F:");
         else
 

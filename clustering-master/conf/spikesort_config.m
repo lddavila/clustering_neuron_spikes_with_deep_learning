@@ -61,12 +61,13 @@ config.SCALE_FACTOR = -1;
 
 config.NUM_DPTS_TO_SLICE = 60;
 
-config.NUM_OF_STD_ABOVE_MEAN = 20;
+config.NUM_OF_STD_ABOVE_MEAN = 3;
 
 config.NUM_DIMS_TO_USE_FOR_RECLUSTERING = 3;
 config.DIR_TO_SAVE_RECLUSTERING_TO ="D:\spike_gen_data\Recordings By Channel Precomputed\0_100Neuron300SecondRecordingWithLevel3Noise Refinement Pass " + string(config.NUM_DIMS_TO_USE_FOR_RECLUSTERING) +" Channels";
 config.SAVE_DIRECTORY = 'D:\cluster_neuronspikes\Data'; %where any important data will be saved to
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.base_file_path,"Default_Results_Dir",config.RECORDING_NAME); %the parent directory where the blind pass precomputed info is saved (things like spikes per channel and std per channel)
+config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END = "";
 config.ALREADY_DONE_FILES = [];
 config.TIMESTAMP_FP = "D:\spike_gen_data\Recordings By Channel Timestamps\0_100Neuron300SecondRecordingWithLevel3Noise\timestamps.mat";
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = "";
@@ -243,7 +244,7 @@ config.use_new_spike_detection = true;
 config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass', ignored otherwise. to use high-pass set to [f_lo, nan], to use low-pass set to [nan, f_hi]
 config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 30030;
-config.freqLim_width = [100, 1000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
+config.freqLim_width = [100, 3000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
 config.Multipliers = 6:.1:15;
 config.Multipliers = 6:1:15;
 config.struct_of_neuron_distance = fullfile(config.base_file_path,"Data","full_struct.mat");

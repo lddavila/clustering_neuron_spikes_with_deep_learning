@@ -3,7 +3,7 @@ function [blind_pass_table] = get_grades_for_nth_pass_of_clustering_ver_2(blind_
 % run_grading_script_on_blind_pass
 draw_elipse_templates(config);
 %update paths on the blind pass table
-% blind_pass_table = update_fpths(blind_pass_table,config);
+blind_pass_table = update_fpths(blind_pass_table,config);
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[]);
 debug = 0;
 
