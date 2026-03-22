@@ -8,4 +8,4 @@
 #SBATCH --mail-type=ALL	
 #SBATCH --mail-user=lddavila@miners.utep.edu
 module load matlab/2023b
-matlab -batch "get_detected_spikes_for_every_channel(10);exit;"
+matlab -batch "get_detected_spikes_for_every_channel();exit;"
