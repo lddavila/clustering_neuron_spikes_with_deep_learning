@@ -1,4 +1,4 @@
-function [cell_array_of_thresh_in_mv] = use_ic_spike_det(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,P_threshold)
+function [cell_array_of_thresh_in_mv,cell_array_of_pk_locs,cell_array_of_pk_vals] = use_ic_spike_det(spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,P_threshold)
 
 %if the file doesn't already exist then we must create and save it
 q = parallel.pool.DataQueue;
@@ -7,6 +7,8 @@ num_iterations = length(ordered_list_of_channels);
 print_status_bar(num_iterations,"use_ic_spike_det.m")
 already_done = config.ALREADY_DONE_FILES;
 cell_array_of_thresh_in_mv = repmat({nan(1,length(config.Multipliers))},config.max_channel_number,1);
+cell_array_of_pk_locs = cell(length(ordered_list_of_channels),1);
+cell_array_of_pk_vals = cell(length(ordered_list_of_channels),1);
 if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mv_thresholds.mat"))
     channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
     for i=1:length(ordered_list_of_channels)
@@ -21,7 +23,10 @@ if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mv_thresholds.mat"))
         channel_data = channel_data * scale_factor;
         P = struct('spkThresh', [], 'qqFactor', P_threshold);
         
-        [pk_locs,~,cell_array_of_thresh_in_mv{channel_number} ]= spikeDetectSingle_fast_(channel_data,P);
+        [pk_locs,pk_vals,cell_array_of_thresh_in_mv{channel_number} ]= spikeDetectSingle_fast_(channel_data,P);
+
+        cell_array_of_pk_locs{i} = pk_locs;
+        cell_array_of_pk_vals{i} = pk_vals;
         par_save(fullfile(spikes_per_channel_dir,current_channel),pk_locs);
         send(q,[]);
     end
