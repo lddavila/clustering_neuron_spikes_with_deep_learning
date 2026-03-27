@@ -151,6 +151,10 @@ for i=1:length(sliced_every_permutation_of_both)
         %get the appropriate filter value for the given channels and current
         %min_z_score
 
+        %make sure all rows of multipliers in mv are casted to double
+        for p=1:length(local_config.Multipliers_in_mv)
+            local_config.Multipliers_in_mv{p} = double(local_config.Multipliers_in_mv{p});
+        end
         flat_multipliers = cell2mat(local_config.Multipliers_in_mv);
         per_channel_thresholds_for_curr_z_sc= flat_multipliers(:,j);
         per_spike_thresholds = per_channel_thresholds_for_curr_z_sc(which_channel);

@@ -42,7 +42,7 @@ for k=1:length(number_of_channels_to_use)
         % try
         config = spikesort_config();
         config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
-        config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
+        config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"newer_ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels");
         config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END = "new_ic_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_channels";
         disp("Recording Name");
         disp(config.RECORDING_NAME)
