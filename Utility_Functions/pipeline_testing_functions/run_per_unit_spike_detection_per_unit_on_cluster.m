@@ -25,7 +25,6 @@ precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
-config.BLIND_PASS_DIR_PRECOMPUTED = strrep(config.BLIND_PASS_DIR_PRECOMPUTED,fullfile(config.base_file_path,"Default_Results_Dir"),"F:");
 disp("Finished setting config parameters");
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
 disp('Finished getting orrdered list of channels')

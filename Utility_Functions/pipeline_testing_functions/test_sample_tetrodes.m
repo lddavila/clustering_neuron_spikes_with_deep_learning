@@ -78,10 +78,11 @@ min_threshold = config.NUM_OF_STD_ABOVE_MEAN;
 
 %% filter the data
 dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"filtered_data"));
-apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
-
 %overwrite the channel directory with your filtered data
 dir_with_channel_recordings = dir_to_store_filtered_data;
+apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
+
+
 
 %% plot the filtered and unfiltered channels
 unique_channels = unique(config.ART_TETR_ARRAY(tetrode_rows));
@@ -407,7 +408,7 @@ for i=1:length(unique_tetrode_by_channel_list)
     just_the_tetrode = just_the_tetrode(1);
     %spike windows is by channel
     %dictionaries are arranged by tetrode
-    channels_dictionary = importdata(fullfile(table_of_all_dictionaries{i,"folder"},just_the_tetrode+" tetrode_dictionary.mat"));
+    channels_dictionary = importdata(fullfile(table_of_all_sorted_sw_dictionaries{i,"folder"},just_the_tetrode+" tetrode_dictionary.mat"));
     channels_dictionary = channels_dictionary.tetrode_dictionary;
     channels_for_tetrode = strcat("c",string(channels_dictionary(string(keys(channels_dictionary)))),".mat");
 

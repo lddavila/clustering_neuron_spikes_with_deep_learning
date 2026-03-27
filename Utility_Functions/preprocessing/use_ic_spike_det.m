@@ -11,9 +11,8 @@ cell_array_of_pk_locs = cell(length(ordered_list_of_channels),1);
 cell_array_of_pk_vals = cell(length(ordered_list_of_channels),1);
 if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mv_thresholds.mat"))
     channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
-    for i=1:length(ordered_list_of_channels)
+    parfor i=1:length(channels_without_formatting)
         current_channel = ordered_list_of_channels(i);
-        channel_number = channels_without_formatting(i);
         if ismember(fullfile(spikes_per_channel_dir,current_channel),already_done)
             send(q,[]);
             continue;
@@ -23,7 +22,7 @@ if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mv_thresholds.mat"))
         channel_data = channel_data * scale_factor;
         P = struct('spkThresh', [], 'qqFactor', P_threshold);
         
-        [pk_locs,pk_vals,cell_array_of_thresh_in_mv{channel_number} ]= spikeDetectSingle_fast_(channel_data,P);
+        [pk_locs,pk_vals,cell_array_of_thresh_in_mv{i} ]= spikeDetectSingle_fast_(channel_data,P);
 
         cell_array_of_pk_locs{i} = pk_locs;
         cell_array_of_pk_vals{i} = pk_vals;

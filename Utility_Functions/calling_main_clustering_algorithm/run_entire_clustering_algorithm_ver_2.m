@@ -8,6 +8,21 @@ scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
+%check if there's a ground truth data set available
+%if ground truth is available we can run extra debugging steps which are
+%helpful when testing the pipeline
+if ~isempty(config.GT_FP)
+    try
+        ground_truth_cell_array = importdata(config.GT_FP);
+        config.has_ground_truth = true;
+        config.dir_to_save_debug_files_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"DEBUG"));
+    catch
+        disp("Unable to load the ground truth dataset");
+        disp(config.GT_FP);
+        config.has_ground_truth = false;
+    end
+end
+
 if config.use_new_spike_detection
     z_score_or_multiplier = "Multiplier";
 else
@@ -102,8 +117,15 @@ if ~config.use_new_spike_detection
 else
     %multipliers_in_mv is the threshold values
     %these will be used later on
-    multipliers_in_mv = use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
+    [multipliers_in_mv,pk_locs_cell_array,pk_vals_cell_array ]= use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
     config.Multipliers_in_mv = multipliers_in_mv;
+end
+
+% if the ground truth is available then we can use the spikes found in the
+% previous step to see which channel has the maximum amount of each
+% neuron's data
+if config.has_ground_truth && config.debug_with_ground_truth
+    check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
 end
 
 %step 9b get the spike windows of the smallest z score in the config
