@@ -30,7 +30,7 @@ disp("Finished setting config parameters");
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
 disp('Finished getting orrdered list of channels')
 dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"rec_10_filtered_data"));
-apply_filter(ordered_list_of_channels,config,dir_to_store_filytered_data,config.DIR_WITH_OG_CHANNEL_RECORDINGS)
+apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,config.DIR_WITH_OG_CHANNEL_RECORDINGS)
 dir_with_channel_recordings = dir_to_store_filtered_data;
 disp("Finished applying filter")
 % run the spike detection
