@@ -4,10 +4,12 @@ home_dir = cd("..");
 cd("..");
 addpath(genpath(pwd));
 cd(home_dir);
+disp("Finished adding path")
 
 % get the config
 config = spikesort_config();
 config.Multipliers = 1:1:30;
+disp("Finished setting multipliers")
 
 config.RECORDING_NAME = "10_600Neuron300SecondRecordingWithLevel10Noise";
 config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"test_ic_"+config.RECORDING_NAME);
@@ -16,6 +18,7 @@ disp("Recording Name");
 disp(config.RECORDING_NAME)
 startup;
 
+
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 
 
@@ -23,13 +26,13 @@ config.GT_FP = fullfile(config.base_file_path,config.RECORDING_NAME,"ground_trut
 config.TIMESTAMP_FP = fullfile(config.base_file_path,config.RECORDING_NAME,"timestamps","timestamps.mat");
 config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,config.RECORDING_NAME,"recordings_by_channel");
 config.BLIND_PASS_DIR_PRECOMPUTED = strrep(config.BLIND_PASS_DIR_PRECOMPUTED,fullfile(config.base_file_path,"Default_Results_Dir"),"F:");
-
+disp("Finished setting config parameters");
 ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
-
+disp('Finished getting orrdered list of channels')
 dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"rec_10_filtered_data"));
 apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,config.DIR_WITH_OG_CHANNEL_RECORDINGS)
 dir_with_channel_recordings = dir_to_store_filtered_data;
-
+disp("Finished applying filter")
 % run the spike detection
 scale_factor = -1;
 config.ALREADY_DONE_FILES = [""];
@@ -37,10 +40,10 @@ lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_a
 
 [multipliers_in_mv,pk_locs_cell_array,pk_vals_cell_array]= use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
 config.Multipliers_in_mv = multipliers_in_mv;
-
+disp("finished getting the spikes per channel and multipliers in mv")
 % get the ground truth
 ground_truth = importdata(config.GT_FP);
-
+disp("Finished importing the ground truth");
 
 % for each ground unit see what the detection ratio is
 tol_amount = 6; %equal to about .2 milliseconds
@@ -78,6 +81,7 @@ for i=1:length(ground_truth)
     all_combinations_of_mult_and_channels = sortrows(all_combinations_of_mult_and_channels,["detection_ratio","mean_amplitude"],"descend");
     
     par_save(fullfile(precomputed_dir,"Unit_"+string(i)+".mat"),all_combinations_of_mult_and_channels)
+    disp('Finished '+string(i));
 end
 
 end
