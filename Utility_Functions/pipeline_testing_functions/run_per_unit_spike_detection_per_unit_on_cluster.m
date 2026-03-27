@@ -12,7 +12,7 @@ config.Multipliers = 1:1:30;
 disp("Finished setting multipliers")
 
 config.RECORDING_NAME = "10_600Neuron300SecondRecordingWithLevel10Noise";
-config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"test_ic_"+config.RECORDING_NAME);
+config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"test_ic_"+config.RECORDING_NAME));
 config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END = "test_ic_"+config.RECORDING_NAME;
 disp("Recording Name");
 disp(config.RECORDING_NAME)
@@ -31,7 +31,7 @@ ordered_list_of_channels = get_dynamic_ordered_list_of_channels(config);
 disp('Finished getting orrdered list of channels')
 dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"rec_10_filtered_data"));
 apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,config.DIR_WITH_OG_CHANNEL_RECORDINGS)
-dir_with_channel_recordings = dir_to_store_filtered_data;
+dir_with_channel_recordings = dir_to_store_filtered_data; 
 disp("Finished applying filter")
 % run the spike detection
 scale_factor = -1;
@@ -58,7 +58,11 @@ for i=1:length(ground_truth)
     mean_amplitude_of_detected_spikes = zeros(height(all_combinations_of_mult_and_channels),1);
     multiplier_in_mv_col = zeros(height(all_combinations_of_mult_and_channels),1);
     median_amplitude_of_detected_spikes = zeros(height(all_combinations_of_mult_and_channels),1);
-    parfor j=1:height(all_combinations_of_mult_and_channels)
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_status_bar)
+    num_iterations = height(all_combinations_of_mult_and_channels);
+    print_status_bar(num_iterations,"doing_combinations")
+    for j=1:height(all_combinations_of_mult_and_channels)
         current_channel_peak_locs = pk_locs_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
         current_channel_peak_amps = pk_vals_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
         current_channel_thresholds_in_mv = multipliers_in_mv{all_combinations_of_mult_and_channels{j,"all_channels"}};
@@ -71,6 +75,7 @@ for i=1:length(ground_truth)
         mean_amplitude_of_detected_spikes(j) = mean(abs(filtered_peak_amps(loc_in_filtered_peaks(loc_in_filtered_peaks~=0))));
         multiplier_in_mv_col(j) = current_channel_threshold_level;
         median_amplitude_of_detected_spikes(j) = median(abs(filtered_peak_amps(loc_in_filtered_peaks(loc_in_filtered_peaks~=0))));
+        send(q,[]);
     end
 
     all_combinations_of_mult_and_channels.detection_ratio = detection_ratio;
