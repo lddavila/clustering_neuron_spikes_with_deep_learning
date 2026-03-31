@@ -1,4 +1,4 @@
-function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,dir_to_save_spike_windows_to,tetrode_id)
+function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,dir_to_save_spike_windows_to,current_tetrode)
 %OG: [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes]
 %RUN_SPIKESORT_NTT_CORE Runs spike sorter on data extracted from the
 %tetrode.
@@ -50,13 +50,18 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs]
         reg_timestamps = timestamps(reg_spikes_idx);
         reg_timestamps_of_the_spikes = timestamps(reg_spikes_idx,31);
         reg_sorted_spike_windows = sorted_spike_windows(reg_spikes_idx,:);
-        save(fullfile(dir_to_save_spike_windows_to,tetrode_id+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
+        save(fullfile(dir_to_save_spike_windows_to,current_tetrode+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
     else
         reg_interp_raw = good_interp_raw;
         reg_timestamps = timestamps(good_spikes_idx_inj);
         reg_timestamps_of_the_spikes = timestamps(good_spikes_idx_inj,31);
         reg_sorted_spike_windows = sorted_spike_windows(good_spikes_idx_inj,:);
-        save(fullfile(dir_to_save_spike_windows_to,tetrode_id+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
+        save(fullfile(dir_to_save_spike_windows_to,current_tetrode+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
+    end
+
+    %check how detection is affected at the current if set on the config
+    if config.debug_with_ground_truth && config.has_ground_truth
+        check_unit_detection_while_clustering(reg_sorted_spike_windows,current_tetrode,config,"after_near_sim_spike_det_filt")
     end
     %do an uncomment on everything below this line, do not include this line
     % Run the spikesort algorithm (with only the spike-sort related config

@@ -16,6 +16,7 @@ if ~isempty(config.GT_FP)
         ground_truth_cell_array = importdata(config.GT_FP);
         config.has_ground_truth = true;
         config.dir_to_save_debug_files_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"DEBUG"));
+        config.ground_truth_cell_array = ground_truth_cell_array;
     catch
         disp("Unable to load the ground truth dataset");
         disp(config.GT_FP);
@@ -117,7 +118,7 @@ if ~config.use_new_spike_detection
 else
     %multipliers_in_mv is the threshold values
     %these will be used later on
-    [multipliers_in_mv,pk_locs_cell_array,pk_vals_cell_array ]= use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
+    [multipliers_in_mv,cell_array_of_all_spikes_per_channel,pk_vals_cell_array ]= use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
     config.Multipliers_in_mv = multipliers_in_mv;
 end
 
@@ -125,7 +126,7 @@ end
 % previous step to see which channel has the maximum amount of each
 % neuron's data
 if config.has_ground_truth && config.debug_with_ground_truth
-    check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
+    config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,cell_array_of_all_spikes_per_channel,pk_vals_cell_array,config);
 end
 
 %step 9b get the spike windows of the smallest z score in the config
@@ -144,7 +145,13 @@ end
 lowest_bound_threshold = min(thresholds_to_check);
 
 lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
-get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
+%get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
+
+
+if config.has_ground_truth && config.debug_with_ground_truth
+    % config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
+    get_unit_detection_after_spike_cutting(config,lowest_bound_spike_windows_dir,cell_array_of_all_spikes_per_channel,ground_truth_cell_array);
+end
 
 % step 9d: get maps of each tetrode to its spikes
 beginning_time = tic;
@@ -186,6 +193,10 @@ get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_d
 % clc;
 end_time = toc(beginning_time);
 fprintf('Getting dictionaries took: %f\n',end_time)
+
+if config.has_ground_truth && config.debug_with_ground_truth
+    check_unit_detection_after_dictionary_assembly(config,dictionaries_dir,ground_truth_cell_array,multipliers_in_mv)
+end
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))

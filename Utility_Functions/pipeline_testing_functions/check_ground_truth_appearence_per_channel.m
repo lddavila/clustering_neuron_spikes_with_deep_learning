@@ -1,11 +1,11 @@
-function [] = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
+function [config] = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
 cell_array_of_best_channels_per_unit = cell(length(ground_truth_cell_array),1);
 tol_amount = 6; %equivalent to .2 milliseconds, can be adjusted to be more/less strict
 if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_channel_per_unit.txt'))
     for i=1:length(ground_truth_cell_array)
         current_ground_truth = ground_truth_cell_array{i};
         all_channels = 1:length(ordered_list_of_channels);
-        all_multiplier_idxs = 1:length(multipliers_in_mv{1});
+        all_multiplier_idxs = config.Multipliers;
         all_combinations_of_mult_and_channels = combinations(all_channels,all_multiplier_idxs);
         all_combinations_of_mult_and_channels.unit = repelem(i,height(all_combinations_of_mult_and_channels),1);
         detection_ratio = zeros(height(all_combinations_of_mult_and_channels),1);
@@ -47,6 +47,7 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
             all_combinations_of_mult_and_channels = importdata(save_name);
             all_combinations_of_mult_and_channels.unit = repelem(i,height(all_combinations_of_mult_and_channels),1);
             all_combinations_of_mult_and_channels(isnan(all_combinations_of_mult_and_channels{:,"mean_amplitude"}),:) = [];
+            % all_combinations_of_mult_and_channels.all_multiplier_idxs = all_combinations_of_mult_and_channels.all_multiplier_idxs+5;
             par_save(save_name,all_combinations_of_mult_and_channels)
         end
         all_channels_in_sorted_order = unique(all_combinations_of_mult_and_channels{:,"all_channels"},'stable');
@@ -55,10 +56,10 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
             selection_cond = ismember(all_combinations_of_mult_and_channels{:,"all_channels"},top_4_channels_for_current_unit);
             cell_array_of_best_channels_per_unit{i} = all_combinations_of_mult_and_channels(selection_cond,:);
         else
-            cell_array_of_best_channels_per_unit{i} = cell2table(cell(0,length(all_combinations_of_mult_and_channels.Properties.VariableNames)),'VariableNames',string(all_combinations_of_mult_and_channels.Properties.VariableNames))
+            cell_array_of_best_channels_per_unit{i} = cell2table(cell(0,length(all_combinations_of_mult_and_channels.Properties.VariableNames)),'VariableNames',string(all_combinations_of_mult_and_channels.Properties.VariableNames));
         end
-        
-        
+
+
         disp('Finished '+string(i));
     end
     table_of_best_rep = vertcat(cell_array_of_best_channels_per_unit{:});
@@ -66,6 +67,7 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
     fileID = fopen(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_channel_per_unit.txt'),'w');
     fclose(fileID);
 
-end
 
+end
+config.fp_to_table_of_best_rep = fullfile(config.dir_to_save_debug_files_to,"table_of_best_rep.mat");
 end

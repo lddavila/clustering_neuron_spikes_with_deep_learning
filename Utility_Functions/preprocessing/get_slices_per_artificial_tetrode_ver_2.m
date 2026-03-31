@@ -14,7 +14,7 @@ for i=1:length(chan_of_art_tetrode)
     current_channel_recording_file_name = fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat");
     % disp("current channel recording file name")
     % disp(current_channel_recording_file_name);
-    channels_data{i} = (importdata(current_channel_recording_file_name) * scale_factor).';
+    channels_data{i} = single(importdata(current_channel_recording_file_name) * scale_factor).';
 end
 
 % disp("Finished importing data")
@@ -118,11 +118,11 @@ spike_tetrode_dictionary_samples_format = struct("spike_tetrode_dictionary_sampl
 sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windows_for_current_tetrode_dictionary",sorted_spike_windows_for_current_tetrode_dictionary);
 % disp("Finished getting structs")
 % disp("Beginning Dictionary Saving")
-par_save(dict_fpths(2),spike_tetrode_dictionary)
-par_save(dict_fpths(3),timing_tetrode_dictionary)
-par_save(dict_fpths(5),spiking_channel_tetrode_dictionary)
-par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format);
-par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary);
+par_save(dict_fpths(2),spike_tetrode_dictionary,false)
+par_save(dict_fpths(3),timing_tetrode_dictionary,false)
+par_save(dict_fpths(5),spiking_channel_tetrode_dictionary,false)
+par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format,false);
+par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary,false);
 % par_save(dict_fpths(8),peak_vals_dict)
 % disp("Finished Dictionary Saving")
 end

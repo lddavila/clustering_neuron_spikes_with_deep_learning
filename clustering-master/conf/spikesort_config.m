@@ -38,7 +38,9 @@ config.TEMPLATE_CLUSTER_FP_ON_HPC =[fullfile("/scratch/lddavila/cluster_neuronsp
 config.has_ground_truth = false;
 config.debug_with_ground_truth = false;
 config.dir_to_save_debug_files_to = "";
-
+config.fp_to_table_of_best_rep = "";
+config.debug_present_order = ["unit","all_multiplier_idxs","mult_in_mv","all_channels","tetrode","mean_amplitude","median_amp","detection_ratio","detection_ratio_after_spike_cutting","detection_ratio_after_dict_creation","after_near_sim_spike_det_filt"];
+config.which_thresh = NaN;
 
 config.MAX_EUC_DIST = 50; %serves as an upper bound of euclidean distance between cluster template wave forms to check when merging clusters
 config.UPDATE_CLASSIFICATION = false; %when true every grade will be updated with the latest classification using classify_clusters_based_on_grades_ver_3
@@ -249,6 +251,8 @@ config.sample_rate_in_hertz = 30030;
 config.freqLim_width = [100, 3000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
 config.Multipliers = 6:.1:15;
 config.Multipliers = 6:1:15;
+config.ground_truth_cell_array = {};
+% config.Multipliers = 1:1:15;
 config.struct_of_neuron_distance = fullfile(config.base_file_path,"Data","full_struct.mat");
 
 

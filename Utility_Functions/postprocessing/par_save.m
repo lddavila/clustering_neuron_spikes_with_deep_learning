@@ -1,4 +1,4 @@
-function [] = par_save(file_save_name,data_to_save)
+function [] = par_save(file_save_name,data_to_save,varargin)
 file_save_name_as_char = char(file_save_name);
 if ~strcmp(file_save_name_as_char(end-3:end), '.mat') %if it's missing the .mat file extension add it yourself
     file_save_name = file_save_name+".mat";
@@ -15,6 +15,9 @@ limitBytes = 1.5 * 1024^3;
 
 % Check if the variable size is less than the limit
 isLessThan2GB = varSizeInBytes < limitBytes;
+if ~isempty(varargin)
+    isLessThan2GB = varargin{1};
+end
 if isLessThan2GB
     save(file_save_name,"data_to_save");
 else

@@ -13,7 +13,7 @@ list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"}
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
 
 number_of_tetrodes_to_run = str2double(strrep(list_of_available_tetrodes,"t","")); %tetrodes are not necessarily linear as some may have failed at earlier stages
-number_of_thresholds_to_run = 1:size(config.Multipliers_in_mv{1},2); %multipliers might not be linear, but we have catches for that
+number_of_thresholds_to_run = config.Multipliers; %multipliers might not be linear, but we have catches for that
 
 every_permutation_of_both = combinations(number_of_thresholds_to_run,number_of_tetrodes_to_run);
 
@@ -59,7 +59,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = height(every_permutation_of_both);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_4");
-%there should be a parfor on line 65 when not testing
+%there should be a parfor on line 63 when not testing
 for i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
@@ -68,7 +68,9 @@ for i=1:length(sliced_every_permutation_of_both)
 
 
 
+
     % beginning_time = tic;
+    
     current_tetrode = "t"+current_data{1,"number_of_tetrodes_to_run"};
 
     %check for required files
@@ -104,6 +106,7 @@ for i=1:length(sliced_every_permutation_of_both)
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
     for j=1:height(current_data)
+        local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
         current_filename = current_data{j,"filenames"};
         %check to make sure that every channel in the current dataset is
         %actually available
@@ -222,7 +225,7 @@ for i=1:length(sliced_every_permutation_of_both)
 
         try
             %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
-            local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier " + string(j)));
+            local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(local_initial_tetrodes_results_dir);
             [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,local_config,channels_in_current_tetrode,sorted_spike_windows,local_tetrode_results_dir,current_tetrode);
             %   - the first column contains the timestamps of the spikes in seconds
             %   - the second column contains the cluster classification of the spikes
