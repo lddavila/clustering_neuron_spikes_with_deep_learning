@@ -120,9 +120,9 @@ sorted_spike_windows_for_current_tetrode_dictionary = struct("sorted_spike_windo
 % disp("Beginning Dictionary Saving")
 par_save(dict_fpths(2),spike_tetrode_dictionary,false)
 par_save(dict_fpths(3),timing_tetrode_dictionary,false)
-par_save(dict_fpths(5),spiking_channel_tetrode_dictionary,false)
+par_save(dict_fpths(5),spiking_channel_tetrode_dictionary)
 par_save(dict_fpths(6),spike_tetrode_dictionary_samples_format,false);
-par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary,false);
+par_save(dict_fpths(7),sorted_spike_windows_for_current_tetrode_dictionary);
 % par_save(dict_fpths(8),peak_vals_dict)
 % disp("Finished Dictionary Saving")
 end
