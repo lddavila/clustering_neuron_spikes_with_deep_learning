@@ -1,16 +1,23 @@
 function [] = test_core_clustering_on_hpc()
-%% get a config file
+% set path
+home_dir = cd("..");
+cd("..")
+addpath(genpath(pwd));
+cd(home_dir);
+
+% get a config file
 config = spikesort_config();
 config.Multipliers = 3:1:15;
 default_array = config.ART_TETR_ARRAY;
 % get the ground truth
-config.ground_truth_cell_array = importdata("E:\10_600Neuron300SecondRecordingWithLevel10Noise\ground_truth\ground_truth.mat");
+config.ground_truth_cell_array = importdata(fullfile(config.base_file_path,"Data","10_600Neuron300SecondRecordingWithLevel10Noise","ground_truth","ground_truth.mat"));
+disp("Finished importing ground truth")
 config.has_ground_truth = 1;
 config.debug_with_ground_truth = 1;
-config.GT_FP = "E:\10_600Neuron300SecondRecordingWithLevel10Noise\ground_truth\ground_truth.mat";
+config.GT_FP = fullfile(config.base_file_path,"Data","10_600Neuron300SecondRecordingWithLevel10Noise","ground_truth","ground_truth.mat");
 config.the_linspace_to_use = linspace(1,0,4);
-config.TIMESTAMP_FP = "E:\5_600Neuron300SecondRecordingWithLevel5Noise\timestamps\timestamps.mat";
-%% set the tetrode number you want to test
+config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data","10_600Neuron300SecondRecordingWithLevel10Noise","timestamps","timestamps.mat");
+% set the tetrode number you want to test
 tetrode_numbers = [136,14,166,1,10,4,97,98,88,91];
 multiplier_to_test = 3;
 config.which_thresh = multiplier_to_test;
@@ -21,6 +28,9 @@ tetrode_counter = 1;
 config.the_linspace_to_use = linspace(1,0,4);
 max_tries =5;
 try_counter = 0;
+
+%create a file to save all the results
+dir_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir),"linspace_tests");
 while tetrode_counter < length(tetrode_numbers) 
     upper_bound_of_linspace = max(config.the_linspace_to_use);
     tetrode_number = tetrode_numbers(tetrode_counter);
