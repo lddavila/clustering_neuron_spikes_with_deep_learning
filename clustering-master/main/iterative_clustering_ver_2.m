@@ -1,5 +1,5 @@
 %updated by Luis David Davila and Alexander Friedman
-function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_spikes, the_ir, the_tvals, the_refine_spike_idx, the_subsets, the_config,the_peak_pcs_file_name)
+function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_spikes, the_ir, the_tvals, the_refine_spike_idx, the_subsets, the_config,the_peak_pcs_file_name,full_config)
 %version 2 returns the pcs AS WELL AS the clusters that the original
 %returns
 %ITERATIVE_CLUSTERING Performs several iterations/passes of the same clustering
@@ -58,7 +58,8 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
         
         % Run clustering with this pass of filtering as specified in
         % subsets, with everything removed above.
-        [cf, bad_tmp] = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name);
+        full_config.which_subset = k;
+        [cf, bad_tmp,full_config] = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name,full_config);
         
         if the_config.DO_BAD_CLUSTER_ROUND && ~isempty(bad)
             for c = 1:length(bad)
@@ -91,7 +92,7 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
             end
 
             % Run clustering again with bad clusters also removed.
-            cf_bad = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name);
+            [cf_bad,~,full_config ]= run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name,full_config);
         else
             cf_bad = {};
         end

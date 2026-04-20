@@ -74,7 +74,7 @@ if config.use_bandpass
     % create a file where bandpass filtered data will be stored
     % we'll store it in the default output data is
     dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"filtered_data"));
-    apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
+    % apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
 
     %overwrite the channel directory with your filtered data
     dir_with_channel_recordings = dir_to_store_filtered_data;
@@ -142,15 +142,15 @@ if ~config.use_new_spike_detection
 else
     thresholds_to_check = 1:length(config.Multipliers);
 end
-lowest_bound_threshold = min(thresholds_to_check);
+lowest_bound_threshold = min(config.Multipliers);
 
 lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
-%get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
+% get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
 
 
 if config.has_ground_truth && config.debug_with_ground_truth
-    % config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
-    get_unit_detection_after_spike_cutting(config,lowest_bound_spike_windows_dir,cell_array_of_all_spikes_per_channel,ground_truth_cell_array);
+    config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,cell_array_of_all_spikes_per_channel,pk_vals_cell_array,config);
+    get_unit_detection_after_spike_cutting(config,lowest_bound_spike_windows_dir,ground_truth_cell_array);
 end
 
 % step 9d: get maps of each tetrode to its spikes
@@ -162,7 +162,7 @@ else
 end
 % disp("the dictionaries dir")
 % disp(dictionaries_dir)
-get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
+% get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
 %tetrode_dictionary
 %keys: "t" + tetrode number
 %values: all channels which are part of the current dictionary
@@ -195,7 +195,7 @@ end_time = toc(beginning_time);
 fprintf('Getting dictionaries took: %f\n',end_time)
 
 if config.has_ground_truth && config.debug_with_ground_truth
-    check_unit_detection_after_dictionary_assembly(config,dictionaries_dir,ground_truth_cell_array,multipliers_in_mv)
+    config =check_unit_detection_after_dictionary_assembly(config,dictionaries_dir,ground_truth_cell_array,multipliers_in_mv);
 end
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));

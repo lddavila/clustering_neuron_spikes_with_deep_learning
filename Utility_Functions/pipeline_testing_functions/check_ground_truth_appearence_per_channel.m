@@ -22,7 +22,7 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
                 current_channel_peak_locs = pk_locs_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
                 current_channel_peak_amps = pk_vals_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
                 current_channel_thresholds_in_mv = multipliers_in_mv{all_combinations_of_mult_and_channels{j,"all_channels"}};
-                current_channel_threshold_level = current_channel_thresholds_in_mv(all_combinations_of_mult_and_channels{j,"all_multiplier_idxs"});
+                current_channel_threshold_level = current_channel_thresholds_in_mv(find(all_combinations_of_mult_and_channels{j,"all_multiplier_idxs"}==config.Multipliers));
 
                 filtered_peak_locs = current_channel_peak_locs(abs(current_channel_peak_amps) >= abs(current_channel_threshold_level));
                 filtered_peak_amps = current_channel_peak_amps(abs(current_channel_peak_amps) >= abs(current_channel_threshold_level));

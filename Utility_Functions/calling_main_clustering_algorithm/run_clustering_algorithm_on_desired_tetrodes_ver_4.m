@@ -9,10 +9,15 @@ function [] = run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_me
 %this number can be derived by knowing how many thresholds and how many
 %tetrodes you have available
 list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* tetrode_dictionary.mat")));
+
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
 
+
 number_of_tetrodes_to_run = str2double(strrep(list_of_available_tetrodes,"t","")); %tetrodes are not necessarily linear as some may have failed at earlier stages
+theoretical_max_num_tetrodes = 1:size(config.ART_TETR_ARRAY,1);
+theoretical_max_num_tetrodes = [136,14,166,10,4,5,7,8]; %REMEMBER TO REMOVE THIS LINE
+number_of_tetrodes_to_run = intersect(number_of_tetrodes_to_run,theoretical_max_num_tetrodes);
 number_of_thresholds_to_run = config.Multipliers; %multipliers might not be linear, but we have catches for that
 
 every_permutation_of_both = combinations(number_of_thresholds_to_run,number_of_tetrodes_to_run);
@@ -59,7 +64,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = height(every_permutation_of_both);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_4");
-%there should be a parfor on line 63 when not testing
+%there should be a parfor on line 67 when not testing
 for i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
@@ -88,25 +93,31 @@ for i=1:length(sliced_every_permutation_of_both)
 
 
     %by loading the dictionaries first we can minimize the number of loads
-    tetrode_dictionary = importdata(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
+    tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
+    tetrode_dictionary = tetrode_dictionary.data_to_save;
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
     % disp(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
-    spike_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
+    spike_tetrode_dictionary =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
+    spike_tetrode_dictionary = spike_tetrode_dictionary.data_to_save;
     spike_tetrode_dictionary = spike_tetrode_dictionary.spike_tetrode_dictionary;
-    timing_tetrode_dictionary =importdata(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
+    timing_tetrode_dictionary =load(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
+    timing_tetrode_dictionary = timing_tetrode_dictionary.data_to_save;
     timing_tetrode_dictionary =timing_tetrode_dictionary.timing_tetrode_dictionary;
-    sorted_spike_windows_dictionary = importdata(fullfile(dictionaries_dir,current_tetrode+" sorted_spike_windows.mat"));
+    sorted_spike_windows_dictionary = load(fullfile(dictionaries_dir,current_tetrode+" sorted_spike_windows.mat"));
+    sorted_spike_windows_dictionary = sorted_spike_windows_dictionary.data_to_save;
     sorted_spike_windows_dictionary = sorted_spike_windows_dictionary.sorted_spike_windows_for_current_tetrode_dictionary;
     sorted_spike_windows = sorted_spike_windows_dictionary(current_tetrode);
 
 
 
     
-    spike_tetrode_dictionary_samples_format =importdata(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
+    spike_tetrode_dictionary_samples_format =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
+    spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.data_to_save;
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
-    for j=1:height(current_data)
-        local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
+    parfor j=1:height(current_data)
+        even_more_local_config = local_config;
+        even_more_local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
         current_filename = current_data{j,"filenames"};
         %check to make sure that every channel in the current dataset is
         %actually available
@@ -125,7 +136,7 @@ for i=1:length(sliced_every_permutation_of_both)
         peak_pcs_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" peak_pcs.mat");
 
         %overwrite the field
-        local_config.peak_pcs_file_name = peak_pcs_file_name;
+        even_more_local_config.peak_pcs_file_name = peak_pcs_file_name;
 
         c1 = isfile(output_file_name);
         c2 = isfile(aligned_file_name);
@@ -148,17 +159,17 @@ for i=1:length(sliced_every_permutation_of_both)
         %apply the desired threshold indicated by the current_z_score variable
 
         %get the max peak value for each waveform
-        max_peak_vals = max(raw,[],[1,3]).';
+        max_peak_vals = max(abs(raw),[],[1,3]).';
         %get which channel each max peak value belongs to
         which_channel = sorted_spike_windows(:,3);
         %get the appropriate filter value for the given channels and current
         %min_z_score
 
         %make sure all rows of multipliers in mv are casted to double
-        for p=1:length(local_config.Multipliers_in_mv)
-            local_config.Multipliers_in_mv{p} = double(local_config.Multipliers_in_mv{p});
+        for p=1:length(even_more_local_config.Multipliers_in_mv)
+            even_more_local_config.Multipliers_in_mv{p} = double(even_more_local_config.Multipliers_in_mv{p});
         end
-        flat_multipliers = cell2mat(local_config.Multipliers_in_mv);
+        flat_multipliers = cell2mat(even_more_local_config.Multipliers_in_mv);
         per_channel_thresholds_for_curr_z_sc= flat_multipliers(:,j);
         per_spike_thresholds = per_channel_thresholds_for_curr_z_sc(which_channel);
         has_already_been_run = check_if_current_data_has_already_been_run(max_peak_vals,which_channel,flat_multipliers,j,raw);
@@ -170,6 +181,16 @@ for i=1:length(sliced_every_permutation_of_both)
         %now filter out any values in raw that do not meet the threshold
         mutated_raw = raw(:,max_peak_vals>=per_spike_thresholds,:);
 
+        %filter the spike windows for debugging in clustering process
+        mutated_spike_windows = sorted_spike_windows(max_peak_vals >= per_spike_thresholds,:);
+        
+        %put spike windows in the config
+        even_more_local_config.mutated_spike_windows = mutated_spike_windows;
+
+        %store the local tetrode
+        even_more_local_config.tetrode = current_tetrode;
+
+
         %get the new size of raw after the filter
         new_raw_size = size(mutated_raw);
 
@@ -177,7 +198,7 @@ for i=1:length(sliced_every_permutation_of_both)
         %means the filter did not filter anything out and thus running it will
         %result clustering the exact same data again which would be wasted
         %compute time
-        if all(new_raw_size==raw_size_before)
+        if all(new_raw_size==raw_size_before) && j~=1
             % disp("No new data continuing ...")
             send(q,[]);
             continue;
@@ -226,7 +247,7 @@ for i=1:length(sliced_every_permutation_of_both)
         try
             %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
             local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(local_initial_tetrodes_results_dir);
-            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,local_config,channels_in_current_tetrode,sorted_spike_windows,local_tetrode_results_dir,current_tetrode);
+            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
             %   - the first column contains the timestamps of the spikes in seconds
             %   - the second column contains the cluster classification of the spikes
             %       E.g., a value of '3' means that the spike belongs to cluster 3.

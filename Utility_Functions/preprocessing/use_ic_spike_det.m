@@ -9,7 +9,7 @@ cell_array_of_thresh_in_mv = repmat({nan(1,length(config.Multipliers))},config.m
 cell_array_of_pk_locs = cell(length(ordered_list_of_channels),1);
 cell_array_of_pk_vals = cell(length(ordered_list_of_channels),1);
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
-parfor i=1:length(channels_without_formatting)
+for i=1:length(channels_without_formatting)
     current_channel = ordered_list_of_channels(i);
     if ~isfile(fullfile(spikes_per_channel_dir,current_channel))
 

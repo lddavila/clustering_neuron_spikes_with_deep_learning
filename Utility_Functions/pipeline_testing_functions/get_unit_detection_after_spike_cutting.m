@@ -1,4 +1,4 @@
-function [] = get_unit_detection_after_spike_cutting(config,lowest_bound_spike_windows_dir,cell_array_of_all_spikes_per_channel,ground_truth)
+function [] = get_unit_detection_after_spike_cutting(config,lowest_bound_spike_windows_dir,ground_truth)
 %this function serves to see if we lose any spikes when cutting the spike
 %windows
 %while theoretically possible the loss should be so miniscule as to be less
@@ -19,6 +19,7 @@ if ~isfile(finished_status_save_name)
 
     % import the spike windows data
     parfor i=1:height(spike_windows_table)
+        % disp(i);
         spike_windows_cell_array{i} = importdata(fullfile(spike_windows_table{i,"folder"},"c"+string(i)+".mat"));
     end
 
@@ -26,7 +27,7 @@ if ~isfile(finished_status_save_name)
     q = parallel.pool.DataQueue;
     afterEach(q,@print_status_bar)
     print_status_bar(number_of_iterations,"get_unit_detection_after_spike_cutting.m")
-    for i=1:height(table_of_best_rep)
+    parfor i=1:height(table_of_best_rep)
         current_spike_windows = spike_windows_cell_array{table_of_best_rep{i,"all_channels"}};
         % if size(current_spike_windows,1) ~= length(cell_array_of_all_spikes_per_channel{i})
         %     disp("data loss occured")

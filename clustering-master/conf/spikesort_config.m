@@ -54,6 +54,7 @@ config.ART_TETR_ARRAY = build_artificial_tetrode; %this is an array which tells 
 config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 %each row should correspond a grouping of channels you want to create
 
+config.the_linspace_to_use = linspace(.1, 0, 4);
 
 
 config.TIME_DELTA = 0.0002;

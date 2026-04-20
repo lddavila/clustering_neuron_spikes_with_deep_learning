@@ -24,9 +24,36 @@ function the_pmv = compute_snr_statistic(the_aligned, the_raw, the_tvals, the_ir
 %   'tvals' are the threshold values for each wire in microvolts.
 %
 %   'ir' are the input range values for each wire in microvolts.
-    p = get_peaks(the_aligned, true)';
-    nv = get_peaks(the_raw * (-1), false, the_tvals, the_ir)'; % Valleys
-    
-    score = zscore(p + nv);
-    the_pmv = zscore(max(score, [], 2));
+p = get_peaks(the_aligned, true)';
+nv = get_peaks(the_raw * (-1), false, the_tvals, the_ir)'; % Valleys
+
+score = zscore(p + nv);
+the_pmv = zscore(max(score, [], 2));
+
+%new method which normalzies using the MAD version
+% data_to_score = p + nv;
+% % score = (data_to_score - median(data_to_score)) ./ (median(abs(data_to_score - median(data_to_score))) / 0.6745);
+% data_to_normalize = max(score,[],2);
+% the_pmv = median(abs(data_to_normalize - median(data_to_normalize))) / 0.6745;
+
+% med_vals = median(data_to_score, 1);
+% mad_vals = median(abs(data_to_score - med_vals), 1) / 0.6745;
+
+% Avoid divide-by-zero
+% mad_vals(mad_vals == 0) = eps;
+% 
+% score = (data_to_score - med_vals) ./ mad_vals;
+% 
+% % For each spike, take the best channel
+% data_to_normalize = max(score, [], 2);
+% 
+% % Optional: robust normalize final per-spike values
+% final_med = median(data_to_normalize);
+% final_mad = median(abs(data_to_normalize - final_med)) / 0.6745;
+% 
+% if final_mad == 0
+%     final_mad = eps;
+% end
+
+% the_pmv = (data_to_normalize - final_med) / final_mad;
 end

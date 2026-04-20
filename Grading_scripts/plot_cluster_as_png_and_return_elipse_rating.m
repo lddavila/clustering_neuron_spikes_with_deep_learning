@@ -1,5 +1,7 @@
 function [best_elipse_score,circularity] = plot_cluster_as_png_and_return_elipse_rating(compare_wire_peaks,compare_wire_2_peaks,dir_of_template_figures)
 
+compare_wire_peaks = double(compare_wire_peaks);
+compare_wire_2_peaks = double(compare_wire_2_peaks);
 %it seems as though circularity below 1.7 can indicate something bad
 best_elipse_score = NaN;
 circularity = NaN;

@@ -1,5 +1,5 @@
 %this file has been edited by Luis D. Davila and Alexander Friedman 
-function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_features_fn, config,peak_pcs_file_name)
+function [clusters,full_config ]= core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_features_fn, config,peak_pcs_file_name,full_config)
 %spikes : 
 %   An array with the following dimensions:
 %   number_of_channels X number_of_spikes X number_of_data_points matrix
@@ -18,6 +18,7 @@ function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_fe
 % cluster_idx_inj: all the indexes for every spike
     
     [n, U] = cluster_prepare_data(spikes, cluster_ns, extract_features_fn, config,peak_pcs_file_name);
+    cluster_idx_without_struct = {};
     if n == 0 %means no clusters were found 
         clusters = {}; 
     elseif n == 1 %means only a single cluster was found
@@ -38,6 +39,7 @@ function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_fe
             subcl = struct();
             subcl.subclust = ~isequal(cluster_idx_inj, subcluster_idx_inj); %is true if the current subcluster, does not encompass the entire parent cluster
             subcl.idx = subcluster_idx_inj; %all the spikes in the current cluster
+            cluster_idx_without_struct = [cluster_idx_without_struct subcluster_idx_inj];
             clusters = [clusters subcl]; %add the new cluster object to the list of clusters
 %             cluster_spikes = spikes(:, cluster_filter, :);
 %             subclusters = core_cluster(cluster_spikes, ...
@@ -48,6 +50,15 @@ function clusters = core_cluster(spikes, cluster_ns, cluster_idx_inj, extract_fe
 %             if ~isempty(subclusters)
 %                 clusters = [clusters subclusters];
 %             end
+
         end
+        if full_config.has_ground_truth && full_config.debug_with_ground_truth
+            local_spike_windows = full_config.mutated_spike_windows;
+            local_spike_windows = local_spike_windows(full_config.true_spike_idx,:);
+            local_spike_windows = local_spike_windows(cell2mat(cluster_idx_without_struct),:);
+            stage = "subset_"+string(full_config.which_subset)+"_level_"+string(full_config.current_level);
+            full_config = check_unit_detection_while_clustering(local_spike_windows,full_config.tetrode,full_config,stage);
+        end
+
     end
 end

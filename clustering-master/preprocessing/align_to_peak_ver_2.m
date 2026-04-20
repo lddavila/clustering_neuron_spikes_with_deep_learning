@@ -26,9 +26,9 @@ function the_aligned = align_to_peak_ver_2(the_spikes, the_tvals, the_ir)
     align_peak = round(numdp * 0.2); % 200 microsecond mark (ORIGINAL LINE)
     % align_peak = 6; % 200 microsecond mark
     numaligneddp = round(numdp*1.25);
-    the_aligned = zeros(numwires, numspikes, numaligneddp);
+    the_aligned = zeros(numwires, numspikes, numaligneddp,"single");
     
-    p_spikes = permute(the_spikes, [3 1 2]);
+    p_spikes = permute(single(the_spikes), [3 1 2]);
     %p_spike is now ordered #dps, #channels, #spikes
     
     new_align_peak = round(0.75 * (numaligneddp - numdp)) + align_peak;

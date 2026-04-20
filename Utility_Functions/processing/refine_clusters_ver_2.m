@@ -1,4 +1,4 @@
-function refined_clusters = refine_clusters_ver_2(spikes, refine_idx_inj, clusters, ir, tvals, config)
+function refined_clusters = refine_clusters_ver_2(spikes, refine_idx_inj, clusters, ir, tvals, config,full_config)
 %REFINE_CLUSTERS Manages refinement of all of the clusters after
 %clustering.
 %   refined_clusters = REFINE_CLUSTERS(spikes, refine_idx_inj, clusters)
@@ -21,42 +21,51 @@ function refined_clusters = refine_clusters_ver_2(spikes, refine_idx_inj, cluste
 %
 %   'config' is the spikesort configuration struct.
 
-    refined_clusters = cell(size(clusters));
-    refine_spikes = spikes(:, refine_idx_inj, :);
-    features = extract_refine_features(refine_spikes);
-    peaks = get_peaks(refine_spikes, true)';
-    warning_was_thrown = false;%added by Luis David Davila
-    k=1;
-    while k<=length(clusters)
-        cluster_idx = clusters{k};
-        % plot_clusters_spike_refinement("Before Refinment In refine\_clusters.m",k,peaks,cluster_idx,4)
-        % plot_aligned_for_refinment("Before Refinment in refine_clusters.m",k,spikes,cluster_idx,4);
-        if warning_was_thrown
-            %clc;
-            [raw_refined_cluster_idx, backup] = refine_cluster(features * 1000, peaks*1000, cluster_idx, ir, tvals, config);
-            warning_was_thrown=false;
-        else
-            [raw_refined_cluster_idx, backup] = refine_cluster(features, peaks, cluster_idx, ir, tvals, config);
-        end
-        % plot_clusters_spike_refinement("After Refinment In refine\_clusters.m",k,peaks,raw_refined_cluster_idx,4)
-        % plot_aligned_for_refinment("After Refinment in refine_clusters.m",k,spikes,raw_refined_cluster_idx,4);
-        refined_cluster_idx = refine_idx_inj(raw_refined_cluster_idx);
-        if ~isempty(refined_cluster_idx) && ...
-                ~isempty(backup) && ...
-                ~remove_bad_clusters(spikes, {refined_cluster_idx}, ir, tvals, config)
-            refined_cluster_idx = refine_idx_inj(backup);
-        end
-        [warnMsg_1, ~] = lastwarn(''); %added by Luis David Davila
-        if ~isempty(warnMsg_1)%added by Luis David Davila
-            warning_was_thrown = true;%added by Luis David Davila
-            warnMsg = warnMsg_1;
-
-        end%added by Luis David Davila
-        refined_clusters{k} = refined_cluster_idx;
-        k=k+1;
+refined_clusters = cell(size(clusters));
+refine_spikes = spikes(:, refine_idx_inj, :);
+features = extract_refine_features(refine_spikes);
+peaks = get_peaks(refine_spikes, true)';
+warning_was_thrown = false;%added by Luis David Davila
+k=1;
+while k<=length(clusters)
+    cluster_idx = clusters{k};
+    % plot_clusters_spike_refinement("Before Refinment In refine\_clusters.m",k,peaks,cluster_idx,4)
+    % plot_aligned_for_refinment("Before Refinment in refine_clusters.m",k,spikes,cluster_idx,4);
+    if warning_was_thrown
+        %clc;
+        [raw_refined_cluster_idx, backup] = refine_cluster(features * 1000, peaks*1000, cluster_idx, ir, tvals, config);
+        warning_was_thrown=false;
+    else
+        [raw_refined_cluster_idx, backup] = refine_cluster(features, peaks, cluster_idx, ir, tvals, config);
     end
-    if warning_was_thrown%added by Luis David Davila
-        warning(warnMsg)%added by Luis David Davila
+
+
+    % plot_clusters_spike_refinement("After Refinment In refine\_clusters.m",k,peaks,raw_refined_cluster_idx,4)
+    % plot_aligned_for_refinment("After Refinment in refine_clusters.m",k,spikes,raw_refined_cluster_idx,4);
+    refined_cluster_idx = refine_idx_inj(raw_refined_cluster_idx);
+    if ~isempty(refined_cluster_idx) && ...
+            ~isempty(backup) && ...
+            ~remove_bad_clusters(spikes, {refined_cluster_idx}, ir, tvals, config)
+        refined_cluster_idx = refine_idx_inj(backup);
+    end
+    [warnMsg_1, ~] = lastwarn(''); %added by Luis David Davila
+    if ~isempty(warnMsg_1)%added by Luis David Davila
+        warning_was_thrown = true;%added by Luis David Davila
+        warnMsg = warnMsg_1;
+
     end%added by Luis David Davila
-    refined_clusters = refined_clusters(~cellfun('isempty', refined_clusters));
+    refined_clusters{k} = refined_cluster_idx;
+    k=k+1;
+end
+
+if full_config.has_ground_truth && full_config.debug_with_ground_truth
+    local_spike_windows = full_config.mutated_spike_windows;
+    local_spike_windows = local_spike_windows(vertcat(refined_clusters{:}),:);
+    stage = "cluster_refinemen_subset_"+string(full_config.which_subset);
+    full_config = check_unit_detection_while_clustering(local_spike_windows,full_config.tetrode,full_config,stage);
+end
+if warning_was_thrown%added by Luis David Davila
+    warning(warnMsg)%added by Luis David Davila
+end%added by Luis David Davila
+refined_clusters = refined_clusters(~cellfun('isempty', refined_clusters));
 end

@@ -6,7 +6,7 @@ function the_peaks = get_peaks(the_spikes, the_is_aligned, the_tvals, the_ir)
         [numwires, numspikes, numdp] = size(the_spikes);
         if the_is_aligned
             [~, peaks_idx] = max(the_spikes, [], 3);
-            the_peaks = nan(numwires, numspikes);
+            the_peaks = zeros(numwires, numspikes,"single");
             for w = 1:numwires
                 pk_idx = mode(peaks_idx(w, :));
                 the_peaks(w, :) = the_spikes(w, :, pk_idx);
@@ -18,7 +18,7 @@ function the_peaks = get_peaks(the_spikes, the_is_aligned, the_tvals, the_ir)
             p_spikes = permute(the_spikes, [3 1 2]);
             dist = round(0.25 * numdp);
             
-            the_peaks = nan(numwires, numspikes);
+            the_peaks = zeros(numwires, numspikes,"single");
 
             for w = 1:numwires
                 for s = 1:numspikes
