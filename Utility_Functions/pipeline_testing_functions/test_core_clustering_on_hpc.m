@@ -21,7 +21,7 @@ config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data","10_600Neuron300Seco
 tetrode_numbers = [136,14,166,1,10,4,97,98,88,91];
 multiplier_to_test = 3;
 config.which_thresh = multiplier_to_test;
-config.fp_to_table_of_best_rep = "E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\table_of_best_rep_2.mat";
+config.fp_to_table_of_best_rep = fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise","DEBUG","table_of_best_rep_2.mat");
 % overwrite the art_tetrode array in the config
 good_cluster_counter = 1;
 tetrode_counter = 1;
@@ -31,17 +31,18 @@ try_counter = 0;
 
 %create a file to save all the results
 dir_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir),"linspace_tests");
+timestamps = importdata(config.TIMESTAMP_FP);
 while tetrode_counter < length(tetrode_numbers) 
     upper_bound_of_linspace = max(config.the_linspace_to_use);
     tetrode_number = tetrode_numbers(tetrode_counter);
-    save_name = fullfile("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY","t"+string(tetrode_number)+"upper_bound"+string(upper_bound_of_linspace)+".mat");
+    save_name = fullfile(dir_to_save_to,"t"+string(tetrode_number)+"upper_bound"+string(upper_bound_of_linspace)+".mat");
     if ~isfile(save_name) 
         config.ART_TETR_ARRAY = default_array(tetrode_number,:);
 
 
         % set some directories & variables that contain the necessary data for testing
         current_tetrode = "t"+string(tetrode_number);
-        dictionaries_dir = "E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\dictionaries multiplier 3 num_dps 60";
+        dictionaries_dir = fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise","dictionaries multiplier 3 num_dps 60");
         %by loading the dictionaries first we can minimize the number of loads
         tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"));
         tetrode_dictionary = tetrode_dictionary.data_to_save;
@@ -78,12 +79,12 @@ while tetrode_counter < length(tetrode_numbers)
 
         %overwrite the field
         config.peak_pcs_file_name = peak_pcs_file_name;
-        config.Multipliers_in_mv = importdata("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\mv_thresholds.mat");
+        config.Multipliers_in_mv = importdata(fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise","mv_thresholds.mat"));
 
         % get the channel wise means and std
-        load("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\mean_and_std\mean_and_std.mat","channel_wise_means","channel_wise_std")
+        load(fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise","mean_and_std","mean_and_std.mat"),"channel_wise_means","channel_wise_std")
         % set the directory with the channel data
-        dir_with_channel_recordings = "E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\filtered_data";
+        dir_with_channel_recordings = fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise","filtered_data");
 
         %
         number_of_std_above_means = config.NUM_OF_STD_ABOVE_MEAN;
@@ -162,7 +163,7 @@ while tetrode_counter < length(tetrode_numbers)
         local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(local_initial_tetrodes_results_dir);
 
         % import the table of best rep after dictionary creation
-        table_of_best_rep_after_dictionary = importdata("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\table_of_best_rep_2.mat");
+        table_of_best_rep_after_dictionary = importdata(fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise","DEBUG","table_of_best_rep_2.mat"));
 
         % filter table down to only current tetrode and multiplier
         c1 = table_of_best_rep_after_dictionary{:,"all_multiplier_idxs"}==multiplier_to_test;
@@ -172,7 +173,7 @@ while tetrode_counter < length(tetrode_numbers)
         %
         filenames = [];
         dir_to_save_spike_windows_to = "";
-        config.dir_to_save_debug_files_to = "E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG";
+        config.dir_to_save_debug_files_to = fullfile(config.data_dir,"test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise,DEBUG");
         % run the test
         disp("About to start clustering")
         [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,cluster_filters] = run_spikesort_ntt_core_ver4(mutated_raw, mutated_ts_for_current_tetrode, good_spike_idx, ir, tvals, filenames, config,channels,config.mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
@@ -198,7 +199,7 @@ while tetrode_counter < length(tetrode_numbers)
     data_struct = struct();
     data_struct.blind_pass_table = blind_pass_table;
     data_struct.linspace_used = config.the_linspace_to_use;
-    par_save(fullfile("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY","t"+string(tetrode_number)+"_bp_table_and_struct"+string(upper_bound_of_linspace)+".mat"),data_struct);
+    par_save(fullfile(dir_to_save_to,"t"+string(tetrode_number)+"_bp_table_and_struct"+string(upper_bound_of_linspace)+".mat"),data_struct);
     disp("Finished saving the blind pass table")
     if any(blind_pass_table{:,"accuracy"} > 80)
         %if you succeed then try the next tetrode starting over with the
