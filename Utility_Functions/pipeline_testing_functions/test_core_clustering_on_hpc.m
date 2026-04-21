@@ -30,7 +30,7 @@ max_tries =5;
 try_counter = 0;
 
 %create a file to save all the results
-dir_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir),"linspace_tests");
+dir_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"linspace_tests"));
 timestamps = importdata(config.TIMESTAMP_FP);
 while tetrode_counter < length(tetrode_numbers) 
     upper_bound_of_linspace = max(config.the_linspace_to_use);

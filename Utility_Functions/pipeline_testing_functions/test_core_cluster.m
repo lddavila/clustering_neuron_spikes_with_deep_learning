@@ -183,7 +183,7 @@ while tetrode_counter < length(tetrode_numbers)
     blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
     blind_pass_table= add_accuracy_col(config,blind_pass_table);
 
-    disp(blind_pass_table(:,["Multiplier","Tetrode","cluster","Max_Overlap_Unit","accuracy"]))
+    disp(blind_pass_table(:,["Multiplier","Tetrode","cluster","Max_Overlap_Unit","accuracy","Max_Overlap_perc_With_Unit","timestamps"]))
     data_struct = struct();
     data_struct.blind_pass_table = blind_pass_table;
     data_struct.linspace_used = config.the_linspace_to_use;
