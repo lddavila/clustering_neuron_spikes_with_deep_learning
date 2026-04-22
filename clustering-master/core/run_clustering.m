@@ -26,20 +26,23 @@ function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, sp
 %
 %   'config' is the spikesort configuration struct.
     
+    disp("entered run_clustering.m")
     % Make sure that spike_idx and refine_spike_idx perfectly intersect
     [true_spike_idx, refine_cluster_inj] = intersect(refine_spike_idx, spike_idx);
     
     % Spikes to cluster
     spike_aligned = aligned(:, true_spike_idx, :);
 
+    disp("finished getting spike aligned")
     %also updated mutated spike windows
     % full_config.mutated_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
 
     % plot_the_spikes_ver_2(spike_aligned,"In Run_clustering.m",[],[1,2,3,4],[])
     full_config.true_spike_idx = true_spike_idx;
     full_config.secondary_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
+    disp("about to start core_cluster_loop")
     [raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name,full_config);
-
+    disp("finished core cluster loop")
     % plot_the_cf(raw_clusters,aligned,["Called by run\_clustering.m","Before Refinment"]);
     
     % Inject those cluster indices into the set of indices defined by the

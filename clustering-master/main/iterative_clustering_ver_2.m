@@ -7,6 +7,7 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
 %   clusters = ITERATIVE_CLUSTERING(aligned, ir, tvals, refine_spike_idx,
 %   subsets, config) returns the final clusters.
 
+    disp("entered iterative_clustering_ver_2.")
     the_peak_pcs = nan;
     the_clusters = {};
     peaks = get_peaks(the_aligned_spikes, true)';
@@ -16,6 +17,7 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
     
     bad = {};
     %close all;
+    disp("about to start the subsets loop")
     for k = 1:length(the_subsets)
         filtered_idx = the_subsets{k};
         
@@ -59,8 +61,9 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
         % Run clustering with this pass of filtering as specified in
         % subsets, with everything removed above.
         full_config.which_subset = k;
+        disp("about to do run_clustering")
         [cf, bad_tmp,full_config] = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name,full_config);
-        
+        disp(finished run_clustering)
         if the_config.DO_BAD_CLUSTER_ROUND && ~isempty(bad)
             for c = 1:length(bad)
                 cluster_idx = bad{c};
