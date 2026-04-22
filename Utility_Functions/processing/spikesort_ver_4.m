@@ -137,7 +137,7 @@ refine_spike_idx = find(refine_filter);
 %we are aware of an error where small amounts of data cause singular dimensions
 %to do that
 did_error = true; %assume that the function will error
-while did_error
+while did_error && ~isempty(preproc_idx)
     try
         [clusters,peak_pcs]= iterative_clustering_ver_2(aligned, r_ir, r_tvals, ...
             refine_spike_idx, preproc_idx, config,peak_pcs_file_name,full_config);
@@ -145,8 +145,13 @@ while did_error
     catch ME
         preproc_idx = preproc_idx(2:end); %if the expected error occurs then to avoid completely dumping the algorithm we'll try again with a more liberal dataset
         config.NUM_ITERATIONS = length(preproc_idx); %update the number of iterations in the config
+        ME.getReport;
+        disp("Adjusting data set ")
     end
 
+end
+if isempty(preproc_idx)
+    cleaned_clusters = clusters;
 end
 %OG LINES RANGE FROM LINE 121-122
 %  clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
@@ -171,6 +176,7 @@ if ~isempty(clusters) && config.USE_PC1_CLEANING
         cleaned_clusters{c} = cl2_idx(m2 < median(m2) + 2*std(m2));
     end
 else
+    clusters = [];
     cleaned_clusters = clusters;
 end
 

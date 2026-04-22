@@ -45,7 +45,7 @@ if ~isempty(varargin)
     % tetrode_channels = config.ART_TETR_ARRAY(tetrode_number,:);
     all_plot_combinations = nchoosek(1:4,2);
 
-    f = figure;
+    f = figure('Visible','off');
     tiledlayout(floor(sqrt(size(all_plot_combinations,1))),ceil(sqrt(size(all_plot_combinations,1))))
     per_unit_colors = distinguishable_colors(height(filtered_table_of_best_rep));
     for i=1:size(all_plot_combinations,1)
