@@ -32,11 +32,11 @@ try_counter = 0;
 %create a file to save all the results
 dir_to_save_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"linspace_tests"));
 timestamps = importdata(config.TIMESTAMP_FP);
-while tetrode_counter < length(tetrode_numbers) 
+while tetrode_counter < length(tetrode_numbers)
     upper_bound_of_linspace = max(config.the_linspace_to_use);
     tetrode_number = tetrode_numbers(tetrode_counter);
     save_name = fullfile(dir_to_save_to,"t"+string(tetrode_number)+"upper_bound"+string(upper_bound_of_linspace)+".mat");
-    if ~isfile(save_name) 
+    if ~isfile(save_name)
         config.ART_TETR_ARRAY = default_array(tetrode_number,:);
 
 
@@ -184,9 +184,15 @@ while tetrode_counter < length(tetrode_numbers)
             cell_array_of_cluster_ts{j} = reg_timestamps_of_the_spikes(cluster_filters{j});
         end
         par_save(save_name,cell_array_of_cluster_ts);
+        if isempty(cell_array_of_cluster_ts) || isnan(aligned)
+            config.the_linspace_to_use = linspace(upper_bound_of_linspace-.1,0,4);
+            try_counter = try_counter+1;
+            continue;
+        end
     else
         cell_array_of_cluster_ts = importdata(save_name);
     end
+
     disp("Finished getting cell_array_of_cluster_ts")
     %create a pseudo blind pass table which can be used to compute accuracy
     blind_pass_table = table(repelem(multiplier_to_test,length(cell_array_of_cluster_ts),1),repelem("t"+string(tetrode_number),length(cell_array_of_cluster_ts),1),(1:length(cell_array_of_cluster_ts)).',cell_array_of_cluster_ts,'VariableNames',["Multiplier","Tetrode","cluster","timestamps"]);
