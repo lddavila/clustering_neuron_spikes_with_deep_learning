@@ -35,17 +35,22 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,
 
 % plot_the_spikes(raw,"Beginning",1,channels)
 % plot_the_spikes_ver_2(raw,"Beginning",1,channels,timestamps)
+disp("Got inside of run_spikesort_ntt_core_ver4.m")
 interp_raw = interpolate_spikes(raw, config);
+disp("Finished interpolating spikes")
 % Fix interpolated spikes that hit threshhold
 %     for w = 1:size(interp_raw, 1)
 %         interp_raw(w, ir(w) - interp_raw(w, :, :) < ir(w) * 0.03) = ir(w);
 %     end
 
 good_interp_raw = interp_raw(:, good_spikes_idx_inj, :);
+disp("finished good interp_raw")
 config.mutated_spike_windows = config.mutated_spike_windows(good_spikes_idx_inj,:);
+disp("finished getting mutated spike windows")
 if config.debug_with_ground_truth && config.has_ground_truth
     config = check_unit_detection_while_clustering(config.mutated_spike_windows,current_tetrode,config,"after_good_spikes_idx_inj_mult"+string(config.which_thresh));
 end
+disp("Finished getting unit decetion while clustering 1")
 if config.NEAR_SIMULTANEOUS_SPIKE_DETECTION
     nearsim_spikes = find_nearsim_spikes_ver_2(good_interp_raw, tvals);
 
@@ -68,6 +73,7 @@ config.mutated_spike_windows = config.mutated_spike_windows(reg_spikes_idx,:);
 if config.debug_with_ground_truth && config.has_ground_truth
     config = check_unit_detection_while_clustering(reg_sorted_spike_windows,current_tetrode,config,"after_near_sim_spike_det_filt_mult_"+string(config.which_thresh),reg_interp_raw,1:size(reg_interp_raw,2));
 end
+disp("Finished getting unit decetion while clustering 2")
 % PERFECTLY ALIGNED UP TO THIS POINT
 %do an uncomment on everything below this line, do not include this line
 % Run the spikesort algorithm (with only the spike-sort related config

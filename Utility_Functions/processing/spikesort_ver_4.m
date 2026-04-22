@@ -25,6 +25,7 @@ function [aligned, cleaned_clusters, timestamps,r_tvals,peak_pcs] = spikesort_ve
 %   is the number of grades.
 
 % Remove wires with no data.
+disp("got into spikesort_ver_4.m")
 wire_filter = find_live_wires(raw);
 
 r_raw = single(raw(wire_filter, :, :));
@@ -52,11 +53,13 @@ if config.USE_TIMESTAMP_FILTER && length(timestamps) > 20000
 else
     timestamp_filter = default_filter;
 end
+disp("Finished getting timestamp filter")
 full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_filter,:);
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
     
     full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"after_timestamp_filter_mult_"+string(full_config.which_thresh));
 end
+disp("Finished getting unit decetion while clustering 3")
 
 num_iterations = max(config.NUM_ITERATIONS, 1);
 snr_filters = repmat(default_filter, [1, num_iterations]);
@@ -89,6 +92,7 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     num_iterations = size(snr_filters, 2);
 end
 
+disp("Finished getting pmv and filtering data")
 % Compute the whitening filter on the space of peaks
 peaks = get_peaks(aligned, true)';
 %a s by c array
@@ -122,6 +126,7 @@ for k = 1:num_iterations
         
         full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wp_z_reworked_linspace_"+string(k),aligned,combined_filter);
     end
+    disp("Finished getting unit decetion while clustering 4")
     % Injects our whitening filter into the original set of indices
     % since we applied the whitening after AFTER timestamp and SNR
     preproc_spike_windows{k} =looped_mutated_spike_windows ;
