@@ -143,6 +143,7 @@ refine_spike_idx = find(refine_filter);
 %to do that
 did_error = true; %assume that the function will error
 while did_error && ~isempty(preproc_idx)
+    disp("entered the while loop")
     try
         [clusters,peak_pcs]= iterative_clustering_ver_2(aligned, r_ir, r_tvals, ...
             refine_spike_idx, preproc_idx, config,peak_pcs_file_name,full_config);
