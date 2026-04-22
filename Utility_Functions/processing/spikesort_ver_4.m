@@ -157,7 +157,7 @@ while did_error && ~isempty(preproc_idx)
 
 end
 if isempty(preproc_idx)
-    cleaned_clusters = clusters;
+    cleaned_clusters = {};
 end
 %OG LINES RANGE FROM LINE 121-122
 %  clusters = iterative_clustering(aligned, r_ir, r_tvals, ...
