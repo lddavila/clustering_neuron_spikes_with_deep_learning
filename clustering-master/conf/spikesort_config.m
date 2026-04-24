@@ -147,6 +147,8 @@ config.FP_TO_MUA_OR_NOT_PREDICTING_NN_ON_HPC ="/home/lddavila/cluster_neuronspik
 config.FP_TO_EXPAND_OR_DONT_NN =fullfile(config.base_file_path,"Neural_Networks","expand_or_dont_nn","accuracy score 94.5545 num layers 22 filter size 256 expand_or_dont.mat") ;
 config.FP_TO_EXPAND_OR_DONT_NN_ON_HPC = "/home/lddavila/cluster_neuronspikes/expand_or_dont_NN/accuracy score 94.5545 num layers 22 filter size 256 mua_or_not.mat";
 
+config.DIR_TO_GROUP_OR_NOT_COUNCIL = fullfile(config.base_file_path,"Neural_Networks","Group Or Dont net Council");
+
 
 config.WHAT_KIND_OF_CLUSTER_PLOT_TO_MAKE = "all"; %used by create_cluster_plots_as_png_on_hpc 
                                        %'all' - will print every spike per tetrode configuration and the cluster in black
