@@ -56,8 +56,8 @@ end
 disp("Finished getting timestamp filter")
 full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_filter,:);
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
-    
-    full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"after_timestamp_filter_mult_"+string(full_config.which_thresh));
+    full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"after_timestamp_filter_mult_"+string(full_config.which_thresh),aligned,timestamp_filter);
+    full_config.plot_counter = full_config.plot_counter+1;
 end
 disp("Finished getting unit decetion while clustering 3")
 
@@ -73,6 +73,10 @@ if config.USE_SNR_FILTER && num_spikes > 10000
         snr_threshs = [1, 0];
     elseif num_iterations == 4
         snr_threshs = [1.5, 1, 0];
+    elseif full_config.use_percentile_for_pmv_filter
+        only_positive = pmv(pmv>0);
+        the_percentiles = prctile(only_positive,1:100);
+        snr_threshs = the_percentiles(full_config.percentiles_to_use);
     else
         snr_threshs = full_config.the_linspace_to_use;
     end
@@ -123,8 +127,8 @@ for k = 1:num_iterations
     % looped_mutated_spike_windows = looped_mutated_spike_windows(whiten_filter,:);
     
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
-        
         full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wp_z_reworked_linspace_"+string(k),aligned,combined_filter);
+        full_config.plot_counter = full_config.plot_counter +1;
     end
     disp("Finished getting unit decetion while clustering 4")
     % Injects our whitening filter into the original set of indices
@@ -187,9 +191,12 @@ if ~isempty(clusters) && config.USE_PC1_CLEANING
         m2 = mahal_fixed_for_num_unstable(cl2(:, dim_filter), cl2(:, dim_filter));
         cleaned_clusters{c} = cl2_idx(m2 < median(m2) + 2*std(m2));
     end
-else
+elseif isempty(clusters)
     clusters = [];
+    cleaned_clusters = {};
+else
     cleaned_clusters = clusters;
+
 end
 
 % Finally compute grades

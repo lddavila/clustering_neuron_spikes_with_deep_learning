@@ -1,0 +1,12 @@
+%% loading the data
+load("E:\clustering_neuron_spikes_with_deep_learning\Data\test_iterative_clustering_ver_2_struct.mat")
+%% assign to variables
+the_aligned_spikes = test_iterative_clustering_ver_2_struct.the_aligned_spikes;
+the_ir = test_iterative_clustering_ver_2_struct.the_ir;
+the_tvals =  test_iterative_clustering_ver_2_struct.the_tvals;
+the_refine_spike_idx  = test_iterative_clustering_ver_2_struct.the_refine_spike_idx;
+the_subsets = test_iterative_clustering_ver_2_struct.the_subsets;
+the_peak_pcs_file_name = test_iterative_clustering_ver_2_struct.the_peak_pcs_file_name;
+full_config = test_iterative_clustering_ver_2_struct.full_config;
+%% call the function
+iterative_clustering_ver_2(the_aligned_spikes,the_ir,the_tvals,the_refine_spike_idx,the_subsets,the_config,the_peak_pcs_file_name,full_config)

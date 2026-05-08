@@ -1,5 +1,7 @@
 %this file has been edited by Luis D. Davila and Alexander Friedman 
 function the_new_clusters = finalize_clusters(the_aligned, the_clusters, the_new_config)
+%NOTE TO ME: I REMOVED THIS FROM THE PIPELINE BECAUSE IT WAS UNNECESSARILY
+%RETURNING CLUSTERS TO THEIR pre dimension dropped state 
 %FINALIZE_CLUSTERS Performs a final expansion in the peak space to "fill"
 %the space of the cluster.
 %   new_clusters = FINALIZE_CLUSTERS(aligned, clusters) returns the new,

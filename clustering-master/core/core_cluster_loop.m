@@ -8,7 +8,7 @@ function [the_final_clusters,full_config ]= core_cluster_loop(the_spike_aligned,
     start_cl.idx = 1:size(the_spike_aligned, 2); % put all spikes in spike_aligned into the initial cluster 
     clusters = {start_cl}; %the initial clusters to be subclustered is just the starting cluster object
     while ~done && level <= the_new_config.MAX_SUBCLUSTER_DEPTH % by default this is 5
-        disp("entered while core_cluster_loop.m ")
+        % disp("entered while core_cluster_loop.m ")
         full_config.current_level = level;
         if level == 1
             cluster_ns = the_new_config.CLUSTER_NS; %default value is 6
@@ -27,18 +27,19 @@ function [the_final_clusters,full_config ]= core_cluster_loop(the_spike_aligned,
             else
                 next_clusters = [next_clusters cl]; %if cl doesn't/can't be subclustered then just add it back to the next_clusters list as it is "completed"
             end
-            % config,aligned,cluster_idx_struct,which_subset
-            disp("about to create_Cluster_plots_with_accuracy_while_clustering_and_sub_clu")
-            create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,the_spike_aligned,next_clusters,string(level)+"_"+string(k))
-            disp("Finished creating the plot")
+
         end
         clusters = next_clusters; %overwrite the clusters you began with
         %this is important because it ensures that you will continue to subcluster the clusters which are still subclusterable, and not keep reclustering the same clusters again and again
-        
+        % config,aligned,cluster_idx_struct,which_subset
+        % disp("about to create_Cluster_plots_with_accuracy_while_clustering_and_sub_clu")
+        create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,the_spike_aligned,next_clusters,string(level))
+        full_config.plot_counter = full_config.plot_counter+1;
+        % disp("Finished creating the plot")
         level = level + 1; %increase the subcluster level
         % close all;
     end
-    disp("finished and exited the core cluster while loop")
+    % disp("finished and exited the core cluster while loop")
     the_final_clusters = cellmap(@(x) x.idx, clusters); %returns the result of all subclustering
-                                                    %result is a 1xnumber_of_clusters cell array where each item is the index of the spikes located in the kth cluster
+    %result is a 1xnumber_of_clusters cell array where each item is the index of the spikes located in the kth cluster
 end

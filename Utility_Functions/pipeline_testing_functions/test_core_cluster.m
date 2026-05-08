@@ -11,7 +11,8 @@ config.the_linspace_to_use = linspace(1,0,4);
 config.TIMESTAMP_FP = "E:\5_600Neuron300SecondRecordingWithLevel5Noise\timestamps\timestamps.mat";
 %% set the tetrode number you want to test
 tetrode_numbers = [136,14,166,1,10,4,97,98,88,91];
-multiplier_to_test = 3;
+tetrode_numbers = setdiff(1:size(config.ART_TETR_ARRAY,1),tetrode_numbers);
+multiplier_to_test = 4;
 config.which_thresh = multiplier_to_test;
 config.fp_to_table_of_best_rep = "E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\table_of_best_rep_2.mat";
 % overwrite the art_tetrode array in the config
@@ -23,7 +24,7 @@ try_counter = 0;
 while tetrode_counter < length(tetrode_numbers) 
     upper_bound_of_linspace = max(config.the_linspace_to_use);
     tetrode_number = tetrode_numbers(tetrode_counter);
-    save_name = fullfile("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY","t"+string(tetrode_number)+"upper_bound"+string(upper_bound_of_linspace)+".mat");
+    save_name = fullfile("E:\prc_test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY","t"+string(tetrode_number)+"upper_bound"+string(upper_bound_of_linspace)+".mat");
     if ~isfile(save_name) 
         config.ART_TETR_ARRAY = default_array(tetrode_number,:);
 
@@ -207,7 +208,8 @@ while tetrode_counter < length(tetrode_numbers)
         %if you fail, but still have attempts left, then readjust the space
         %and try clustering again
         config.the_linspace_to_use = linspace(upper_bound_of_linspace-.1,0,4);
-        try_counter = try_counter+1;
+        % try_counter = try_counter+1;
+        tetrode_counter = tetrode_counter+1;
         disp("Failed to get a cluster above 80% accuracy, adjusting linspace")
     end
     fprintf("Finished tetrode t%i upper bound of linspace %.2f\n",tetrode_number,upper_bound_of_linspace);

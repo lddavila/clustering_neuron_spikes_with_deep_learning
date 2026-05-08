@@ -1,4 +1,4 @@
-cfunction [] = test_logical_grouping(varargin)
+function [] = test_logical_grouping(varargin)
 home_dir = cd("..");
 cd("..");
 addpath(genpath(pwd));

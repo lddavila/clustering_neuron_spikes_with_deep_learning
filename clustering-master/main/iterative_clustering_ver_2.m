@@ -38,19 +38,21 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
            % close all;
             % plot_clusters_spike_refinement("Before Refinement",c,peaks,filtered_idx,4);
             %plot_aligned_for_refinment("Before Refinment",c,aligned,filtered_idx,4)
-            for d = 1:size(data, 2)
-                feature = data(:, d);
-                cluster_feature = feature(cluster_idx);
-                d_min = min(cluster_feature);
-                d_max = max(cluster_feature);
+            for d = 1:size(data, 2) %cycle through the features
+                feature = data(:, d);%index a feature column
+                cluster_feature = feature(cluster_idx); %get the feature for the current cluster
+                d_min = min(cluster_feature); %get the lower bound of the feature for the cluster
+                d_max = max(cluster_feature); %get the uppre bound of the feature for the cluster
 
-                d_mean = mean(cluster_feature);
-                d_std = std(cluster_feature);
+                d_mean = mean(cluster_feature); %get the mean of the feature for the cluster
+                d_std = std(cluster_feature); %get the std of the mean of the feature for the cluster
 
-                d_min = max(d_min, d_mean - num_std*d_std);
-                d_max = min(d_max, d_mean + num_std*d_std);
+                d_min = max(d_min, d_mean - num_std*d_std); %get the smallest value between the min cluster feature and the mean cluster feature - 3 * cluster featre_std
+                d_max = min(d_max, d_mean + num_std*d_std); %get the max value between the max cluster feature and the mean cluster feature + 3 * cluster featre_std
 
-                ints = ints & d_min < feature & feature < d_max; %this is where stuff is being removed 
+                ints = ints & d_min < feature & feature < d_max; %check which cluster member's features lie between d_min and d_max
+                                                                 %but the interesting part is that you check for this in between condition along every dimension of the cluster
+                                                                 % therefore to pass for a cluster spike to survive the filter it must always be in between these values regardless of dimension                                                                 
             end
             remove_spikes = union(find(ints), cluster_idx);
             filtered_idx = setdiff(filtered_idx, remove_spikes);
@@ -61,9 +63,9 @@ function [the_clusters,the_peak_pcs ]= iterative_clustering_ver_2(the_aligned_sp
         % Run clustering with this pass of filtering as specified in
         % subsets, with everything removed above.
         full_config.which_subset = k;
-        disp("about to do run_clustering")
+        % disp("about to do run_clustering")
         [cf, bad_tmp,full_config] = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name,full_config);
-        disp(finished run_clustering)
+        % disp("finished run_clustering")
         if the_config.DO_BAD_CLUSTER_ROUND && ~isempty(bad)
             for c = 1:length(bad)
                 cluster_idx = bad{c};

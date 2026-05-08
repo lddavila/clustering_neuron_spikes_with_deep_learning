@@ -31,6 +31,8 @@ config.TEMPLATE_CLUSTER_FP_ON_HPC =[fullfile("/scratch/lddavila/cluster_neuronsp
     fullfile("/scratch/lddavila/cluster_neuronspikes","Shape Template PNGs","Left To Right Positive Elipse.png")
     fullfile("/scratch/lddavila/cluster_neuronspikes","Shape Template PNGs","Vertical Elipse.png")
     fullfile("/scratch/lddavila/cluster_neuronspikes","Shape Template PNGs","circle.png")];
+
+config.use_percentile_for_pmv_filter = 1;
 % Prints extra output
 % config.DEBUG = false;
 
@@ -55,6 +57,7 @@ config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 %each row should correspond a grouping of channels you want to create
 
 config.the_linspace_to_use = linspace(.1, 0, 4);
+config.percentiles_to_use = [80 60 40 20 ];
 
 
 config.TIME_DELTA = 0.0002;
@@ -379,6 +382,7 @@ params.OT_EPSILON = 1e-3; % Epsilon value for overlap_test.
 params.OT_PEAK_RADIUS = 10; % Number of indices around the peak to consider in overlap_test.
 params.OT_HIGH_VALLEY_THRESH = 0.5; % Threshold for large valleys in overlap_test.
 params.OT_MIN_CLUSTER_PERCENT = 0.25; % Minimum size for a cluster as a percentage of the size of the data in overlap_test.
+% params.OT_MIN_CLUSTER_PERCENT = 0.10; % Minimum size for a cluster as a percentage of the size of the data in overlap_test. %EDITED BY LUIS DAVID DAVILA ON 5/5/2026
 params.OT_MIN_CLUSTER_SIZE_UPPER_BOUND = 500; % The largest minimum cluster size in overlap_test.
 params.OT_MAX_VALLEY_PERCENT = 0.75; % The maximum valley height percentage of the max peak in overlap_test.
 params.OT_MAX_SIG_VALLEY_PERCENT = 0.35; % The maximum significant valley height percentage of the max peak in overlap_test.

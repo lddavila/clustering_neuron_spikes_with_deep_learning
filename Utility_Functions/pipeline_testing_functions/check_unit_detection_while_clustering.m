@@ -2,11 +2,24 @@ function [config] = check_unit_detection_while_clustering(filtered_spike_windows
 
 %depending on which stage of clustering we're at we may have the aligned data, and if we do then we can create a plot
 %where the peaks of all the spikes are created and and we color code those spikes per unit
-save_dir = fullfile(config.dir_to_save_debug_files_to,stage);
+debug_plot_dir =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.dir_to_save_debug_files_to,"plots"));
+current_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(debug_plot_dir,config.tetrode));
+current_prc_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(current_tetrode_dir,strjoin(string(config.percentiles_to_use),"_")));
+current_mult_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(current_prc_dir,"Mult_"+string(config.which_thresh)));
+
+save_dir = fullfile(config.dir_to_save_debug_files_to,stage+strjoin(string(config.percentiles_to_use),"_"));
 save_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(save_dir);
-file_save_name = fullfile(save_dir,current_tetrode+"_mult_"+string(config.which_thresh)+".mat");
+table_save_name = fullfile(save_dir,current_tetrode+"_mult_"+string(config.which_thresh)+".mat");
+fig_save_name = fullfile(current_mult_dir,"stage_"+config.plot_counter+current_tetrode+"mult"+string(config.which_thresh));
 
 table_of_best_rep = importdata(config.fp_to_table_of_best_rep);
+
+colors_dict = containers.Map('KeyType','char','ValueType','any');
+list_of_gt_units = 1:length(config.ground_truth_cell_array);
+unit_colors = distinguishable_colors(length(list_of_gt_units));
+for i=1:length(list_of_gt_units)
+    colors_dict(string(i)) = unit_colors(i,:);
+end
 
 %filter down to only the tetrodes which match the current tetrode which
 %threshold is currently being used by the clustering algorithm
@@ -31,42 +44,49 @@ else
     filtered_table_of_best_rep.(stage) = zeros(height(filtered_table_of_best_rep),1);
 end
 
-
-par_save(file_save_name,filtered_table_of_best_rep);
+try
+    par_save(table_save_name,filtered_table_of_best_rep);
+catch
+end
 % else
 %     filtered_table_of_best_rep = importdata(file_save_name);
 % end
-if ~isempty(varargin)
-    filter = varargin{2};
-    aligned = varargin{1};
-    aligned = aligned(:,filter,:);
-    peaks = get_peaks(aligned,true);
-    % tetrode_number = str2double(strrep(current_tetrode,"t",""));
-    % tetrode_channels = config.ART_TETR_ARRAY(tetrode_number,:);
-    all_plot_combinations = nchoosek(1:4,2);
+if ~isfile(fig_save_name+".png")
+    if ~isempty(varargin)
+        filter = varargin{2};
+        aligned = varargin{1};
+        aligned = aligned(:,filter,:);
+        peaks = get_peaks(aligned,true);
+        % tetrode_number = str2double(strrep(current_tetrode,"t",""));
+        % tetrode_channels = config.ART_TETR_ARRAY(tetrode_number,:);
+        all_plot_combinations = nchoosek(1:4,2);
 
-    f = figure('Visible','off');
-    tiledlayout(floor(sqrt(size(all_plot_combinations,1))),ceil(sqrt(size(all_plot_combinations,1))))
-    per_unit_colors = distinguishable_colors(height(filtered_table_of_best_rep));
-    for i=1:size(all_plot_combinations,1)
-        nexttile();
-        x_data = peaks(all_plot_combinations(i,1),:).';
-        y_data = peaks(all_plot_combinations(i,2),:).';
-        scatter(x_data,y_data,1,[.7 .7 .7],'filled');
-        hold on;
-        for j=1:height(filtered_table_of_best_rep)
-            loc_to_use = loc_of_plots_per_unit{j};
-            loc_to_use(loc_to_use==0) = [];
-            current_unit_x = x_data(loc_to_use);
-            current_unit_y = y_data(loc_to_use);
-            scatter(current_unit_x,current_unit_y,3,per_unit_colors(j,:),'filled');
+        f = figure('Units', 'normalized', 'OuterPosition', [0 0 1 1],'Visible','off');
+        tiledlayout(floor(sqrt(size(all_plot_combinations,1))),ceil(sqrt(size(all_plot_combinations,1))))
+        for i=1:size(all_plot_combinations,1)
+            nexttile();
+            x_data = peaks(all_plot_combinations(i,1),:).';
+            y_data = peaks(all_plot_combinations(i,2),:).';
+            scatter(x_data,y_data,1,[.7 .7 .7],'filled');
+            hold on;
+            for j=1:height(filtered_table_of_best_rep)
+                loc_to_use = loc_of_plots_per_unit{j};
+                max_overlap_unit = filtered_table_of_best_rep{j,"unit"};
+                loc_to_use(loc_to_use==0) = [];
+                current_unit_x = x_data(loc_to_use);
+                current_unit_y = y_data(loc_to_use);
+                scatter(current_unit_x,current_unit_y,3,colors_dict(string(max_overlap_unit)),'filled');
+            end
+
         end
 
+        sgtitle(strrep(stage,"_","\_"))
+        try
+            save_plots_in_all_formats(f,strrep(fig_save_name,".mat",""));
+        catch
+        end
+        close(f);
     end
-
-    sgtitle(strrep(stage,"_","\_"))
-    save_plots_in_all_formats(f,strrep(file_save_name,".mat",""));
-    close(f);
 end
-config.fp_to_table_of_best_rep = file_save_name;
+config.fp_to_table_of_best_rep = table_save_name;
 end

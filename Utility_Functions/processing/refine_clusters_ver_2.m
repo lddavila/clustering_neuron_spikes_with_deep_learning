@@ -1,4 +1,4 @@
-function refined_clusters = refine_clusters_ver_2(spikes, refine_idx_inj, clusters, ir, tvals, config,full_config)
+function [refined_clusters,full_config]= refine_clusters_ver_2(spikes, refine_idx_inj, clusters, ir, tvals, config,full_config)
 %REFINE_CLUSTERS Manages refinement of all of the clusters after
 %clustering.
 %   refined_clusters = REFINE_CLUSTERS(spikes, refine_idx_inj, clusters)
@@ -42,18 +42,14 @@ while k<=length(clusters)
 
     % plot_clusters_spike_refinement("After Refinment In refine\_clusters.m",k,peaks,raw_refined_cluster_idx,4)
     % plot_aligned_for_refinment("After Refinment in refine_clusters.m",k,spikes,raw_refined_cluster_idx,4);
+    
     refined_cluster_idx = refine_idx_inj(raw_refined_cluster_idx);
+    condition_for_remove_bad_clusters = remove_bad_clusters(spikes, {refined_cluster_idx}, ir, tvals, config,full_config);
     if ~isempty(refined_cluster_idx) && ...
             ~isempty(backup) && ...
-            ~remove_bad_clusters(spikes, {refined_cluster_idx}, ir, tvals, config)
+            ~condition_for_remove_bad_clusters
         refined_cluster_idx = refine_idx_inj(backup);
     end
-    [warnMsg_1, ~] = lastwarn(''); %added by Luis David Davila
-    if ~isempty(warnMsg_1)%added by Luis David Davila
-        warning_was_thrown = true;%added by Luis David Davila
-        warnMsg = warnMsg_1;
-
-    end%added by Luis David Davila
     refined_clusters{k} = refined_cluster_idx;
     k=k+1;
 end
@@ -63,6 +59,7 @@ if full_config.has_ground_truth && full_config.debug_with_ground_truth
     local_spike_windows = local_spike_windows(vertcat(refined_clusters{:}),:);
     stage = "cluster_refinemen_subset_"+string(full_config.which_subset);
     full_config = check_unit_detection_while_clustering(local_spike_windows,full_config.tetrode,full_config,stage);
+    % full_config.plot_counter = full_config.plot_counter+1;
 end
 if warning_was_thrown%added by Luis David Davila
     warning(warnMsg)%added by Luis David Davila
