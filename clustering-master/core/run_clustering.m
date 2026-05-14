@@ -1,5 +1,5 @@
 %this file has been edited by Luis D. Davila and Alexander Friedman 
-function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, spike_idx, ir, tvals, refine_spike_idx, config,peak_pcs_file_name,full_config)
+function [final_clusters, bad_clusters,full_config,is_bad_cluster] = run_clustering(aligned, spike_idx, ir, tvals, refine_spike_idx, config,peak_pcs_file_name,full_config)
 %RUN_CLUSTERING Runs the clustering algorithm after preprocessing.
 %   clusters = RUN_CLUSTERING(aligned, spike_idx, timestamps, tvals,
 %   refine_spike_idx, config) returns the clusters and their grades after
@@ -26,7 +26,7 @@ function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, sp
 %
 %   'config' is the spikesort configuration struct.
     
-    disp("entered run_clustering.m")
+    % disp("entered run_clustering.m")
     % Make sure that spike_idx and refine_spike_idx perfectly intersect
     [true_spike_idx, refine_cluster_inj] = intersect(refine_spike_idx, spike_idx);
     
@@ -49,7 +49,7 @@ function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, sp
     % refine_spike_idx
     inj_clusters = cellmap(@(x) refine_cluster_inj(x), raw_clusters);
     % plot_at_every_refinement_stage(aligned,"after_inj_mapping",inj_clusters,full_config);
-    create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,inj_clusters,full_config.which_thresh,"after_inj_mapping")
+    create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,inj_clusters,full_config.which_thresh,"afterinjmapping")
     full_config.plot_counter = full_config.plot_counter+1;
     if config.DO_REFINEMENT
         % Take the clusters found by `cluster,' and refine them.
@@ -60,7 +60,7 @@ function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, sp
     end
     % plot_the_cf(refined_clusters,aligned,["Called by run\_clustering.m","After Refinment"]);
     % plot_at_every_refinement_stage(aligned,"after_cluster_refinement",refined_clusters,full_config);
-    create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,refined_clusters,full_config.which_thresh,"after_cluster_refinement");
+    create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,refined_clusters,full_config.which_thresh,"afterclusterrefinement");
     full_config.plot_counter = full_config.plot_counter + 1;
     % Side effect of `cluster' + refinement is that it can output really
     % obviously bad clusters. Remove those.
@@ -68,7 +68,7 @@ function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, sp
     refined_clusters = refined_clusters_with_bad_dims_dropped;
     bad_clusters = refined_clusters(~good_filt);
     % plot_at_every_refinement_stage(aligned,"after_bad_cluster_removal",refined_clusters(good_filt),full_config);
-     create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,refined_clusters(good_filt),full_config.which_thresh,"after_bad_cluster_removal");
+     create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,refined_clusters(good_filt),full_config.which_thresh,"afterbadclusterremoval");
      full_config.plot_counter = full_config.plot_counter+1;
      final_clusters = refined_clusters;
     % final_clusters = finalize_clusters(aligned, refined_clusters(good_filt), config);
@@ -76,5 +76,5 @@ function [final_clusters, bad_clusters,full_config] = run_clustering(aligned, sp
     % create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,final_clusters,full_config.which_thresh,"after_cluster_finalization")
     % full_config.plot_counter = full_config.plot_counter + 1;
     %plot_the_cf(final_clusters,aligned,["Called by run\_clustering.m","After finalize\_clusters"]);
-
+    is_bad_cluster = ~good_filt;
 end

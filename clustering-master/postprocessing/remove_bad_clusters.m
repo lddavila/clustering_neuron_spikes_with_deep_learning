@@ -25,13 +25,14 @@ function [the_good_filt,the_cfs] = remove_bad_clusters(the_aligned, the_cfs, the
     %bad cluster
     cf_sizes = cellfun(@length,the_cfs);
     the_good_filt(cf_sizes<1000) = false;
+    % the_good_filt(cf_sizes>15000) = false;
 
     
     for k = 1:length(the_cfs)
         cf = the_cfs{k};
-        if ~the_good_filt(k)
-            continue;
-        end
+        % if ~the_good_filt(k)
+        %     continue;
+        % end
         peaks = all_peaks(cf, :);
         if the_config.params.RB_TRUST_SMALL_ISOLATED && length(cf) < 1000
             non_cluster_idx = setdiff(1:size(all_peaks, 1), cf);
@@ -51,9 +52,13 @@ function [the_good_filt,the_cfs] = remove_bad_clusters(the_aligned, the_cfs, the
         end
         num_peaks = size(peaks, 2);
         [~, peakpcs] = pca(peaks);
-        data = zscore([peaks, peakpcs(:, 1:num_peaks-1)]);
+        % data = zscore([peaks, peakpcs(:, 1:num_peaks-1)]);
         data = zscore(peaks); % edited by luis david davila on 05/06/2026
 
+        if isempty(data)
+            the_good_filt(k) = false;
+            continue;
+        end
         if isempty(varargin)
             dim_filter = select_dimensions_dip(data, the_config);
         else
@@ -73,8 +78,14 @@ function [the_good_filt,the_cfs] = remove_bad_clusters(the_aligned, the_cfs, the
         disp("Size Before Dimension Drop: "+string(length(the_cfs{k})))
         the_cfs{k} = cf(spike_comes_from_good_channels); %drop data from bad dimensions
         disp("Size after dimension drop: "+string(length(the_cfs{k})))
+
+        if length(the_cfs{k}) <1000 || length(the_cfs{k}) > 15000
+            the_good_filt(k) = false;
+        else
+            the_good_filt(k) = true; %edited by Luis David Davila on 05/07/2026
+        end
         % the_good_filt(k) = ~any(dim_filter); %if any of the dimensions are bad (i.e. cluster is seperable along that dimension) then the entire cluster is scrapped
-        the_good_filt(k) = true; %edited by Luis David Davila on 05/07/2026
+        
     end
 
 end

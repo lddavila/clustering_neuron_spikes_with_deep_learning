@@ -1,5 +1,5 @@
 %edited by Luis David Davila and Alexander Friedman
-function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config)
+function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config,the_full_config)
 %FIX_CLUSTER_OVERLAPS Settles ties between clusters when a certain spike
 %appears in two clusters. If many spikes overlap, the clusters are merged.
 %   cf = FIX_CLUSTER_OVERLAPS(source, cf)
@@ -16,11 +16,21 @@ function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config)
         data = peaks'; %transpose the peak data
         for k = 1:length(the_cf)-1 %loop through all clusters starting at 1
             ck = the_cf{k}; %get the indexes for the current cluster
+            if length(ck)>30000
+                disp("Cluster which will break produced")
+            end
             if isempty(ck) %forget the current cluster if it has no clusters
                 continue
             end
             for l = k+1:length(the_cf) %loop through all clusters starting at k+1
+                % fprintf("k:%i,l:%i\n",k,l);
+                % if k==4 && l==29
+                %     disp("Error case")
+                % end
                 cl = the_cf{l}; %get the indexes for the comparison cluster
+                if length(cl)>30000
+                    disp("Cluster which will break produced")
+                end
                 if isempty(cl)
                     continue
                 end
@@ -30,6 +40,11 @@ function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config)
                     excl_cl = setdiff(cl, isect); %get all the spikes in the comparison cluster but not in the intersection set
                     data_k = data(excl_ck, :); %get the peaks across all wires for the current cluster
                     data_l = data(excl_cl, :); %get the peaks for the comparison cluster
+                    if ~isempty(data_l) && ~isempty(data_k)
+                        group_clusters = check_mergability_for_2_clusters_using_group_or_dont_nn(data_k,data_l,ck,cl,the_source,the_full_config,length(isect),min([length(ck),length(cl)])); %updated to use my fancy-shmansy neural networks to determine mergability         
+                    else
+                        group_clusters = 0;
+                    end
                     data_isect = data(isect, :); %get the peaks which exist in both the current & comparison cluster
                     data_filt = find(find_singular_cols(data_k) & find_singular_cols(data_l)); %check for singular cols in both data sets
                     for q = 1:length(data_filt) %cycle through each dimension
@@ -41,18 +56,28 @@ function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config)
                     end
                     try
                         %OG LINE: m_k = mahal(data_isect(:, data_filt), data_k(:, data_filt));
-                        m_k = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_k(:, data_filt)); %get the mahal distance between the intecting data and the current cluster dimension
+                        % m_k = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_k(:, data_filt)); %get the mahal distance between the intecting data and the current cluster dimension
                         %OG LINE: m_l = mahal(data_isect(:, data_filt), data_l(:, data_filt));
                         m_l = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_l(:, data_filt)); %get the mahal distance between the intersecting data and the comparison cluster dimension
-                    catch
-                        m_k = 0; %in case of numerically unstable data we just set these values to 0 effectively creating a tie for this feature
-                        m_l = 0;
+                    catch ME
+                        % m_k = 0; %in case of numerically unstable data we just set these values to 0 effectively creating a tie for this feature
+                        m_l = Inf;
                     end
-                    %OG LINE: both_clusters = union(ck, cl); %OLD
+                    try
+                        %OG LINE: m_k = mahal(data_isect(:, data_filt), data_k(:, data_filt));
+                        m_k = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_k(:, data_filt)); %get the mahal distance between the intecting data and the current cluster dimension
+                        % %OG LINE: m_l = mahal(data_isect(:, data_filt), data_l(:, data_filt));
+                        % m_l = mahal_fixed_for_num_unstable(data_isect(:, data_filt), data_l(:, data_filt)); %get the mahal distance between the intersecting data and the comparison cluster dimension
+                    catch ME
+                        m_k = Inf; %in case of numerically unstable data we just set these values to 0 effectively creating a tie for this feature
+                        % m_l = 0;
+                    end
+                    both_clusters = union(ck, cl); %OLD
                     %OG LINE: thresh_min = min(length(ck), length(cl)) * ...
                      %OG LINE  %the_config.params.FO_MIN_OVERLAP_PERCENT; %get the minimum number of spikes needed in the intersection set to merge clusters
-                                                                    
-                    if length(isect) > thresh_min %are there enough spikes in the intersection set to justify a merge
+                    
+                    %OG LINE if length(isect) > thresh_min %are there enough spikes in the intersection set to justify a merge
+                    if group_clusters
                         if sum(m_k < m_l) > sum(m_l < m_k) %weird way to write a condition: check if the current mahal distance is greater than the comparison mahal distance
                             ck = both_clusters; %if so then join the 2 clusters into the current cluster
                             cl = []; %empty the comparison cluster

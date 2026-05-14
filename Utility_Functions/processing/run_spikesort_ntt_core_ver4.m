@@ -48,7 +48,7 @@ disp("finished good interp_raw")
 config.mutated_spike_windows = config.mutated_spike_windows(good_spikes_idx_inj,:);
 disp("finished getting mutated spike windows")
 if config.debug_with_ground_truth && config.has_ground_truth
-    config = check_unit_detection_while_clustering(config.mutated_spike_windows,current_tetrode,config,"after_good_spikes_idx_inj_mult"+string(config.which_thresh),interp_raw,good_spikes_idx_inj);
+    config = check_unit_detection_while_clustering(config.mutated_spike_windows,current_tetrode,config,"aftergoodspikesidxinjmult"+string(config.which_thresh),interp_raw,good_spikes_idx_inj);
     config.plot_counter = config.plot_counter + 1;
 end
 disp("Finished getting unit decetion while clustering 1")
@@ -72,7 +72,7 @@ end
 %check how detection is affected at the current if set on the config
 config.mutated_spike_windows = config.mutated_spike_windows(reg_spikes_idx,:);
 if config.debug_with_ground_truth && config.has_ground_truth
-    config = check_unit_detection_while_clustering(reg_sorted_spike_windows,current_tetrode,config,"after_near_sim_spike_det_filt_mult_"+string(config.which_thresh),reg_interp_raw,1:size(reg_interp_raw,2));
+    config = check_unit_detection_while_clustering(reg_sorted_spike_windows,current_tetrode,config,"afternearsimspikedetfiltmult"+string(config.which_thresh),reg_interp_raw,1:size(reg_interp_raw,2));
     config.plot_counter = config.plot_counter+1;
 end
 disp("Finished getting unit decetion while clustering 2")

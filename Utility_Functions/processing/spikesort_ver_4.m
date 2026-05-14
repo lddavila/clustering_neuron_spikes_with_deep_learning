@@ -56,7 +56,7 @@ end
 disp("Finished getting timestamp filter")
 full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_filter,:);
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
-    full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"after_timestamp_filter_mult_"+string(full_config.which_thresh),aligned,timestamp_filter);
+    full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"aftertimestampfiltermult"+string(full_config.which_thresh),aligned,timestamp_filter);
     full_config.plot_counter = full_config.plot_counter+1;
 end
 disp("Finished getting unit decetion while clustering 3")
@@ -127,7 +127,7 @@ for k = 1:num_iterations
     % looped_mutated_spike_windows = looped_mutated_spike_windows(whiten_filter,:);
     
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
-        full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wp_z_reworked_linspace_"+string(k),aligned,combined_filter);
+        full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
     end
     disp("Finished getting unit decetion while clustering 4")
@@ -149,7 +149,7 @@ did_error = true; %assume that the function will error
 while did_error && ~isempty(preproc_idx)
     disp("entered the while loop")
     try
-        [clusters,peak_pcs]= iterative_clustering_ver_2(aligned, r_ir, r_tvals, ...
+        [clusters,peak_pcs,full_config]= iterative_clustering_ver_2(aligned, r_ir, r_tvals, ...
             refine_spike_idx, preproc_idx, config,peak_pcs_file_name,full_config);
         did_error = false; %if it successfully completes we'll set did_error to false and continue to the rest of the algorithm
     catch ME

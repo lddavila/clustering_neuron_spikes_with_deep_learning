@@ -42,7 +42,11 @@ function [the_refined_cluster_idx, the_backup] = refine_cluster(the_features, th
     far_thresh = the_new_config.TRUST_FAR_NEURONS && ...
         any(mean_peaks > the_new_config.params.TF_NUM_THRESH * the_tvals' & mean_peaks ./ the_ir' > the_new_config.params.TF_IR_PERCENT);
     if rating < the_new_config.params.RF_GOOD_RATING || far_thresh
-        new_core = extract_core(the_features, extract_core(the_features, r_cluster_idx, the_new_config), the_new_config);
+        try
+            new_core = extract_core(the_features, extract_core(the_features, r_cluster_idx, the_new_config), the_new_config);
+        catch ME
+            new_core = [];
+        end
         if isempty(new_core)
             the_refined_cluster_idx = [];
             return;

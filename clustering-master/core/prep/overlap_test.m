@@ -16,8 +16,11 @@ the_good_value = false;
 % of zscore normalization.
 k = the_new_config.params.OT_WIDTH_SCALING_FACTOR;
 width = k * (4/(3 * length(dim_aka_channel)))^(1/5);
-[f, xi] = ksdensity(dim_aka_channel, 'width', width);
-
+try
+    [f, xi] = ksdensity(dim_aka_channel, 'width', width);
+catch
+    disp("Failed in overlap_test.m")
+end
 if ~isempty(varargin) && varargin{1}
     fig_handle = figure();
     tiledlayout(2,2);
