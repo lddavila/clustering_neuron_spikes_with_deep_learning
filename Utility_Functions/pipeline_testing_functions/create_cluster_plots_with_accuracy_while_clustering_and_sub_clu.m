@@ -12,6 +12,9 @@ end
 cluster_colors = distinguishable_colors(length(cluster_idx_struct));
 %get the peaks of the aligned
 peaks = get_peaks(aligned,true);
+% if size(peaks,1) < size(peaks,2)
+%     peaks = peaks.';
+% end
 
 %get table of best rep
 best_rep_local = config.current_table_of_best_rep;
@@ -46,8 +49,8 @@ if ~isfile(fullfile(current_mult_dir,save_name+".png"))
     end
     %now plot and calculate for each cluster which unit it best represents
     f = figure('Units', 'normalized', 'OuterPosition', [0 0 1 1],'Visible','off');
-    tiledlayout(2,3)
-    all_dim_combos = nchoosek(1:4,2);
+    tiledlayout('flow')
+    all_dim_combos = nchoosek(1:length(config.current_channels),2);
     for i=1:size(all_dim_combos,1)
         nexttile();
         x_unclustered = peaks(all_dim_combos(i,1),:);
@@ -107,6 +110,8 @@ if ~isfile(fullfile(current_mult_dir,save_name+".png"))
             end
             %
         end
+        xlabel(config.current_channels(all_dim_combos(i,2)));
+        ylabel(config.current_channels(all_dim_combos(i,2)));
     end
     legend(legend_string);
 

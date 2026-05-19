@@ -117,6 +117,8 @@ for i=1:length(sliced_every_permutation_of_both)
     raw = spike_tetrode_dictionary(current_tetrode);
     parfor j=1:height(current_data)
         even_more_local_config = local_config;
+        even_more_local_config.tetrode = current_tetrode;
+      
         even_more_local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
         current_filename = current_data{j,"filenames"};
         %check to make sure that every channel in the current dataset is
@@ -127,6 +129,7 @@ for i=1:length(sliced_every_permutation_of_both)
             send(q,[]);
             continue;
         end
+        even_more_local_config.current_channels = channels_in_current_tetrode;
 
         local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier "+ current_data{j,"number_of_thresholds_to_run"});
         output_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" output.mat");
@@ -247,6 +250,7 @@ for i=1:length(sliced_every_permutation_of_both)
         try
             %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
             local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(local_initial_tetrodes_results_dir);
+            even_more_local_config.local_tetrode_results_dir = local_tetrode_results_dir;
             [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
             %   - the first column contains the timestamps of the spikes in seconds
             %   - the second column contains the cluster classification of the spikes

@@ -297,4 +297,8 @@ blind_pass_table.recording_name = repelem(config.RECORDING_NAME,size(blind_pass_
 par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
 %fp_to_blind_pass_table = fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat");
 
+
+%enter the tinkering around phase
+
+
 end

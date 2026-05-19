@@ -116,5 +116,6 @@ function [the_clusters,the_peak_pcs,full_config ]= iterative_clustering_ver_2(th
          bad = bad_tmp;
          create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,the_aligned_spikes,the_clusters,full_config.which_thresh,"after_fix_cluster_overlaps");
          full_config.plot_counter = full_config.plot_counter +1;
+         par_save(fullfile(full_config.local_tetrode_results_dir,full_config.current_tetrode+" sorted_spike_windows_after_purges.mat"),full_config.mutated_spike_windows);
     end
 end

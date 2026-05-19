@@ -1,4 +1,4 @@
-function [should_be_merged] = check_mergability_for_2_clusters_using_group_or_dont_nn(cluster_1_pks,cluster_2_pks,clust_1_filt,clust_2_filt,aligned,config,intersection_size,smaller_cluster_size)
+function [should_be_merged] = check_mergability_for_2_clusters_using_group_or_dont_nn(cluster_1_pks,cluster_2_pks,clust_1_filt,clust_2_filt,aligned,config,intersection_size,smaller_cluster_size,varargin)
 
 %get the x,y locations of the channels on the probe
 locations = get_probe_xy();
@@ -22,9 +22,16 @@ array_of_cluster_peaks = {cluster_1_pks,cluster_2_pks};
 array_of_clust_filts = {clust_1_filt,clust_2_filt};
 mean_waveforms = cell(1,length(array_of_cluster_peaks));
 compare_wires = [];
-current_channels = config.current_channels;
+if isempty(varargin)
+    current_channels = config.current_channels;
+else
+    current_channels_array = [config.current_channels;varargin{2}];
+end
 for j=1:length(array_of_cluster_peaks)
 
+    if ~isempty(varargin)
+        current_channels = current_channels_array(j,:);
+    end
     peaks = array_of_cluster_peaks{j}.';
     % Set up the representative wire for the cluster
 
@@ -34,8 +41,17 @@ for j=1:length(array_of_cluster_peaks)
     n = histc(max_wire, poss_wires);
     [~, max_n] = max(n);
     compare_wire = poss_wires(max_n);
-    mean_waveform = mean(shiftdim(aligned(compare_wire, array_of_clust_filts{j}, :), 1));
-    mean_waveform = mean_waveform - mean(mean_waveform);
+    if ~isempty(varargin)
+        if j==1
+            mean_waveform = mean(shiftdim(aligned(compare_wire, array_of_clust_filts{j}, :), 1));
+        else
+            mean_waveform = mean(shiftdim(varargin{1}(compare_wire, array_of_clust_filts{j}, :), 1));
+        end
+    else
+        mean_waveform = mean(shiftdim(aligned(compare_wire, array_of_clust_filts{j}, :), 1));
+        mean_waveform = mean_waveform - mean(mean_waveform);
+    end
+
     mean_waveforms{j} = mean_waveform;
     compare_wires = [compare_wires,current_channels(compare_wire)];
 
