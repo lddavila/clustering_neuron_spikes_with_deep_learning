@@ -82,7 +82,7 @@ for min_z_score=z_scores_to_check
     % step 9b: get potential spikes from continuous recordings
     if ~ismember("spikes_per_channel min_z_score "+ string(min_z_score),what_is_pre_computed)
         spikes_per_chan_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir+"spikes_per_channel min_z_score "+string(min_z_score)));
-        spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor);
+        spikes_per_channel = detect_spikes_ver_2(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min_z_score,scale_factor,config);
         save(fullfile(spikes_per_chan_dir,"spikes_per_channel.mat"),"spikes_per_channel");
         has_been_computed = [has_been_computed,"spikes_per_channel min_z_score"+string(min_z_score)];
     else
@@ -93,7 +93,7 @@ for min_z_score=z_scores_to_check
     % step 9c; Get all the data points from the potential spikes
     if ~ismember("spike_windows min_z_score " + string(min_z_score) + " num dps " + string(num_dps),what_is_pre_computed)
         spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(min_z_score) + " num dps "+ string(num_dps)));
-        spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir);
+        spike_windows = get_spike_windows_ver_2(ordered_list_of_channels,spikes_per_channel,min_z_score,num_dps,z_score_dir, config);
         has_been_computed = [has_been_computed,"spike_windows min_z_score" + string(min_z_score) + " num dps " + string(num_dps),what_is_pre_computed];
         %each array is made up of 4 numbers:
         %the first is the beginning of the spike window
@@ -111,7 +111,7 @@ for min_z_score=z_scores_to_check
         if ~ismember("dictionaries min_z_score " + string(min_z_score) + " num_dps " + string(num_dps),what_is_pre_computed)
             clc;
             dictionaries_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps)));
-            get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir);
+            get_dictionaries_of_all_spikes_ver_3(art_tetr_array,spike_windows,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir, config);
             %tetrode_dictionary
             %keys: "t" + tetrode number
             %values: all channels which are part of the current dictionary
@@ -145,6 +145,7 @@ for min_z_score=z_scores_to_check
             dictionaries_dir = fullfile(precomputed_dir,"dictionaries min_z_score "+string(min_z_score)+ " num_dps "+string(num_dps));
         end
     else
+        % Need to fix finding which z_score maybe get from string later 
         directory_list = config.CUSTOM_DICTIONARIES_DIRECTORY_LIST;
         idx = find(z_scores_to_check == min_z_score, 1);
         if isempty(idx)
@@ -156,10 +157,13 @@ for min_z_score=z_scores_to_check
     % Step 9e: Run Clustering Algorithm
     % close all;
     clc;
+    % NEED TO ADJUST LATER 
     array_of_desired_tetrodes = strcat("t",string(1:size(art_tetr_array,1)));
+    array_of_desired_tetrodes = "t1";
+
     if ~ismember("initial_pass",what_is_pre_computed)
         initial_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score"+string(min_z_score)));
-        initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score" + string(min_z_score)));
+        initial_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass_results min z_score " + string(min_z_score)));
         [~,~,~] = run_clustering_algorithm_on_desired_tetrodes_ver_3(array_of_desired_tetrodes,channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,initial_tetrode_dir,initial_tetrode_results_dir,config);
         has_been_computed = [has_been_computed,"initial_pass"];
 

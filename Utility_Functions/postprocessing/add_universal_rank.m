@@ -31,8 +31,6 @@ while abs(class_predictions(1) - class_predictions(2)) > 0.05 && num_iterations<
     overlap_between_clusters = get_overlap_percentage_between_2_cluster_ts(presorted_table{compare_position,"timestamps"}{1},current_ts,config);
 
 
-
-
     data_for_nn = [current_data_waveform,current_data_grades,compare_waveform,compare_grades,overlap_between_clusters,current_data_size,compare_size];
 
     class_predictions = predict(choose_better_nn,data_for_nn);

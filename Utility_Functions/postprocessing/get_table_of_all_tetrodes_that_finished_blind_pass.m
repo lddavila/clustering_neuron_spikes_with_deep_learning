@@ -31,7 +31,7 @@ for i=1:size(unique_z_score_dirs,1)
 
         output_table{output_table_counter,"fp_to_aligned"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" aligned.mat");
         output_table{output_table_counter,"fp_to_output"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" output.mat");
-        output_table{output_table_counter,"fp_to_reg_timestamps_of_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_spikes.mat");
+        output_table{output_table_counter,"fp_to_reg_timestamps_of_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_the_spikes.mat");
         output_table{output_table_counter,"fp_to_reg_timestamps"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+"reg_timestamps.mat");
         output_table{output_table_counter,"fp_to_sorted_spike_windows_after_purges"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" sorted_spike_windows_after_purges.mat");
         output_table{output_table_counter,"fp_to_timestamps_rtvals"} = fullfile(precomputed_dir,"initial_pass min z_score"+string(current_z_score),unique_tetrodes(j)+".mat");

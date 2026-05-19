@@ -1,9 +1,7 @@
 function [] = draw_elipse_templates(config)
-if config.ON_HPC
-    dir_to_save_templates_to =config.TEMPLATE_CLUSTER_FP_ON_HPC;
-else
-    dir_to_save_templates_to =config.TEMPLATE_CLUSTER_FP;
-end
+
+dir_to_save_templates_to =config.TEMPLATE_CLUSTER_FP;
+
 %First Draw The Circle
 x_center = 0;
 y_center = 0;

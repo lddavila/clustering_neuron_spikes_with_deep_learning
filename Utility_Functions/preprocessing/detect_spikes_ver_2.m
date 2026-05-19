@@ -2,7 +2,16 @@ function [spikes_matrix] = detect_spikes_ver_2(ordered_list_of_channels,dir_with
 spikes_matrix_unmapped = cell(1,size(ordered_list_of_channels,2));
 spikes_matrix = cell(1,config.max_channel_number);
 num_iterations = size(ordered_list_of_channels,2);
-status_file = fopen(config.FP_TO_STATUS_FILE,"a");
+
+% Need to change up later
+if exist(config.FP_TO_STATUS_FILE)==2
+  status_file = fopen(config.FP_TO_STATUS_FILE,'a'); % open exist file and append contents
+  disp("Writing existing file")
+else
+  status_file = fopen(config.FP_TO_STATUS_FILE,'w'); % create file and write to it
+  disp("Creating file")
+end
+
 parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     channel_data = importdata(fullfile(dir_with_channel_recordings,current_channel+".mat"));
@@ -14,15 +23,16 @@ parfor i=1:length(ordered_list_of_channels)
     [~,pk_locs] = findpeaks(channel_data);
     spikes_matrix_unmapped{i} = pk_locs;
 end
-for i=1:size(length(ordered_list_of_channels))
+for i=1:size(ordered_list_of_channels)
     spikes_matrix{str2double(strrep(ordered_list_of_channels(i),"c",""))} = spikes_matrix_unmapped{i};
 end
+
 status_message = "\n"+print_status_iter_message("detect_spikes_ver_2.m",i,num_iterations);
 fprintf(status_file,status_message);
 fclose(status_file);
 
 % Show to UI
-% displayStatus(Config, status_message);
+displayStatus(config, status_message);
 
 
 end

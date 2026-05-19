@@ -1,17 +1,18 @@
-function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir, config)
+function [output_array,aligned_array,reg_timestamps_array] = run_clustering_algorithm_on_desired_tetrodes_ver_3(list_of_desired_tetrodes,channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,inital_tetrode_dir,initial_tetrodes_results_dir,config)
 output_array = cell(1,length(list_of_desired_tetrodes));
 aligned_array = cell(1,length(list_of_desired_tetrodes));
 reg_timestamps_array= cell(1,length(list_of_desired_tetrodes));
 filenames = repelem("",1,length(list_of_desired_tetrodes));
 
-% New added status file
-status_file = fopen(config.FP_TO_STATUS_FILE,"a");
 
 for j=1:length(list_of_desired_tetrodes)
     filenames(j) =fullfile(inital_tetrode_dir,list_of_desired_tetrodes(j)+".mat");
 end
-number_of_tetrodes_to_run = length(list_of_desired_tetrodes);
-for i=1:length(list_of_desired_tetrodes)
+number_of_tetrodes_to_run = size(list_of_desired_tetrodes,2);
+
+
+parfor i=1:size(list_of_desired_tetrodes,2)
+    beginning_time = tic;
     current_tetrode = list_of_desired_tetrodes(i);
     tetrode_dictionary = load(fullfile(dictionaries_dir,current_tetrode+ " tetrode_dictionary.mat"),"tetrode_dictionary");
     tetrode_dictionary =tetrode_dictionary.tetrode_dictionary;
@@ -35,6 +36,8 @@ for i=1:length(list_of_desired_tetrodes)
 
 
     raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
+    disp("size of spikes")
+    disp(size(raw_in_samples_format));
 
 
     mean_of_relevant_channels = channel_wise_means(channels_in_current_tetrode) ;
@@ -52,12 +55,14 @@ for i=1:length(list_of_desired_tetrodes)
 
     timestamps_for_current_tetrode = timing_tetrode_dictionary(current_tetrode);
     ir = calculate_input_range_for_raw_by_channel_ver_3(channels_in_current_tetrode,dir_with_channel_recordings);
+    ir = ir.';
 
     %ir = ir(:,1) - ir(:,2);
     tvals = mean_of_relevant_channels + (std_dvns_of_relevant_channels * number_of_std_above_means) ;
+    
 
 
-    config = spikesort_config(); %load the config file;
+    % config = spikesort_config(); %load the config file;
 
 
     % try
@@ -88,16 +93,10 @@ for i=1:length(list_of_desired_tetrodes)
 
         continue;
     end
-    disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
-    
-    status_message = "\n"+print_status_iter_message("run_clustering_algorithm_on_desired_tetrodes_ver_3", i, length(number_of_tetrodes_to_run));
+    % disp("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished "+ string(i)+"/"+string(length(number_of_tetrodes_to_run)))
+    end_time = toc(beginning_time);
 
-    % Added writing to status file
-    fprintf(status_file,status_message);
-    fclose(status_file);
-
-    % Display to UI
-    % displayStatus(config, status_message);
+    fprintf("run_clustering_algorithm_on_desired_tetrodes_ver_3.m Finished %d/%d it took %f seconds\n",i,number_of_tetrodes_to_run,end_time)
 
 end
 end

@@ -10,7 +10,9 @@ parfor i=1:size(sliced_bp_table,1)
     unit_that_cluster_has_max_overlap_with = current_data{1,"Max Overlap Unit"};
     gt_indexes =ground_truth{unit_that_cluster_has_max_overlap_with} ;
     gt_ts = timestamps(gt_indexes);
-    cluster_spike_ts = current_data{1,"timestamps"};
+    cluster_spike_ts = current_data{1,"timestamps"}{1};
+    % display(gt_ts);
+    % display(cluster_spike_ts);
     accuracy_array(i) = calculate_accuracy(gt_ts,{cluster_spike_ts},config) * 100;
     disp("add_accuracy_col Finished "+string(i)+"/"+string(num_iterations));
 end

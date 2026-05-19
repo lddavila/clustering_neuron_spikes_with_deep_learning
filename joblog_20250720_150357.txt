@@ -1,0 +1,8 @@
+
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
+detect_spikes_ver_2.m Finished 1/4\nget_dicationaries_of_all_spikes_ver_3.m Finished 1/1
