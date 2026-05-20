@@ -1,6 +1,7 @@
 function [table_of_percentiles] = create_scatter_chart_for_perc_bp_table(split_plots,varargin)
 dir_with_tables = "E:\prc_test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY";
 dir_with_tables = "E:\prc_2_test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY";
+dir_with_tables = "E:\prc_6_test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\ACCURACY";
 table_of_percent_tables = struct2table(dir(fullfile(dir_with_tables,"*_bp_table*")));
 table_of_percent_tables.folder = string(table_of_percent_tables.folder);
 table_of_percent_tables.name = string(table_of_percent_tables.name);
@@ -97,7 +98,7 @@ for k=1:length(unique_tetrodes)
             end
         % end
     end
-    close all;
+    % close all;
     if ~split_plots
 
         legend(scatter_array,legend_string);

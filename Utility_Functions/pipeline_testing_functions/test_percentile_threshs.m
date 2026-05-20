@@ -9,12 +9,15 @@ config.debug_with_ground_truth = 1;
 config.GT_FP = "E:\10_600Neuron300SecondRecordingWithLevel10Noise\ground_truth\ground_truth.mat";
 
 config.TIMESTAMP_FP = "E:\5_600Neuron300SecondRecordingWithLevel5Noise\timestamps\timestamps.mat";
-description = ["removed pcs from dimension selection \ndropped spikes from bad dimensions \n"+...
+description = ["removed pcs from dimension selection \nUSED LINSPACE HERE \ndropped spikes from bad dimensions \n"+...
     'removed finalize clusters from pipeline'+...
     '\n added a check for clusters that are too large/small ie. less than 1000 and greater than 15000'+...
     '\n added more info to plots'+...
-    '\n also changed the logic which recombines clusters to only combine good clusters never bad clusters'];
-dir_to_save_output_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path("E:\prc_6_test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise");
+    '\n also changed the logic which recombines clusters to only combine good clusters never bad clusters'+...
+    "\n saving aligned files this time"];
+dir_to_save_output_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path("E:\prc_8_test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise");
+config.aligned_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_output_to,"aligned_files"));
+config.spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_output_to,"spike_windows_files"));
 debug_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_output_to,"DEBUG"));
 accuracy_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(debug_dir,"ACCURACY"));
 % Open file for writing
@@ -30,12 +33,12 @@ fclose(fileID);
 %% set the tetrode number you want to test
 tetrode_numbers = [136,14,166,1,10,4,97,98,88,91];
 tetrode_numbers = setdiff(1:size(config.ART_TETR_ARRAY,1),tetrode_numbers);
-tetrode_numbers = 1:10;
+tetrode_numbers = 1:100;
 multipliers_to_test = [3 4 5 6 7 8 9 10];
 
 config.fp_to_table_of_best_rep = "E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\DEBUG\table_of_best_rep_2.mat";
 load("E:\test_ic_3_10_600Neuron300SecondRecordingWithLevel10Noise\mean_and_std\mean_and_std.mat","channel_wise_means","channel_wise_std")
-
+config.use_percentile_for_pmv_filter = false;
 
 
 
@@ -61,7 +64,11 @@ for j=1:length(starting_percentiles)
 end
 
 all_percentiles_to_use = unique(all_percentiles_to_use,"rows",'stable');
-all_percentiles_to_use = [ 90    85    80    75; 85    80    75    70];
+all_percentiles_to_use = all_percentiles_to_use(1:10,:);
+%all_percentiles_to_use = [ 90    85    80    75; 85    80    75    70];
+
+all_percentiles_to_use = linspace(2, 0, 5-1);
+
 parfor i=1:length(tetrode_numbers)
     which_tetrode = i;
     tetrode_number = tetrode_numbers(which_tetrode);
@@ -101,7 +108,7 @@ parfor i=1:length(tetrode_numbers)
 
             save_name = fullfile(accuracy_dir,"t"+string(tetrode_number)+"percentile_set"+string(percentile_counter)+"mult"+string(multiplier_to_test)+".mat");
             bp_save_name = fullfile(accuracy_dir,"t"+string(tetrode_number)+"_bp_table_and_struct_prc_count"+string(percentile_counter)+"_mult_"+string(multiplier_to_test)+".mat");
-            try
+            % try
                 if ~isfile(bp_save_name)
                     if ~isfile(save_name)
                         % try
@@ -114,7 +121,8 @@ parfor i=1:length(tetrode_numbers)
 
                         local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier "+ string(multiplier_to_test));
                         output_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" output.mat");
-                        aligned_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
+                        aligned_file_name = fullfile(local_config.aligned_dir,current_tetrode+"_aligned_mult"+string(multiplier_to_test)+"_prc_"+strjoin(string(local_config.percentiles_to_use),"_")+".mat");
+                        spike_windows_file_name =fullfile(local_config.aligned_dir,current_tetrode+"_sw_mult"+string(multiplier_to_test)+"_prc_"+strjoin(string(local_config.percentiles_to_use),"_")+".mat");
                         reg_ts_file_name= fullfile(local_initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
                         reg_ts_of_spikes_file_name =fullfile(local_initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
                         peak_pcs_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" peak_pcs.mat");
@@ -158,6 +166,8 @@ parfor i=1:length(tetrode_numbers)
 
                         %filter the spike windows for debugging in clustering process
                         mutated_spike_windows = sorted_spike_windows(max_peak_vals >= per_spike_thresholds,:);
+                        par_save(spike_windows_file_name,mutated_spike_windows);
+                        % continue;
 
                         %put spike windows in the config
                         local_config.mutated_spike_windows = mutated_spike_windows;
@@ -222,6 +232,7 @@ parfor i=1:length(tetrode_numbers)
                         local_config.current_channels = channels;
 
                         [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,cluster_filters] = run_spikesort_ntt_core_ver4(mutated_raw, mutated_ts_for_current_tetrode, good_spike_idx, ir, tvals, filenames, local_config,channels,local_config.mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
+                        par_save(fullfile(aligned_file_name),aligned);
                         disp("Finished clustering")
                         %preserve the cluster ts for accuracy calculation phase
                         cell_array_of_cluster_ts = cell(length(cluster_filters),1);
@@ -248,11 +259,11 @@ parfor i=1:length(tetrode_numbers)
                     % catch ME
 
                 end
-            catch ME
-                ME.getReport;
-                disp("Something went wrong")
-                continue;
-            end
+            % catch ME
+            %     ME.getReport;
+            %     disp("Something went wrong")
+            %     continue;
+            % end
             
         
         end
