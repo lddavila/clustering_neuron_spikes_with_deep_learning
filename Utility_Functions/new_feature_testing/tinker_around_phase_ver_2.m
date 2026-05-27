@@ -1,4 +1,4 @@
-function [] = tinker_around_phase(blind_pass_table,config,testing,varargin)
+function [] = tinker_around_phase_ver_2(blind_pass_table,config,testing,varargin)
 %the "tinkering_around_phase" is a method after cluster creation that we
 %use to try and enhance clustering by finding the ideal channels to see
 %each cluster
@@ -37,7 +37,7 @@ end
 
 %with the groups assembled we can then try to find alternate dimensions
 %within each group to try and get the ideal configuration per neuron
-
+plot_counter = 1;
 for i=1:length(grouped_clusters)
     current_group = grouped_clusters{i};
     if testing
@@ -74,9 +74,10 @@ for i=1:length(grouped_clusters)
         %channel the spike came from
         %we can use this information to get the spike windows for only
         %the compare cluster
-        curr_clust_sw = curr_sw(ismembertol(curr_pk_loc,curr_sw(:,4),6,"DataScale",1),:); %6 is equivalent to the time delta which is 0.0002 seconds AKA .2 milliseconds
+        [~,loc_in_curr_sw] = ismembertol(curr_pk_loc,curr_sw(:,4),6,"DataScale",1);
+        curr_clust_sw = curr_sw(loc_in_curr_sw,:); %6 is equivalent to the time delta which is 0.0002 seconds AKA .2 milliseconds
 
-        curr_clust_ts = curr_clust{i,"timestamps"}{1};
+        curr_clust_ts = curr_clust{1,"timestamps"}{1};
         %TO DO: ENSURE THE PIPELINE outputs the sorted spike windows
         %appropriately as to not have to do all this extra finding with
         %tolerances we are currently doing here as it could create a
@@ -91,57 +92,22 @@ for i=1:length(grouped_clusters)
 
             all_perms = nchoosek(1:length(accuracy_after_dropping),2);
             for perms_counter =1: size(all_perms,1)
-                figure;
-                % tiledlayout('flow');
-                % nexttile();
-                dim_1 = all_perms(perms_counter,1);
-                dim_2 = all_perms(perms_counter,2);
-                x_data = curr_clust_peaks(dim_1,:);
-                y_data = curr_clust_peaks(dim_2,:);
-                h = histogram2(x_data,y_data,'XBinEdges',1:1:200,YBinEdges=1:1:200);
-                hold on;
-                title("Without any Dropping accuracy:"+string(curr_clust{1,"accuracy"}))
-                xlabel("channel "+string(all_possible_dimensions_to_drop(dim_1)));
-                ylabel("channel "+string(all_possible_dimensions_to_drop(dim_2)));
-                
                 for dim_counter=1:length(all_possible_dimensions_to_drop)
-                    figure;
-                    histogram2(x_data,y_data,'XBinEdges',h.XBinEdges,'YBinEdges',h.YBinEdges);
-                    hold on;
                     edited_ts = curr_clust_ts(~ismember(curr_clust_sw(:,3),all_possible_dimensions_to_drop(dim_counter)));
-                    edited_peaks = curr_clust_peaks(:,~ismember(curr_clust_sw(:,3),all_possible_dimensions_to_drop(dim_counter)));
-                    x_data_edited = edited_peaks(dim_1,:);
-                    y_data_edited = edited_peaks(dim_2,:);
                     accuracy_after_dropping(dim_counter) =  calculate_accuracy(gt_ts,{edited_ts},config) * 100;
-                    histogram2(x_data_edited,y_data_edited,'XBinEdges',h.XBinEdges,'YBinEdges',h.YBinEdges,'FaceColor','k');
-                    title("Dropping Channel "+string(all_possible_dimensions_to_drop(dim_counter))+" accuracy:"+string(accuracy_after_dropping(dim_counter)))
-                    xlabel("channel "+string(all_possible_dimensions_to_drop(dim_1)));
-                    ylabel("channel "+string(all_possible_dimensions_to_drop(dim_2)));
                 end
-                close all;
-                
-                
-
-
-
             end
-            
-
-
-            % title_string = [sprintf("accuracy %.2f after dropping for Z Score: %i , Tetrode: %s, Cluster: %i",curr_clust{1,"accuracy"},curr_clust{1,"Z Score"},curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"})];
-            % title_string = [title_string,strjoin(string(accuracy_after_dropping)," ")];
-            % sgtitle(title_string);
-            % fprintf("accuracy %.2f after dropping for Multiplier: %i , Tetrode: %s, Cluster: %i\n",curr_clust{1,"accuracy"},curr_clust{1,"Z Score"}+5,curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"})
-            % disp(accuracy_after_dropping)
-            % continue;
         end
+        testing = false;
         if testing
-            [num_clusters,compare_channel_1,compare_channel_2] = estimate_num_clusters_based_on_bin_img(curr_clust_peaks,curr_clust.channels,testing);
+            [cell_array_of_number_of_clusters,cell_array_of_centers,number_of_perms] = estimate_num_clusters_based_on_bin_img(curr_clust_peaks,curr_clust.channels,testing);
         else
-            [num_clusters,compare_channel_1,compare_channel_2] = estimate_num_clusters_based_on_bin_img(curr_clust_peaks,curr_clust.channels);
+            [cell_array_of_number_of_clusters,cell_array_of_centers,number_of_perms] = estimate_num_clusters_based_on_bin_img(curr_clust_peaks,curr_clust.channels);
         end
 
-        new_cluster_idxs = recluster_after_drop_or_add(curr_clust_peaks,num_clusters,config,testing);
+        new_cluster_idxs = recluster_after_drop_or_add(curr_clust_peaks,cell_array_of_number_of_clusters,config,testing,curr_clust.channels,curr_clust_ts,number_of_perms,cell_array_of_centers);
+        %(peaks,cell_array_of_number_of_clusters,config,testing,channels,old_ts,perms,cell_array_of_cluster_centers)
+        testing = true;
         for k=j+1:height(current_group) %cycle through all clusters you can compare to
             comp_clust = current_group(k,:); %get a cluster to compare to
             if curr_clust.Tetrode == comp_clust.Tetrode
@@ -166,8 +132,11 @@ for i=1:length(grouped_clusters)
             %we can use this information to get the spike windows for only
             %the compare cluster
 
-            comp_clust_sw = comp_sw(ismembertol(comp_pk_loc,comp_sw(:,4),6,"DataScale",1),:); %6 is equivalent to the time delta which is 0.0002 seconds AKA .2 milliseconds
 
+
+            [~,loc_in_comp_sw] = ismembertol(comp_pk_loc,comp_sw(:,4),6,"DataScale",1);
+            comp_clust_sw = comp_sw(loc_in_comp_sw,:); %6 is equivalent to the time delta which is 0.0002 seconds AKA .2 milliseconds
+            % new_comp_ts = timestamps(comp_clust_sw(:,4));
 
             %currently there is no mechanism for choosing which new
             %dimensions should be added so we're just gonna see what
@@ -178,7 +147,7 @@ for i=1:length(grouped_clusters)
                     gt_unit= ground_truth{curr_clust{1,"Max_Overlap_Unit"}};
                     gt_ts = timestamps(gt_unit);
                     all_possible_dimensions_to_drop = curr_clust.channels;
-                    new_dims = unique([all_possible_dimensions_to_drop,dimensions_to_add(add_counter)]);
+                    new_dims = unique([all_possible_dimensions_to_drop,dimensions_to_add(add_counter)],"stable");
                     if length(new_dims) == length(all_possible_dimensions_to_drop)
                         continue;
                     end
@@ -190,58 +159,58 @@ for i=1:length(grouped_clusters)
                     new_combined_sw = [curr_clust_sw;spikes_to_add];
                     % new_cluster_sw = reassemble_spikes(new_combined_sw,config);
                     new_spikes = reassemble_spikes(new_combined_sw,config,new_dims,config.DIR_WITH_OG_CHANNEL_RECORDINGS);
+                    new_ts = timestamps(new_combined_sw(:,4));
                     new_interp_spikes = interpolate_spikes(new_spikes,config);
                     new_aligned = align_to_peak(new_interp_spikes);
                     new_peaks = get_peaks(new_aligned,true);
-                    [num_clusters,compare_channel_1,compare_channel_2] = estimate_num_clusters_based_on_bin_img(new_peaks,new_dims);
-                    new_cluster_idxs = recluster_after_drop_or_add(new_peaks,num_clusters,config,testing);
-                    f = figure;
-                    tlout = tiledlayout('flow');
-                    for perms_counter =1: size(all_perms,1)
-                        try
-                            dim_1 = all_perms(perms_counter,1);
-                            dim_2 = all_perms(perms_counter,2);
-                            if perms_counter==1
-                                figure;
-                                x_data = curr_clust_peaks(dim_1,:);
-                                y_data = curr_clust_peaks(dim_2,:);
-                                histogram2(x_data,y_data,100)
-                                hold on;
-                                title("Without any Adding")
-                                xlabel("channel "+string(dimensions_to_add(dim_1)));
-                                ylabel("channel "+string(dimensions_to_add(dim_2)));
-                            end
-                            nexttile(tlout); % Plots in the next available tile of tlo1
-                            
-                            histogram2(x_data,y_data,100)
-                            hold on;
-                            edited_ts = timestamps(new_combined_sw(:,4));
-                            x_data_edited = new_peaks(dim_1,:);
-                            y_data_edited = new_peaks(dim_2,:);
-                            accuracy_after_adding(add_counter) =  calculate_accuracy(gt_ts,{edited_ts},config) * 100;
-                            histogram2(x_data_edited,y_data_edited,100,'FaceColor','k');
-                            title("Adding Channel "+string(dimensions_to_add(add_counter))+" accuracy:"+string(accuracy_after_adding(dim_counter)))
-                            xlabel("channel "+string(all_possible_dimensions_to_drop(dim_1)));
-                            ylabel("channel "+string(new_dims(dim_2)));
-
-                            % close all;
-                        catch
-                            % close all;
-                        end
-
-
+                    testing = false;
+                    if testing
+                        [cell_array_of_number_of_clusters,cell_array_of_centers,number_of_perms]= estimate_num_clusters_based_on_bin_img(new_peaks,new_dims,testing);
+                    else
+                        [cell_array_of_number_of_clusters,cell_array_of_centers,number_of_perms]= estimate_num_clusters_based_on_bin_img(new_peaks,new_dims);
                     end
-                    close all;
+                    testing = true;
+                    if ~testing
+                        new_cluster_idxs = recluster_after_drop_or_add(new_peaks,cell_array_of_number_of_clusters,config,testing,new_dims,new_ts,number_of_perms,cell_array_of_centers,gt_ts);
+                    else
+                        [new_cluster_idxs,fig_with_new_clusts]= recluster_after_drop_or_add(new_peaks,cell_array_of_number_of_clusters,config,testing,new_dims,new_ts,number_of_perms,cell_array_of_centers,timestamps);
+                        sgtitle(fig_with_new_clusts,"Adding Channel "+string(setdiff(new_dims,curr_clust.channels)))
+                    end
+                    % fprintf("accuracy %.2f after dropping for Multiplier: %i , Tetrode: %s, Cluster: %i\n",curr_clust{1,"accuracy"},curr_clust{1,"Z Score"}+5,curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"})
+                    % disp(accuracy_after_dropping)
+                    if testing
+                        dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"adding_new_dim_plots"));
+                        number_of_perms = nchoosek(1:size(curr_clust_peaks,1),2);
+                        f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
+                        tiledlayout('flow');
 
+                        for q=1:size(number_of_perms,1)
+                            nexttile();
+                            dim_1 = number_of_perms(q,1);
+                            dim_2 = number_of_perms(q,2);
+                            x_data = curr_clust_peaks(dim_1,:);
+                            y_data = curr_clust_peaks(dim_2,:);
+                            x_data_new = new_peaks(dim_1,:);
+                            y_data_new = new_peaks(dim_2,:);
+                            scatter(x_data_new,y_data_new,".","DisplayName","New Peaks");
+                            hold on;
+                            scatter(x_data,y_data,".","DisplayName","Old Peaks Unit:"+string(curr_clust{1,"Max_Overlap_Unit"}+" accuracy:"+sprintf("%.2f",curr_clust{1,"accuracy"})));
+                            
+                            xlabel("Channel "+string(curr_clust.channels(dim_1)))
+                            ylabel("Channel "+string(curr_clust.channels(dim_2)))
+                        end
+                        sgtitle("OG Accuracy: "+string(curr_clust.accuracy));
+                        legend('Location','best');
+                        save_name_2 = sprintf('%i_og_spikes_Group %i Z Score %i Tetrode %s Cluster %i adding channel %i',plot_counter,i,curr_clust{1,"Z Score"},curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"},setdiff(new_dims,curr_clust.channels));
+                        plot_counter = plot_counter + 1;
+                        save_name_1 = sprintf('%i_recut_Group %i Z Score %i Tetrode %s Cluster %i adding channel %i',plot_counter,i,curr_clust{1,"Z Score"},curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"},setdiff(new_dims,curr_clust.channels));
+                        plot_counter = plot_counter+1;
+                        save_plots_in_all_formats(fig_with_new_clusts,fullfile(dir_to_save_images_to,save_name_1))
+                        save_plots_in_all_formats(f,fullfile(dir_to_save_images_to,save_name_2));
+                        close all;
+                    end
 
-                    % title_string = [sprintf("accuracy %.2f after dropping for Z Score: %i , Tetrode: %s, Cluster: %i",curr_clust{1,"accuracy"},curr_clust{1,"Z Score"},curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"})];
-                    % title_string = [title_string,strjoin(string(accuracy_after_dropping)," ")];
-                    % sgtitle(title_string);
-                    fprintf("accuracy %.2f after dropping for Multiplier: %i , Tetrode: %s, Cluster: %i\n",curr_clust{1,"accuracy"},curr_clust{1,"Z Score"}+5,curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"})
-                    disp(accuracy_after_dropping)
-      
                 end
-                % continue;
             end
         end
     end

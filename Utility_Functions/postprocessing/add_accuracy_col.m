@@ -1,4 +1,4 @@
-function [table_of_clusters] = add_accuracy_col(config,table_of_clusters)
+function [table_of_clusters,raw_tp_count] = add_accuracy_col(config,table_of_clusters)
 accuracy_array = nan(size(table_of_clusters,1),1);
 ground_truth = importdata(config.GT_FP);
 if string(class(ground_truth)) ~= "cell"
@@ -15,6 +15,7 @@ num_iterations = length(sliced_bp_table);
 print_status_bar(num_iterations,"add_accuracy_col.m")
 timestamps = parallel.pool.Constant(timestamps);
 ground_truth = parallel.pool.Constant(ground_truth);
+raw_tp_count = nan(size(table_of_clusters,1),1);
 for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     %blind_pass_table.("Max_Overlap_perc_With_Unit") = max_overlap_percentages;
@@ -44,7 +45,8 @@ for i=1:size(sliced_bp_table,1)
     
    cluster_spike_ts = current_data{1,"timestamps"}{1};
 
-    accuracy_array(i) = calculate_accuracy(gt_ts,{cluster_spike_ts},config) * 100;
+    [accuracy_array(i),raw_tp_count(i)] = calculate_accuracy(gt_ts,{cluster_spike_ts},config);
+    accuracy_array(i) = accuracy_array(i) * 100;
     send(q,[]);
    
 end
