@@ -33,8 +33,10 @@ function [the_final_clusters,full_config ]= core_cluster_loop(the_spike_aligned,
         %this is important because it ensures that you will continue to subcluster the clusters which are still subclusterable, and not keep reclustering the same clusters again and again
         % config,aligned,cluster_idx_struct,which_subset
         % disp("about to create_Cluster_plots_with_accuracy_while_clustering_and_sub_clu")
-        create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,the_spike_aligned,next_clusters,string(level))
-        full_config.plot_counter = full_config.plot_counter+1;
+        if full_config.has_ground_truth && full_config.debug_with_ground_truth
+            create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,the_spike_aligned,next_clusters,string(level))
+            full_config.plot_counter = full_config.plot_counter+1;
+        end
         % disp("Finished creating the plot")
         level = level + 1; %increase the subcluster level
         % close all;

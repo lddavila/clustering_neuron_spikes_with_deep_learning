@@ -60,9 +60,12 @@ rep_wire_for_left_clust_test_data_loc = locations(compare_wires(1),:);
 rep_wire_for_right_clust_test_data_loc = locations(compare_wires(2),:);
 euc_distance_between_rep_wires = sqrt(sum((rep_wire_for_left_clust_test_data_loc - rep_wire_for_right_clust_test_data_loc).^2, "all"));
 
-left_clust_wfs = rescale(mean_waveforms{1});
+% left_clust_wfs = rescale(mean_waveforms{1});
 
-right_clust_wfs = rescale(mean_waveforms{2});
+% right_clust_wfs = rescale(mean_waveforms{2});
+
+left_clust_wfs = mean_waveforms{1};
+right_clust_wfs = mean_waveforms{2}; %NOT RESCALED REMEMBER TO CHECK
 euc_distance_between_rep_wfs = sqrt(sum((left_clust_wfs - right_clust_wfs).^2, 'all'));
 
 %put all the data together for the neural network

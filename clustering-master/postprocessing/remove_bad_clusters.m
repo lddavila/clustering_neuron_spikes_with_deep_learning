@@ -69,15 +69,15 @@ function [the_good_filt,the_cfs] = remove_bad_clusters(the_aligned, the_cfs, the
             continue;
         end
 
-        disp("Cluster "+string(k)+"_"+sprintf('%i',dim_filter));
+        % disp("Cluster "+string(k)+"_"+sprintf('%i',dim_filter));
         current_channels = full_config.current_channels;
         good_channels = current_channels(~dim_filter);
         spike_windows = full_config.mutated_spike_windows; %get the data that tells us each channel the spike came from
         which_channels = spike_windows(cf,3); %get the channels of each spike
         spike_comes_from_good_channels = ismember(which_channels,good_channels); %get a filter for the good dimensions
-        disp("Size Before Dimension Drop: "+string(length(the_cfs{k})))
+        % disp("Size Before Dimension Drop: "+string(length(the_cfs{k})))
         the_cfs{k} = cf(spike_comes_from_good_channels); %drop data from bad dimensions
-        disp("Size after dimension drop: "+string(length(the_cfs{k})))
+        % disp("Size after dimension drop: "+string(length(the_cfs{k})))
 
         if length(the_cfs{k}) <1000 || length(the_cfs{k}) > 15000
             the_good_filt(k) = false;

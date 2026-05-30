@@ -16,9 +16,9 @@ function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config,the_full_c
         data = peaks'; %transpose the peak data
         for k = 1:length(the_cf)-1 %loop through all clusters starting at 1
             ck = the_cf{k}; %get the indexes for the current cluster
-            if length(ck)>30000
-                disp("Cluster which will break produced")
-            end
+            % if length(ck)>30000
+            %     disp("Cluster which will break produced")
+            % end
             if isempty(ck) %forget the current cluster if it has no clusters
                 continue
             end
@@ -28,9 +28,9 @@ function the_cf = fix_cluster_overlaps(the_source, the_cf, the_config,the_full_c
                 %     disp("Error case")
                 % end
                 cl = the_cf{l}; %get the indexes for the comparison cluster
-                if length(cl)>30000
-                    disp("Cluster which will break produced")
-                end
+                % if length(cl)>30000
+                %     disp("Cluster which will break produced")
+                % end
                 if isempty(cl)
                     continue
                 end

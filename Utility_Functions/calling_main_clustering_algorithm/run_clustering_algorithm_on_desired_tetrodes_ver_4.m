@@ -16,7 +16,7 @@ list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dic
 
 number_of_tetrodes_to_run = str2double(strrep(list_of_available_tetrodes,"t","")); %tetrodes are not necessarily linear as some may have failed at earlier stages
 theoretical_max_num_tetrodes = 1:size(config.ART_TETR_ARRAY,1);
-theoretical_max_num_tetrodes = [136,14,166,10,4,5,7,8]; %REMEMBER TO REMOVE THIS LINE
+% theoretical_max_num_tetrodes = [136,14,166,10,4,5,7,8]; %REMEMBER TO REMOVE THIS LINE
 number_of_tetrodes_to_run = intersect(number_of_tetrodes_to_run,theoretical_max_num_tetrodes);
 number_of_thresholds_to_run = config.Multipliers; %multipliers might not be linear, but we have catches for that
 
@@ -64,8 +64,12 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = height(every_permutation_of_both);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_4");
+
+base_aligned_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_wf_files"));
+% base_raw_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"filtered_raw_wf_files"));
+% base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
 %there should be a parfor on line 67 when not testing
-for i=1:length(sliced_every_permutation_of_both)
+parfor i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
@@ -75,7 +79,7 @@ for i=1:length(sliced_every_permutation_of_both)
 
 
     % beginning_time = tic;
-    
+
     current_tetrode = "t"+current_data{1,"number_of_tetrodes_to_run"};
 
     %check for required files
@@ -110,15 +114,24 @@ for i=1:length(sliced_every_permutation_of_both)
 
 
 
-    
+
     spike_tetrode_dictionary_samples_format =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.data_to_save;
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
-    parfor j=1:height(current_data)
+    aligned_file_name = fullfile(base_aligned_files_dir,current_tetrode+" aligned_to_peak_wf.mat");
+    % base_aligned_sw_name = fullfile(base_sw_dir,current_tetrode+" sorted_spike_windows_after_purges.mat");
+    % raw_file_name = fullfile(base_raw_files_dir,current_tetrode+" raw_wf.mat");
+    if isfile(aligned_file_name)
+        base_aligned = load(aligned_file_name);
+        base_aligned = base_aligned.data_to_save;
+        base_aligned_idxs = 1:1:size(base_aligned,2);
+    end
+    
+    for j=1:height(current_data)
         even_more_local_config = local_config;
         even_more_local_config.tetrode = current_tetrode;
-      
+
         even_more_local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
         current_filename = current_data{j,"filenames"};
         %check to make sure that every channel in the current dataset is
@@ -132,26 +145,27 @@ for i=1:length(sliced_every_permutation_of_both)
         even_more_local_config.current_channels = channels_in_current_tetrode;
 
         local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier "+ current_data{j,"number_of_thresholds_to_run"});
-        output_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" output.mat");
-        aligned_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" aligned.mat");
-        reg_ts_file_name= fullfile(local_initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
+        %NO LONGER USE CAUSE REDUNDANToutput_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" output.mat");
+        
+        %NO LONGER USE CAUSE REDUNDANTreg_ts_file_name= fullfile(local_initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
         reg_ts_of_spikes_file_name =fullfile(local_initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
         peak_pcs_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" peak_pcs.mat");
 
         %overwrite the field
         even_more_local_config.peak_pcs_file_name = peak_pcs_file_name;
 
-        c1 = isfile(output_file_name);
+        % c1 = isfile(output_file_name);
         c2 = isfile(aligned_file_name);
-        c3 = isfile(reg_ts_file_name);
+        % c3 = isfile(reg_ts_file_name);
         c4 = isfile(reg_ts_of_spikes_file_name);
 
         %if this clustering outcome already exists don't run it again
-        if all([c1,c2,c3,c4])
+        if all([c2,c4])
             send(q,[]);
             continue;
         end
 
+        
 
         %record raw's size before cutting
         raw_size_before = size(raw);
@@ -173,7 +187,7 @@ for i=1:length(sliced_every_permutation_of_both)
             even_more_local_config.Multipliers_in_mv{p} = double(even_more_local_config.Multipliers_in_mv{p});
         end
         flat_multipliers = cell2mat(even_more_local_config.Multipliers_in_mv);
-        per_channel_thresholds_for_curr_z_sc= flat_multipliers(:,j);
+        per_channel_thresholds_for_curr_z_sc= flat_multipliers(:,current_data.number_of_thresholds_to_run ==current_data.number_of_thresholds_to_run(j) );
         per_spike_thresholds = per_channel_thresholds_for_curr_z_sc(which_channel);
         has_already_been_run = check_if_current_data_has_already_been_run(max_peak_vals,which_channel,flat_multipliers,j,raw);
         if has_already_been_run
@@ -183,10 +197,11 @@ for i=1:length(sliced_every_permutation_of_both)
         % if j~=1
         %now filter out any values in raw that do not meet the threshold
         mutated_raw = raw(:,max_peak_vals>=per_spike_thresholds,:);
+        filter_1 = max_peak_vals>=per_spike_thresholds;
 
         %filter the spike windows for debugging in clustering process
         mutated_spike_windows = sorted_spike_windows(max_peak_vals >= per_spike_thresholds,:);
-        
+
         %put spike windows in the config
         even_more_local_config.mutated_spike_windows = mutated_spike_windows;
 
@@ -212,7 +227,7 @@ for i=1:length(sliced_every_permutation_of_both)
         end
         % end
 
-        
+
 
 
         raw_in_samples_format = spike_tetrode_dictionary_samples_format(current_tetrode);
@@ -251,21 +266,18 @@ for i=1:length(sliced_every_permutation_of_both)
             %OG [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(raw,timestamps_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,config,channels_in_current_tetrode,i,sorted_spike_windows,initial_tetrodes_results_dir);
             local_tetrode_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(local_initial_tetrodes_results_dir);
             even_more_local_config.local_tetrode_results_dir = local_tetrode_results_dir;
-            [output,aligned,reg_timestamps,reg_timestamps_of_the_spikes,~] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
-            %   - the first column contains the timestamps of the spikes in seconds
-            %   - the second column contains the cluster classification of the spikes
-            %       E.g., a value of '3' means that the spike belongs to cluster 3.
-            if ~isempty(output) && ~isempty(aligned) && ~isempty(reg_timestamps)
-                output = struct("output",output);
-                aligned = struct("aligned",aligned);
-                reg_timestamps = struct("reg_timestamps",reg_timestamps);
+            even_more_local_config.current_tetrode = current_tetrode;
+            % even_more_local_config.raw_fp = raw_file_name;
+            % even_more_local_config.base_aligned_sw_name = base_aligned_sw_name;
+            even_more_local_config.base_aligned_name = aligned_file_name;
+            if ~isfile(even_more_local_config.base_aligned_name)
+                [~,~,~,reg_timestamps_of_the_spikes,~,~,base_aligned_idxs] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
+            else
+                modded_base_aligned_idxs = base_aligned_idxs(filter_1);
+                [~,~,~,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode,modded_base_aligned_idxs);
+            end
+            if  ~isempty(reg_timestamps_of_the_spikes)
                 reg_timestamps_of_the_spikes = struct("reg_timestamps_of_the_spikes",reg_timestamps_of_the_spikes);
-                % peak_pcs = struct("peak_pcs",peak_pcs);
-
-
-                par_save(output_file_name,output)
-                par_save(aligned_file_name,aligned)
-                par_save(reg_ts_file_name,reg_timestamps)
                 par_save(reg_ts_of_spikes_file_name,reg_timestamps_of_the_spikes)
 
 

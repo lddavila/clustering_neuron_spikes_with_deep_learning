@@ -58,6 +58,7 @@ config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 
 config.the_linspace_to_use = linspace(.1, 0, 4);
 config.percentiles_to_use = [80 60 40 20 ];
+config.percentiles_to_use = [90 85 80 75];
 
 
 config.TIME_DELTA = 0.0002;
@@ -255,8 +256,8 @@ config.freqLim = [300, 6000];			% Frequency cut-off limit for vcFilter='bandpass
 config.vcFilter = 'bandpass';
 config.sample_rate_in_hertz = 30030;
 config.freqLim_width = [100, 3000];			% Frequency transition width for the higher filter cutoff when 'bandpass' is used
-config.Multipliers = 6:.1:15;
-config.Multipliers = 6:1:15;
+config.Multipliers = 3:.1:15;
+config.Multipliers = 3:1:15;
 config.ground_truth_cell_array = {};
 % config.Multipliers = 1:1:15;
 config.struct_of_neuron_distance = fullfile(config.base_file_path,"Data","full_struct.mat");

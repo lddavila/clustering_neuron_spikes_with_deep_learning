@@ -1,4 +1,4 @@
-function [aligned, cleaned_clusters, timestamps,r_tvals,peak_pcs] = spikesort_ver_4(raw, timestamps, ir, tvals, config,channels,peak_pcs_file_name,full_config)
+function [aligned, cleaned_clusters, timestamps,r_tvals,peak_pcs] = spikesort_ver_4(raw, timestamps, ir, tvals, config,channels,peak_pcs_file_name,full_config,varargin)
 %SPIKESORT Performs the main spike sorting algorithm.
 %   [aligned, new_cluster_filters, gradings] = SPIKESORT(raw, timestamps,
 %   ir, tvals, config)
@@ -25,7 +25,7 @@ function [aligned, cleaned_clusters, timestamps,r_tvals,peak_pcs] = spikesort_ve
 %   is the number of grades.
 
 % Remove wires with no data.
-disp("got into spikesort_ver_4.m")
+% disp("got into spikesort_ver_4.m")
 wire_filter = find_live_wires(raw);
 
 r_raw = single(raw(wire_filter, :, :));
@@ -37,9 +37,31 @@ end
 
 num_spikes = size(r_raw, 2);
 default_filter = true(num_spikes, 1); % Ignores no spikes
-
 % Align spikes to peak, each wire independently
 aligned = single(align_to_peak_ver_2(r_raw, r_tvals, r_ir));
+% because of the data inflation that occurs when we try to save every
+% aligned file we will instead add an optional parameter to this function
+% that optional parameter is something called "base aligned idcs" which would be
+% idx of the base aligned object created from the lowest multiplier used in
+% the clustering process before any filters are applied (see
+% run_spikesort_ntt_core_ver4.m to see exactly how this is gotten)
+% because every subsequent aligned object ("local aligned") is just a subset of base aligned
+% we can just index the base aligned instead of saving every aligned object
+% to a file
+% however a problem arises when we look at the idxs that tell us which
+% spikes belong to which cluster.
+% the cluster idxs are based on the local aligned data which are always a subset of base aligned data which means if we
+% use them directly it will mis-index the clusters created by a higher
+% multiplier
+% so we need to translate the idxs from the "local aligned" object back to the "base aligned" object
+% This way instead of saving mxn aligned files (m is how many multipliers
+% are used and n is how many tetrodes are used) we only have to save m
+% unfortunately this may be very costly because exactly matching the
+% waveforms in local aligned to the waveforms in aligned can be very
+% expensive as both can be in the size of tens or hundreds of thousands
+if ~isempty(varargin)
+    local_idxs = varargin{1}; %filters have already been applied to this so now the mask exists here and we get the alignment
+end
 
 % if sum(wire_filter) < 2 % Need at least live 2 wires.
 %     cleaned_clusters = {};
@@ -53,13 +75,14 @@ if config.USE_TIMESTAMP_FILTER && length(timestamps) > 20000
 else
     timestamp_filter = default_filter;
 end
-disp("Finished getting timestamp filter")
+% disp("Finished getting timestamp filter")
 full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_filter,:);
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
     full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"aftertimestampfiltermult"+string(full_config.which_thresh),aligned,timestamp_filter);
     full_config.plot_counter = full_config.plot_counter+1;
+    disp("Finished getting unit decetion while clustering 3")
 end
-disp("Finished getting unit decetion while clustering 3")
+
 
 num_iterations = max(config.NUM_ITERATIONS, 1);
 snr_filters = repmat(default_filter, [1, num_iterations]);
@@ -96,7 +119,7 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     num_iterations = size(snr_filters, 2);
 end
 
-disp("Finished getting pmv and filtering data")
+% disp("Finished getting pmv and filtering data")
 % Compute the whitening filter on the space of peaks
 peaks = get_peaks(aligned, true)';
 %a s by c array
@@ -130,7 +153,7 @@ for k = 1:num_iterations
         full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
     end
-    disp("Finished getting unit decetion while clustering 4")
+    % disp("Finished getting unit decetion while clustering 4")
     % Injects our whitening filter into the original set of indices
     % since we applied the whitening after AFTER timestamp and SNR
     preproc_spike_windows{k} =looped_mutated_spike_windows ;
@@ -147,7 +170,7 @@ refine_spike_idx = find(refine_filter);
 %to do that
 did_error = true; %assume that the function will error
 while did_error && ~isempty(preproc_idx)
-    disp("entered the while loop")
+    % disp("entered the while loop")
     try
         [clusters,peak_pcs,full_config]= iterative_clustering_ver_2(aligned, r_ir, r_tvals, ...
             refine_spike_idx, preproc_idx, config,peak_pcs_file_name,full_config);
@@ -156,7 +179,7 @@ while did_error && ~isempty(preproc_idx)
         preproc_idx = preproc_idx(2:end); %if the expected error occurs then to avoid completely dumping the algorithm we'll try again with a more liberal dataset
         config.NUM_ITERATIONS = length(preproc_idx); %update the number of iterations in the config
         ME.getReport;
-        disp("Adjusting data set ")
+        % disp("Adjusting data set ")
     end
 
 end
@@ -192,11 +215,19 @@ if ~isempty(clusters) && config.USE_PC1_CLEANING
         cleaned_clusters{c} = cl2_idx(m2 < median(m2) + 2*std(m2));
     end
 elseif isempty(clusters)
-    clusters = [];
     cleaned_clusters = {};
 else
     cleaned_clusters = clusters;
 
+end
+
+%now actually map the new clusters to the local aligned
+if ~isempty(varargin)
+    new_cluster_idxs = cell(length(cleaned_clusters),1);
+    for i=1:length(cleaned_clusters)
+        new_cluster_idxs{i} = local_idxs(cleaned_clusters{i}); %gets you where the 
+    end
+    cleaned_clusters = new_cluster_idxs;
 end
 
 % Finally compute grades

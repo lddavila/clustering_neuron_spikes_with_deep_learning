@@ -63,32 +63,39 @@ what_is_computed = fullfile(string(list_of_existing_files{:,"folder"}),string(li
 config.ALREADY_DONE_FILES = what_is_computed;
 
 % step 6: get or make the z_score channel data directory (only done once)
+
 if ~isfolder(fullfile(precomputed_dir,"z_score")) %means that the z_score folder is already computed and we will skip computing it again
     z_score_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"z_score")); %not yet computed
 else
     z_score_dir = fullfile(precomputed_dir,"z_score");
 end
-disp("Finished Creating Z Score Directory");
 
-if config.use_bandpass
-    % create a file where bandpass filtered data will be stored
-    % we'll store it in the default output data is
-    dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"filtered_data"));
-    % apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
 
-    %overwrite the channel directory with your filtered data
-    dir_with_channel_recordings = dir_to_store_filtered_data;
+% create a file where bandpass filtered data will be stored
+% we'll store it in the default output data is
+dir_to_store_filtered_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"filtered_data"));
+if config.use_bandpass && ~isfile(fullfile(precomputed_dir,"finished_filtering.txt"))
+    apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
+    f_id = fopen(fullfile(precomputed_dir,"finished_filtering.txt"),'w');
+    fclose(f_id);
 end
+%overwrite the channel directory with your filtered data
+dir_with_channel_recordings = dir_to_store_filtered_data;
+
+disp("Finished filtering data")
 
 % step 7: get the mean and std of all channels the z score is also
 % calculated here
-beginning_time = tic;
-[channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,scale_factor,config,what_is_computed); %will get the mean and std of every channel and calculate z_score for data set if not yet created
 mean_and_std_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"mean_and_std"));
-save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
-
-end_time = toc(beginning_time);
-fprintf("Finished Getting mean and std, it took %.2f seconds\n",end_time)
+if ~isfile(fullfile(mean_and_std_dir,"mean_and_std.mat"))
+    beginning_time = tic;
+    [channel_wise_means,channel_wise_std] = get_channel_wise_statistics(ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,scale_factor,config,what_is_computed); %will get the mean and std of every channel and calculate z_score for data set if not yet created
+    save(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
+    end_time = toc(beginning_time);
+    fprintf("Finished Getting mean and std, it took %.2f seconds\n",end_time);
+else
+    load(fullfile(mean_and_std_dir,"mean_and_std.mat"),"channel_wise_means","channel_wise_std");
+end
 %step 8: Get the channel groupings AKA artificial tetrodes
 art_tetr_array = config.ART_TETR_ARRAY;
 
@@ -104,23 +111,25 @@ art_tetr_array = config.ART_TETR_ARRAY;
 %for higher z score's we'll simply filter spike windows by the z score of
 %the spike
 %this provides a significant boost in performance
+
 if ~config.use_new_spike_detection
     lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_z_score "+string(min(config.DEFAULT_CLUSTERING_Z_SCORES))));
 else
     lowest_bound_spikes_per_channel_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spikes_per_channel min_mult "+string(min(config.Multipliers))));
 end
 beginning_time = tic;
+
 if ~config.use_new_spike_detection
     detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
     end_time = toc(beginning_time);
     fprintf("Finished cutting spikes per channel for "+z_score_or_multiplier+" %.2f, it took %.2f seconds\n",min(config.DEFAULT_CLUSTERING_Z_SCORES),end_time);
-
 else
     %multipliers_in_mv is the threshold values
     %these will be used later on
     [multipliers_in_mv,cell_array_of_all_spikes_per_channel,pk_vals_cell_array ]= use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
     config.Multipliers_in_mv = multipliers_in_mv;
 end
+
 
 % if the ground truth is available then we can use the spikes found in the
 % previous step to see which channel has the maximum amount of each
@@ -162,7 +171,13 @@ else
 end
 % disp("the dictionaries dir")
 % disp(dictionaries_dir)
-get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
+if ~isfile(fullfile(precomputed_dir,"finished_dicts.txt"))
+    get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
+    fid = fopen(fullfile(precomputed_dir,"finished_dicts.txt"),'w');
+    fclose(fid);
+end
+end_time = toc(beginning_time);
+fprintf('Getting dictionaries took: %f\n',end_time)
 %tetrode_dictionary
 %keys: "t" + tetrode number
 %values: all channels which are part of the current dictionary
@@ -191,8 +206,7 @@ get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_d
 % number_of_non_empty_tetrodes = check_how_many_tetrodes_have_more_than_zero_spikes(spike_tetrode_dictionary);
 % disp("Non Empty Tetrodes:" + string(number_of_non_empty_tetrodes))
 % clc;
-end_time = toc(beginning_time);
-fprintf('Getting dictionaries took: %f\n',end_time)
+
 
 if config.has_ground_truth && config.debug_with_ground_truth
     config =check_unit_detection_after_dictionary_assembly(config,dictionaries_dir,ground_truth_cell_array,multipliers_in_mv);
