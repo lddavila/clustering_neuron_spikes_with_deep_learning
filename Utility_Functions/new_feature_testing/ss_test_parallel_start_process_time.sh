@@ -6,4 +6,4 @@
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 module load matlab/R2024b
-matlab -batch "run_examples_of_varying_noise_level();exit;"
+matlab -batch "test_parallel_start_process_time();exit;"
