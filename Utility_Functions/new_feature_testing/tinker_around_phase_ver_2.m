@@ -108,6 +108,7 @@ for i=1:length(grouped_clusters)
         new_cluster_idxs = recluster_after_drop_or_add(curr_clust_peaks,cell_array_of_number_of_clusters,config,testing,curr_clust.channels,curr_clust_ts,number_of_perms,cell_array_of_centers);
         %(peaks,cell_array_of_number_of_clusters,config,testing,channels,old_ts,perms,cell_array_of_cluster_centers)
         testing = true;
+        already_tried = [""];
         for k=j+1:height(current_group) %cycle through all clusters you can compare to
             comp_clust = current_group(k,:); %get a cluster to compare to
             if curr_clust.Tetrode == comp_clust.Tetrode
@@ -148,9 +149,11 @@ for i=1:length(grouped_clusters)
                     gt_ts = timestamps(gt_unit);
                     all_possible_dimensions_to_drop = curr_clust.channels;
                     new_dims = unique([all_possible_dimensions_to_drop,dimensions_to_add(add_counter)],"stable");
-                    if length(new_dims) == length(all_possible_dimensions_to_drop)
+                    new_addition_name = sprintf("Channel %i Z Score %i",dimensions_to_add(add_counter),comp_clust{1,"Z Score"});
+                    if length(new_dims) == length(all_possible_dimensions_to_drop) || ismember(new_addition_name,already_tried)
                         continue;
                     end
+                    already_tried = [already_tried,new_addition_name];
                     accuracy_after_adding = zeros(1,length(new_dims));
                     %get the spikes which appear on the channel that we
                     %wish to add
@@ -174,12 +177,12 @@ for i=1:length(grouped_clusters)
                         new_cluster_idxs = recluster_after_drop_or_add(new_peaks,cell_array_of_number_of_clusters,config,testing,new_dims,new_ts,number_of_perms,cell_array_of_centers,gt_ts);
                     else
                         [new_cluster_idxs,fig_with_new_clusts]= recluster_after_drop_or_add(new_peaks,cell_array_of_number_of_clusters,config,testing,new_dims,new_ts,number_of_perms,cell_array_of_centers,timestamps);
-                        sgtitle(fig_with_new_clusts,"Adding Channel "+string(setdiff(new_dims,curr_clust.channels)))
+                        sgtitle(fig_with_new_clusts,sprintf('og_spikes_Group %i Z Score %i Tetrode %s Cluster %i  from %s',i,curr_clust{1,"Z Score"},curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"},new_addition_name))
                     end
                     % fprintf("accuracy %.2f after dropping for Multiplier: %i , Tetrode: %s, Cluster: %i\n",curr_clust{1,"accuracy"},curr_clust{1,"Z Score"}+5,curr_clust{1,"Tetrode"},curr_clust{1,"Cluster"})
                     % disp(accuracy_after_dropping)
                     if testing
-                        dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"adding_new_dim_plots"));
+                        dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"adding_new_dim_plots_3"));
                         number_of_perms = nchoosek(1:size(curr_clust_peaks,1),2);
                         f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
                         tiledlayout('flow');
