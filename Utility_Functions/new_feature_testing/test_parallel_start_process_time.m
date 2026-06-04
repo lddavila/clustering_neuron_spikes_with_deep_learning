@@ -1,3 +1,7 @@
+home_dir = cd("..");
+cd("..");
+root_dir = pwd;
+cd(home_dir);
 generated_path = genpath(root_dir);
 utility_dir = fullfile(root_dir, "Utility_Functions");
 
