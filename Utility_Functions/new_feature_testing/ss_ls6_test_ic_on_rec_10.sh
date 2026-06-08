@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH -N 1
-#SBATCH -p normal
+#SBATCH -p vm-small
 #SBATCH -J tst_10
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
