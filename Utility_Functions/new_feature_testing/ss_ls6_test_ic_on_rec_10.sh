@@ -1,6 +1,5 @@
 #!/bin/bash 
 #SBATCH -N 1
-#
 #SBATCH -p normal
 #SBATCH -J tst_10
 #SBATCH -o output.txt 
