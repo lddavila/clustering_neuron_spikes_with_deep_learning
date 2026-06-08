@@ -28,7 +28,7 @@ for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
         try
-            % config = spikesort_config();
+            config = spikesort_config();
             %overwrite the z scores
             config.DEFAULT_CLUSTERING_Z_SCORES = [1];
             config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
