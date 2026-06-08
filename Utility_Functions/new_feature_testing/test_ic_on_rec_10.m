@@ -8,6 +8,7 @@ cd("..");
 disp(pwd);
 addpath(genpath(fullfile(pwd,"Utility_Functions")));
 addpath(genpath(fullfile(pwd,"clustering-master")))
+addpath(fullfile(pwd,"startup.m"))
 cd(home_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
