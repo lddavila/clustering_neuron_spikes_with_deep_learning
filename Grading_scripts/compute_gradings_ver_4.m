@@ -103,11 +103,11 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         other_good_spikes = setdiff(total_raw_spikes, cluster_filter);
         other_peaks = all_peaks(:, other_good_spikes);
         data_filt = find_singular_cols(other_peaks');
-        lratio = compute_lratio(peaks(data_filt, :)', other_peaks(data_filt, :)');
+        lratio = compute_lratio(peaks(data_filt, :)', other_peaks(data_filt, :)'); %needs modification for general
         grades{k, 1} = lratio;
         
         % Peak cv check
-        cv = compute_cv(peaks);
+        cv = compute_cv(peaks); %easily generaziable 
         grades{k, 2} = cv;
         
         % ISI check
@@ -118,11 +118,11 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         
         
         % Theoretical fraction below threshold
-        below_threshold = compute_incompleteness(compare_peaks, wire_thresh);
+        below_threshold = compute_incompleteness(compare_peaks, wire_thresh);% generalizable
         grades{k, 4} = below_threshold;
         
         % Isolation distance
-        grades{k, 5} = mahal(double(wire_thresh), compare_peaks');
+        grades{k, 5} = mahal(double(wire_thresh), compare_peaks'); %generalizable
         
         % Number of spikes
         grades{k, 6} = length(cluster_filter);
@@ -157,14 +157,14 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
            end
         end
         min_bhat = min(dists);
-        grades{k, 9} = min_bhat;
+        grades{k, 9} = min_bhat; %generalizable
         
         % Bhat distance to unsorted
         other_cf = setdiff(1:size(all_peaks, 2), unique(vertcat(clusters{:})));
         other_peaks = all_peaks(:, other_cf)';
         dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
         if ~isempty(other_peaks) && any(dim_filt)
-            grades{k, 10} = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt));
+            grades{k, 10} = bhat_dist(peaks(:, dim_filt), other_peaks(:, dim_filt)); %generalizable
         end
         
         %how much it deviates from the noise
@@ -249,7 +249,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
 
         %grade 28 will the measuring completeness with skewness instead of
         %the standard
-        the_skewness = skewness(compare_peaks);
+        the_skewness = skewness(compare_peaks); %generalizable 
         grades{k,28} = the_skewness;
 
         %grade 29 will be the measure of template matching within the
@@ -323,7 +323,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
 
         %grade 40 will be a measure of signal to noise ratio, closer to 1
         %is better
-        grades{k,40} = calculate_signal_to_noise_of_cluster(aligned,cluster_filter);
+        grades{k,40} = calculate_signal_to_noise_of_cluster(aligned,cluster_filter); %generalizable
 
         %grade 41 will be some kind of measure of likeliness of a bursting
         %neuron
@@ -343,7 +343,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         grades{k,44} = mean(z_score_of_rep_wire_of_compare_peaks,"all");
 
 
-        grades{k,45} = calculate_signal_to_noise_of_cluster_by_dim(aligned,cluster_filter);
+        grades{k,45} = calculate_signal_to_noise_of_cluster_by_dim(aligned,cluster_filter); %generalizable
         % grades{k,45} = [0 0 0 0];
 
         grades{k,46} = calculate_signal_to_noise_of_cluster_by_dims(aligned,cluster_filter,compare_wire,second_compare_wire);
