@@ -39,7 +39,7 @@ for i=1:size(sliced_blind_pass_table,1)
     tetrode_number = str2double(tetrode_number(2));
     current_z_score = current_data{1,"Z Score"};
     % fprintf("Currently grading %s with z score %i\n",current_tetrode,current_z_score);
-    if ~config.use_new_spike_detection
+    if ~config.Value.use_new_spike_detection
         dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
     else
         dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier "+string(current_z_score)+" grades"));
