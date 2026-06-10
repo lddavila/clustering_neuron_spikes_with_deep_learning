@@ -71,7 +71,8 @@ for i=1:size(sliced_blind_pass_table,1)
             timestamps = ts_r_tvals_cc_struct.timestamps;
             r_tvals = ts_r_tvals_cc_struct.r_tvals;
             cleaned_clusters = ts_r_tvals_cc_struct.cleaned_clusters;
-        catch
+        catch ME
+            disp(ME.getReport);
             disp("failed to load");
             disp(ts_and_r_vals_fp);
             send(q,[]);
@@ -80,7 +81,8 @@ for i=1:size(sliced_blind_pass_table,1)
         try
             aligned_struct = load(aligned_fp,"data_to_save");
             aligned = aligned_struct.data_to_save.aligned;
-        catch
+        catch ME
+            disp(ME.getReport);
             disp("failed to load");
             disp(aligned_fp);
             send(q,[]);
