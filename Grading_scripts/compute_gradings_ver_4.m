@@ -212,7 +212,11 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         
         dim_filt = find_singular_cols(peaks) & find_singular_cols(all_peaks');
         if any(dim_filt) && ~isempty(other_cf)
-            m1 = mahal(peaks(:, dim_filt), peaks(:, dim_filt));
+            try
+                m1 = mahal(peaks(:, dim_filt), peaks(:, dim_filt));
+            catch
+                m1 = Inf;
+            end
             t1 = median(m1) + 5 * std(m1);
             m = mahal(all_peaks', peaks);
             near_clust_idx = intersect(other_cf, find(m < t1));
