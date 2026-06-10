@@ -161,8 +161,10 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         
         % Bhat distance to unsorted
         try
-        other_cf = setdiff(1:size(all_peaks, 2), unique(vertcat(clusters{:})));
+        other_cf = setdiff(1:size(all_peaks, 2), unique(cell2mat(clusters)));
         catch ME
+            disp("channels");
+            disp(channels);
             disp(ME.getReport);
             disp("clusters")
             disp(clusters)
