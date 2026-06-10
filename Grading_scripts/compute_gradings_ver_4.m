@@ -218,7 +218,11 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
                 m1 = Inf;
             end
             t1 = median(m1) + 5 * std(m1);
-            m = mahal(all_peaks', peaks);
+            try
+                m = mahal(all_peaks', peaks);
+            catch
+                m = Inf;
+            end
             near_clust_idx = intersect(other_cf, find(m < t1));
             near_clust_peaks = all_peaks(:, near_clust_idx)';
             if length(near_clust_idx) > 0.2 * length(cluster_filter)
