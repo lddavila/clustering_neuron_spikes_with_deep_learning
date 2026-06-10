@@ -160,7 +160,16 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         grades{k, 9} = min_bhat; %generalizable
         
         % Bhat distance to unsorted
+        try
         other_cf = setdiff(1:size(all_peaks, 2), unique(vertcat(clusters{:})));
+        catch ME
+            disp(ME.getReport);
+            disp("clusters")
+            disp(clusters)
+            disp("peaks list")
+            disp(1:size(all_peaks, 2))
+        end
+
         other_peaks = all_peaks(:, other_cf)';
         dim_filt = find_singular_cols(peaks) & find_singular_cols(other_peaks);
         if ~isempty(other_peaks) && any(dim_filt)
