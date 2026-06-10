@@ -168,6 +168,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
             disp(clusters)
             disp("peaks list")
             disp(1:size(all_peaks, 2))
+            error("custom error");
         end
 
         other_peaks = all_peaks(:, other_cf)';
