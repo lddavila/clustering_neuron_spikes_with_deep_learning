@@ -80,7 +80,7 @@ for i=1:size(sliced_blind_pass_table,1)
         end
         try
             aligned_struct = load(aligned_fp,"data_to_save");
-            aligned = aligned_struct.data_to_save.aligned;
+            aligned = aligned_struct.data_to_save;
         catch ME
             disp(ME.getReport);
             disp("failed to load");
