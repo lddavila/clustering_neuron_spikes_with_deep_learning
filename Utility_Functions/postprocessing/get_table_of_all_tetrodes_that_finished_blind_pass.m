@@ -40,9 +40,12 @@ for i=1:size(unique_z_score_dirs,1)
         output_table{output_table_counter,"Z Score"} = current_z_score;
         output_table{output_table_counter,"Tetrode"} = unique_tetrodes(j);
         list_of_files_for_current_tetrode = files_with_current_z_score(contains(string(all_mat_file_names_in_current_directory),unique_tetrodes(j)+" ","IgnoreCase",true),:);
-       % list_of_cleaned_clusters_file = 
 
-        output_table{output_table_counter,"fp_to_aligned"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" aligned.mat");
+        if ~config.use_new_spike_detection
+            output_table{output_table_counter,"fp_to_aligned"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" aligned.mat");
+        else
+            output_table{output_table_counter,"fp_to_aligned"} = fullfile(precomputed_dir,"aligned_wf_files",unique_tetrodes(j) +" aligned_to_peak_wf.mat");
+        end
         % the line fp_to_cleaned_clusters is formatted in such a way to
         % remove the need of the output file
         %we take the known results directory and replace it with the

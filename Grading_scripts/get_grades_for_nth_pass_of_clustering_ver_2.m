@@ -1,7 +1,9 @@
 function [blind_pass_table] = get_grades_for_nth_pass_of_clustering_ver_2(blind_pass_table,config)
 
 % run_grading_script_on_blind_pass
-draw_elipse_templates(config);
+if ~all(isfile(config.TEMPLATE_CLUSTER_FP))
+    draw_elipse_templates(config);
+end
 %update paths on the blind pass table
 % blind_pass_table = update_fpths(blind_pass_table,config);
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[]);
@@ -25,19 +27,23 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
-parfor i=1:size(sliced_blind_pass_table,1)
-    
+for i=1:size(sliced_blind_pass_table,1)
+
     %disp("Starting grading")
     current_data = sliced_blind_pass_table{i};
     current_tetrode = current_data{1,"Tetrode"};
-    
+
 
 
     tetrode_number = split(current_tetrode,"t");
     tetrode_number = str2double(tetrode_number(2));
     current_z_score = current_data{1,"Z Score"};
     % fprintf("Currently grading %s with z score %i\n",current_tetrode,current_z_score);
-    dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
+    if ~config.use_new_spike_detection
+        dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
+    else
+        dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier "+string(current_z_score)+" grades"));
+    end
     grades_file_name =fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
 
     if isfile(grades_file_name)
@@ -94,7 +100,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         end
         par_save(grades_file_name,grade_struct);
     end
- 
+
 
 
 
