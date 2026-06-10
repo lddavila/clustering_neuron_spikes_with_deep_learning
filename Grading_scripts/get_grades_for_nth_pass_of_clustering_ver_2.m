@@ -27,6 +27,7 @@ config =parallel.pool.Constant(config);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
+timestamps_array = importdata(config.Value.TIMESTAMP_FP);
 for i=1:size(sliced_blind_pass_table,1)
 
     %disp("Starting grading")
@@ -77,6 +78,14 @@ for i=1:size(sliced_blind_pass_table,1)
             disp(ts_and_r_vals_fp);
             send(q,[]);
             continue;
+        end
+        if config.Value.use_new_spike_detection
+            base_spike_windows_fp = fullfile(config.Value.dictionaries_dir,current_tetrode + " sorted_spike_windows.mat");
+            base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
+            base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
+            the_dict_key = string(keys(base_spike_windows_dict));
+            base_spike_windows = base_spike_windows_dict(the_dict_key);
+            timestamps = timestamps_array(base_spike_windows(:,4));
         end
         try
             aligned_struct = load(aligned_fp,"data_to_save");

@@ -171,6 +171,7 @@ else
 end
 % disp("the dictionaries dir")
 % disp(dictionaries_dir)
+config.dictionaries_dir = dictionaries_dir;
 if ~isfile(fullfile(precomputed_dir,"finished_dicts.txt"))
     get_dictionaries_of_all_spikes_ver_3(art_tetr_array,lowest_bound_spike_windows_dir,dir_with_channel_recordings,timestamps,num_dps,scale_factor,dictionaries_dir,config,min_threshold);
     fid = fopen(fullfile(precomputed_dir,"finished_dicts.txt"),'w');
