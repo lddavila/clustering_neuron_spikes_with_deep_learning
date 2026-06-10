@@ -7,7 +7,8 @@ home_dir = cd("..");
 cd("..");
 disp(pwd);
 addpath(genpath(fullfile(pwd,"Utility_Functions")));
-addpath(genpath(fullfile(pwd,"clustering-master")))
+addpath(genpath(fullfile(pwd,"clustering-master")));
+addpath(genpath(fullfile(pwd,"Grading_scripts")));
 % addpath(fullfile(pwd,"startup.m"))
 cd(home_dir);
 disp("Finished Adding path")

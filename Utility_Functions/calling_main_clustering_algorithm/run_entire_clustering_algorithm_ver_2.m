@@ -246,8 +246,8 @@ else
     disp("A Blind Pass Table Has Been Found in your precomputed directory and will be loaded.")
     disp("If you wish to recreate the blind pass table please specficy different directory or delete existing blind pass table.")
 end
-disp("blind_pass_table size")
-disp(size(blind_pass_table));
+disp(string(height(blind_pass_table)) + " Tetrodes created clusters")
+%disp(size(blind_pass_table));
 % step 12: Grade the blind pass results
 beginning_time = tic;
 disp("Beginning Grading")
@@ -308,6 +308,12 @@ blind_pass_table.recording_name = repelem(config.RECORDING_NAME,size(blind_pass_
 
 %step 16: save the blind pass table to the desired file
 %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
+
+if config.use_new_spike_detection
+    all_vars = setdiff(string(blind_pass_table.Properties.VariableNames),"Z Score");
+    blind_pass_table.Multiplier = blind_pass_table.("Z Score");
+    blind_pass_table = blind_pass_table(:,["Multiplier",all_vars]);
+end
 par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
 %fp_to_blind_pass_table = fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat");
 

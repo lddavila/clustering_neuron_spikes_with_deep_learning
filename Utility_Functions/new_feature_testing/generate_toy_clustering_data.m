@@ -1,4 +1,4 @@
-function [cell_array_of_gt_idxs,cell_array_of_cores,X] = generate_toy_clustering_data(total_dims,num_points,num_clusters,verify_with_2d_plots,config,varargin)
+function [cell_array_of_gt_idxs,cell_array_of_cores,X,waveform_tensor] = generate_toy_clustering_data(total_dims,num_points,num_clusters,verify_with_2d_plots,config,varargin)
 %the purpose of this function is to create a simulated "peaks" data set
 %which will be used to test our theory of using the generic clustering
 %algorithm (based on peaks) to find  the dimensions which represent the
@@ -7,8 +7,16 @@ function [cell_array_of_gt_idxs,cell_array_of_cores,X] = generate_toy_clustering
 %dimensions and see build a kind of map of the n-dimensional space which
 %connects all of the clusters in relation to each other
 %this may have some uses in Machine Learning applications
-
 rng('default') % For reproducibility
+fs = 30000;
+waveform_ms = 2.0;
+
+%get waveform templates
+%                                  make_cluster_dim_gmonopuls_templates(num_clusters,total_dims,fs,waveform_ms)
+
+[cluster_templates,t,cluster_fc] = make_cluster_dim_gmonopuls_templates(num_clusters,total_dims,fs,waveform_ms);
+
+
 % total_dims = 100;
 % informative_dims = 5;
 % num_points = 300;
@@ -22,6 +30,8 @@ X = normrnd(mu,sigma,num_points,total_dims); %represents the peaks that might be
 %insert the clusters randomly into the high dimensional data
 cell_array_of_gt_idxs = cell(num_clusters,1);
 cell_array_of_cores = cell(num_clusters,1);
+spike_cluster_labels = zeros(num_points,1);
+noise_sigma = 0.05 * median(abs(X(:)));
 for i=1:num_clusters
     if i==1
         connect_to_other_cluster = false; %cannot be connected if you are the first cluster being created
@@ -54,15 +64,31 @@ for i=1:num_clusters
 
 
     min_cluster_size = max(10,round(0.02*num_points));
-    max_cluster_size = max(min_cluster_size,round(0.10*num_points));
+    max_cluster_size = max(min_cluster_size,round(0.03*num_points));
     cluster_size = randi([min_cluster_size,max_cluster_size]);
     % cluster_size = randi([min_cluster_size,num_points]); %randomly select cluster size
-    idxs_of_random_spikes = randperm(num_points,cluster_size); %select the random rows in our data which will be a part of the cluster
+    available_spike_idxs = find(spike_cluster_labels == 0);
+
+    if isempty(available_spike_idxs)
+        warning("No unassigned spikes remain. Stopping cluster insertion early. Created "+string(i)+" clusters instead");
+        break
+    end
+
+    cluster_size = min(cluster_size,length(available_spike_idxs));
+
+    idxs_of_random_spikes = available_spike_idxs( ...
+        randperm(length(available_spike_idxs),cluster_size)); %select the random rows in our data which will be a part of the cluster
     X(idxs_of_random_spikes,core_dims) = cluster_center +cluster_sigma .* randn(length(idxs_of_random_spikes),num_vis_dim); % alter the data to create the cluster
     cell_array_of_gt_idxs{i} = idxs_of_random_spikes; %preserve the ground truth idxs
+    spike_cluster_labels(idxs_of_random_spikes) = i;
+
 end
 
+
+
+waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_cluster_labels,cluster_templates,noise_sigma);
 data_struct = struct();
+data_struct.aligned = waveform_tensor;
 data_struct.X = X;
 data_struct.gt_idxs = cell_array_of_gt_idxs;
 data_struct.cores = cell_array_of_cores;
