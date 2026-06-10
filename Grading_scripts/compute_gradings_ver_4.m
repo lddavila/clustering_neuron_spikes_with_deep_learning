@@ -158,10 +158,13 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         end
         min_bhat = min(dists);
         grades{k, 9} = min_bhat; %generalizable
-        
+
         % Bhat distance to unsorted
         try
-        other_cf = setdiff(1:size(all_peaks, 2), unique(cell2mat(clusters)));
+            all_cluster_idxs = cellfun(@(x) x(:), clusters, 'UniformOutput', false);
+            all_cluster_idxs = vertcat(all_cluster_idxs{:});
+            unique_idxs = unique(all_cluster_idxs);
+            other_cf = setdiff(1:size(all_peaks, 2), unique_idxs);
         catch ME
             disp("channels");
             disp(channels);
