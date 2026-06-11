@@ -8,6 +8,8 @@ scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
+%create a directory to log errors
+config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
 %check if there's a ground truth data set available
 %if ground truth is available we can run extra debugging steps which are
 %helpful when testing the pipeline

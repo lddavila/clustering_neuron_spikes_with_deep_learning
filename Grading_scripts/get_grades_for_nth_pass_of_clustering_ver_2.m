@@ -1,5 +1,4 @@
 function [blind_pass_table] = get_grades_for_nth_pass_of_clustering_ver_2(blind_pass_table,config)
-
 % run_grading_script_on_blind_pass
 if ~all(isfile(config.TEMPLATE_CLUSTER_FP))
     draw_elipse_templates(config);
@@ -9,6 +8,7 @@ end
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[]);
 debug = 0;
 
+grading_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"grading_errors"));
 
 
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
@@ -103,7 +103,21 @@ for i=1:size(sliced_blind_pass_table,1)
 
         dir_of_template_shape_pngs = config.Value.TEMPLATE_CLUSTER_FP;
 
-        grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.Value.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config.Value);
+        try
+            grades = compute_gradings_ver_4(aligned, timestamps, r_tvals, cleaned_clusters, config.Value.spikesort,debug,channels_of_curr_tetr,dir_of_template_shape_pngs,config.Value);
+        catch ME
+            %if grading fails for ANY reason we want to log the data set
+            %that causes it and get the error for later review
+            report = ME.getReport;
+            meta_data_text = sprintf("Grading threw error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Z Score"});
+            f_id = fopen(fullfile(grading_error_dir,sprintf("tetrode: %s Multiplier or Z score: %i",current_data{1,"Tetrode"},current_data{1,"Z Score"})+".txt"),"w");
+            if f_id == -1
+                error('File could not be opened.');
+            end
+            fprintf(f_id,meta_data_text);
+            fprintf(f_id,report);
+            fclose(f_id);
+        end
         grade_struct = struct();
 
         for j=1:size(grades,2)
