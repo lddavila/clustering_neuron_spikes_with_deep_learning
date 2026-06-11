@@ -117,6 +117,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
             fprintf(f_id,meta_data_text);
             fprintf(f_id,report);
             fclose(f_id);
+            continue;
         end
         grade_struct = struct();
 
