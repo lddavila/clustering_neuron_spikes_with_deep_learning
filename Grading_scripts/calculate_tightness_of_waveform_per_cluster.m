@@ -3,14 +3,14 @@ function [avg_tightness_of_cluster] = calculate_tightness_of_waveform_per_cluste
 %order to eliminate the beginning and end of the spike
 avg_tightness_of_cluster = NaN;
 number_of_data_points_to_cut = round(length(mean_waveform_for_cluster_k) * .20);
-mean_waveform_for_cluster_k =mean_waveform_for_cluster_k(number_of_data_points_to_cut:end-number_of_data_points_to_cut);
+mean_waveform_for_cluster_k =mean_waveform_for_cluster_k(number_of_data_points_to_cut:end-number_of_data_points_to_cut*1.5);
 
 
 euc_dist_between_spikes_and_mean_waveform = zeros(size(spikes,2),size(spikes,1));
 for spike_counter =1:size(spikes,2)
     for wire_counter=1:size(spikes,1)
         current_spike = squeeze(spikes(wire_counter,spike_counter,:)).';
-        current_spike = current_spike(number_of_data_points_to_cut:end - number_of_data_points_to_cut);
+        current_spike = current_spike(number_of_data_points_to_cut:end - number_of_data_points_to_cut*1.5);
         euc_dist_vector= current_spike - mean_waveform_for_cluster_k;
         euc_dist_between_spikes_and_mean_waveform(spike_counter,wire_counter) = sqrt(euc_dist_vector*euc_dist_vector.');
     end
