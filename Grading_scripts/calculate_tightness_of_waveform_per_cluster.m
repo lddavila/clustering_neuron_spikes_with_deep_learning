@@ -3,9 +3,11 @@ function [avg_tightness_of_cluster] = calculate_tightness_of_waveform_per_cluste
 %order to eliminate the beginning and end of the spike
 avg_tightness_of_cluster = NaN;
 number_of_data_points_to_cut = round(length(mean_waveform_for_cluster_k) * .20);
-fprintf("%i\n",number_of_data_points_to_cut)
-fprintf("%i\n",length(mean_waveform_for_cluster_k)-number_of_data_points_to_cut*1.5);
-disp(mean_waveform_for_cluster_k);
+fprintf("length of the waveform %i\n",length(mean_waveform_for_cluster_k))
+fprintf("number of data points to cut %i\n",number_of_data_points_to_cut)
+fprintf("end point %i\n",length(mean_waveform_for_cluster_k)-number_of_data_points_to_cut*1.5);
+disp("Size")
+disp(size(mean_waveform_for_cluster_k));
 mean_waveform_for_cluster_k =mean_waveform_for_cluster_k(number_of_data_points_to_cut:end-number_of_data_points_to_cut*1.5);
 
 

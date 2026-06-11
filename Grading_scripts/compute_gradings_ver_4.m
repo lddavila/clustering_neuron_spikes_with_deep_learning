@@ -333,7 +333,7 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
         try
             grades{k,35} = calculate_tightness_of_waveform_per_cluster(mean_waveform_for_cluster_k,spikes,debug);
         catch
-            grades{k,35} = calculate_tightness_of_waveform_per_cluster(mean_waveform_for_cluster_k,spikes,debug);
+            grades{k,35} = Inf;
         end
         %%grade 36 will be the same as 35, but only using the rep wire
         %%spikes
