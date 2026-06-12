@@ -14,8 +14,9 @@ waveform_ms = 2.0;
 %get waveform templates
 %                                  make_cluster_dim_gmonopuls_templates(num_clusters,total_dims,fs,waveform_ms)
 
-[cluster_templates,t,cluster_fc] = make_cluster_dim_gmonopuls_templates(num_clusters,total_dims,fs,waveform_ms);
-
+cluster_templates = make_cluster_dim_gmonopuls_templates(num_clusters,total_dims);
+%cluster templates is a 3d array
+%size(cluster_templates) = #clusters X #dimensions X #datapoints 
 
 % total_dims = 100;
 % informative_dims = 5;
