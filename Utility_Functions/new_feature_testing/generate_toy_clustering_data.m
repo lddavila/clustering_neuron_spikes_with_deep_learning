@@ -8,8 +8,8 @@ function [cell_array_of_gt_idxs,cell_array_of_cores,X,waveform_tensor] = generat
 %connects all of the clusters in relation to each other
 %this may have some uses in Machine Learning applications
 rng('default') % For reproducibility
-fs = 30000;
-waveform_ms = 2.0;
+% fs = 30000;
+% waveform_ms = 2.0;
 
 %get waveform templates
 %                                  make_cluster_dim_gmonopuls_templates(num_clusters,total_dims,fs,waveform_ms)
@@ -77,8 +77,7 @@ for i=1:num_clusters
 
     cluster_size = min(cluster_size,length(available_spike_idxs));
 
-    idxs_of_random_spikes = available_spike_idxs( ...
-        randperm(length(available_spike_idxs),cluster_size)); %select the random rows in our data which will be a part of the cluster
+    idxs_of_random_spikes = available_spike_idxs(randperm(length(available_spike_idxs),cluster_size)); %select the random rows in our data which will be a part of the cluster
     X(idxs_of_random_spikes,core_dims) = cluster_center +cluster_sigma .* randn(length(idxs_of_random_spikes),num_vis_dim); % alter the data to create the cluster
     cell_array_of_gt_idxs{i} = idxs_of_random_spikes; %preserve the ground truth idxs
     spike_cluster_labels(idxs_of_random_spikes) = i;

@@ -23,12 +23,13 @@ parfor i=1:size(sliced_blind_pass_table,1)
         send(q,[]);
         continue;
     end
-    try
+    try 
         aligned_struct = load(aligned_fp,"data_to_save");
         aligned = aligned_struct.data_to_save;
-    catch
-        disp("Failed to load aligned file")
-        disp(current_data{1,"fp_to_aligned"})
+    catch ME
+        %disp("Failed to load aligned file")
+        %disp(current_data{1,"fp_to_aligned"})
+        disp(ME.getReport);
         send(q,[]);
         continue;
     end
