@@ -270,7 +270,7 @@ fprintf("Finished grading, it took %.2f seconds\n",end_time);
 
 %step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
 if ~isfile(fullfile(precomputed_dir,"finished_adding_mw.txt"))
-    blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table);
+    blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config);
     %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
     par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
     file_name = "finished_adding_mw.txt";
@@ -303,7 +303,7 @@ if ~ismember(fullfile(precomputed_dir,"finished_adding_mua_or_not_col.txt"),what
     fclose(file_id);
 else
     disp("is neuron or not column exists. Skipping.")
-    disp("To read the column, delete inished_adding_mua_or_not_col.txt")
+    disp("To redo the column, delete inished_adding_mua_or_not_col.txt")
 end
 
 % add the recording name to the blind pass table

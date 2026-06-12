@@ -1,10 +1,11 @@
-function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table)
+function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config)
 % blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
+timestamps_array = importdata(config.TS_FP);
 parfor i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
@@ -30,14 +31,23 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
 
 
-    try
-        timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
-        timestamps = timestamps.reg_timestamps_of_the_spikes;
-    catch
-        disp("Failed to load timestamps of spikes");
-        disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
-        send(q,[]);
-        continue;
+    if config.use_new_spike_detection
+        base_spike_windows_fp = fullfile(config.dictionaries_dir,current_tetrode + " sorted_spike_windows.mat");
+        base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
+        base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
+        the_dict_key = string(keys(base_spike_windows_dict));
+        base_spike_windows = base_spike_windows_dict(the_dict_key);
+        timestamps = timestamps_array(base_spike_windows(:,4));
+    else
+        try
+            timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
+            timestamps = timestamps.reg_timestamps_of_the_spikes;
+        catch
+            disp("Failed to load timestamps of spikes");
+            disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+            send(q,[]);
+            continue;
+        end
     end
 
     % disp("Faliure tetrode")
