@@ -27,7 +27,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"add_mean_wf_based_in_std_from_cluster_center.m")
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
 
