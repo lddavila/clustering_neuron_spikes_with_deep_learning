@@ -4,7 +4,7 @@ config.ART_TETR_ARRAY = reshape(1:size(toy_data,2),[],4);
 clusters_for_toy_data = cell(size(config.ART_TETR_ARRAY,1),1);
 for i=1:size(config.ART_TETR_ARRAY,1)
     current_peaks = toy_data(:,config.ART_TETR_ARRAY(i,:)); %get the peaks for the current tetrode
-    current_waveforms = reshape(all_wf(:,:,config.ART_TETR_ARRAY(i,:)),length(config.ART_TETR_ARRAY(i,:)),size(current_peaks,1),size(all_wf,2));
+    current_waveforms = all_wf(config.ART_TETR_ARRAY(i,:),:,:);
     %of these dimensions check how many clusters appear on them
     % number_of_clusters = 0;
     current_waveforms = align_to_peak_ver_2(current_waveforms);
@@ -29,10 +29,10 @@ for i=1:size(config.ART_TETR_ARRAY,1)
     the_subsets{end} = ones(size(current_peaks,1),1);
     %we're just using percentiles of z score here not the full pmv, it's just approximated
     tvals = mean(current_peaks) + (std(current_peaks)* config.NUM_OF_STD_ABOVE_MEAN);
-    ir = max(current_peaks);
-    ir = ir.';
+    tvals = [100 105 110 120];
+    ir = [100;130;150;100];
     clusters_for_toy_data{i} = get_clusters_for_toy_data(current_peaks,the_subsets,current_waveforms,config.spikesort,config,ir,tvals);
     disp("Finished "+string(i)+"/"+string(size(config.ART_TETR_ARRAY,1)))
-    
+    disp(clusters_for_toy_data(i))
 end
 end
