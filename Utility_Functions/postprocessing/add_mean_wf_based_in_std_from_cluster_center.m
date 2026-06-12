@@ -10,10 +10,18 @@ function [blind_pass_table] = add_mean_wf_based_in_std_from_cluster_center(blind
 
 %if the blind pass is a mix of multiple recordings then we also have to
 %slice the data on that level as well
-if ~ismember(blind_pass_table.Properties.VariableNames,"recording_name")
-    sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
+if ~config.use_new_spike_detection
+    if ~ismember(blind_pass_table.Properties.VariableNames,"recording_name")
+        sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
+    else
+        sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode","recording_name"]);
+    end
 else
-    sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode","recording_name"]);
+    if ~ismember(blind_pass_table.Properties.VariableNames,"recording_name")
+        sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Multiplier","Tetrode"]);
+    else
+        sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Multiplier","Tetrode","recording_name"]);
+    end
 end
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)

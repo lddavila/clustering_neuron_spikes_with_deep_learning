@@ -311,12 +311,12 @@ blind_pass_table.recording_name = repelem(config.RECORDING_NAME,size(blind_pass_
 
 %step 16: save the blind pass table to the desired file
 %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
-
-if config.use_new_spike_detection
-    all_vars = setdiff(string(blind_pass_table.Properties.VariableNames),"Z Score");
-    blind_pass_table.Multiplier = blind_pass_table.("Z Score");
-    blind_pass_table = blind_pass_table(:,["Multiplier",all_vars]);
-end
+% 
+% if config.use_new_spike_detection
+%     all_vars = setdiff(string(blind_pass_table.Properties.VariableNames),"Z Score");
+%     blind_pass_table.Multiplier = blind_pass_table.("Z Score");
+%     blind_pass_table = blind_pass_table(:,["Multiplier",all_vars]);
+% end
 par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
 %fp_to_blind_pass_table = fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat");
 
