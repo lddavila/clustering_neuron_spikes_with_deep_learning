@@ -24,9 +24,7 @@ function waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_c
 
             peak_mag = abs(X(spike_idx,dim_idx));
 
-            waveform_tensor(spike_idx,:,dim_idx) = ...
-                peak_mag * template + ...
-                noise_sigma * randn(1,num_samples);
+            waveform_tensor(spike_idx,:,dim_idx) = peak_mag * template + noise_sigma * randn(1,num_samples);
         end
     end
 end

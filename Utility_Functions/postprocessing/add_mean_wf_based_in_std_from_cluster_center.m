@@ -41,7 +41,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         continue;
     end
     try
-        aligned_struct = load(aligned_fp,"data_to_save");
+        aligned_struct = load(current_data{1,"fp_to_aligned"},"data_to_save");
         aligned = aligned_struct.data_to_save;
     catch
         disp("Failed to load aligned file")

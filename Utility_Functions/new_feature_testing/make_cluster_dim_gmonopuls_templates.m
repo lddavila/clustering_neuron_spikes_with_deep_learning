@@ -5,7 +5,7 @@ function [cluster_dim_templates,t,cluster_fc] = make_cluster_dim_gmonopuls_templ
 % Output:
 %   cluster_dim_templates(cluster_idx,dim_idx,sample_idx)
 
-num_samples = 120;
+num_samples = 61;
 waveform_ms = 2.0;
 
 t = linspace(-waveform_ms/2, waveform_ms/2, num_samples) * 1e-3; 
@@ -27,9 +27,9 @@ for cluster_idx = 1:num_clusters
         template = gmonopuls(t - time_shift_sec,fc);
 
         [~,peak_idx] = max(abs(template));
-        if template(peak_idx) > 0
-            template = -template;
-        end
+        % if template(peak_idx) > 0
+        %     template = -template;
+        % end
 
         template = template / max(abs(template));
 

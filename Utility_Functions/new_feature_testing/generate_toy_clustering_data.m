@@ -64,8 +64,8 @@ for i=1:num_clusters
     cluster_sigma = sigma * cluster_spread_fraction;
 
 
-    min_cluster_size = max(10,round(0.01*num_points));
-    max_cluster_size = max(min_cluster_size,round(0.02*num_points));
+    min_cluster_size = 100;%max(10,round(0.01*num_points));
+    max_cluster_size = 1000;%max(min_cluster_size,round(0.02*num_points));
     cluster_size = randi([min_cluster_size,max_cluster_size]);
     % cluster_size = randi([min_cluster_size,num_points]); %randomly select cluster size
     available_spike_idxs = find(spike_cluster_labels == 0);
@@ -87,6 +87,8 @@ end
 
 
 waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_cluster_labels,cluster_templates,noise_sigma);
+waveform_tensor = permute(waveform_tensor,[3,1,2]);
+waveform_tensor = interpolate_spikes(waveform_tensor,config);
 data_struct = struct();
 data_struct.aligned = waveform_tensor;
 data_struct.X = X;
