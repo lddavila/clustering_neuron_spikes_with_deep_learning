@@ -10,7 +10,7 @@ afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
 timestamps_array = importdata(config.TIMESTAMP_FP);
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
 

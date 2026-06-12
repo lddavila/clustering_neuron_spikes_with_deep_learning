@@ -24,12 +24,14 @@ for cluster_idx = 1:num_clusters
         fc = base_fc * (0.85 + 0.30 * rand());
         time_shift_sec = 0.00005 * randn(); % 0.05 ms jitter
 
-        template = gmonopuls(t - time_shift_sec,fc);
+        %template = gmonopuls(t - time_shift_sec,fc);
+        template = gmonopuls(t,fc);
 
         [~,peak_idx] = max(abs(template));
         % if template(peak_idx) > 0
         %     template = -template;
         % end
+        % disp(peak_idx);
 
         template = template / max(abs(template));
 
