@@ -3,7 +3,7 @@ function [blind_pass_table] = add_mean_wf_based_in_std_from_cluster_center(blind
 %upwards by 0.5 std deviations from the cluster center to 3.5 standard
 %deviations away
 %we expect the average waveform of the cluster center to be the cleanest
-%and the farthest to be the 
+%and the farthest to be the
 
 %first make sure the fpths are relevant to host machine
 % blind_pass_table = update_fpths(blind_pass_table,config);
@@ -41,8 +41,8 @@ parfor i=1:size(sliced_blind_pass_table,1)
         continue;
     end
     try
-        aligned = importdata(current_data{1,"fp_to_aligned"});
-        aligned = aligned.aligned;
+        aligned_struct = load(aligned_fp,"data_to_save");
+        aligned = aligned_struct.data_to_save;
     catch
         disp("Failed to load aligned file")
         disp(current_data{1,"fp_to_aligned"})
@@ -76,7 +76,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
             n = histc(max_wire, poss_wires);
             [~, max_n] = max(n);
             compare_wire = poss_wires(max_n);
-            
+
 
             %now here we have to cycle through the standard deviations of
             %the cluster data
@@ -111,7 +111,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
                 end
 
-                
+
             end
             % legend(legend_strings)
             peaks(compare_wire,:) = nan;

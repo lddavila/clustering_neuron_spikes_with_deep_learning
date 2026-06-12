@@ -38,8 +38,10 @@ spike_aligned = aligned(:, true_spike_idx, :);
 % full_config.mutated_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
 
 % plot_the_spikes_ver_2(spike_aligned,"In Run_clustering.m",[],[1,2,3,4],[])
-full_config.true_spike_idx = true_spike_idx;
-full_config.secondary_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
+if full_config.debug_with_ground_truth
+    full_config.true_spike_idx = true_spike_idx;
+    full_config.secondary_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
+end
 % disp("about to start core_cluster_loop")
 [raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name,full_config);
 % disp("finished core cluster loop")

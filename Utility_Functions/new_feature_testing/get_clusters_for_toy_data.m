@@ -10,7 +10,7 @@ num_std = the_config.params.IC_NUM_STD_REMOVE_CLUSTER;
 bad = {};
 %close all;
 % disp("about to start the subsets loop")
-peak_pcs_file_name = "";
+the_peak_pcs_file_name = "";
 for k = 1:length(the_subsets)
     filtered_idx = the_subsets{k};
 
@@ -55,6 +55,7 @@ for k = 1:length(the_subsets)
 
     % Run clustering with this pass of filtering as specified in
     % subsets, with everything removed above.
+    the_refine_spike_idx = 1:1:size(the_aligned_spikes,2);
     full_config.which_subset = k;
     [cf, bad_tmp,full_config,is_bad_cluster] = run_clustering(the_aligned_spikes, filtered_idx, the_ir, the_tvals, the_refine_spike_idx, the_config,the_peak_pcs_file_name,full_config);
     all_cluster_sizes = cellfun(@length,cf);
