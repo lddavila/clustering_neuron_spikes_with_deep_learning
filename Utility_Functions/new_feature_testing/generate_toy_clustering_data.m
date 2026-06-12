@@ -54,7 +54,7 @@ for i=1:num_clusters
     end
 
     cell_array_of_cores{i} = core_dims;
-    % rand_scale = randi(3,1,num_vis_dim) + 2; %choose a random number to offscale the current data from to actually form the cluster, ensure it is at least 2
+
     separation = 2 + 4*rand(1,num_vis_dim);  % distance from background in SD units
     direction = 2*randi([0,1],1,num_vis_dim) - 1;
 
@@ -64,8 +64,8 @@ for i=1:num_clusters
     cluster_sigma = sigma * cluster_spread_fraction;
 
 
-    min_cluster_size = max(10,round(0.02*num_points));
-    max_cluster_size = max(min_cluster_size,round(0.03*num_points));
+    min_cluster_size = max(10,round(0.01*num_points));
+    max_cluster_size = max(min_cluster_size,round(0.02*num_points));
     cluster_size = randi([min_cluster_size,max_cluster_size]);
     % cluster_size = randi([min_cluster_size,num_points]); %randomly select cluster size
     available_spike_idxs = find(spike_cluster_labels == 0);

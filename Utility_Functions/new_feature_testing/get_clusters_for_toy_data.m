@@ -1,4 +1,4 @@
-function [the_clusters] = get_clusters_for_toy_data(peaks,the_subsets,the_aligned_spikes,the_config,full_config)
+function [the_clusters] = get_clusters_for_toy_data(peaks,the_subsets,the_aligned_spikes,the_config,full_config,the_ir,the_tvals)
 
 
 the_clusters = {};

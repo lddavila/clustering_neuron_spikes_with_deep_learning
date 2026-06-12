@@ -28,7 +28,7 @@ for i=1:size(config.ART_TETR_ARRAY,1)
     end
     the_subsets{end} = ones(size(current_peaks,1),1);
     %we're just using percentiles of z score here not the full pmv, it's just approximated
-    clusters_for_toy_data{i} = get_clusters_for_toy_data(current_peaks,the_subsets,current_waveforms,config.spikesort,config);
+    clusters_for_toy_data{i} = get_clusters_for_toy_data(current_peaks,the_subsets,current_waveforms,config.spikesort,config,the_ir);
     
     
 end
