@@ -37,7 +37,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
 
     if config.use_new_spike_detection
-        base_spike_windows_fp = fullfile(config.dictionaries_dir,current_tetrode + " sorted_spike_windows.mat");
+        base_spike_windows_fp = fullfile(config.dictionaries_dir,current_data{1,"Tetrode"} + " sorted_spike_windows.mat");
         base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
         base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
         the_dict_key = string(keys(base_spike_windows_dict));

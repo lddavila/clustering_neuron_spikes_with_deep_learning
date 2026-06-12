@@ -5,7 +5,7 @@ function [cluster_dim_templates,t,cluster_fc] = make_cluster_dim_gmonopuls_templ
 % Output:
 %   cluster_dim_templates(cluster_idx,dim_idx,sample_idx)
 
-num_samples = 61;
+num_samples = 60;
 waveform_ms = 2.0;
 
 t = linspace(-waveform_ms/2, waveform_ms/2, num_samples) * 1e-3; 
