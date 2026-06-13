@@ -70,6 +70,9 @@ all_names_of_all_grades =["lratio","cv","short isi","incompleteness compare wire
     for k = 1:num_clusters
         % Set up cluster-specific vars
         cluster_filter = clusters{k};
+        if length(cluster_filter) == 1
+            continue;
+        end
         ts = timestamps(cluster_filter);
         spikes = aligned(:, cluster_filter, :);
         peaks = all_peaks(:, cluster_filter);

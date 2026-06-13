@@ -1,4 +1,4 @@
-function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config)
+function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config,varargin)
 % blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"get_template_spike_idx_and_ts_for_clusters_errors"));
 if ~config.use_new_spike_detection
@@ -8,53 +8,68 @@ else
 end
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
-num_iterations = size(blind_pass_table,1);
+num_iterations = size(sliced_blind_pass_table,1);
 print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
-timestamps_array = importdata(config.TIMESTAMP_FP);
-parfor i=1:size(sliced_blind_pass_table,1)
+if isempty(varargin)
+    timestamps_array = importdata(config.TIMESTAMP_FP);
+else
+    timestamps_array = varargin{4};
+end
+for i=1:size(sliced_blind_pass_table,1)
     try
+
         current_data = sliced_blind_pass_table{i};
-        num_of_channels = size(current_data{:,"grades"}{1}{49},2);
-
-        try
-            cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
-            cleaned_clusters = cleaned_clusters.cleaned_clusters;
-        catch
-            disp("Failed to load cleaned clusters file")
-            disp(current_data{1,"fp_to_cleaned_clusters"})
-            send(q,[]);
-            continue;
-        end
-        try
-            aligned_struct = load(current_data{1,"fp_to_aligned"},"data_to_save");
-            aligned = aligned_struct.data_to_save;
-        catch ME
-            %disp("Failed to load aligned file")
-            %disp(current_data{1,"fp_to_aligned"})
-            disp(ME.getReport);
-            send(q,[]);
-            continue;
-        end
-
-
-
-        if config.use_new_spike_detection
-            base_spike_windows_fp = fullfile(config.dictionaries_dir,current_data{1,"Tetrode"} + " sorted_spike_windows.mat");
-            base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
-            base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
-            the_dict_key = string(keys(base_spike_windows_dict));
-            base_spike_windows = base_spike_windows_dict(the_dict_key);
-            timestamps = timestamps_array(base_spike_windows(:,4));
+        if isempty(varargin)
+            num_of_channels = size(current_data{:,"grades"}{1}{49},2);
         else
+            num_of_channels = varargin{5};
+        end
+        if isempty(varargin)
             try
-                timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
-                timestamps = timestamps.reg_timestamps_of_the_spikes;
+                cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
+                cleaned_clusters = cleaned_clusters.cleaned_clusters;
             catch
-                disp("Failed to load timestamps of spikes");
-                disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+                disp("Failed to load cleaned clusters file")
+                disp(current_data{1,"fp_to_cleaned_clusters"})
                 send(q,[]);
                 continue;
             end
+
+            try
+                aligned_struct = load(current_data{1,"fp_to_aligned"},"data_to_save");
+                aligned = aligned_struct.data_to_save;
+            catch ME
+                %disp("Failed to load aligned file")
+                %disp(current_data{1,"fp_to_aligned"})
+                disp(ME.getReport);
+                send(q,[]);
+                continue;
+            end
+
+
+
+            if config.use_new_spike_detection
+                base_spike_windows_fp = fullfile(config.dictionaries_dir,current_data{1,"Tetrode"} + " sorted_spike_windows.mat");
+                base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
+                base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
+                the_dict_key = string(keys(base_spike_windows_dict));
+                base_spike_windows = base_spike_windows_dict(the_dict_key);
+                timestamps = timestamps_array(base_spike_windows(:,4));
+            else
+                try
+                    timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
+                    timestamps = timestamps.reg_timestamps_of_the_spikes;
+                catch
+                    disp("Failed to load timestamps of spikes");
+                    disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+                    send(q,[]);
+                    continue;
+                end
+            end
+        else
+            cleaned_clusters = varargin{1};
+            aligned = varargin{2};
+            timestamps = varargin{3};
         end
 
         % disp("Faliure tetrode")
@@ -67,11 +82,12 @@ parfor i=1:size(sliced_blind_pass_table,1)
         idx_cell_array = cell(size(current_data,1),1);
         mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
         timestamp_cell_array = cell(size(current_data,1),1);
-        for j=1:length(cleaned_clusters)
+        for j=1:length(current_data)
             %disp(j)
             cluster_filter = cleaned_clusters{j};
             spikes = aligned(:, cluster_filter, :);
             peaks = all_peaks(:, cluster_filter);
+            % disp(size(peaks));
             % Set up the representative wire for the cluster
             for k=1:num_of_channels
                 % Set up the representative wire for the cluster
@@ -81,8 +97,14 @@ parfor i=1:size(sliced_blind_pass_table,1)
                 [~, max_n] = max(n);
                 compare_wire = poss_wires(max_n);
                 peaks(compare_wire,:) = nan;
-                mean_waveform = mean(shiftdim(spikes(compare_wire, :, :), 1));
+                the_wf  =shiftdim(spikes(compare_wire, :, :));
+                if size(the_wf,2) ~= size(aligned,3) && size(the_wf,1) == size(aligned,3)
+                    the_wf = the_wf.';
+                end
+                mean_waveform = mean(the_wf, 1);
+                % disp(size(mean_waveform))
                 mean_waveform = mean_waveform - mean(mean_waveform);
+                % disp(size(mean_waveform))
                 mean_waveform_cell_array{j,k} = mean_waveform;
             end
             idx_cell_array{j} = cluster_filter;
@@ -91,6 +113,9 @@ parfor i=1:size(sliced_blind_pass_table,1)
         current_data.("cluster_idx") = idx_cell_array;
         current_data.("timestamps") = timestamp_cell_array;
         for k=1:num_of_channels
+            % non_empty_locs = cellfun(@length, mean_waveform_cell_array(:,k))>1;
+            % temp_table = current_data(non_empty_locs,:);
+            % temp_table.
             current_data.("mean_waveform_rep_wire_"+string(k)) = mean_waveform_cell_array(:,k);
         end
         sliced_blind_pass_table{i} = current_data;
@@ -98,7 +123,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     catch ME
         report = ME.getReport;
         meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Multiplier"});
-        f_id = fopen(fullfile(local_error_dir,sprintf("tetrode: %s Multiplier or Z score: %i",current_data{1,"Tetrode"},current_data{1,"Multiplier"})+".txt"),"w");
+        f_id = fopen(fullfile(local_error_dir,sprintf("tetrode %s Multiplier or Z score %i",current_data{1,"Tetrode"},current_data{1,"Multiplier"})+".txt"),"w");
         if f_id == -1
             error('File could not be opened.');
         end
