@@ -24,18 +24,18 @@ function waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_c
 
             peak_mag = abs(X(spike_idx,dim_idx));
 
-            [m,m_i_1] = max(template);
-            disp("template " +string(m_i_1));
-            the_tensor = peak_mag * template + noise_sigma * randn(1,num_samples);
-            [m,m_i_2] = max(the_tensor);
-            disp("tensor "+string(m_i_2));
-            if m_i_1 ~= m_i_2
-                f = figure;
-                plot(template);
-                hold on;
-                plot(the_tensor.');
-                close(f);
-            end
+            % [m,m_i_1] = max(template);
+            % disp("template " +string(m_i_1));
+            the_tensor = peak_mag * template + noise_sigma ;%* randn(1,num_samples);
+            % [m,m_i_2] = max(the_tensor);
+            % disp("tensor "+string(m_i_2));
+            % if m_i_1 ~= m_i_2
+            %     f = figure;
+            %     plot(template);
+            %     hold on;
+            %     plot(the_tensor.');
+            %     close(f);
+            % end
             waveform_tensor(spike_idx,:,dim_idx) = the_tensor;
         end
     end
