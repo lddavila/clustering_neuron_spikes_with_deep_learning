@@ -133,6 +133,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
     end
     send(q,[]);
 end
+par_save(fullfile(local_error_dir,"sliced_bp_table.mat"),sliced_blind_pass_table);
 sliced_blind_pass_table = sliced_blind_pass_table(~cellfun(@isempty, sliced_blind_pass_table));
 blind_pass_table = vertcat(sliced_blind_pass_table{:});
 end
