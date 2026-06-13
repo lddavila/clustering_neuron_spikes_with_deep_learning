@@ -82,7 +82,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         idx_cell_array = cell(size(current_data,1),1);
         mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
         timestamp_cell_array = cell(size(current_data,1),1);
-        for j=1:length(current_data)
+        for j=1:height(current_data)
             %disp(j)
             cluster_filter = cleaned_clusters{j};
             spikes = aligned(:, cluster_filter, :);
