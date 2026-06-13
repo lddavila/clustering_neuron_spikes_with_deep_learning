@@ -10,6 +10,7 @@ function [blind_pass_table] = add_mean_wf_based_in_std_from_cluster_center(blind
 
 %if the blind pass is a mix of multiple recordings then we also have to
 %slice the data on that level as well
+local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"add_mean_wf_based_in_std_from_cluster_center_errors"));
 if ~config.use_new_spike_detection
     if ~ismember(blind_pass_table.Properties.VariableNames,"recording_name")
         sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
@@ -27,7 +28,8 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(blind_pass_table,1);
 print_status_bar(num_iterations,"add_mean_wf_based_in_std_from_cluster_center.m")
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
+    try
     current_data = sliced_blind_pass_table{i};
     num_of_channels = size(current_data{:,"grades"}{1}{49},2);
 
@@ -128,6 +130,17 @@ for i=1:size(sliced_blind_pass_table,1)
         current_data.("waveforms_by_std_"+string(k)) = cell_array_of_waveforms_by_std;
     end
     sliced_blind_pass_table{i} = current_data;
+    catch ME
+        report = ME.getReport;
+        meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Multiplier"});
+        f_id = fopen(fullfile(local_error_dir,sprintf("tetrode: %s Multiplier or Z score: %i",current_data{1,"Tetrode"},current_data{1,"Multiplier"})+".txt"),"w");
+        if f_id == -1
+            error('File could not be opened.');
+        end
+        fprintf(f_id,meta_data_text);
+        fprintf(f_id,report);
+        fclose(f_id);
+    end
     send(q,[]);
 end
 blind_pass_table = vertcat(sliced_blind_pass_table{:});
