@@ -12,12 +12,16 @@ bad = {};
 % disp("about to start the subsets loop")
 the_peak_pcs_file_name = "";
 for k = 1:length(the_subsets)
-    filtered_idx = the_subsets{k};
+    filtered_idx = find(the_subsets{k});
 
     % For each cluster, remove its mean + num_std*std for each of the peak
     % dimensions.
     for c = 1:length(the_clusters)
+        disp(c);
         cluster_idx = the_clusters{c};
+        if length(cluster_idx)==1
+            continue;
+        end
 
         cp = peaks(cluster_idx, :);
         coeff = pca(cp);
@@ -62,6 +66,7 @@ for k = 1:length(the_subsets)
     % if any(all_cluster_sizes>30000)
     %     disp("Cluster which will break produced")
     % end
+    
     if the_config.DO_BAD_CLUSTER_ROUND && ~isempty(bad) %not sure why, but it will always skip the first time bad clusters are returned
         for c = 1:length(bad) %cycle through all the bad clusters
             cluster_idx = bad{c}; %get the idx for the bad clusters

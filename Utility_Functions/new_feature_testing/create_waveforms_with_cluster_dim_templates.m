@@ -1,4 +1,5 @@
-function waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_cluster_labels,cluster_dim_templates,noise_sigma)
+function waveform_tensor = create_waveforms_with_cluster_dim_templates( ...
+    X, spike_cluster_labels, cluster_dim_templates, noise_sigma)
 
     [num_spikes,num_dims] = size(X);
     [num_clusters,total_dims,num_samples] = size(cluster_dim_templates);
@@ -7,6 +8,8 @@ function waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_c
         error("Dimension mismatch: X has %i dims, templates have %i dims.", ...
             num_dims,total_dims);
     end
+
+    target_peak_idx = 31;
 
     waveform_tensor = zeros(num_spikes,num_samples,num_dims);
 
@@ -22,20 +25,18 @@ function waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_c
                 template = squeeze(cluster_dim_templates(1,dim_idx,:))';
             end
 
+            % Find current peak location using absolute value
+            [~, current_peak_idx] = max(abs(template));
+
+            % Shift so that peak lands at target_peak_idx
+            shift_amount = target_peak_idx - current_peak_idx;
+            template = circshift(template, shift_amount);
+
             peak_mag = abs(X(spike_idx,dim_idx));
 
-            % [m,m_i_1] = max(template);
-            % disp("template " +string(m_i_1));
-            the_tensor = peak_mag * template + noise_sigma ;%* randn(1,num_samples);
-            % [m,m_i_2] = max(the_tensor);
-            % disp("tensor "+string(m_i_2));
-            % if m_i_1 ~= m_i_2
-            %     f = figure;
-            %     plot(template);
-            %     hold on;
-            %     plot(the_tensor.');
-            %     close(f);
-            % end
+            % Scale template and add Gaussian noise
+            the_tensor = peak_mag * template + noise_sigma * randn(1,num_samples);
+
             waveform_tensor(spike_idx,:,dim_idx) = the_tensor;
         end
     end

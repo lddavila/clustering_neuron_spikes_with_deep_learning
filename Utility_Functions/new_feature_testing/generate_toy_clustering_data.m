@@ -87,6 +87,7 @@ end
 
 
 waveform_tensor = create_waveforms_with_cluster_dim_templates(X,spike_cluster_labels,cluster_templates,noise_sigma);
+
 waveform_tensor = permute(waveform_tensor,[3,1,2]);
 waveform_tensor = interpolate_spikes(waveform_tensor,config);
 data_struct = struct();

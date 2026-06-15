@@ -1,11 +1,11 @@
 function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config,varargin)
 % blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"get_template_spike_idx_and_ts_for_clusters_errors"));
-if ~config.use_new_spike_detection
-    sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
-else
-    sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Multiplier","Tetrode"]);
-end
+% if ~config.use_new_spike_detection
+sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
+% else
+%     sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Multiplier","Tetrode"]);
+% end
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(sliced_blind_pass_table,1);
@@ -15,7 +15,7 @@ if isempty(varargin)
 else
     timestamps_array = varargin{4};
 end
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};

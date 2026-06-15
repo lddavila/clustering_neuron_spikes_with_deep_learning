@@ -41,7 +41,7 @@ pc2 = pcs(:, :, 2);
 %     pcs = get_new_pcs(raw, true);
 %     pc1 = pcs(:, :, 1);
 peak_pcs = struct("pc1",pc1,"pc2",pc2);
-par_save(peak_pcs_file_name,peak_pcs)
+% par_save(peak_pcs_file_name,peak_pcs)
 the_cluster_data = zscore([peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']');
 the_cluster_data = [peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'; % OG LINE
 if the_new_config.use_pc2
