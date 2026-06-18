@@ -71,7 +71,7 @@ for i=1:size(waveforms,1)
     data_struct = struct();
     data_struct.wf = dim_i_wf;
     data_struct.peaks = dim_i_data;
-    par_save(fullfile(dir_with_sliced_data,"dim_"+string(i)+".mat"));
+    par_save(fullfile(dir_with_sliced_data,"dim_"+string(i)+".mat"),data_struct);
     disp("Finished saving "+string(i)+"/"+size(waveforms,1));
 end
 
