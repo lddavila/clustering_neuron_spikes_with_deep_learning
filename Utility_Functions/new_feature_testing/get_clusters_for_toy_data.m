@@ -17,7 +17,7 @@ for k = 1:length(the_subsets)
     % For each cluster, remove its mean + num_std*std for each of the peak
     % dimensions.
     for c = 1:length(the_clusters)
-        disp(c);
+        % disp(c);
         cluster_idx = the_clusters{c};
         if length(cluster_idx)==1
             continue;
@@ -27,7 +27,11 @@ for k = 1:length(the_subsets)
         coeff = pca(cp);
         the_peak_pcs = nan(size(peaks, 1), min([size(the_aligned_spikes,1),2]));
         for p = 1:size(the_peak_pcs,2)
-            the_peak_pcs(:, p) = peaks * coeff(:, p);
+            if p > size(coeff,2)
+                the_peak_pcs(:, p) = peaks * ones(size(the_aligned_spikes,1),1);
+            else
+                the_peak_pcs(:, p) = peaks * coeff(:, p);
+            end
         end
         data = [peaks, the_peak_pcs];
 
