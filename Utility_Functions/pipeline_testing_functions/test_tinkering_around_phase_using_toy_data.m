@@ -53,13 +53,13 @@ for i=1:length(ground_truth_idxs)
 end
 
 %slice data for parallel processing
-sliced_toy_data = cell(size(art_tetr_array,1));
-sliced_wf_data = cell(size(art_tetr_array,1));
-for i=1:size(art_tetr_array,1)
-    sliced_toy_data{i} = abs(toy_data(:,art_tetr_array(i,:)));
-    sliced_wf_data{i} = all_wf(art_tetr_array(i,:),:,:);
-    disp("finished slicing "+string(i)+"/"+string(size(art_tetr_array,1)));
-end
+% sliced_toy_data = cell(size(art_tetr_array,1));
+% sliced_wf_data = cell(size(art_tetr_array,1));
+% for i=1:size(art_tetr_array,1)
+%     sliced_toy_data{i} = abs(toy_data(:,art_tetr_array(i,:)));
+%     sliced_wf_data{i} = all_wf(art_tetr_array(i,:),:,:);
+%     disp("finished slicing "+string(i)+"/"+string(size(art_tetr_array,1)));
+% end
 
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
@@ -71,8 +71,8 @@ parfor i=1:size(config.ART_TETR_ARRAY,1)
     cluster_save_name = fullfile(clustering_dir,"Tetrode "+string(i)+".mat");
 
     if ~isfile(cluster_save_name)
-        current_peaks = sliced_toy_data{i}; %get the peaks for the current tetrode
-        current_waveforms = sliced_wf_data{i};
+        current_peaks = abs(toy_data(:,art_tetr_array(i,:))); %get the peaks for the current tetrode
+        current_waveforms = all_wf(art_tetr_array(i,:),:,:);
         %of these dimensions check how many clusters appear on them
         % number_of_clusters = 0;
         current_waveforms = align_to_peak_ver_2(current_waveforms);
