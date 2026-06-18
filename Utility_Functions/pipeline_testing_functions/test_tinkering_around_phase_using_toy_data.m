@@ -9,7 +9,11 @@ else
     art_tetr_array = varargin{1};
 end
 clusters_for_toy_data = cell(size(config.ART_TETR_ARRAY,1),1);
-save_img_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"pairs_of_2_plots"));
+if isempty(varargin)
+    save_img_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"pairs_of_2_plots"));
+else
+    save_img_dir = varargin{2};
+end
 art_tetr_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_img_dir,"tetrode"));
 true_core_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_img_dir,"ground_truth"));
 clustering_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_img_dir,"clustering_results"));

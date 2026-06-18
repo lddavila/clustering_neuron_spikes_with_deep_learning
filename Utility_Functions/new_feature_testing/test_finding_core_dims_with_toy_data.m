@@ -54,7 +54,7 @@ par_save(fullfile(dir_to_save_these_results_to,"technically_findable.mat"),techn
 % I THINK it would be best to track this on per neuron basis so we'll start
 % with getting the results from assembling every pair of 2 
 cell_array_of_toy_clusters_tables = cell(size(all_combos,1),1);
-[toy_clusters,tetrode_arrays] = test_tinkering_around_phase_using_toy_data(X,cell_array_of_gt_idxs,cell_array_of_cores,config,waveforms,all_combos);
+[toy_clusters,tetrode_arrays] = test_tinkering_around_phase_using_toy_data(X,cell_array_of_gt_idxs,cell_array_of_cores,config,waveforms,all_combos,dir_to_save_these_results_to);
 toy_clusters_table = table(vertcat(toy_clusters{:}),(1:1:size(tetrode_arrays,1)).',tetrode_arrays,'VariableNames',["cluster_idx","cluster","channels"]);
 [toy_clusters_table] = get_cluster_accuracy_for_toy_data(toy_clusters_table,cell_array_of_gt_idxs,cell_array_of_cores);
 disp("Finished getting the toy clusters table");
