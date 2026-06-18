@@ -8,6 +8,7 @@ disp("Finished adding path");
 config = spikesort_config;
 disp("Finished getting config");
 % get/generate toy data to use
+dir_to_save_these_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"testing_toy_data"));
 if ~contains(pwd,"10595")
     toy_data_struct = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\toy_data\toy_data.mat");
     cell_array_of_gt_idxs = toy_data_struct.gt_idxs;
@@ -15,7 +16,7 @@ if ~contains(pwd,"10595")
     X = toy_data_struct.X;
     waveforms=toy_data_struct.aligned;
 else
-    [cell_array_of_gt_idxs,cell_array_of_cores,X,waveforms] = generate_toy_clustering_data(100,100000,100,false,config);
+    [cell_array_of_gt_idxs,cell_array_of_cores,X,waveforms] = generate_toy_clustering_data(100,300000,100,false,config,dir_to_save_these_results_to);
 end
 disp("Finished getting toy data");
 % run the toy data through the clustering algorithm
@@ -48,6 +49,7 @@ for i=1:size(all_combos,1)
     technically_findable_units{i} = local_findable;
 end
 disp("Finished getting technically findable units");
+par_save(fullfile(dir_to_save_these_results_to,"technically_findable.mat"),technically_findable_units);
 % now run the clustering for each of those 2 dimensional combos to see what units are findable through clusters
 % I THINK it would be best to track this on per neuron basis so we'll start
 % with getting the results from assembling every pair of 2 
