@@ -36,7 +36,7 @@ disp("Finished getting toy data");
 all_combos = nchoosek(1:size(X,2),2);
 
 % for each combo find all units that are technically findable on those channels
-technically_findable_units = cell(size(all_combos),1);
+technically_findable_units = cell(size(all_combos,1),1);
 for i=1:size(all_combos,1)
     current_dimensions = all_combos(i,:);
     local_findable = nan(length(cell_array_of_cores),1);
