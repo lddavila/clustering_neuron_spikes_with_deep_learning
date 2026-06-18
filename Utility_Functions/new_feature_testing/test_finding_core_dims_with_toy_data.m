@@ -2,6 +2,7 @@
 home_dir = cd("..");
 cd("..");
 addpath(genpath(fullfile(pwd,"Utility_Functions")));
+addpath(genpath(fullfile(pwd,"clustering-master")));
 cd(home_dir);
 % get config
 disp("Finished adding path");
