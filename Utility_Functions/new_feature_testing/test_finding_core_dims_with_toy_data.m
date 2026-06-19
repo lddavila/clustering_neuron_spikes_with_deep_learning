@@ -66,12 +66,15 @@ poolobj = parpool("Processes",8);
 %effeciently run the clustering in a parfor loop
 dir_with_sliced_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_these_results_to,"sliced_toy_data"));
 for i=1:size(waveforms,1)
-    dim_i_data = abs(X(:,i));
-    dim_i_wf = waveforms(i,:,:);
-    data_struct = struct();
-    data_struct.wf = dim_i_wf;
-    data_struct.peaks = dim_i_data;
-    par_save(fullfile(dir_with_sliced_data,"dim_"+string(i)+".mat"),data_struct);
+    if ~isfile(fullfile(dir_with_sliced_data,"dim_"+string(i)+".mat"))
+        dim_i_data = abs(X(:,i));
+        dim_i_wf = waveforms(i,:,:);
+        data_struct = struct();
+        data_struct.wf = dim_i_wf;
+        data_struct.peaks = dim_i_data;
+        par_save(fullfile(dir_with_sliced_data,"dim_"+string(i)+".mat"),data_struct);
+        % disp("Finished saving "+string(i)+"/"+size(waveforms,1));
+    end
     disp("Finished saving "+string(i)+"/"+size(waveforms,1));
 end
 
@@ -79,7 +82,8 @@ end
 % I THINK it would be best to track this on per neuron basis so we'll start
 % with getting the results from assembling every pair of 2
 cell_array_of_toy_clusters_tables = cell(size(all_combos,1),1);
-[toy_clusters,tetrode_arrays] = test_tinkering_around_phase_using_toy_data(X,cell_array_of_gt_idxs,cell_array_of_cores,config,all_combos,dir_to_save_these_results_to,dir_with_sliced_data);
+%                               test_tinkering_around_phase_using_toy_data(toy_data,ground_truth_idxs,     ground_truth_cores,config,art_tetr_array, save_img_dir,                dir_with_sliced_data)
+[toy_clusters,tetrode_arrays] = test_tinkering_around_phase_using_toy_data(X,       cell_array_of_gt_idxs,cell_array_of_cores,config,all_combos,     dir_to_save_these_results_to,dir_with_sliced_data);
 toy_clusters_table = table(vertcat(toy_clusters{:}),(1:1:size(tetrode_arrays,1)).',tetrode_arrays,'VariableNames',["cluster_idx","cluster","channels"]);
 [toy_clusters_table] = get_cluster_accuracy_for_toy_data(toy_clusters_table,cell_array_of_gt_idxs,cell_array_of_cores);
 disp("Finished getting the toy clusters table");

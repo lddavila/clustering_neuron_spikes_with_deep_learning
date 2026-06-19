@@ -2,13 +2,14 @@ function [] = run_per_unit_spike_detection_per_unit_on_cluster()
 % add the path
 home_dir = cd("..");
 cd("..");
-addpath(genpath(pwd));
+addpath(genpath(fullfile(pwd,"Utility_Functions")));
+addpath(genpath(fullfile(pwd,"clustering-master")));
 cd(home_dir);
 disp("Finished adding path")
 
 % get the config
 config = spikesort_config();
-config.Multipliers = 1:1:30;
+config.Multipliers = 1:1:13;
 disp("Finished setting multipliers")
 
 config.RECORDING_NAME = "10_600Neuron300SecondRecordingWithLevel10Noise";
@@ -46,7 +47,7 @@ disp("Finished importing the ground truth");
 
 % for each ground unit see what the detection ratio is
 tol_amount = 6; %equal to about .2 milliseconds
-for i=1:length(ground_truth)
+parfor i=1:length(ground_truth)
     current_ground_truth = ground_truth{i};
 
     all_channels = 1:1:length(pk_locs_cell_array);
