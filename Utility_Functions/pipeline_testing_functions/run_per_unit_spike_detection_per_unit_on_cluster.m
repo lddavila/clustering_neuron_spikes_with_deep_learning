@@ -47,6 +47,7 @@ disp("Finished importing the ground truth");
 
 % for each ground unit see what the detection ratio is
 tol_amount = 6; %equal to about .2 milliseconds
+gcp('nocreate')
 poolobj = parpool("Processes",8);
 for i=1:length(ground_truth)
     current_ground_truth = ground_truth{i};
