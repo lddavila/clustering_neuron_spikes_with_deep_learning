@@ -7,7 +7,7 @@ art_tetr_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_i
 true_core_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_img_dir,"ground_truth"));
 clustering_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(save_img_dir,"clustering_results"));
 dimensions_per_cluster = [];
-poolobj = parpool("Processes",8);
+
 for i=1:length(ground_truth_idxs)
     save_name = fullfile(true_core_dir,"Cluster "+string(i));
     if isfile(save_name+".png")

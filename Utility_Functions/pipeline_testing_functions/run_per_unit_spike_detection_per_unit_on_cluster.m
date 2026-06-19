@@ -47,6 +47,7 @@ disp("Finished importing the ground truth");
 
 % for each ground unit see what the detection ratio is
 tol_amount = 6; %equal to about .2 milliseconds
+poolobj = parpool("Processes",8);
 for i=1:length(ground_truth)
     current_ground_truth = ground_truth{i};
 
@@ -62,7 +63,7 @@ for i=1:length(ground_truth)
     afterEach(q,@print_status_bar)
     num_iterations = height(all_combinations_of_mult_and_channels);
     print_status_bar(num_iterations,"doing_combinations")
-    for j=1:height(all_combinations_of_mult_and_channels)
+    parfor j=1:height(all_combinations_of_mult_and_channels)
         current_channel_peak_locs = pk_locs_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
         current_channel_peak_amps = pk_vals_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
         current_channel_thresholds_in_mv = multipliers_in_mv{all_combinations_of_mult_and_channels{j,"all_channels"}};
