@@ -7,5 +7,5 @@
 #SBATCH -t 48:00:00
 #SBATCH --mail-type=ALL	
 #SBATCH --mail-user=lddavila@miners.utep.edu
-module load matlab/R2024b
+module load matlab/R2023b
 matlab -batch "run_per_unit_spike_detection_per_unit_on_cluster();exit;"
