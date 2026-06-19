@@ -1,6 +1,6 @@
 #!/bin/bash 
 #SBATCH -n 40
-#SBATCH -p medium
+#SBATCH -p small
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
 #SBATCH -N 1
