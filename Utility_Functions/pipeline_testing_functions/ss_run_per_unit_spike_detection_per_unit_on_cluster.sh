@@ -1,11 +1,12 @@
 #!/bin/bash 
-#SBATCH -n 40
+#SBATCH -N 1
 #SBATCH -p small
+#SBATCH -J tst_10
 #SBATCH -o output.txt 
 #SBATCH -e output.txt 
-#SBATCH -N 1
 #SBATCH -t 48:00:00
-#SBATCH --mail-type=ALL	
+#SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu
-module load matlab/R2023b
+#SBATCH -A ASC25063
+module load matlab/2023b
 matlab -batch "run_per_unit_spike_detection_per_unit_on_cluster();exit;"
