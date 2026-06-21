@@ -1,4 +1,6 @@
 function [config] = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,pk_locs_cell_array,pk_vals_cell_array,config)
+% save_best_rep_name = fullfile(config.dir_to_save_debug_files_to,"table_of_best_rep.mat");
+
 cell_array_of_best_channels_per_unit = cell(length(ground_truth_cell_array),1);
 tol_amount = 6; %equivalent to .2 milliseconds, can be adjusted to be more/less strict
 if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_channel_per_unit.txt'))
@@ -69,5 +71,6 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
 
 
 end
+
 config.fp_to_table_of_best_rep = fullfile(config.dir_to_save_debug_files_to,"table_of_best_rep.mat");
 end

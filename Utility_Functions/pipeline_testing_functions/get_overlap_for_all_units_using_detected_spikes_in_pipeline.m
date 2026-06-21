@@ -108,6 +108,7 @@ end
 
 %% for each unit get the top 50 channels
 %we do this cause the machine might not have enough memory for everything
+dir_to_save_results = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\rec_10_unit_app_on_channels";
 table_of_all_channel_ratios = struct2table(dir(fullfile(dir_to_save_results,"*.mat")));
 table_of_all_channel_ratios.name = string(table_of_all_channel_ratios.name);
 table_of_all_channel_ratios.folder = string(table_of_all_channel_ratios.folder);
@@ -116,7 +117,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = height(table_of_all_channel_ratios);
 print_status_bar(num_iterations,"get_overlap_for_all_units_using_detected_spikes_in_pipeline.m")
-parfor i=1:height(table_of_all_channel_ratios)
+for i=1:height(table_of_all_channel_ratios)
 
     try
         if isempty(best_rep_cell_array{i})
