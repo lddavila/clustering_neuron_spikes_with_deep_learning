@@ -35,7 +35,7 @@ if ~isfile(finished_status_save_name)
     num_iterations = height(table_of_available_dictionaries);
     print_status_bar(num_iterations,"check_unit_detection_after_dictionary_assembly.m | loading sw dicts")
     for i=1:height(table_of_available_dictionaries)
-        
+
         spike_windows_dict = load(fullfile(folder_to_use,"t"+string(table_of_available_dictionaries{i,"tetr_num"})+" sorted_spike_windows.mat"));
         spike_windows_dict = spike_windows_dict.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
         cell_array_of_sorted_sw_dicts{i} = spike_windows_dict;
@@ -59,37 +59,41 @@ if ~isfile(finished_status_save_name)
             continue;
         end
         tetrode_names = strcat("t",string(tetrodes_with_current_channel));
-        current_multiplier_used = table_of_best_rep{i,"all_multiplier_idxs"} - (min(config.Multipliers)-1);
+        current_multiplier_used = find(table_of_best_rep{i,"all_multiplier_idxs"} == config.Multipliers);
+
         current_ground_truth_idxs = ground_truth_cell_array{table_of_best_rep{i,"unit"}};
         current_row = table_of_best_rep(i,:);
         edited_row = repelem(current_row,length(tetrode_names),1);
         edited_row.tetrode = tetrode_names;
         detection_ratio_after_dict_creation = zeros(length(tetrode_names),1);
-        for j=1:length(tetrode_names)
-            which_dict_index_to_use = find(table_of_available_dictionaries.tetr_num==tetrodes_with_current_channel(j));
-            if isempty(which_dict_index_to_use)
-                continue;
+        if ~isempty(current_multiplier_used)
+            for j=1:length(tetrode_names)
+                which_dict_index_to_use = find(table_of_available_dictionaries.tetr_num==tetrodes_with_current_channel(j));
+                if isempty(which_dict_index_to_use)
+                    continue;
+                end
+                spike_windows_dict = cell_array_of_sorted_sw_dicts{which_dict_index_to_use};
+
+                sorted_spike_windows = spike_windows_dict(strrep(tetrode_names(j),".mat",""));
+
+                spiking_channel_dict = cell_array_of_spiking_channels{which_dict_index_to_use};
+
+                spiking_channels = cell2mat(spiking_channel_dict(strrep(tetrode_names(j),".mat","")).');
+
+                %now that we know the multiplier used for the current row and the
+                %channels in the current channel we can read multipliers in mv for
+                %the appropriate thresholds per channel to use for each row of the
+                %sorted spike windows
+                threshs_per_spike = flattened_multipliers(spiking_channels,current_multiplier_used);
+
+                %filter the spikes
+                filtered_peak_locs = sorted_spike_windows(abs(sorted_spike_windows(:,5)) >= threshs_per_spike,4);
+
+
+                detection_ratio_after_dict_creation(j) = (sum(ismembertol(double(round(current_ground_truth_idxs)), double(round(filtered_peak_locs)),tol_amount,'DataScale',1)) / length(current_ground_truth_idxs))*100;
             end
-            spike_windows_dict = cell_array_of_sorted_sw_dicts{which_dict_index_to_use};
-            
-            sorted_spike_windows = spike_windows_dict(strrep(tetrode_names(j),".mat",""));
-
-            spiking_channel_dict = cell_array_of_spiking_channels{which_dict_index_to_use};
-
-            spiking_channels = cell2mat(spiking_channel_dict(strrep(tetrode_names(j),".mat","")).');
-
-            %now that we know the multiplier used for the current row and the
-            %channels in the current channel we can read multipliers in mv for
-            %the appropriate thresholds per channel to use for each row of the
-            %sorted spike windows
-            threshs_per_spike = flattened_multipliers(spiking_channels,current_multiplier_used);
-
-            %filter the spikes
-            filtered_peak_locs = sorted_spike_windows(abs(sorted_spike_windows(:,5)) >= threshs_per_spike,4);
-
-
-            detection_ratio_after_dict_creation(j) = (sum(ismembertol(double(round(current_ground_truth_idxs)), double(round(filtered_peak_locs)),tol_amount,'DataScale',1)) / length(current_ground_truth_idxs))*100;
         end
+
         edited_row.detection_ratio_after_dict_creation = detection_ratio_after_dict_creation;
         extended_table_of_best_rep_cell_array{i} = edited_row;
         send(q,[]);
@@ -105,7 +109,7 @@ if ~isfile(finished_status_save_name)
     config.fp_to_table_of_best_rep = strrep(config.fp_to_table_of_best_rep,".mat","")+"_2.mat";
     file_id = fopen(fullfile(finished_status_save_name),"w");
     fclose(file_id);
-    
+
 else
     disp(finished_status_save_name +" already detected, skipping this step.")
     config.fp_to_table_of_best_rep = strrep(config.fp_to_table_of_best_rep,".mat","")+"_2.mat";
