@@ -138,6 +138,7 @@ end
 % neuron's data
 if config.has_ground_truth && config.debug_with_ground_truth
     config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,cell_array_of_all_spikes_per_channel,pk_vals_cell_array,config);
+    config.plot_counter = 1;
 end
 
 %step 9b get the spike windows of the smallest z score in the config
