@@ -72,7 +72,7 @@ parfor i=1:length(ordered_list_of_channels)
     par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
 
     if config.has_ground_truth && config.debug_with_ground_truth
-        check_snr_of_spike_data(config,spike_windows,"c",current_channel);
+        check_snr_of_spike_data(config,spike_windows,"c"+current_channel_number);
     end
     send(q,[]);
 end

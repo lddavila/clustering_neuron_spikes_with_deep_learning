@@ -67,6 +67,8 @@ config.mutated_spike_windows = config.mutated_spike_windows(good_spikes_idx_inj,
 if config.debug_with_ground_truth && config.has_ground_truth
     config = check_unit_detection_while_clustering(config.mutated_spike_windows,current_tetrode,config,"aftergoodspikesidxinjmult"+string(config.which_thresh),interp_raw,good_spikes_idx_inj);
     config.plot_counter = config.plot_counter + 1;
+    check_snr_of_spike_data(config,config.mutated_spike_windows,config.tetrode,config.which_thresh)
+    config.stage_counter = config.stage_counter + 1;
 end
 % disp("Finished getting unit decetion while clustering 1")
 if config.NEAR_SIMULTANEOUS_SPIKE_DETECTION
@@ -98,7 +100,8 @@ config.mutated_spike_windows = config.mutated_spike_windows(reg_spikes_idx,:);
 if config.debug_with_ground_truth && config.has_ground_truth
     config = check_unit_detection_while_clustering(reg_sorted_spike_windows,current_tetrode,config,"afternearsimspikedetfiltmult"+string(config.which_thresh),reg_interp_raw,1:size(reg_interp_raw,2));
     config.plot_counter = config.plot_counter+1;
-    disp("Finished getting unit decetion while clustering 2")
+    check_snr_of_spike_data(config,reg_sorted_spike_windows,config.tetrode)
+    % disp("Finished getting unit decetion while clustering 2")
 end
 
 % PERFECTLY ALIGNED UP TO THIS POINT

@@ -1,4 +1,4 @@
-function [] = check_snr_of_spike_data(config,spike_windows,tetr_or_ch_string,tetr_or_ch_num)
+function [] = check_snr_of_spike_data(config,spike_windows,tetr_or_ch_string,varargin)
 
 ground_truth_cell_array = config.ground_truth_cell_array;
 parent_dir =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.dir_to_save_debug_files_to,"snr"));
@@ -13,9 +13,13 @@ if all(spike_windows(:,3)==spike_windows(1,3)) %indicates a channel since all sp
 else %indicates a tetrode since spikes come from multiple channels 
     save_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(parent_dir,"tetrodes"));
 end
-save_name = fullfile(save_dir,tetr_or_ch_string+string(tetr_or_ch_num)+".mat");
-if isfile(save_name)
-    return;
+if isempty(varargin)
+    save_name = fullfile(save_dir,tetr_or_ch_string+".mat");
+else
+    save_name = fullfile(save_dir,tetr_or_ch_string+"_"+string(varargin{1})+"_stage_"+string(config.stage_counter)+".mat");
+end
+if isfile(save_name) 
+    return; %we skip channels because they're more of a one and done
 end
 
 %okay now that we have our save dir set up we can check the locations of

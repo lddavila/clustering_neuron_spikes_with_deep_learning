@@ -201,7 +201,8 @@ parfor i=1:length(sliced_every_permutation_of_both)
 
         %filter the spike windows for debugging in clustering process
         mutated_spike_windows = sorted_spike_windows(max_peak_vals >= per_spike_thresholds,:);
-
+        even_more_local_config.stage_counter = 1;
+        check_snr_of_spike_data(even_more_local_config,mutated_spike_windows,"t",current_data{1,"number_of_tetrodes_to_run"},current_data.number_of_thresholds_to_run(j));
         %put spike windows in the config
         even_more_local_config.mutated_spike_windows = mutated_spike_windows;
 
