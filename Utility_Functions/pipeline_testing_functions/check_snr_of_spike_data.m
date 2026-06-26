@@ -24,16 +24,16 @@ end
 
 %okay now that we have our save dir set up we can check the locations of
 %the peaks in spike windows against each item in the cell array
-tol_amount = 6; %equiavlent to about .2 milliseconds
+tol_amount = 1;
 unit_detection_raw_num= zeros(length(ground_truth_cell_array),1);
 for i=1:length(ground_truth_cell_array)
-    is_in_spike_windows = ismembertol(ground_truth_cell_array{i},spike_windows(:,4),tol_amount,'Datascale',1);
+    is_in_spike_windows = ismembertol(double(ground_truth_cell_array{i}),double(spike_windows(:,4)),tol_amount,'Datascale',1);
     unit_detection_raw_num(i) = sum(is_in_spike_windows);
 end
 
 %now that we have counted all units that appear on this spike I think it
 %would be useful to count how many spikes appear on this channel or tetrode
-signal_to_noise_ratio = sum(unit_detection_raw_num) / size(spike_windows,1);
+signal_to_noise_ratio = (sum(unit_detection_raw_num) / size(spike_windows,1)) * 100;
 
 snr_struct = struct();
 snr_struct.signal_to_noise_ratio = signal_to_noise_ratio;

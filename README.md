@@ -42,6 +42,9 @@ Spike-Sorting is the method of trying to identify specific neuron activity from 
                  ...
                 -cn.mat 
                 %n represents the max number of channels
+                %every file in this directory represents a single channel of your recording
+                %they should all by 1xn
+                %where n represents the number of samples taken during your recording
             | timestamps
                 -timestamps.mat
 

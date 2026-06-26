@@ -17,7 +17,7 @@ print_status_bar(number_of_iterations,"get_lowest_bound_spike_windows.m")
 already_done = config.ALREADY_DONE_FILES;
 use_new_spike_detection = config.use_new_spike_detection;
 config = parallel.pool.Constant(config);
-parfor i=1:length(ordered_list_of_channels)
+for i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     current_channel_number = str2double(strrep(strrep(current_channel,".mat",""),"c",""));
 
@@ -71,8 +71,8 @@ parfor i=1:length(ordered_list_of_channels)
     spike_windows(spike_windows(:,1)==0,:) = [];
     par_save(fullfile(spike_windows_dir,current_channel),spike_windows)
 
-    if config.has_ground_truth && config.debug_with_ground_truth
-        check_snr_of_spike_data(config,spike_windows,"c"+current_channel_number);
+    if config.Value.has_ground_truth && config.Value.debug_with_ground_truth
+        check_snr_of_spike_data(config.Value,spike_windows,"c"+current_channel_number);
     end
     send(q,[]);
 end
