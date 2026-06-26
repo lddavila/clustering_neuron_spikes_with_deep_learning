@@ -17,7 +17,11 @@ peaks = get_peaks(aligned,true);
 % end
 
 %get table of best rep
-best_rep_local = config.current_table_of_best_rep;
+if isfield(config,"current_table_of_best_rep")
+    best_rep_local = config.current_table_of_best_rep;
+else
+    best_rep_local = importdata(config.fp_to_table_of_best_rep);
+end
 unique_gt_units = unique(best_rep_local.unit);
 
 %get the spike windows we'll use for this

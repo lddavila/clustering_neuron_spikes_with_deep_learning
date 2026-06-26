@@ -100,7 +100,8 @@ config.mutated_spike_windows = config.mutated_spike_windows(reg_spikes_idx,:);
 if config.debug_with_ground_truth && config.has_ground_truth
     config = check_unit_detection_while_clustering(reg_sorted_spike_windows,current_tetrode,config,"afternearsimspikedetfiltmult"+string(config.which_thresh),reg_interp_raw,1:size(reg_interp_raw,2));
     config.plot_counter = config.plot_counter+1;
-    check_snr_of_spike_data(config,reg_sorted_spike_windows,config.tetrode)
+    check_snr_of_spike_data(config,reg_sorted_spike_windows,config.tetrode,config.which_thresh)
+    config.stage_counter = config.stage_counter+1;
     % disp("Finished getting unit decetion while clustering 2")
 end
 

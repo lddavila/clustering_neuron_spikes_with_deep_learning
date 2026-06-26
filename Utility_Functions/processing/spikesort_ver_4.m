@@ -80,7 +80,9 @@ full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
     full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"aftertimestampfiltermult"+string(full_config.which_thresh),aligned,timestamp_filter);
     full_config.plot_counter = full_config.plot_counter+1;
-    disp("Finished getting unit decetion while clustering 3")
+    check_snr_of_spike_data(full_config,full_config.mutated_spike_windows,full_config.current_tetrode,full_config.which_thresh)
+    full_config.stage_counter = full_config.stage_counter+1;
+    % disp("Finished getting unit decetion while clustering 3")
 end
 
 
@@ -152,6 +154,9 @@ for k = 1:num_iterations
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
         full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
+        check_snr_of_spike_data(full_config,looped_mutated_spike_windows,full_config.tetrode,full_config.which_thresh);
+        full_config.stage_counter = full_config.stage_counter+1;
+
     end
     % disp("Finished getting unit decetion while clustering 4")
     % Injects our whitening filter into the original set of indices

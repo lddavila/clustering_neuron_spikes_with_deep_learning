@@ -7,7 +7,11 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
     for i=1:length(ground_truth_cell_array)
         current_ground_truth = ground_truth_cell_array{i};
         all_channels = 1:length(ordered_list_of_channels);
-        all_multiplier_idxs = config.Multipliers;
+        if config.use_new_spike_detection
+            all_multiplier_idxs = config.Multipliers;
+        else
+            all_multiplier_idxs = config.DEFAULT_CLUSTERING_Z_SCORES;
+        end
         all_combinations_of_mult_and_channels = combinations(all_channels,all_multiplier_idxs);
         all_combinations_of_mult_and_channels.unit = repelem(i,height(all_combinations_of_mult_and_channels),1);
         detection_ratio = zeros(height(all_combinations_of_mult_and_channels),1);
@@ -20,7 +24,7 @@ if ~isfile(fullfile(config.dir_to_save_debug_files_to,'finished_finding_best_cha
         print_status_bar(num_iterations,"check_ground_truth_appearences_per_channel.m")
         save_name =fullfile(config.dir_to_save_debug_files_to,"Unit_"+string(i)+".mat") ;
         if ~isfile(save_name)
-            parfor j=1:height(all_combinations_of_mult_and_channels)
+            for j=1:height(all_combinations_of_mult_and_channels)
                 current_channel_peak_locs = pk_locs_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
                 current_channel_peak_amps = pk_vals_cell_array{all_combinations_of_mult_and_channels{j,"all_channels"}};
                 current_channel_thresholds_in_mv = multipliers_in_mv{all_combinations_of_mult_and_channels{j,"all_channels"}};

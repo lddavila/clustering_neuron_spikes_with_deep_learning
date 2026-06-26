@@ -15,7 +15,9 @@ for i=1:length(chan_of_art_tetrode)
     % disp("current channel recording file name")
     % disp(current_channel_recording_file_name);
     current_channel_data = load(current_channel_recording_file_name);
-    current_channel_data = current_channel_data.data_to_save;
+    the_field_name = string(fieldnames(current_channel_data));
+
+    current_channel_data = current_channel_data.(the_field_name);
     current_channel_data = ( current_channel_data* scale_factor).';
     channels_data{i} = current_channel_data;
 end
