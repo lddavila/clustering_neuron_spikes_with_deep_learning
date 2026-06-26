@@ -27,7 +27,7 @@ end
 tol_amount = 6; %equiavlent to about .2 milliseconds
 unit_detection_raw_num= zeros(length(ground_truth_cell_array),1);
 for i=1:length(ground_truth_cell_array)
-    is_in_spike_windows = ismembertol(ground_truth_cell_array{i},spike_windows(:,4),tol_amount,'Datascale',1);
+    is_in_spike_windows = ismembertol(double(ground_truth_cell_array{i}),double(spike_windows(:,4)),tol_amount,'Datascale',1);
     unit_detection_raw_num(i) = sum(is_in_spike_windows);
 end
 

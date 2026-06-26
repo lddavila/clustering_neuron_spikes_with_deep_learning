@@ -80,9 +80,10 @@ if config.use_bandpass && ~isfile(fullfile(precomputed_dir,"finished_filtering.t
     apply_filter(ordered_list_of_channels,config,dir_to_store_filtered_data,dir_with_channel_recordings)
     f_id = fopen(fullfile(precomputed_dir,"finished_filtering.txt"),'w');
     fclose(f_id);
+    %overwrite the channel directory with your filtered data
+    dir_with_channel_recordings = dir_to_store_filtered_data;
 end
-%overwrite the channel directory with your filtered data
-dir_with_channel_recordings = dir_to_store_filtered_data;
+
 
 disp("Finished filtering data")
 
@@ -122,16 +123,16 @@ end
 beginning_time = tic;
 
 if ~config.use_new_spike_detection
-    detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
+    [multipliers_in_mv,cell_array_of_all_spikes_per_channel,pk_vals_cell_array] = detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
     end_time = toc(beginning_time);
     fprintf("Finished cutting spikes per channel for "+z_score_or_multiplier+" %.2f, it took %.2f seconds\n",min(config.DEFAULT_CLUSTERING_Z_SCORES),end_time);
 else
     %multipliers_in_mv is the threshold values
     %these will be used later on
     [multipliers_in_mv,cell_array_of_all_spikes_per_channel,pk_vals_cell_array ]= use_ic_spike_det(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,scale_factor,config,config.Multipliers);
-    config.Multipliers_in_mv = multipliers_in_mv;
+    
 end
-
+config.Multipliers_in_mv = multipliers_in_mv;
 
 % if the ground truth is available then we can use the spikes found in the
 % previous step to see which channel has the maximum amount of each

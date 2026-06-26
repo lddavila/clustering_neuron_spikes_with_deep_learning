@@ -1,3 +1,6 @@
+#ignore any files named output.txt
+*output*.txt
+
 #ignore auto save files
 *.asv
 
@@ -11,7 +14,7 @@
 *.sh.bak
 
 #ignore files in the default_results_dir
-Default_Results_dir/
+/Default_Results_Dir/
 
 #ignore files in the Data Directory
 Data/
@@ -29,5 +32,5 @@ kilosort4_output/
 *.json
 *.pyc
 *.log
-./test_other_spike_sorters/*__pycache__*
+./test_other_spike_sorters/**/__pycache__
 in_container_sorter_script.py
