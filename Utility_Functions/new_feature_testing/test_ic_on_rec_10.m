@@ -14,13 +14,13 @@ cd(home_dir);
 disp("Finished Adding path")
 default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
 
-% if ~isempty(varargin)
-%     cluster = parcluster("Processes");
-%     num_workers = max(1, floor(cluster.NumWorkers / 8));
-%     fprintf("Have %i workers\n",num_workers);
-%     poolobj = parpool(cluster, num_workers);
-% 
-% end
+if ~isempty(varargin)
+    cluster = parcluster("Processes");
+    num_workers = max(1, floor(cluster.NumWorkers / 8));
+    fprintf("Have %i workers\n",num_workers);
+    poolobj = parpool(cluster, num_workers);
+
+end
 
 beginning = which_recording;
 the_end = which_recording+0.5;

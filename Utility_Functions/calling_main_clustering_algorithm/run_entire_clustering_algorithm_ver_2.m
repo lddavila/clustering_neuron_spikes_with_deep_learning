@@ -138,8 +138,10 @@ config.Multipliers_in_mv = multipliers_in_mv;
 % previous step to see which channel has the maximum amount of each
 % neuron's data
 if config.has_ground_truth && config.debug_with_ground_truth
+    config.stage_counter = 1;
     config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,cell_array_of_all_spikes_per_channel,pk_vals_cell_array,config);
     config.plot_counter = 1;
+    config.stage_counter = config.stage_counter+1;
 end
 
 %step 9b get the spike windows of the smallest z score in the config
@@ -161,10 +163,7 @@ lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_pa
 get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
 
 
-if config.has_ground_truth && config.debug_with_ground_truth
-    config = check_ground_truth_appearence_per_channel(ground_truth_cell_array,multipliers_in_mv,ordered_list_of_channels,cell_array_of_all_spikes_per_channel,pk_vals_cell_array,config);
-    get_unit_detection_after_spike_cutting(config,lowest_bound_spike_windows_dir,ground_truth_cell_array);
-end
+
 
 % step 9d: get maps of each tetrode to its spikes
 beginning_time = tic;
@@ -215,6 +214,7 @@ fprintf('Getting dictionaries took: %f\n',end_time)
 
 if config.has_ground_truth && config.debug_with_ground_truth
     config =check_unit_detection_after_dictionary_assembly(config,dictionaries_dir,ground_truth_cell_array,multipliers_in_mv);
+    config.stage_counter = config.stage_counter+1;
 end
 
 channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));

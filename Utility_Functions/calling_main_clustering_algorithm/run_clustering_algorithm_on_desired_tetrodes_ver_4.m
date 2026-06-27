@@ -52,6 +52,10 @@ for i=1:length(sliced_every_permutation_of_both)
 end
 every_permutation_of_both = vertcat(sliced_every_permutation_of_both{:});
 list_of_available_channels = struct2table(dir(fullfile(config.DIR_WITH_OG_CHANNEL_RECORDINGS,"*.mat")));
+
+if config.has_ground_truth && config.debug_with_ground_truth
+    config.table_of_best_rep = load(config.fp_to_table_of_best_rep,"data_to_save").data_to_save;
+end
 config =parallel.pool.Constant(config);
 
 
@@ -77,13 +81,13 @@ parfor i=1:length(sliced_every_permutation_of_both)
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
     local_config = config.Value;
-
-
-
-
     % beginning_time = tic;
 
     current_tetrode = "t"+current_data{1,"number_of_tetrodes_to_run"};
+
+    if local_config.has_ground_truth && local_config.debug_with_ground_truth
+        local_config.table_of_best_rep = local_config.table_of_best_rep(local_config.table_of_best_rep{:,"tetrode"}==current_tetrode,:);
+    end
 
     %check for required files
     %if all the necessary files weren't created in the previous step then
@@ -130,12 +134,16 @@ parfor i=1:length(sliced_every_permutation_of_both)
         base_aligned = base_aligned.data_to_save;
         base_aligned_idxs = 1:1:size(base_aligned,2);
     end
-    
-    for j=1:height(current_data)
+
+    parfor j=1:height(current_data)
         even_more_local_config = local_config;
+        
         even_more_local_config.tetrode = current_tetrode;
 
         even_more_local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
+        if even_more_local_config.has_ground_truth && even_more_local_config.debug_with_ground_truth
+            even_more_local_config.table_of_best_rep = even_more_local_config.table_of_best_rep(even_more_local_config.table_of_best_rep{:,"all_multiplier_idxs"}==even_more_local_config.which_thresh,:);
+        end
         current_filename = current_data{j,"filenames"};
         %check to make sure that every channel in the current dataset is
         %actually available
@@ -210,12 +218,14 @@ parfor i=1:length(sliced_every_permutation_of_both)
 
         %filter the spike windows for debugging in clustering process
         mutated_spike_windows = sorted_spike_windows(filter_1,:);
-        even_more_local_config.stage_counter = 1;
-        % if even_more_local_config.has_ground_truth && even_more_local_config.debug_with_ground_truth
-        %     check_snr_of_spike_data(even_more_local_config,mutated_spike_windows,"t",current_data{1,"number_of_tetrodes_to_run"},current_data.number_of_thresholds_to_run(j));
-        % end
+        % even_more_local_config.stage_counter = 1;
+        if even_more_local_config.has_ground_truth && even_more_local_config.debug_with_ground_truth && j~=1
+            even_more_local_config = check_snr_of_spike_windows_with_table(even_more_local_config,mutated_spike_windows);
+            even_more_local_config.stage_counter = even_more_local_config.stage_counter +1;
+        end
         %put spike windows in the config
         even_more_local_config.mutated_spike_windows = mutated_spike_windows;
+
 
         %store the local tetrode
         even_more_local_config.tetrode = current_tetrode;
