@@ -9,4 +9,4 @@
 #SBATCH --mail-user=lddavila@miners.utep.edu
 #SBATCH -A ASC25063
 module load matlab/2023b
-matlab -batch "test_ic_on_rec_10(10);exit;"
+matlab -batch "test_ic_on_rec_10(10,1);exit;"
