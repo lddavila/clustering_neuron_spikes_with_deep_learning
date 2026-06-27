@@ -13,7 +13,7 @@ if ~all([isfile(thresh_in_mv_name),isfile(pk_locs_name),isfile(pk_vals_name)])
     cell_array_of_pk_locs = cell(length(ordered_list_of_channels),1);
     cell_array_of_pk_vals = cell(length(ordered_list_of_channels),1);
     
-    for i=1:length(ordered_list_of_channels)
+    parfor i=1:length(ordered_list_of_channels)
         current_channel = ordered_list_of_channels(i);
         save_name = fullfile(spikes_per_channel_dir,current_channel);
         if ~isfile(save_name)

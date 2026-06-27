@@ -135,7 +135,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
         base_aligned_idxs = 1:1:size(base_aligned,2);
     end
 
-    parfor j=1:height(current_data)
+    for j=1:height(current_data)
         even_more_local_config = local_config;
         
         even_more_local_config.tetrode = current_tetrode;
