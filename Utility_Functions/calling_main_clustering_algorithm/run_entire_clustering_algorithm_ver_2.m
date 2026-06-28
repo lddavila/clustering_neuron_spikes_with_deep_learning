@@ -157,7 +157,7 @@ if ~config.use_new_spike_detection
 else
     thresholds_to_check = 1:length(config.Multipliers);
 end
-lowest_bound_threshold = min(config.Multipliers);
+lowest_bound_threshold = min(thresholds_to_check);
 
 lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
 get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
