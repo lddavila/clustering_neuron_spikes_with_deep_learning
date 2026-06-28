@@ -30,13 +30,13 @@ for k=1:length(number_of_channels_to_use)
     for i=beginning:the_end
         try
             config = spikesort_config();
-            config.use_new_spike_detection = false;
-            config.use_bandpass = false;
+            % config.use_new_spike_detection = false;
+            % config.use_bandpass = false;
             %overwrite the z scores
-            % config.DEFAULT_CLUSTERING_Z_SCORES = [1];
+            config.DEFAULT_CLUSTERING_Z_SCORES = [1];
             config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
-            % config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"date_test_05_27_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
-            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_sc_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
+            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"date_test_05_27_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
+            % config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_sc_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
             disp("Recording Name");
             disp(config.RECORDING_NAME)
             startup;
