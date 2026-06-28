@@ -153,13 +153,17 @@ end
 %by the thresholds returned by use_ic_spike_det
 if ~config.use_new_spike_detection
     thresholds_to_check = config.DEFAULT_CLUSTERING_Z_SCORES;
-    thresholds_to_check = sort(thresholds_to_check,'ascend');
 else
-    thresholds_to_check = 1:length(config.Multipliers);
+    thresholds_to_check = config.Multipliers;
 end
+thresholds_to_check = sort(thresholds_to_check,'ascend');
 lowest_bound_threshold = min(thresholds_to_check);
 
-lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
+if ~config.use_new_spike_detection
+    lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_mult " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
+else
+    lowest_bound_spike_windows_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"spike_windows min_z_score " + string(lowest_bound_threshold) + " num dps "+ string(num_dps)));
+end
 get_lowest_bound_spike_windows(ordered_list_of_channels,lowest_bound_spikes_per_channel_dir,lowest_bound_threshold,num_dps,z_score_dir,lowest_bound_spike_windows_dir,config)
 
 
