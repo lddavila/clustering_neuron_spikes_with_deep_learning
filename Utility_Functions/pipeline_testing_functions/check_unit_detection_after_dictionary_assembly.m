@@ -34,7 +34,7 @@ if ~isfile(finished_status_save_name)
     afterEach(q,@print_status_bar)
     num_iterations = height(table_of_available_dictionaries);
     print_status_bar(num_iterations,"check_unit_detection_after_dictionary_assembly.m | loading sw dicts")
-    parfor i=1:height(table_of_available_dictionaries)
+    for i=1:height(table_of_available_dictionaries)
 
         spike_windows_dict = load(fullfile(folder_to_use,"t"+string(table_of_available_dictionaries{i,"tetr_num"})+" sorted_spike_windows.mat"));
         spike_windows_dict = spike_windows_dict.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
@@ -54,7 +54,7 @@ if ~isfile(finished_status_save_name)
     else
         thresholds_to_use = config.DEFAULT_CLUSTERING_Z_SCORES;
     end
-    parfor i=1:height(table_of_best_rep)
+    for i=1:height(table_of_best_rep)
         %since dictionaries are organized by tetrode for each row in table_of_best_rep
         %we must determine which tetrode contains the current best channel
         current_channel = table_of_best_rep{i,"all_channels"};
