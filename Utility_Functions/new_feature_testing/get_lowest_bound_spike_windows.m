@@ -34,8 +34,10 @@ for i=1:length(ordered_list_of_channels)
     channel_data = importdata(fullfile(config.Value.DIR_WITH_OG_CHANNEL_RECORDINGS,current_channel));
     disp("successfully loaded channel data");
     disp(fullfile(config.Value.DIR_WITH_OG_CHANNEL_RECORDINGS,current_channel));
+    disp("Trying to load spikes per channel")
+    disp(fullfile(spikes_per_channel_dir,current_channel))
     spikes_for_current_channel = importdata(fullfile(spikes_per_channel_dir,current_channel));
-    disp("successfuly loaded spikes her channel")
+    disp("successfuly loaded spikes per channel")
     disp(fullfile(spikes_per_channel_dir,current_channel));
     spike_windows = zeros(length(spikes_for_current_channel),5);
     for j=1:length(spikes_for_current_channel)
