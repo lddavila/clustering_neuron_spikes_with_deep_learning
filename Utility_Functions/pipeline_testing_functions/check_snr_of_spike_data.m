@@ -24,11 +24,7 @@ end
 
 %okay now that we have our save dir set up we can check the locations of
 %the peaks in spike windows against each item in the cell array
-<<<<<<< HEAD
-tol_amount = 1;
-=======
 tol_amount = 3; %equiavlent to about .1 milliseconds
->>>>>>> d55b5c9701270ab0d79c48b0fec761cf4208a859
 unit_detection_raw_num= zeros(length(ground_truth_cell_array),1);
 for i=1:length(ground_truth_cell_array)
     is_in_spike_windows = ismembertol(double(ground_truth_cell_array{i}),double(spike_windows(:,4)),tol_amount,'Datascale',1);
