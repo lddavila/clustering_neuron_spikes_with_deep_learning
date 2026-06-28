@@ -4,7 +4,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = length(list_of_ordered_channels);
 print_status_bar(num_iterations,"apply_filter.m")
-for i=1:length(list_of_ordered_channels)
+parfor i=1:length(list_of_ordered_channels)
     try
     if isfile(fullfile(dir_to_store_filtered_data,list_of_ordered_channels(i)))
         send(q,[]);

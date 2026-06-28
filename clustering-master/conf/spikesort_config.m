@@ -59,6 +59,8 @@ config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 config.the_linspace_to_use = linspace(.1, 0, 4);
 config.percentiles_to_use = [80 60 40 20 ];
 config.percentiles_to_use = [90 85 80 75];
+config.percentiles_to_use = 100:1:1;
+config.run_full_clustering = false;
 
 
 config.TIME_DELTA = 0.0002;

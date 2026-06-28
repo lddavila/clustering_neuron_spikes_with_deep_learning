@@ -80,7 +80,7 @@ full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
     full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"aftertimestampfiltermult"+string(full_config.which_thresh),aligned,timestamp_filter);
     full_config.plot_counter = full_config.plot_counter+1;
-    check_snr_of_spike_data(full_config,full_config.mutated_spike_windows,full_config.current_tetrode,full_config.which_thresh)
+    full_config = check_snr_of_spike_windows_with_table(full_config,full_config.mutated_spike_windows);
     full_config.stage_counter = full_config.stage_counter+1;
     % disp("Finished getting unit decetion while clustering 3")
 end
@@ -107,9 +107,6 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     end
     for k = 1:length(snr_threshs)
         snr_filter = pmv > snr_threshs(k);
-        if full_config.debug_with_ground_truth
-
-        end
         num_filtered_spikes = sum(snr_filter);
         if num_filtered_spikes < 600
             good_filters(k) = false;
@@ -154,7 +151,7 @@ for k = 1:num_iterations
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
         full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
-        check_snr_of_spike_data(full_config,looped_mutated_spike_windows,full_config.tetrode,full_config.which_thresh);
+        full_config = check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows);
         full_config.stage_counter = full_config.stage_counter+1;
 
     end
@@ -174,6 +171,16 @@ refine_spike_idx = find(refine_filter);
 %we are aware of an error where small amounts of data cause singular dimensions
 %to do that
 did_error = true; %assume that the function will error
+
+if full_config.run_full_clustering
+    cleaned_clusters = {};
+    clusters = {};
+    aligned = NaN;
+    timestamps = NaN;
+    r_tvals = NaN;
+    peak_pcs = NaN;
+    return;
+end
 while did_error && ~isempty(preproc_idx)
     % disp("entered the while loop")
     try
