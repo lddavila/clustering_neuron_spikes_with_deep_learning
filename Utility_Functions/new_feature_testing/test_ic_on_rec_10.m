@@ -18,7 +18,7 @@ if ~isempty(varargin)
     cluster = parcluster("Processes");
     num_workers = max(1, floor(cluster.NumWorkers / 8));
     fprintf("Have %i workers\n",num_workers);
-    poolobj = parpool(cluster, num_workers);
+    poolobj = parpool(cluster, 3);
 
 end
 

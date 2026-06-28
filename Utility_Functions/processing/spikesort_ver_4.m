@@ -172,7 +172,7 @@ refine_spike_idx = find(refine_filter);
 %to do that
 did_error = true; %assume that the function will error
 
-if full_config.run_full_clustering
+if ~full_config.run_full_clustering
     cleaned_clusters = {};
     clusters = {};
     aligned = NaN;
