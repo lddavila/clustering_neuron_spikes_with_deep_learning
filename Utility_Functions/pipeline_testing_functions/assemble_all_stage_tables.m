@@ -14,7 +14,7 @@ else
     grouped_table = slice_table_for_parallel_processing(all_stage_tables,["tetrode","Z Score"]);
 end
 final_stage_table = [];
-parfor i=1:height(all_stage_tables)
+parfor i=1:height(grouped_table)
     current_group = grouped_table{i};
     % for j=1:height(current_group)
     current_table = importdata(fullfile(current_group{1,"folder"}, current_group{1,"name"}));

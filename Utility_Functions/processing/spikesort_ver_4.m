@@ -115,7 +115,7 @@ if config.USE_SNR_FILTER && num_spikes > 10000
         end
     end
     snr_filters = snr_filters(:, good_filters);
-    num_iterations = size(snr_filters, 2);
+    num_iterations = length(snr_filters);
 end
 
 % disp("Finished getting pmv and filtering data")
