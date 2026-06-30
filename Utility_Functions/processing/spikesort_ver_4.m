@@ -118,7 +118,7 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     snr_filters = snr_filters(:, good_filters);
     num_iterations = size(snr_filters, 2);
 else
-    snr_filters = repmat(default_filter, [1, full_config.percentiles_to_use]); %%REMEMBER TO ERASE THIS CONDITIONAL
+    snr_filters = repmat(default_filter, [1, length(full_config.percentiles_to_use)]); %%REMEMBER TO ERASE THIS CONDITIONAL
 end
 
 % disp("Finished getting pmv and filtering data")
