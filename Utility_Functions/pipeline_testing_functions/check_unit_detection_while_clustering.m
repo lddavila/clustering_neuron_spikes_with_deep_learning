@@ -4,8 +4,8 @@ function [config] = check_unit_detection_while_clustering(filtered_spike_windows
 %where the peaks of all the spikes are created and and we color code those spikes per unit
 debug_plot_dir =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.dir_to_save_debug_files_to,"plots"));
 current_tetrode_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(debug_plot_dir,config.tetrode));
-current_prc_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(current_tetrode_dir,strjoin(string(config.percentiles_to_use),"_")));
-current_mult_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(current_prc_dir,"Mult_"+string(config.which_thresh)));
+% current_prc_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(current_tetrode_dir,strjoin(string(config.percentiles_to_use),"_")));
+current_mult_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(current_tetrode_dir,"Mult_"+string(config.which_thresh)));
 
 save_dir = fullfile(config.dir_to_save_debug_files_to,stage+strjoin(string(config.percentiles_to_use),"_"));
 save_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(save_dir);

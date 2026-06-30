@@ -78,7 +78,7 @@ end
 % disp("Finished getting timestamp filter")
 full_config.mutated_spike_windows = full_config.mutated_spike_windows(timestamp_filter,:);
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
-    full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"aftertimestampfiltermult"+string(full_config.which_thresh),aligned,timestamp_filter);
+    % full_config = check_unit_detection_while_clustering(full_config.mutated_spike_windows,full_config.tetrode,full_config,"aftertimestampfiltermult"+string(full_config.which_thresh),aligned,timestamp_filter);
     full_config.plot_counter = full_config.plot_counter+1;
     full_config = check_snr_of_spike_windows_with_table(full_config,full_config.mutated_spike_windows);
     full_config.stage_counter = full_config.stage_counter+1;
@@ -87,10 +87,10 @@ end
 
 
 num_iterations = max(config.NUM_ITERATIONS, 1);
-snr_filters = repmat(default_filter, [1, num_iterations]);
+
 
 if config.USE_SNR_FILTER && num_spikes > 10000
-    good_filters = true(num_iterations, 1);
+    good_filters = true(length(full_config.percentiles_to_use), 1);
     pmv = compute_snr_statistic(aligned, r_raw, r_tvals, r_ir);
     if num_iterations == 2
         snr_threshs = 0;
@@ -105,6 +105,7 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     else
         snr_threshs = full_config.the_linspace_to_use;
     end
+    snr_filters = repmat(default_filter, [1, length(snr_threshs)]);
     for k = 1:length(snr_threshs)
         snr_filter = pmv > snr_threshs(k);
         num_filtered_spikes = sum(snr_filter);
@@ -115,7 +116,7 @@ if config.USE_SNR_FILTER && num_spikes > 10000
         end
     end
     snr_filters = snr_filters(:, good_filters);
-    num_iterations = length(snr_filters);
+    num_iterations = size(snr_filters, 2);
 end
 
 % disp("Finished getting pmv and filtering data")
@@ -127,9 +128,9 @@ peaks = get_peaks(aligned, true)';
 %each value in the array is the peak of channel c and spike s
 % plot_peaks(peaks,"Peaks In Spikesort Ver 2", channels)
 
-preproc_idx = cell(1, num_iterations);
-preproc_spike_windows =cell(1, num_iterations);
-for k = 1:num_iterations
+preproc_idx = cell(1,size(snr_filters,2));
+preproc_spike_windows = cell(1,size(snr_filters,2));
+for k = 1:size(snr_filters,2)
     snr_filter = snr_filters(:, k);
     combined_filter = snr_filter & timestamp_filter;
     % Store the indices so that we can use the vector as an injection
@@ -149,7 +150,7 @@ for k = 1:num_iterations
     % looped_mutated_spike_windows = looped_mutated_spike_windows(whiten_filter,:);
     
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
-        full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
+        % full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
         full_config = check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows);
         full_config.stage_counter = full_config.stage_counter+1;

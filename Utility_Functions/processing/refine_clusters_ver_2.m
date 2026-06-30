@@ -58,7 +58,7 @@ if full_config.has_ground_truth && full_config.debug_with_ground_truth
     local_spike_windows = full_config.mutated_spike_windows;
     local_spike_windows = local_spike_windows(vertcat(refined_clusters{:}),:);
     stage = "clusterrefinemensubset_"+string(full_config.which_subset);
-    full_config = check_unit_detection_while_clustering(local_spike_windows,full_config.tetrode,full_config,stage);
+    % full_config = check_unit_detection_while_clustering(local_spike_windows,full_config.tetrode,full_config,stage);
     % full_config.plot_counter = full_config.plot_counter+1;
 end
 if warning_was_thrown%added by Luis David Davila
