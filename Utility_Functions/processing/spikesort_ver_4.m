@@ -160,7 +160,7 @@ for k = 1:size(snr_filters,2)
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
         % full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
-        full_config = check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows);
+        full_config = check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows,k);
         full_config.stage_counter = full_config.stage_counter+1;
 
     end
