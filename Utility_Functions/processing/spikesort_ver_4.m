@@ -99,8 +99,12 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     elseif num_iterations == 4
         snr_threshs = [1.5, 1, 0];
     elseif full_config.use_percentile_for_pmv_filter
-        only_positive = pmv(pmv>0);
-        the_percentiles = prctile(only_positive,1:100);
+        if full_config.use_only_positive_for_pmv
+            to_cal_prctiles_with = pmv(pmv>0);
+        else
+            to_cal_prctiles_with = pmv;
+        end
+        the_percentiles = prctile(to_cal_prctiles_with,1:100);
         snr_threshs = the_percentiles(full_config.percentiles_to_use);
     else
         snr_threshs = full_config.the_linspace_to_use;
@@ -109,11 +113,13 @@ if config.USE_SNR_FILTER && num_spikes > 10000
     for k = 1:length(snr_threshs)
         snr_filter = pmv > snr_threshs(k);
         num_filtered_spikes = sum(snr_filter);
-        if num_filtered_spikes < 600
-            good_filters(k) = false;
-        else
-            snr_filters(:, k) = snr_filter;
-        end
+        % if num_filtered_spikes < 600
+        %     good_filters(k) = false;
+        % else
+        %     snr_filters(:, k) = snr_filter;
+        % end
+        good_filters(k) = true;
+        snr_filters(:, k) = snr_filter;
     end
     snr_filters = snr_filters(:, good_filters);
     num_iterations = size(snr_filters, 2);

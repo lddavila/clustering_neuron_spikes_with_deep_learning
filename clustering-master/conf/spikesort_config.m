@@ -33,6 +33,7 @@ config.TEMPLATE_CLUSTER_FP_ON_HPC =[fullfile("/scratch/lddavila/cluster_neuronsp
     fullfile("/scratch/lddavila/cluster_neuronspikes","Shape Template PNGs","circle.png")];
 
 config.use_percentile_for_pmv_filter = 1;
+config.use_only_positive_for_pmv = false;
 % Prints extra output
 % config.DEBUG = false;
 
