@@ -41,7 +41,7 @@ for k=1:length(number_of_channels_to_use)
                 else
                     config.use_new_spike_detection = false;
                     config.use_bandpass = false;
-                    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"z_sc_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
+                    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"pos_z_sc_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
                 end
             end
 
