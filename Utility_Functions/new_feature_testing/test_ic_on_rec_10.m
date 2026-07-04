@@ -33,6 +33,7 @@ for k=1:length(number_of_channels_to_use)
         try
             config = spikesort_config();
             config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
+            
             if ~isempty(varargin)
                 if varargin{2} == "ic"
                     %overwrite the z scores
@@ -50,6 +51,7 @@ for k=1:length(number_of_channels_to_use)
             % 
             disp("Recording Name");
             disp(config.RECORDING_NAME)
+            % config.prc_tile
             startup;
             %get a new art_tetrode_array and set it in the config
             % new_tetrode_array = build_channel_configs(current_number_of_channels,config);

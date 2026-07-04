@@ -1,4 +1,4 @@
-function [config] = check_snr_of_spike_windows_with_table(config,spike_windows,varargin)
+function [config,tetrode_level_snr] = check_snr_of_spike_windows_with_table(config,spike_windows,varargin)
 
 ground_truth_cell_array = config.ground_truth_cell_array;
 tetr_or_ch_string = config.tetrode;
@@ -23,6 +23,7 @@ detection_ratio_after_dict_creation = zeros(height(table_of_best_rep),1);
 snr_ratio = zeros(height(table_of_best_rep),1);
 snr_raw = zeros(height(table_of_best_rep),1);
 raw_signal_count = zeros(height(table_of_best_rep),1);
+tetrode_signal_counts = 0;
 for i=1:height(table_of_best_rep)
     current_ground_truth_idxs = ground_truth_cell_array{table_of_best_rep{i,"unit"}};
     is_tp = ismembertol(double(round(current_ground_truth_idxs)), double(round(spike_windows)),tol_amount,'DataScale',1);
@@ -31,8 +32,10 @@ for i=1:height(table_of_best_rep)
     snr_raw(i) = (sum(is_tp) / size(spike_windows,1))*100;
     snr_ratio(i) = detection_ratio_after_dict_creation(i) / snr_raw(i);
     raw_signal_count(i) = sum(is_tp);
-
+    tetrode_signal_counts = tetrode_signal_counts+raw_signal_count(i);
 end
+
+tetrode_level_snr = (tetrode_signal_counts / size(spike_windows,1)) * 100;
 
 if isempty(varargin)
     table_of_best_rep.("detection_ratio_stage_"+string(config.stage_counter)) = detection_ratio_after_dict_creation;

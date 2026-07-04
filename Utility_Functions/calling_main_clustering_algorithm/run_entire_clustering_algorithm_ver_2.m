@@ -18,6 +18,7 @@ if ~isempty(config.GT_FP)
         ground_truth_cell_array = importdata(config.GT_FP);
         config.has_ground_truth = true;
         config.dir_to_save_debug_files_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"DEBUG"));
+        
         config.ground_truth_cell_array = ground_truth_cell_array;
     catch
         disp("Unable to load the ground truth dataset");
@@ -25,7 +26,7 @@ if ~isempty(config.GT_FP)
         config.has_ground_truth = false;
     end
 end
-
+config.folder_to_save_pmv_data = create_a_file_if_it_doesnt_exist_and_ret_abs_path( fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"pmv_data"));
 if config.use_new_spike_detection
     z_score_or_multiplier = "Multiplier";
 else

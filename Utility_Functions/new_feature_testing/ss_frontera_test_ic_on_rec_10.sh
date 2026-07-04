@@ -1,12 +1,12 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -p small
-#SBATCH -J ic
-#SBATCH -o output.txt 
-#SBATCH -e output.txt 
+#SBATCH -J z_sc
+#SBATCH -o output_2.txt 
+#SBATCH -e output_2.txt 
 #SBATCH -t 48:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu
 #SBATCH -A ASC25063
 module load matlab/2023b
-matlab -batch "test_ic_on_rec_10(10,1,'ic');exit;"
+matlab -batch "test_ic_on_rec_10(10,1,'z');exit;"
