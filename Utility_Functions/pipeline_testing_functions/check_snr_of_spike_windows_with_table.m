@@ -45,10 +45,17 @@ for i=1:height(table_of_best_rep)
     
 end
 % no_matching_unit_count = size(spike_windows,1) - min([tetrode_signal_counts,size(spike_windows,1)]);
-tetrode_level_precision= raw_signal_count ./ (sum(~spike_windows_mask) +  raw_signal_count + eps);
-tetrode_level_f1 = 2 .* (tetrode_level_precision .* tetrode_level_recall) ./ (tetrode_level_precision + tetrode_level_recall);
-tetrode_level_snr = (tetrode_signal_counts / size(spike_windows,1)) * 100;
 
+tetrode_level_precision= raw_signal_count ./ (sum(~spike_windows_mask) +  raw_signal_count + eps);
+tetrode_level_f1 = 2 .* ((tetrode_level_precision .* tetrode_level_recall) ./ (tetrode_level_precision + tetrode_level_recall));
+tetrode_level_snr = (tetrode_signal_counts / size(spike_windows,1)) * 100;
+if any(tetrode_level_recall < 0 | tetrode_level_recall > 1)
+    disp("something went wrong with recall");
+elseif any(tetrode_level_precision < 0 | tetrode_level_precision >1)
+    disp("something went wrong with precision");
+elseif tetrode_level_f1 < 0 || tetrode_level_f1 > 1
+    disp("something went wrong with f_1");
+end
 if isempty(varargin)
     table_of_best_rep.("detection_ratio_stage_"+string(config.stage_counter)) = detection_ratio_after_dict_creation;
     table_of_best_rep.("raw_snr_stage_"+string(config.stage_counter)) = snr_raw;
