@@ -141,7 +141,7 @@ preproc_idx = cell(1,size(snr_filters,2));
 preproc_spike_windows = cell(1,size(snr_filters,2));
 
 if full_config.debug_with_ground_truth
-    cell_array_of_data_structs = cell(size(snr_filters),1);
+    cell_array_of_data_structs = cell(size(snr_filters,2),1);
     prctile_save_name = fullfile(full_config.folder_to_save_pmv_data,full_config.tetrode+"_z_sc_"+full_config.which_thresh);
 end
 for k = 1:size(snr_filters,2)
