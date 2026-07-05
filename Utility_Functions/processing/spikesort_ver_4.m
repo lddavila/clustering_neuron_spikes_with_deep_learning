@@ -140,7 +140,7 @@ peaks = get_peaks(aligned, true)';
 preproc_idx = cell(1,size(snr_filters,2));
 preproc_spike_windows = cell(1,size(snr_filters,2));
 
-if config.debug_with_ground_truth
+if full_config.debug_with_ground_truth
     cell_array_of_data_structs = cell(size(snr_filters),1);
     prctile_save_name = fullfile(full_config.folder_to_save_pmv_data,full_config.tetrode+"_z_sc_"+full_config.which_thresh);
 end
@@ -188,10 +188,14 @@ for k = 1:size(snr_filters,2)
         [full_config,tetrode_level_snr,tetrode_level_recall,tetrode_level_f1,tetrode_level_precision ]= check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows,k);
         full_config.stage_counter = full_config.stage_counter+1;
         data_struct.tetrode_level_snr = tetrode_level_snr;
-        data_struct.tetrode_level_recal = tetrode_level_recall;
+        data_struct.tetrode_level_recall = tetrode_level_recall;
         data_struct.tetrode_level_f1 = tetrode_level_f1;
         data_struct.tetrode_level_precision = tetrode_level_precision;
+        data_struct.percentile = full_config.percentiles_to_use(k);
+        data_struct.tetrode = full_config.tetrode;
+        data_struct.z_score = full_config.which_thresh;
         cell_array_of_data_structs{k} = data_struct;
+
     end
 
     
