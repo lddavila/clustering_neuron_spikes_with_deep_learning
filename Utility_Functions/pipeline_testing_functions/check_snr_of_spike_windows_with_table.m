@@ -30,7 +30,7 @@ tetrode_signal_counts = 0;
 spike_windows_mask = zeros(size(spike_windows,1),1);
 for i=1:height(table_of_best_rep)
     current_ground_truth_idxs = ground_truth_cell_array{table_of_best_rep{i,"unit"}};
-    [is_tp,loc_in_sw] = ismembertol(double(round(current_ground_truth_idxs)), double(round(spike_windows)),tol_amount,'DataScale',1);
+    [is_tp,loc_in_sw] = ismembertol(double(round(current_ground_truth_idxs)), double(round(spike_windows(:,4))),tol_amount,'DataScale',1);
     temp_sw_mask = spike_windows_mask;
     temp_sw_mask(loc_in_sw(loc_in_sw~=0)) = 1;
     spike_windows_mask = spike_windows_mask | temp_sw_mask;
@@ -53,7 +53,7 @@ if any(tetrode_level_recall < 0 | tetrode_level_recall > 1)
     disp("something went wrong with recall");
 elseif any(tetrode_level_precision < 0 | tetrode_level_precision >1)
     disp("something went wrong with precision");
-elseif tetrode_level_f1 < 0 || tetrode_level_f1 > 1
+elseif tetrode_level_f1 < 0 | tetrode_level_f1 > 1
     disp("something went wrong with f_1");
 end
 if isempty(varargin)
