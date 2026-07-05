@@ -88,10 +88,10 @@ end
 
 num_iterations = max(config.NUM_ITERATIONS, 1);
 
-
+pmv = compute_snr_statistic(aligned, r_raw, r_tvals, r_ir);
 if config.USE_SNR_FILTER && num_spikes > 10000
     good_filters = true(length(full_config.percentiles_to_use), 1);
-    pmv = compute_snr_statistic(aligned, r_raw, r_tvals, r_ir);
+    
     if num_iterations == 2
         snr_threshs = 0;
     elseif num_iterations == 3
