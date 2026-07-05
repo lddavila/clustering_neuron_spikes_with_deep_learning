@@ -194,6 +194,7 @@ for k = 1:size(snr_filters,2)
         data_struct.percentile = full_config.percentiles_to_use(k);
         data_struct.tetrode = full_config.tetrode;
         data_struct.z_score = full_config.which_thresh;
+        data_struct.units = full_config.table_of_best_rep.unit ;
         cell_array_of_data_structs{k} = data_struct;
 
     end

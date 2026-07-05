@@ -27,10 +27,13 @@ tetrode_level_recall = zeros(height(table_of_best_rep),1);
 % tetrode_level_precision = zeros(height(table_of_best_rep),1);
 % tetrode_level_f1 = zeros(height(table_of_best_rep),1);
 tetrode_signal_counts = 0;
+spike_windows_mask = zeros(size(spike_windows,1),1);
 for i=1:height(table_of_best_rep)
     current_ground_truth_idxs = ground_truth_cell_array{table_of_best_rep{i,"unit"}};
-    is_tp = ismembertol(double(round(current_ground_truth_idxs)), double(round(spike_windows)),tol_amount,'DataScale',1);
-
+    [is_tp,loc_in_sw] = ismembertol(double(round(current_ground_truth_idxs)), double(round(spike_windows)),tol_amount,'DataScale',1);
+    temp_sw_mask = spike_windows_mask;
+    temp_sw_mask(loc_in_sw(loc_in_sw~=0)) = 1;
+    spike_windows_mask = spike_windows_mask | temp_sw_mask;
     detection_ratio_after_dict_creation(i) = (sum(is_tp) / length(current_ground_truth_idxs))*100;
     snr_raw(i) = (sum(is_tp) / size(spike_windows,1))*100;
     snr_ratio(i) = detection_ratio_after_dict_creation(i) / snr_raw(i);
@@ -38,11 +41,11 @@ for i=1:height(table_of_best_rep)
     tetrode_signal_counts = tetrode_signal_counts+raw_signal_count(i);
 
     
-    tetrode_level_recall(i) = raw_signal_count(i) / length(current_ground_truth_idxs);
+    tetrode_level_recall(i) = min([raw_signal_count(i),length(current_ground_truth_idxs)]) / length(current_ground_truth_idxs);
     
 end
-no_matching_unit_count = size(spike_windows,1) - tetrode_signal_counts;
-tetrode_level_precision= raw_signal_count ./ (no_matching_unit_count +  raw_signal_count + eps);
+% no_matching_unit_count = size(spike_windows,1) - min([tetrode_signal_counts,size(spike_windows,1)]);
+tetrode_level_precision= raw_signal_count ./ (sum(~spike_windows_mask) +  raw_signal_count + eps);
 tetrode_level_f1 = 2 .* (tetrode_level_precision .* tetrode_level_recall) ./ (tetrode_level_precision + tetrode_level_recall);
 tetrode_level_snr = (tetrode_signal_counts / size(spike_windows,1)) * 100;
 

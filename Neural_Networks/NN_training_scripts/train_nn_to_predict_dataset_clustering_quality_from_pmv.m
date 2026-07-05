@@ -16,4 +16,11 @@ if isempty(varargin)
 else
     pmv_table = varargin{1};
 end
+
+%set the random seed for repeatable results
+rng("default")
+disp("Finished setting seed")
+
+
+
 end
