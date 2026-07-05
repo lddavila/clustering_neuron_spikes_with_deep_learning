@@ -140,6 +140,10 @@ peaks = get_peaks(aligned, true)';
 preproc_idx = cell(1,size(snr_filters,2));
 preproc_spike_windows = cell(1,size(snr_filters,2));
 
+if config.debug_with_ground_truth
+    cell_array_of_data_structs = cell(size(snr_filters),1);
+    prctile_save_name = fullfile(full_config.folder_to_save_pmv_data,full_config.tetrode+"_z_sc_"+full_config.which_thresh);
+end
 for k = 1:size(snr_filters,2)
     snr_filter = snr_filters(:, k);
     combined_filter = snr_filter & timestamp_filter;
@@ -159,42 +163,46 @@ for k = 1:size(snr_filters,2)
     looped_mutated_spike_windows = full_config.mutated_spike_windows(combined_filter,:);
     % looped_mutated_spike_windows = looped_mutated_spike_windows(whiten_filter,:);
 
-    % f = figure;
-    [raw_counts,~] = histcounts(pmv(combined_filter),BinEdges=-15:.1:15);
-    [probability_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','probability');
-    [percentage_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','percentage');
-    [count_density_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','countdensity');
-    [pdf_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','pdf');
-    [cdf_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','cdf');
-    [cum_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','cumcount');
 
-    prctile_save_name = fullfile(full_config.folder_to_save_pmv_data,full_config.tetrode+"_z_sc_"+full_config.which_thresh+"_prc_"+string(full_config.percentiles_to_use(k)));
-    data_struct = struct();
-    data_struct.og_data = pmv;
-    data_struct.cum_counts = cum_counts;
-    data_struct.cdf_counts = cdf_counts;
-    data_struct.pdf_counts = pdf_counts;
-    data_struct.count_density_counts = count_density_counts;
-    data_struct.percentage_counts = percentage_counts;
-    data_struct.prob_counts = probability_counts;
-    data_struct.raw_counts = raw_counts;
-    
-    % save_plots_in_all_formats(f,prctile_save_name);
-    % close(f);
     if full_config.has_ground_truth && full_config.debug_with_ground_truth
+        [raw_counts,~] = histcounts(pmv(combined_filter),BinEdges=-15:.1:15);
+        [probability_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','probability');
+        [percentage_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','percentage');
+        [count_density_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','countdensity');
+        [pdf_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','pdf');
+        [cdf_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','cdf');
+        [cum_counts,~] = histcounts(pmv(combined_filter),'BinEdges',-15:.1:15,'Normalization','cumcount');
+
+        
+        data_struct = struct();
+        data_struct.og_data = pmv;
+        data_struct.cum_counts = cum_counts;
+        data_struct.cdf_counts = cdf_counts;
+        data_struct.pdf_counts = pdf_counts;
+        data_struct.count_density_counts = count_density_counts;
+        data_struct.percentage_counts = percentage_counts;
+        data_struct.prob_counts = probability_counts;
+        data_struct.raw_counts = raw_counts;
         % full_config = check_unit_detection_while_clustering(looped_mutated_spike_windows,full_config.tetrode,full_config,"wpzreworkedlinspace_"+string(k),aligned,combined_filter);
         full_config.plot_counter = full_config.plot_counter +1;
-        [full_config,tetrode_level_snr ]= check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows,k);
+        [full_config,tetrode_level_snr,tetrode_level_recall,tetrode_level_f1,tetrode_level_precision ]= check_snr_of_spike_windows_with_table(full_config,looped_mutated_spike_windows,k);
         full_config.stage_counter = full_config.stage_counter+1;
-
+        data_struct.tetrode_level_snr = tetrode_level_snr;
+        data_struct.tetrode_level_recal = tetrode_level_recall;
+        data_struct.tetrode_level_f1 = tetrode_level_f1;
+        data_struct.tetrode_level_precision = tetrode_level_precision;
+        cell_array_of_data_structs{k} = data_struct;
     end
-    data_struct.tetrode_level_snr = tetrode_level_snr;
-    par_save(prctile_save_name,data_struct);
+
+    
     % disp("Finished getting unit decetion while clustering 4")
     % Injects our whitening filter into the original set of indices
     % since we applied the whitening after AFTER timestamp and SNR
     preproc_spike_windows{k} =looped_mutated_spike_windows ;
     preproc_idx{k} = combined_idx_inj(whiten_filter);
+end
+if full_config.has_ground_truth && full_config.debug_with_ground_truth
+    par_save(prctile_save_name,cell_array_of_data_structs);
 end
 
 full_config.looped_mutated_sw = preproc_spike_windows;
@@ -272,7 +280,7 @@ end
 if ~isempty(varargin)
     new_cluster_idxs = cell(length(cleaned_clusters),1);
     for i=1:length(cleaned_clusters)
-        new_cluster_idxs{i} = local_idxs(cleaned_clusters{i}); %gets you where the 
+        new_cluster_idxs{i} = local_idxs(cleaned_clusters{i}); %gets you where the
     end
     cleaned_clusters = new_cluster_idxs;
 end
