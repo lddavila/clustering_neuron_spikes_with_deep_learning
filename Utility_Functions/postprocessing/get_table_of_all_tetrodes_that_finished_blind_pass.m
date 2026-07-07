@@ -8,6 +8,7 @@ end
 
 precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
 all_files_in_precomputed_dir = struct2table(dir(fullfile(precomputed_dir, '**', '*'))); % '**' searches subdirectories
+all_files_in_precomputed_dir(string(all_files_in_precomputed_dir.name)=="." | string(all_files_in_precomputed_dir.name)=="..",:) = [];
 simplified_foldernames = string(all_files_in_precomputed_dir{:,"folder"});
 if ~config.use_new_spike_detection
     if isnan(optional_z_score)
@@ -32,7 +33,7 @@ for i=1:size(unique_z_score_dirs,1)
     current_z_score = str2double(z_score_dir_split{end});
     files_with_current_z_score = all_files_in_precomputed_dir(contains(string(all_files_in_precomputed_dir{:,"folder"}),current_z_score_dir,"IgnoreCase",true),:);
     all_mat_file_names_in_current_directory = files_with_current_z_score{:,"name"};
-    split_mat_file_names = split(all_mat_file_names_in_current_directory," ");
+    split_mat_file_names = split(all_mat_file_names_in_current_directory," ",2);
     just_tetrodes = string(split_mat_file_names(:,1));
     unique_tetrodes = unique(just_tetrodes);
 
@@ -41,11 +42,9 @@ for i=1:size(unique_z_score_dirs,1)
         output_table{output_table_counter,"Tetrode"} = unique_tetrodes(j);
         list_of_files_for_current_tetrode = files_with_current_z_score(contains(string(all_mat_file_names_in_current_directory),unique_tetrodes(j)+" ","IgnoreCase",true),:);
 
-        if ~config.use_new_spike_detection
-            output_table{output_table_counter,"fp_to_aligned"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" aligned.mat");
-        else
-            output_table{output_table_counter,"fp_to_aligned"} = fullfile(precomputed_dir,"aligned_wf_files",unique_tetrodes(j) +" aligned_to_peak_wf.mat");
-        end
+
+        output_table{output_table_counter,"fp_to_aligned"} = fullfile(precomputed_dir,"aligned_wf_files",unique_tetrodes(j) +" aligned_to_peak_wf.mat");
+
         % the line fp_to_cleaned_clusters is formatted in such a way to
         % remove the need of the output file
         %we take the known results directory and replace it with the
@@ -57,7 +56,7 @@ for i=1:size(unique_z_score_dirs,1)
         %removed
         %this way we don't have to rerun clusters and also don't need to
         %worry cleaning the clusters which has to happen if we extract
-        %clusters from output 
+        %clusters from output
         %references to fp_to_output are being replaced downstream
         output_table{output_table_counter,"fp_to_cleaned_clusters"} = regexprep(strrep(fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+".mat"),"_results",""),'\s(?!.*\s)',"");
         output_table{output_table_counter,"fp_to_reg_timestamps_of_the_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_the_spikes.mat");

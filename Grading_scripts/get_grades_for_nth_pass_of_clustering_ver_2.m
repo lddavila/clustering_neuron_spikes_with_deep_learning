@@ -28,7 +28,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
 timestamps_array = importdata(config.Value.TIMESTAMP_FP);
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
 
     %disp("Starting grading")
     current_data = sliced_blind_pass_table{i};
@@ -69,7 +69,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
 
         try
             ts_r_tvals_cc_struct = load(ts_and_r_vals_fp ,"timestamps","r_tvals","cleaned_clusters");
-            timestamps = ts_r_tvals_cc_struct.timestamps;
+            % timestamps = ts_r_tvals_cc_struct.timestamps;
             r_tvals = ts_r_tvals_cc_struct.r_tvals;
             cleaned_clusters = ts_r_tvals_cc_struct.cleaned_clusters;
         catch ME
@@ -79,14 +79,14 @@ parfor i=1:size(sliced_blind_pass_table,1)
             send(q,[]);
             continue;
         end
-        if config.Value.use_new_spike_detection
-            base_spike_windows_fp = fullfile(config.Value.dictionaries_dir,current_tetrode + " sorted_spike_windows.mat");
-            base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
-            base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
-            the_dict_key = string(keys(base_spike_windows_dict));
-            base_spike_windows = base_spike_windows_dict(the_dict_key);
-            timestamps = timestamps_array(base_spike_windows(:,4));
-        end
+
+        base_spike_windows_fp = fullfile(config.Value.dictionaries_dir,current_tetrode + " sorted_spike_windows.mat");
+        base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
+        base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
+        the_dict_key = string(keys(base_spike_windows_dict));
+        base_spike_windows = base_spike_windows_dict(the_dict_key);
+        timestamps = timestamps_array(base_spike_windows(:,4));
+
         try
             aligned_struct = load(aligned_fp,"data_to_save");
             aligned = aligned_struct.data_to_save;

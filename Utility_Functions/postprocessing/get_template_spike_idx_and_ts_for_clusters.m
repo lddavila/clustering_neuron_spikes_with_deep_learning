@@ -48,24 +48,24 @@ for i=1:size(sliced_blind_pass_table,1)
 
 
 
-            if config.use_new_spike_detection
-                base_spike_windows_fp = fullfile(config.dictionaries_dir,current_data{1,"Tetrode"} + " sorted_spike_windows.mat");
-                base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
-                base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
-                the_dict_key = string(keys(base_spike_windows_dict));
-                base_spike_windows = base_spike_windows_dict(the_dict_key);
-                timestamps = timestamps_array(base_spike_windows(:,4));
-            else
-                try
-                    timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
-                    timestamps = timestamps.reg_timestamps_of_the_spikes;
-                catch
-                    disp("Failed to load timestamps of spikes");
-                    disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
-                    send(q,[]);
-                    continue;
-                end
-            end
+
+            base_spike_windows_fp = fullfile(config.dictionaries_dir,current_data{1,"Tetrode"} + " sorted_spike_windows.mat");
+            base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
+            base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
+            the_dict_key = string(keys(base_spike_windows_dict));
+            base_spike_windows = base_spike_windows_dict(the_dict_key);
+            timestamps = timestamps_array(base_spike_windows(:,4));
+            % else
+            %     try
+            %         timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
+            %         timestamps = timestamps.reg_timestamps_of_the_spikes;
+            %     catch
+            %         disp("Failed to load timestamps of spikes");
+            %         disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
+            %         send(q,[]);
+            %         continue;
+            %     end
+            % end
         else
             cleaned_clusters = varargin{1};
             aligned = varargin{2};
@@ -122,7 +122,11 @@ for i=1:size(sliced_blind_pass_table,1)
 
     catch ME
         report = ME.getReport;
-        meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Multiplier"});
+        if config.use_new_spike_detection
+            meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Multiplier"});
+        else
+            meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Z Score"});
+        end
         f_id = fopen(fullfile(local_error_dir,sprintf("tetrode %s Multiplier or Z score %i",current_data{1,"Tetrode"},current_data{1,"Multiplier"})+".txt"),"w");
         if f_id == -1
             error('File could not be opened.');

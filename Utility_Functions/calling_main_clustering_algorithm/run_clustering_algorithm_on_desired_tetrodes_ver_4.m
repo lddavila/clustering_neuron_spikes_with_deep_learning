@@ -26,7 +26,11 @@ end
 every_permutation_of_both = combinations(number_of_thresholds_to_run,number_of_tetrodes_to_run);
 
 filenames = repelem("",1,size(every_permutation_of_both,1));
-all_possible_local_tetrode_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min multiplier"+every_permutation_of_both{:,"number_of_thresholds_to_run"});
+if config.use_new_spike_detection
+    all_possible_local_tetrode_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min multiplier"+every_permutation_of_both{:,"number_of_thresholds_to_run"});
+else
+    all_possible_local_tetrode_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass min z_score"+every_permutation_of_both{:,"number_of_thresholds_to_run"});
+end
 dirs_to_create = unique(all_possible_local_tetrode_dir);
 for j=1:length(dirs_to_create)
     create_a_file_if_it_doesnt_exist_and_ret_abs_path(dirs_to_create(j));
@@ -155,7 +159,11 @@ for i=1:length(sliced_every_permutation_of_both)
         end
         even_more_local_config.current_channels = channels_in_current_tetrode;
 
-        local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier "+ current_data{j,"number_of_thresholds_to_run"});
+        if config.Value.use_new_spike_detection
+            local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier "+ current_data{j,"number_of_thresholds_to_run"});
+        else
+            local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score"+ current_data{j,"number_of_thresholds_to_run"});
+        end
         %NO LONGER USE CAUSE REDUNDANToutput_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" output.mat");
         
         %NO LONGER USE CAUSE REDUNDANTreg_ts_file_name= fullfile(local_initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");

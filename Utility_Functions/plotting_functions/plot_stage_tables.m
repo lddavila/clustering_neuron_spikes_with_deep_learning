@@ -1,5 +1,6 @@
-function [] = plot_stage_tables(stage_table,z_score_or_multiplier,config,varargin)
+function [] = plot_stage_tables(stage_table,z_score_or_multiplier,config,the_input_dir,varargin)
 dir_to_save_plots_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"snr and det plots"));
+dir_to_save_plots_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,the_input_dir  ));
 colors_for_plot = distinguishable_colors(max([length(config.DEFAULT_CLUSTERING_Z_SCORES),length(config.Multipliers)]));
 % all_table_names = string(stage_table.Properties.VariableNames);
 if isempty(varargin)
