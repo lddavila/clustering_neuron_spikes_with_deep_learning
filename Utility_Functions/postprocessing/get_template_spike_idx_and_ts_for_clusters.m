@@ -124,10 +124,12 @@ for i=1:size(sliced_blind_pass_table,1)
         report = ME.getReport;
         if config.use_new_spike_detection
             meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Multiplier"});
+            f_id = fopen(fullfile(local_error_dir,sprintf("tetrode %s Multiplier or Z score %i",current_data{1,"Tetrode"},current_data{1,"Multiplier"})+".txt"),"w");
         else
             meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Z Score"});
+            f_id = fopen(fullfile(local_error_dir,sprintf("tetrode %s Multiplier or Z score %i",current_data{1,"Tetrode"},current_data{1,"Z Score"})+".txt"),"w");
         end
-        f_id = fopen(fullfile(local_error_dir,sprintf("tetrode %s Multiplier or Z score %i",current_data{1,"Tetrode"},current_data{1,"Multiplier"})+".txt"),"w");
+        
         if f_id == -1
             error('File could not be opened.');
         end

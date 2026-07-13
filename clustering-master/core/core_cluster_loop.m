@@ -1,6 +1,5 @@
 %this file has been edited by Luis D. Davila and Alexander Friedman 
 function [the_final_clusters,full_config ]= core_cluster_loop(the_spike_aligned, the_extract_features_fn, the_new_config,the_peak_pcs_file_name,full_config)
-    % disp("finished core cluster loop")
     level = 1; %start the level
     done = false; %by default you are not done
     start_cl = struct(); %create a starting cluster struct object

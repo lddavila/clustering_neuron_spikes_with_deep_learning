@@ -45,13 +45,7 @@ interp_raw = interpolate_spikes(raw, config);
 
 
 
-if ~isfile(config.base_aligned_name)
-    base_aligned = single(align_to_peak_ver_2(interp_raw));
-    par_save(config.base_aligned_name,base_aligned);
-    base_aligned_idxs = 1:1:size(base_aligned,2);
-else
-    base_aligned_idxs = varargin{1};
-end
+
 
 
 good_interp_raw = interp_raw(:, good_spikes_idx_inj, :);
@@ -61,9 +55,9 @@ if ~isempty(varargin)
     modded_base_aligned_idxs = varargin{1};
     modded_base_aligned_idxs = modded_base_aligned_idxs(filter_2);
 end
-% disp("finished good interp_raw")
+
 config.mutated_spike_windows = config.mutated_spike_windows(good_spikes_idx_inj,:);
-% disp("finished getting mutated spike windows")
+
 if config.debug_with_ground_truth && config.has_ground_truth
     % config = check_unit_detection_while_clustering(config.mutated_spike_windows,current_tetrode,config,"aftergoodspikesidxinjmult"+string(config.which_thresh),interp_raw,good_spikes_idx_inj);
     config.plot_counter = config.plot_counter + 1;
@@ -89,6 +83,15 @@ else
     filter_3= good_spikes_idx_inj;
     
     % save(fullfile(dir_to_save_spike_windows_to,current_tetrode+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
+end
+
+if ~isfile(config.base_aligned_name)
+    base_aligned = align_to_peak_ver_2(reg_interp_raw,tvals,ir);
+    par_save(config.base_aligned_name,base_aligned);
+    base_aligned_idxs = 1:1:size(base_aligned,2);
+    par_save(config.base_aligned_sw_name,reg_sorted_spike_windows)
+else
+    base_aligned_idxs = varargin{1};
 end
 
 if ~isempty(varargin)

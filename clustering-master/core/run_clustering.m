@@ -26,31 +26,47 @@ function [final_clusters, bad_clusters,full_config,is_bad_cluster] = run_cluster
 %
 %   'config' is the spikesort configuration struct.
 
-% disp("entered run_clustering.m")
-% Make sure that spike_idx and refine_spike_idx perfectly intersect
+%true_spike_idx is the idx of spikes that are both in refine_spike_idx (OG
+%Data) and spike_idx (spikes that were filtered by their pmv)
+%refine_cluster_inj is the index of where the intersecting spikes of both
+%refine_spike_idx and spike_idx appear in refine_spike_idx
+%for example if
+%refine_spike_idx = [4 3 2 1]
+%spike_idx = [2 4]
+%then
+%true_spike_idx = [2,4]
+%refine_cluster_inj = [1,3]
+%refine_cluster_inj maps backs to refine_spike_idx
+%refine_spike_idx & spike_idx both map back to the aligned
 [true_spike_idx, refine_cluster_inj] = intersect(refine_spike_idx, spike_idx);
 
-% Spikes to cluster
+
+
+% take the spikes that belong to both refine_spike_idx and spike_idx, these waveforms are
+% what raw_clusters returned by core_cluster_loop actually refer to 
 spike_aligned = aligned(:, true_spike_idx, :);
 
-% disp("finished getting spike aligned")
-%also updated mutated spike windows
-% full_config.mutated_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
+%it is  important to keep in mind that the clusters that come back
+%currently do not align with refine_spike_idx NOR spike_idx they align with
+%the indexes shared between them 
 
-% plot_the_spikes_ver_2(spike_aligned,"In Run_clustering.m",[],[1,2,3,4],[])
 if full_config.debug_with_ground_truth
     full_config.true_spike_idx = true_spike_idx;
     full_config.secondary_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
 end
-% disp("about to start core_cluster_loop")
-[raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name,full_config);
-% disp("finished core cluster loop")
-% plot_the_cf(raw_clusters,aligned,["Called by run\_clustering.m","Before Refinment"]);
 
-% Inject those cluster indices into the set of indices defined by the
-% refine_spike_idx
+
+[raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name,full_config);
+
+
+%raw_clusters contains idxs which relate to spike_aligned
+% `refine_cluster_inj` maps each position in `spike_aligned` to the
+% corresponding position in `refine_spike_idx`.
+%
+% Therefore, `inj_clusters` contains positions within `refine_spike_idx`;
 inj_clusters = cellmap(@(x) refine_cluster_inj(x), raw_clusters);
-% plot_at_every_refinement_stage(aligned,"after_inj_mapping",inj_clusters,full_config);
+
+
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
     create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,inj_clusters,full_config.which_thresh,"afterinjmapping")
     full_config.plot_counter = full_config.plot_counter+1;
@@ -60,6 +76,7 @@ if config.DO_REFINEMENT
     %refined_clusters = refine_clusters(aligned, refine_spike_idx, inj_clusters, ir, tvals, config); %% OG line
     [refined_clusters,full_config ]= refine_clusters_ver_2(aligned, refine_spike_idx, inj_clusters, ir, tvals, config,full_config);%EDITED BY LUIS DAVID DAVILA
 else
+    %refied clusters maps the indexes back to the original aligned
     refined_clusters = cellmap(@(x) refine_spike_idx(x), inj_clusters);
 end
 % plot_the_cf(refined_clusters,aligned,["Called by run\_clustering.m","After Refinment"]);
@@ -69,12 +86,14 @@ if full_config.has_ground_truth && full_config.debug_with_ground_truth
     full_config.plot_counter = full_config.plot_counter + 1;
 
 end
+
 % Side effect of `cluster' + refinement is that it can output really
 % obviously bad clusters. Remove those.
 [good_filt,refined_clusters_with_bad_dims_dropped ]= remove_bad_clusters(aligned, refined_clusters, ir, tvals,config,full_config);
 refined_clusters = refined_clusters_with_bad_dims_dropped;
 bad_clusters = refined_clusters(~good_filt);
-% plot_at_every_refinement_stage(aligned,"after_bad_cluster_removal",refined_clusters(good_filt),full_config);
+
+
 if full_config.has_ground_truth && full_config.debug_with_ground_truth
     create_cluster_plots_with_accuracy_while_clustering_and_sub_clu(full_config,aligned,refined_clusters(good_filt),full_config.which_thresh,"afterbadclusterremoval");
     full_config.plot_counter = full_config.plot_counter+1;

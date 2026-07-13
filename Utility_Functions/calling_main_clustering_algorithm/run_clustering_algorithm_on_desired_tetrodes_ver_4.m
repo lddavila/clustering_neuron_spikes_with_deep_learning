@@ -78,7 +78,7 @@ print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ve
 
 base_aligned_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_wf_files"));
 % base_raw_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"filtered_raw_wf_files"));
-% base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
+base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
 %there should be a parfor on the line immediately following this one when not testing
 for i=1:length(sliced_every_permutation_of_both)
 
@@ -131,7 +131,7 @@ for i=1:length(sliced_every_permutation_of_both)
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
     aligned_file_name = fullfile(base_aligned_files_dir,current_tetrode+" aligned_to_peak_wf.mat");
-    % base_aligned_sw_name = fullfile(base_sw_dir,current_tetrode+" sorted_spike_windows_after_purges.mat");
+    base_aligned_sw_name = fullfile(base_sw_dir,current_tetrode+" sorted_spike_windows_after_purges.mat");
     % raw_file_name = fullfile(base_raw_files_dir,current_tetrode+" raw_wf.mat");
     if isfile(aligned_file_name)
         base_aligned = load(aligned_file_name);
@@ -218,7 +218,7 @@ for i=1:length(sliced_every_permutation_of_both)
         if even_more_local_config.use_new_spike_detection
             filter_1 = max_peak_vals>=per_spike_thresholds; % a comparison in microvolts
         else
-            filter_1 = sorted_spike_windows(:,5) >= current_data.number_of_thresholds_to_run(j); % a comparison in z score
+            filter_1 = abs(sorted_spike_windows(:,5)) > current_data.number_of_thresholds_to_run(j); % a comparison in z score
         end
 
         mutated_raw = raw(:,filter_1,:);
@@ -226,6 +226,10 @@ for i=1:length(sliced_every_permutation_of_both)
 
         %filter the spike windows for debugging in clustering process
         mutated_spike_windows = sorted_spike_windows(filter_1,:);
+
+        % if j==1
+        %     par_save(base_aligned_sw_name,mutated_spike_windows);
+        % end
         % even_more_local_config.stage_counter = 1;
         if even_more_local_config.has_ground_truth && even_more_local_config.debug_with_ground_truth && j~=1
             even_more_local_config = check_snr_of_spike_windows_with_table(even_more_local_config,mutated_spike_windows);
@@ -298,7 +302,7 @@ for i=1:length(sliced_every_permutation_of_both)
             even_more_local_config.local_tetrode_results_dir = local_tetrode_results_dir;
             even_more_local_config.current_tetrode = current_tetrode;
             % even_more_local_config.raw_fp = raw_file_name;
-            % even_more_local_config.base_aligned_sw_name = base_aligned_sw_name;
+            even_more_local_config.base_aligned_sw_name = base_aligned_sw_name;
             even_more_local_config.base_aligned_name = aligned_file_name;
             if ~isfile(even_more_local_config.base_aligned_name)
                 [~,~,~,reg_timestamps_of_the_spikes,~,~,base_aligned_idxs] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
@@ -306,7 +310,7 @@ for i=1:length(sliced_every_permutation_of_both)
                 if even_more_local_config.use_new_spike_detection
                     modded_base_aligned_idxs = base_aligned_idxs(filter_1);
                 else
-                    modded_base_aligned_idxs = base_aligned_idxs(mutated_spike_windows(:,5) >= even_more_local_config.which_thresh);
+                    modded_base_aligned_idxs = base_aligned_idxs(abs(mutated_spike_windows(:,5)) > even_more_local_config.which_thresh);
                 end
                 [~,~,~,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode,modded_base_aligned_idxs);
             end

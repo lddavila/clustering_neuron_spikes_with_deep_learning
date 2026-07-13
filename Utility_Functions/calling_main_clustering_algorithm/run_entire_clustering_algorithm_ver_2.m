@@ -316,6 +316,33 @@ end
 % add the recording name to the blind pass table
 blind_pass_table.recording_name = repelem(config.RECORDING_NAME,size(blind_pass_table,1),1);
 
+% add the channels per tetrode
+grades = blind_pass_table.grades;
+channels = cellfun(@(x) x{49}, grades, 'UniformOutput', false);
+blind_pass_table.channels = channels;
+
+%add the rep wire 1 per channel
+rep_wire_1 = cellfun(@(x) x{42}, grades,'UniformOutput',false);
+blind_pass_table.rep_wire_1 = rep_wire_1;
+
+%add rep wire 2 per channel 
+rep_wire_2 = cellfun(@(x) x{43}, grades,'UniformOutput',false);
+blind_pass_table.rep_wire_2 = rep_wire_2;
+
+%add the rep channel_1
+blind_pass_table.rep_channel_1 = cellfun(@(x,y) x(y), blind_pass_table.channels,blind_pass_table.rep_wire_1);
+
+%add the rep channel 2
+blind_pass_table.rep_channel_2 = cellfun(@(x,y) x(y), blind_pass_table.channels,blind_pass_table.rep_wire_2);
+
+
+%clean up the rep wire representation
+blind_pass_table.rep_wire_1 = cell2mat(blind_pass_table.rep_wire_1);
+blind_pass_table.rep_wire_2 = cell2mat(blind_pass_table.rep_wire_2);
+
+%note we don't do this same thing with channels to preserve the ability to
+%concatenate blind pass tables with variable numbers of channels
+
 %step 16: save the blind pass table to the desired file
 %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table");
 % 
