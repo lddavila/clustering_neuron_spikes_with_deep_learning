@@ -36,6 +36,7 @@ for k=1:length(number_of_channels_to_use)
             config.percentiles_to_use = [1];
             config.spikesort.NUM_ITERATIONS = 5;
             config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
+            config.DEFAULT_CLUSTERING_Z_SCORES = [3];
 
             if ~isempty(varargin)
                 if varargin{2} == "ic"

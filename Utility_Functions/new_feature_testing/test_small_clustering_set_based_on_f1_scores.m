@@ -29,6 +29,7 @@ currentPool = gcp('nocreate');
 beginning = which_recording;
 the_end = which_recording+0.5;
 number_of_channels_to_use = 4;
+
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
     for i=beginning:the_end
@@ -148,11 +149,12 @@ end
 %% get the ground truth
 ground_truth_cell_array = importdata(config.GT_FP);
 %% create a directory to save all the images to
-dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"splitting_cluster_tests_2"));
+dir_to_save_images_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"splitting_cluster_tests_3"));
 
 
 %% get timestamps to use
 timestamps = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Data\1_600Neuron300SecondRecordingWithLevel1Noise\timestamps\timestamps.mat");
+locs_of_channels = get_probe_xy(); %get the x-y locations of the probe channels
 %% see if we can't split these clusters
 close all;
 % clc;
@@ -164,13 +166,27 @@ for p=1:length(plot_type)
     if plot_type(p)=="whole tetrode"
         sil_folder = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_images_to,"silhouette_plots"));
     end
-    for i=8:height(blind_pass_table)
+    for i=1:height(blind_pass_table)
         start_string = sprintf("Running %i %s %i %i/ %i",blind_pass_table{i,"Z Score"},blind_pass_table{i,"Tetrode"},blind_pass_table{i,"Cluster"},i,height(blind_pass_table));
 
         rep_channel_1 =blind_pass_table{i,"rep_channel_1"}; %get the channel where the neuron appears clearest
         rep_channel_2 = blind_pass_table{i,"rep_channel_2"};
-        non_rep_wire_channels = setdiff(ordered_list_of_channels,strcat("c"+string([rep_channel_1,rep_channel_2])+".mat")); %get channels to compare to
-        non_rep_wire_channels_nums = setdiff(1:384,[rep_channel_1,rep_channel_2]);
+
+        %get list of all channels within certain distance of current rep
+        %wire
+
+        current_rep_wire_loc = locs_of_channels(rep_channel_1);
+        distance_to_other_rep_wires = vecnorm(current_rep_wire_loc - locs_of_channels, 2, 2);
+        nearby_wires = find(distance_to_other_rep_wires<100); %100 here is relative, it doesnt NEED to be this euclidean distance it can be more/less just depends on how you define close we may optimize this meta parameter later
+
+        % non_rep_wire_channels = setdiff(ordered_list_of_channels,strcat("c"+string([rep_channel_1,rep_channel_2])+".mat")); %get channels to compare to
+        non_rep_wire_channels_nums = setdiff(nearby_wires,[rep_channel_1,rep_channel_2]);
+
+
+        
+        
+
+
         cluster_peaks_idx = blind_pass_table{i,"cluster_idx"}{1};
         rep_wire_peaks_1 = peaks(blind_pass_table{i,"rep_wire_1"},cluster_peaks_idx).'; %get the peaks as they appear on the best channel
         rep_wire_peaks_2 = peaks(blind_pass_table{i,"rep_wire_2"},cluster_peaks_idx).';
@@ -184,8 +200,8 @@ for p=1:length(plot_type)
             continue;
         end
 
-        cluster_labels = zeros(size(peaks,2),1);
-        cluster_labels(cluster_peaks_idx) = 1;
+        cluster_labels = ones(size(peaks,2),1);
+        cluster_labels(cluster_peaks_idx) = 2;
         unique_folder_name =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(plot_sep_folder,blind_pass_table{i,"Z Score"}+" "+blind_pass_table{i,"Tetrode"}+" "+blind_pass_table{i,"Cluster"}));
 
         rearragned_channel_data = cell_array_of_channel_data(non_rep_wire_channels_nums);
@@ -196,10 +212,13 @@ for p=1:length(plot_type)
 
 
         og_sihlouette_score = silhouette(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels);
+        eva_cal= evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"CalinskiHarabasz");
+        eva_dav = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"DaviesBouldin");
+        % eva_gap = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"gap");
         % all_silhoutette_scores_for_new_channels = nan(length(og_sihlouette_score),length(rearragned_channel_data),1);
         rep_wire_data = peaks(blind_pass_table{i,"rep_wire_1"},:);
-        parfor j=1:length(rearragned_channel_data)
-            unique_code = " compared to channel "+string(str2double(strrep(strrep(non_rep_wire_channels(j),"c",""),".mat","")));
+        for j=1:length(rearragned_channel_data)
+            unique_code = " compared to channel "+string(non_rep_wire_channels_nums(j));
             save_name = fullfile(unique_folder_name,unique_code);
 
 
@@ -209,6 +228,8 @@ for p=1:length(plot_type)
 
             compare_channel_cluster_peaks = other_tetrode_peaks_on_compare_channel(cluster_peaks_idx); %get the cluster's appearence on this channel, we absolute cause peaks should be positive as we invert them
             all_silhoutette_scores_for_new_channels = silhouette([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels);
+            eva_cal_on_compare_channel= evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"CalinskiHarabasz");
+            eva_dav_on_compare_channel = evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"DaviesBouldin");
             if ~isfile(save_name+".png")
                 %plot the og figure to compare to
                 f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
@@ -248,7 +269,7 @@ for p=1:length(plot_type)
 
                 % title();
                 xlabel(string(rep_channel_1) +" (OG rep channel)")
-                ylabel(string(str2double(strrep(strrep(non_rep_wire_channels(j),"c",""),".mat",""))+" (new compare channel)"))
+                ylabel(string(non_rep_wire_channels_nums(j))+" (new compare channel)")
                 sgtitle(blind_pass_table{i,"Tetrode"} +unique_code)
                 save_plots_in_all_formats(f,save_name)
                 close(f);
@@ -265,12 +286,18 @@ for p=1:length(plot_type)
                     tiledlayout(1,2);
                     nexttile();
                     histogram(og_sihlouette_score,'BinEdges',-1:0.01:1)
-                    title("OG Cluster Rep wire and second rep wire");xlabel("Sihloutte score");ylabel("Frequency")
+                    title_string = ["OG Cluster Rep wire and second rep wire",...
+                        "Calinski Harabasz Criterion: "+sprintf("%.5f",eva_cal.CriterionValues),...
+                        "Davies Bouldin Criterion: "+sprintf("%.5f",eva_dav.CriterionValues)];
+                    title(title_string);xlabel("Sihloutte score");ylabel("Frequency")
 
                     nexttile();
                     histogram(all_silhoutette_scores_for_new_channels,'BinEdges',-1:0.01:1)
 
-                    title("OG Cluster Rep wire and compare wire wire");xlabel("Sihloutte score");ylabel("Frequency")
+                    title_string = ["OG Cluster Rep wire and second rep wire",...
+                        "Calinski Harabasz Criterion: "+sprintf("%.5f",eva_cal_on_compare_channel.CriterionValues),...
+                        "Davies Bouldin Criterion: "+sprintf("%.5f",eva_dav_on_compare_channel.CriterionValues)];
+                    title(title_string);xlabel("Sihloutte score");ylabel("Frequency")
                     sgtitle(blind_pass_table{i,"Tetrode"} +unique_code)
                     save_plots_in_all_formats(f,save_name)
                     close(f);
