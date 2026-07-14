@@ -175,7 +175,7 @@ for p=1:length(plot_type)
         %get list of all channels within certain distance of current rep
         %wire
 
-        current_rep_wire_loc = locs_of_channels(rep_channel_1);
+        current_rep_wire_loc = locs_of_channels(rep_channel_1,:);
         distance_to_other_rep_wires = vecnorm(current_rep_wire_loc - locs_of_channels, 2, 2);
         nearby_wires = find(distance_to_other_rep_wires<100); %100 here is relative, it doesnt NEED to be this euclidean distance it can be more/less just depends on how you define close we may optimize this meta parameter later
 
@@ -202,6 +202,16 @@ for p=1:length(plot_type)
 
         cluster_labels = ones(size(peaks,2),1);
         cluster_labels(cluster_peaks_idx) = 2;
+
+        true_positive_idx = cluster_peaks_idx(loc_of_gt_in_peaks);
+        false_positive_idx = setdiff(cluster_peaks_idx,true_positive_idx);
+
+        
+        
+        idxs_of_cluster_data_we_aim_to_remove = false_positive_idx; %this is data that is in the cluster but not part of the ground truth unit, we'll remove it when calculating the ground truth silhouette/davies/calinski criterion
+        cluster_labels_only_unit = ones(size(peaks,2),1);
+        cluster_labels_only_unit(true_positive_idx) = 2;
+
         unique_folder_name =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(plot_sep_folder,blind_pass_table{i,"Z Score"}+" "+blind_pass_table{i,"Tetrode"}+" "+blind_pass_table{i,"Cluster"}));
 
         rearragned_channel_data = cell_array_of_channel_data(non_rep_wire_channels_nums);
@@ -211,12 +221,27 @@ for p=1:length(plot_type)
         print_status_bar(num_iterations,start_string+" making comparisons figures ")
 
 
-        og_sihlouette_score = silhouette(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels);
+        og_sihlouette_score = silhouette(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels); %cluster and rest of data
+        
+        
         eva_cal= evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"CalinskiHarabasz");
         eva_dav = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"DaviesBouldin");
-        % eva_gap = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"gap");
-        % all_silhoutette_scores_for_new_channels = nan(length(og_sihlouette_score),length(rearragned_channel_data),1);
+
+
+        peaks_data_for_only_unit = peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).';
+        og_peaks_data_size = size(peaks_data_for_only_unit,1);
+        peaks_data_for_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove),:) = [];
+        cluster_labels_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove)) = [];
+        
+        eva_cal_only_unit= evalclusters(peaks_data_for_only_unit,cluster_labels_only_unit,"CalinskiHarabasz"); %only ground truth unit without rest of cluster
+        eva_dav_only_unit = evalclusters(peaks_data_for_only_unit,cluster_labels_only_unit,"DaviesBouldin"); %only ground truth unit without rest of cluster
+        only_unit_sihlouette_score = silhouette(peaks_data_for_only_unit,cluster_labels_only_unit); %only ground truth unit without rest of cluster
+        
         rep_wire_data = peaks(blind_pass_table{i,"rep_wire_1"},:);
+        rep_wire_data_without_fp = peaks(blind_pass_table{i,"rep_wire_1"},:);
+
+        
+
         for j=1:length(rearragned_channel_data)
             unique_code = " compared to channel "+string(non_rep_wire_channels_nums(j));
             save_name = fullfile(unique_folder_name,unique_code);
@@ -227,15 +252,24 @@ for p=1:length(plot_type)
 
 
             compare_channel_cluster_peaks = other_tetrode_peaks_on_compare_channel(cluster_peaks_idx); %get the cluster's appearence on this channel, we absolute cause peaks should be positive as we invert them
-            all_silhoutette_scores_for_new_channels = silhouette([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels);
+            all_silhoutette_scores_for_new_channels = silhouette([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels); %cluster and tetrode
+
+
+            peaks_data_for_only_unit_on_new_ch = [rep_wire_data.',other_tetrode_peaks_on_compare_channel];
+            peaks_data_for_only_unit_on_new_ch(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove),:) = [];
+
+
+            all_silhoutette_scores_for_new_channels_only_unit = silhouette(peaks_data_for_only_unit_on_new_ch,cluster_labels_only_unit); %should be only the unit not the rest of the cluster
+
+
             eva_cal_on_compare_channel= evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"CalinskiHarabasz");
             eva_dav_on_compare_channel = evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"DaviesBouldin");
-            if ~isfile(save_name+".png")
+            if ~isfile(save_name)
                 %plot the og figure to compare to
-                f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
+                f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
                 tiledlayout(1,2);
                 nexttile();
-                if plot_type(p) == "whole_tetrode"
+                if plot_type(p) == "whole tetrode"
                     scatter(peaks(blind_pass_table{i,"rep_wire_1"},:),peaks(blind_pass_table{i,"rep_wire_2"},:),3,"black","filled","DisplayName","All Of OG Tetrdoe"); %first plot the entire tetrode in a single color
                 end
                 hold on;
@@ -253,7 +287,7 @@ for p=1:length(plot_type)
                 %created a tetrode with the original channel and the compare
                 %channel
 
-                if plot_type(p) == "whole_tetrode"
+                if plot_type(p) == "whole tetrode"
                     scatter(peaks(blind_pass_table{i,"rep_wire_1"},:),other_tetrode_peaks_on_compare_channel,3,"black","filled","DisplayName","All of OG tetrodes spikes projected with rep wire of og cluster and compare wire");
                 end
                 hold on;
@@ -273,7 +307,7 @@ for p=1:length(plot_type)
                 sgtitle(blind_pass_table{i,"Tetrode"} +unique_code)
                 save_plots_in_all_formats(f,save_name)
                 close(f);
-                send(q,[]);
+                % send(q,[]);
                 % fprintf("%s finished %i / %i\n",start_string,j,length(non_rep_wire_channels))
 
             end
@@ -283,23 +317,37 @@ for p=1:length(plot_type)
                 save_name = fullfile(even_more_unique_folder_name,unique_code);
                 if ~isfile(save_name+".png")
                     f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','on');
-                    tiledlayout(1,2);
+                    tiledlayout("flow");
                     nexttile();
-                    histogram(og_sihlouette_score,'BinEdges',-1:0.01:1)
+                    histogram(og_sihlouette_score,'BinEdges',-1:0.01:1,'Normalization','probability')
+                    
                     title_string = ["OG Cluster Rep wire and second rep wire",...
                         "Calinski Harabasz Criterion: "+sprintf("%.5f",eva_cal.CriterionValues),...
                         "Davies Bouldin Criterion: "+sprintf("%.5f",eva_dav.CriterionValues)];
                     title(title_string);xlabel("Sihloutte score");ylabel("Frequency")
 
+                    nexttile()
+                    
+                    histogram(only_unit_sihlouette_score,'BinEdges',-1:0.01:1,'Normalization','probability')
+                    title("only TP of cluster")
+
                     nexttile();
-                    histogram(all_silhoutette_scores_for_new_channels,'BinEdges',-1:0.01:1)
+                    histogram(all_silhoutette_scores_for_new_channels,'BinEdges',-1:0.01:1,'Normalization','probability','DisplayName',"Whole cluster")
+                    % hold on;
+                    
 
                     title_string = ["OG Cluster Rep wire and second rep wire",...
                         "Calinski Harabasz Criterion: "+sprintf("%.5f",eva_cal_on_compare_channel.CriterionValues),...
                         "Davies Bouldin Criterion: "+sprintf("%.5f",eva_dav_on_compare_channel.CriterionValues)];
                     title(title_string);xlabel("Sihloutte score");ylabel("Frequency")
+
+                    nexttile()
+                    histogram(all_silhoutette_scores_for_new_channels_only_unit,'BinEdges',-1:0.01:1,'Normalization','probability','DisplayName',"Only Unit")
+                    title("Only tp of the cluster")
                     sgtitle(blind_pass_table{i,"Tetrode"} +unique_code)
                     save_plots_in_all_formats(f,save_name)
+
+                    legend;
                     close(f);
                 end
                 send(q,[]);

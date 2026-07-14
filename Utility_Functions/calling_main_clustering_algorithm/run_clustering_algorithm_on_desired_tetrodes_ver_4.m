@@ -80,7 +80,7 @@ base_aligned_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullf
 % base_raw_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"filtered_raw_wf_files"));
 base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
 %there should be a parfor on the line immediately following this one when not testing
-for i=1:length(sliced_every_permutation_of_both)
+parfor i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
