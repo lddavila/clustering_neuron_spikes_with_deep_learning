@@ -1,4 +1,4 @@
-function [] = run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,config)
+function [base_sw_dir] = run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,config)
 %this version differs from version 3 because this version tries to minimize
 %the setup and cleanup costs of a parfor loop by having all setup occur
 %upfront instead of a for loop which then calls parfor separately
@@ -79,8 +79,9 @@ print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ve
 base_aligned_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_wf_files"));
 % base_raw_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"filtered_raw_wf_files"));
 base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
+% config.base_sw_dir = base_sw_dir;
 %there should be a parfor on the line immediately following this one when not testing
-parfor i=1:length(sliced_every_permutation_of_both)
+for i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config

@@ -26,6 +26,7 @@ currentPool = gcp('nocreate');
 %     fprintf("Starting the parallel pool took %.2f seconds\n",time_end)
 % end
 
+%%
 beginning = which_recording;
 the_end = which_recording+0.5;
 number_of_channels_to_use = 4;
@@ -182,7 +183,6 @@ for p=1:length(plot_type)
         % non_rep_wire_channels = setdiff(ordered_list_of_channels,strcat("c"+string([rep_channel_1,rep_channel_2])+".mat")); %get channels to compare to
         non_rep_wire_channels_nums = setdiff(nearby_wires,[rep_channel_1,rep_channel_2]);
 
-
         
         
 
@@ -274,7 +274,7 @@ for p=1:length(plot_type)
                 end
                 hold on;
                 scatter(rep_wire_peaks_1,rep_wire_peaks_2,3,"blue","filled","DisplayName","All Of OG Cluster"); %now plot the cluster in its own color
-                scatter(peaks(blind_pass_table{i,"rep_wire_1"},cluster_peaks_idx(loc_of_gt_in_peaks)),peaks(blind_pass_table{i,"rep_wire_2"},cluster_peaks_idx(loc_of_gt_in_peaks)),3,"red","filled","DisplayName","Spikes that belong to max overlap unit"); %now plot only the spikes which belong to the max overlap unit identified through accuracy
+                scatter(peaks(blind_pass_table{i,"rep_wire_1"},cluster_peaks_idx(loc_of_gt_in_peaks)),peaks(blind_pass_table{i,"rep_wire_2"},cluster_peaks_idx(loc_of_gt_in_peaks)),3,"red","filled","DisplayName","Spikes that belong to max overlap unit in OG Cluster"); %now plot only the spikes which belong to the max overlap unit identified through accuracy
                 xlabel("Channel "+ string(rep_channel_1))
                 ylabel("Channel "+string(rep_channel_2))
 

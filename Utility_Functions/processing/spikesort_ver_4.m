@@ -38,7 +38,7 @@ end
 num_spikes = size(r_raw, 2);
 default_filter = true(num_spikes, 1); % Ignores no spikes
 % Align spikes to peak, each wire independently
-aligned = single(align_to_peak_ver_2(r_raw, r_tvals, r_ir));
+aligned = align_to_peak_ver_2(r_raw, r_tvals, r_ir);
 % because of the data inflation that occurs when we try to save every
 % aligned file we will instead add an optional parameter to this function
 % that optional parameter is something called "base aligned idcs" which would be

@@ -61,7 +61,7 @@ for i=1:size(unique_z_score_dirs,1)
         output_table{output_table_counter,"fp_to_cleaned_clusters"} = strrep(fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+".mat"),"_results","");
         output_table{output_table_counter,"fp_to_reg_timestamps_of_the_spikes"} = fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" reg_timestamps_of_the_spikes.mat");
         output_table{output_table_counter,"fp_to_reg_timestamps"} = "";%irrelevant now fullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+"reg_timestamps.mat");
-        output_table{output_table_counter,"fp_to_sorted_spike_windows_after_purges"} = "";% irrelevant nowfullfile(string(list_of_files_for_current_tetrode{1,"folder"}),unique_tetrodes(j)+" sorted_spike_windows_after_purges.mat");
+        output_table{output_table_counter,"fp_to_sorted_spike_windows_after_purges"} = fullfile(config.base_sw_dir,unique_tetrodes(j)+" sorted_spike_windows_after_purges.mat");
         if ~config.use_new_spike_detection
             output_table{output_table_counter,"fp_to_timestamps_rtvals"} = fullfile(precomputed_dir,"initial_pass min z_score"+string(current_z_score),unique_tetrodes(j)+".mat");
         else

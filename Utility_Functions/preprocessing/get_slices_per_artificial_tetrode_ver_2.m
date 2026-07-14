@@ -6,35 +6,27 @@ timing_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 spiking_channel_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 sorted_spike_windows_for_current_tetrode_dictionary = containers.Map('KeyType','char','ValueType','any');
 % peak_vals_dict = containers.Map('KeyType','char','ValueType','any');
-% disp("Finished Creationg Dictionaries");
+
 channels_data = cell(length(chan_of_art_tetrode),1);
 for i=1:length(chan_of_art_tetrode)
     current_channel = chan_of_art_tetrode(i);
-    % disp(fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat"))
     current_channel_recording_file_name = fullfile(dir_with_chan_recordings,"c"+string(current_channel)+".mat");
-    % disp("current channel recording file name")
-    % disp(current_channel_recording_file_name);
     current_channel_data = load(current_channel_recording_file_name);
     the_field_name = string(fieldnames(current_channel_data));
-
     current_channel_data = current_channel_data.(the_field_name);
     current_channel_data = ( current_channel_data* scale_factor).';
     channels_data{i} = current_channel_data;
 end
 
-% disp("Finished importing data")
+
 
 spike_windows = cell(length(chan_of_art_tetrode),1);
 for i=1:length(spike_windows)
     current_channel = chan_of_art_tetrode(i);
-    %disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
-    % disp("file that can't be loaded");
-    % disp(fullfile(spike_windows_dir,"c"+current_channel+".mat"))
     current_spike_windows = load(fullfile(spike_windows_dir,"c"+current_channel+".mat"));
     current_spike_windows = current_spike_windows.data_to_save;
     spike_windows{i} = current_spike_windows;
 end
-% disp("Finsihed Getting Spike Windows")
 
 
 
@@ -63,7 +55,7 @@ end
 %numdp: number of datapoints
 
 %
-spike_slices = zeros(size(chan_of_art_tetrode,2),size(sorted_spike_windows_for_current_tetrode,1),number_of_dps_per_slice);
+spike_slices = zeros(length(chan_of_art_tetrode),size(sorted_spike_windows_for_current_tetrode,1),number_of_dps_per_slice);
 
 %spike_slices_in_samples_format is the same data as in spike_slices, but permutted differently
 %   Samples: spike waveform samples formatted as a 32xMxN matrix of data
@@ -79,27 +71,25 @@ spiking_channels = cell(1,size(sorted_spike_windows_for_current_tetrode,1));
 if isempty(sorted_spike_windows_for_current_tetrode)
     return
 end
-% disp("About to getting time and spike slices")
+
+
 sliced_spike_windows = slice_table_for_parallel_processing(sorted_spike_windows_for_current_tetrode,[]);
 
 simple_channel_list = 1:numel(chan_of_art_tetrode);
 
-timing_matrix_const = parallel.pool.Constant(timing_matrix);
-channels_data_const = parallel.pool.Constant(channels_data);
+% timing_matrix_const = parallel.pool.Constant(timing_matrix);
+% channels_data_const = parallel.pool.Constant(channels_data);
 for i=1:size(sorted_spike_windows_for_current_tetrode,1)
-
-    current_window = sliced_spike_windows{i};
-
+    current_window = sorted_spike_windows_for_current_tetrode(i,:);
     if current_window(1,1) == current_window(1,2) 
         continue;
     end
-
-    current_timing_slice = timing_matrix_const.Value(current_window(1,1):current_window(1,2) -1);
+    current_timing_slice = timing_matrix(current_window(1,1):current_window(1,2) -1);
     time_slices(i,:) = current_timing_slice;
 
     for j=simple_channel_list
-        spike_slices(j,i,:) = channels_data_const.Value{j}(current_window(1,1) :current_window(1,2) -1);
-        spike_slices_in_samples_format(:,j,i) = channels_data_const.Value{j}(current_window(1,1) :current_window(1,2)-1);
+        spike_slices(j,i,:) = channels_data{j}(current_window(1,1) :current_window(1,2) -1);
+        spike_slices_in_samples_format(:,j,i) = channels_data{j}(current_window(1,1):current_window(1,2)-1);
     end
     spiking_channels{i} = current_window(3);
 end
