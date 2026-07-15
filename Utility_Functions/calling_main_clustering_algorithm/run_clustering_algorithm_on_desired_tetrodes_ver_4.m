@@ -1,4 +1,4 @@
-function [base_sw_dir] = run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,config)
+function [] = run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,config)
 %this version differs from version 3 because this version tries to minimize
 %the setup and cleanup costs of a parfor loop by having all setup occur
 %upfront instead of a for loop which then calls parfor separately
@@ -12,7 +12,7 @@ list_of_available_dictionaries = struct2table(dir(fullfile(dictionaries_dir,"* t
 
 list_of_available_dictionaries = string(list_of_available_dictionaries{:,"name"});
 list_of_available_tetrodes = strrep(list_of_available_dictionaries," tetrode_dictionary.mat","");
-
+base_sw_dir = config.base_sw_dir;
 
 number_of_tetrodes_to_run = str2double(strrep(list_of_available_tetrodes,"t","")); %tetrodes are not necessarily linear as some may have failed at earlier stages
 theoretical_max_num_tetrodes = 1:size(config.ART_TETR_ARRAY,1);
@@ -78,8 +78,8 @@ print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ve
 
 base_aligned_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_wf_files"));
 % base_raw_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"filtered_raw_wf_files"));
-base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
-% config.base_sw_dir = base_sw_dir;
+
+
 %there should be a parfor on the line immediately following this one when not testing
 for i=1:length(sliced_every_permutation_of_both)
 
@@ -126,6 +126,7 @@ for i=1:length(sliced_every_permutation_of_both)
 
 
 
+    
 
     spike_tetrode_dictionary_samples_format =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.data_to_save;

@@ -222,17 +222,13 @@ if config.has_ground_truth && config.debug_with_ground_truth
     config.stage_counter = config.stage_counter+1;
 end
 
-channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
+% channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
+base_sw_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows");
+config.base_sw_dir = base_sw_dir;
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
-    % min_threshold = thresholds_to_check(threshold_idx);
-
-
-
-
-
     % Step 9e: Run Clustering Algorithm
     beginning_time = tic;
-    base_sw_dir = run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,config);
+    run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,min_threshold,dir_with_channel_recordings,dictionaries_dir,config);
     % run_clustering_algorithm_on_desired_tetrodes_ver_4(channel_wise_means,channel_wise_std,number_of_std_above_means,dir_with_channel_recordings,dictionaries_dir,config)
     end_time = toc(beginning_time);
     fprintf("Core Clustering "+z_score_or_multiplier+" finished, it took %.2f seconds\n",end_time);
@@ -244,7 +240,6 @@ else
     disp("Blind pass has already been run.")
     disp("If you'd like it to be recomputed then delete blind_pass.txt or change the save directory")
 end
-config.base_sw_dir = base_sw_dir;
 %step 11: read the results of the blind pass into a table
 
 fp_to_blind_pass_table =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"blind_pass_table"));
