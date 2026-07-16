@@ -1,7 +1,8 @@
-function [accuracy_array,raw_tp_count] = calculate_accuracy(gt_ts,cell_array_of_all_cluster_ts,config)
+function [accuracy_array,raw_tp_count,raw_fn_count] = calculate_accuracy(gt_ts,cell_array_of_all_cluster_ts,config)
 %returns accuracy as a value between 0-1 
 accuracy_array = nan(1,size(cell_array_of_all_cluster_ts,2));
 raw_tp_count = nan(1,size(cell_array_of_all_cluster_ts,2));
+raw_fn_count = nan(1,size(cell_array_of_all_cluster_ts,2));
 for i=1:size(cell_array_of_all_cluster_ts,2)
     cluster_ts = cell_array_of_all_cluster_ts{i};
     % OG LINEtp = find_number_of_true_positives_given_a_time_delta_hpc(gt_ts,cluster_ts.',config.TIME_DELTA); % a spike that is in both the cluster and the unit with some time delta specified in seconds
@@ -9,6 +10,7 @@ for i=1:size(cell_array_of_all_cluster_ts,2)
 
     raw_tp_count(i) = tp;
     fn = length(gt_ts) - tp; % a spike in the unit, but not in the cluster
+    raw_fn_count(i) = fn;
     tn = 0; % this would be a spike in the same configuration ie
     %                                   |z score n|tetrode i| cluster a
     %but not assigned to this cluster

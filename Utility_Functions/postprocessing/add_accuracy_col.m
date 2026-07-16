@@ -51,5 +51,7 @@ for i=1:size(sliced_bp_table,1)
    
 end
 table_of_clusters.accuracy = accuracy_array;
+table_of_clusters.tp = raw_tp_count;
+
 % table_of_clusters.accuracy_category = accuracy_category;
 end

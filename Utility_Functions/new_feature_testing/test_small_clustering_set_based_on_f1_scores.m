@@ -161,12 +161,15 @@ close all;
 % clc;
 tol = 6; %equivalent to about .2 milliseconds
 plot_type = ["whole tetrode","only cluster"];
-
+plot_type = ["only cluster"];
+cell_array_of_new_peak_vals_for_each_bp_table = cell(height(blind_pass_table),1);
+cell_array_of_compare_channels = cell(height(blind_pass_table),1);
+% array_of_og_rep_channel = blind_pass_table.rep_channel_1;
 for p=1:length(plot_type)
     plot_sep_folder = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_images_to,plot_type(p)));
-    if plot_type(p)=="whole tetrode"
-        sil_folder = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_images_to,"silhouette_plots"));
-    end
+
+    sil_folder = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_images_to,"silhouette_plots"));
+
     for i=1:height(blind_pass_table)
         start_string = sprintf("Running %i %s %i %i/ %i",blind_pass_table{i,"Z Score"},blind_pass_table{i,"Tetrode"},blind_pass_table{i,"Cluster"},i,height(blind_pass_table));
 
@@ -178,11 +181,11 @@ for p=1:length(plot_type)
         distance_to_other_rep_wires = vecnorm(current_rep_wire_loc - locs_of_channels, 2, 2);
         nearby_wires = find(distance_to_other_rep_wires<100); %100 here is relative, it doesnt NEED to be this euclidean distance it can be more/less just depends on how you define close we may optimize this meta parameter later
 
-        
+
         non_rep_wire_channels_nums = setdiff(nearby_wires,[rep_channel_1,rep_channel_2]);
 
-        
-        
+        cell_array_of_compare_channels{i} = non_rep_wire_channels_nums;
+
 
 
         cluster_peaks_idx = blind_pass_table{i,"cluster_idx"}{1};
@@ -196,7 +199,7 @@ for p=1:length(plot_type)
         % [is_tp,loc_of_gt_in_peaks] = ismembertol(gt_ts,blind_pass_table{i,"timestamps"}{1},0.0002,'DataScale',1); %get the location of the peaks for the current cluster
         [~,loc_of_gt_in_peaks] = ismembertol(gt_locs_on_ts_array,loc_of_cluster_peaks_on_ts_array,tol,'DataScale',1); %find which spikes in the cluster belong to the unit
         loc_of_gt_in_peaks(loc_of_gt_in_peaks==0) = []; %remove any peaks that do not have a match in the cluster
-        if isempty(loc_of_gt_in_peaks) 
+        if isempty(loc_of_gt_in_peaks)
             continue;
         end
 
@@ -206,8 +209,8 @@ for p=1:length(plot_type)
         true_positive_idx = cluster_peaks_idx(loc_of_gt_in_peaks);
         false_positive_idx = setdiff(cluster_peaks_idx,true_positive_idx);
 
-        
-        
+
+
         idxs_of_cluster_data_we_aim_to_remove = false_positive_idx; %this is data that is in the cluster but not part of the ground truth unit, we'll remove it when calculating the ground truth silhouette/davies/calinski criterion
         cluster_labels_only_unit = ones(size(peaks,2),1); %create cluster labels that assume the false positive members of the current cluster do not exist
         cluster_labels_only_unit(true_positive_idx) = 2; %set only the spikes in the cluster that belong to the unit as part of the current cluster
@@ -221,32 +224,43 @@ for p=1:length(plot_type)
         print_status_bar(num_iterations,start_string+" making comparisons figures ")
 
 
+        unique_codes = strcat(" compared to channel ",string(non_rep_wire_channels_nums));
 
-        %get the silhouette score assuming the full cluster
-        og_sihlouette_score = silhouette(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels); 
-        
-        %get the calinski & davies scores assuming the full cluster
-        eva_cal= evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"CalinskiHarabasz");
-        eva_dav = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"DaviesBouldin");
-
+        even_more_unique_folder_name =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(sil_folder,blind_pass_table{i,"Z Score"}+" "+blind_pass_table{i,"Tetrode"}+" "+blind_pass_table{i,"Cluster"}));
+        second_save_name = fullfile(even_more_unique_folder_name,unique_codes);
 
         peaks_data_for_only_unit = peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).';
         og_peaks_data_size = size(peaks_data_for_only_unit,1);
-        peaks_data_for_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove),:) = []; %filter out the fp of the cluster
-        cluster_labels_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove)) = []; %filter out the labels of the fp 
-        
-        eva_cal_only_unit= evalclusters(peaks_data_for_only_unit,cluster_labels_only_unit,"CalinskiHarabasz"); %only ground truth unit without rest of cluster
-        eva_dav_only_unit = evalclusters(peaks_data_for_only_unit,cluster_labels_only_unit,"DaviesBouldin"); %only ground truth unit without rest of cluster
-        only_unit_sihlouette_score = silhouette(peaks_data_for_only_unit,cluster_labels_only_unit); %only ground truth unit without rest of cluster
-        
+        if ~all(isfile(second_save_name+".png"))
+
+            %get the silhouette score assuming the full cluster
+            og_sihlouette_score = silhouette(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels);
+
+            %get the calinski & davies scores assuming the full cluster
+            eva_cal= evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"CalinskiHarabasz");
+            eva_dav = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"DaviesBouldin");
+
+
+            
+            peaks_data_for_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove),:) = []; %filter out the fp of the cluster
+            cluster_labels_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove)) = []; %filter out the labels of the fp
+
+            eva_cal_only_unit= evalclusters(peaks_data_for_only_unit,cluster_labels_only_unit,"CalinskiHarabasz"); %only ground truth unit without rest of cluster
+            eva_dav_only_unit = evalclusters(peaks_data_for_only_unit,cluster_labels_only_unit,"DaviesBouldin"); %only ground truth unit without rest of cluster
+            only_unit_sihlouette_score = silhouette(peaks_data_for_only_unit,cluster_labels_only_unit); %only ground truth unit without rest of cluster
+        end
         rep_wire_data = peaks(blind_pass_table{i,"rep_wire_1"},:);
         % rep_wire_data_without_fp = peaks(blind_pass_table{i,"rep_wire_1"},:);
 
+
+        cell_array_of_other_channel_peaks = cell(length(rearragned_channel_data),1);
         
 
-        parfor j=1:length(rearragned_channel_data)
-            unique_code = " compared to channel "+string(non_rep_wire_channels_nums(j));
-            save_name = fullfile(unique_folder_name,unique_code);
+
+
+        for j=1:length(rearragned_channel_data)
+
+            save_name = fullfile(unique_folder_name,unique_codes(j));
 
 
             compare_channel_data = rearragned_channel_data{j};
@@ -256,16 +270,19 @@ for p=1:length(plot_type)
             compare_channel_cluster_peaks = other_tetrode_peaks_on_compare_channel(cluster_peaks_idx); %get the cluster's appearence on this channel
             % all_silhoutette_scores_for_new_channels = silhouette([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels); %cluster and tetrode
 
+            cell_array_of_other_channel_peaks{j} = [peaks(blind_pass_table{i,"rep_wire_1"},cluster_peaks_idx).',compare_channel_cluster_peaks];
 
             peaks_data_for_only_unit_on_new_ch = [rep_wire_data.',other_tetrode_peaks_on_compare_channel];
             peaks_data_for_only_unit_on_new_ch(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove),:) = [];
 
 
-            all_silhoutette_scores_for_new_channels_only_unit = silhouette(peaks_data_for_only_unit_on_new_ch,cluster_labels_only_unit); %should be only the unit not the rest of the cluster
+            if ~all(isfile(second_save_name+".png"))
+                all_silhoutette_scores_for_new_channels_only_unit = silhouette(peaks_data_for_only_unit_on_new_ch,cluster_labels_only_unit); %should be only the unit not the rest of the cluster
 
 
-            eva_cal_on_compare_channel= evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"CalinskiHarabasz");
-            eva_dav_on_compare_channel = evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"DaviesBouldin");
+                eva_cal_on_compare_channel= evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"CalinskiHarabasz");
+                eva_dav_on_compare_channel = evalclusters([rep_wire_data.',other_tetrode_peaks_on_compare_channel],cluster_labels,"DaviesBouldin");
+            end
             if ~isfile(save_name+".png")
                 %plot the og figure to compare to
                 f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
@@ -315,9 +332,8 @@ for p=1:length(plot_type)
             end
 
             if plot_type(p) == "whole tetrode"
-                even_more_unique_folder_name =create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(sil_folder,blind_pass_table{i,"Z Score"}+" "+blind_pass_table{i,"Tetrode"}+" "+blind_pass_table{i,"Cluster"}));
-                save_name = fullfile(even_more_unique_folder_name,unique_code);
-                if ~isfile(save_name)
+
+                if ~isfile(second_save_name+".png")
                     f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
                     tiledlayout("flow");
                     nexttile();
@@ -350,7 +366,7 @@ for p=1:length(plot_type)
                     ylim([0,1]);
                     title("Only tp of the cluster")
                     sgtitle(blind_pass_table{i,"Tetrode"} +unique_code)
-                    save_plots_in_all_formats(f,save_name)
+                    save_plots_in_all_formats(f,second_save_name)
 
                     legend;
                     close(f);
@@ -360,9 +376,143 @@ for p=1:length(plot_type)
             send(q,[])
         end
 
+        cell_array_of_new_peak_vals_for_each_bp_table{i} = cell_array_of_other_channel_peaks;
     end
 end
 
 
+%% now that we have the new peaks check which one we should use to maximize accuracy/splitting
+plot_old_vs_new = true;
+reclustered_plots = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(dir_to_save_images_to,"reclustered_plots_rescale_double_new_dim"));
+extended_blind_pass_table = cell(height(blind_pass_table),1);
+cluster_addition = max(blind_pass_table.Cluster)+1;
+cell_array_of_new_accuracies = cell(height(blind_pass_table),1);
+cell_array_of_new_tables = cell(height(blind_pass_table),1);
+for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table)
+    current_comparison_peaks = cell_array_of_new_peak_vals_for_each_bp_table{i};
 
+    curr_comp_ch = cell_array_of_compare_channels{i};
+    var_names = string(blind_pass_table.Properties.VariableNames);
+    current_rows = cell2table(cell(0,5),'VariableNames',["Z Score","Tetrode","Cluster","timestamps","cluster_idx"]);
+    current_z_score = blind_pass_table{i,"Z Score"};
+    current_tetrode = blind_pass_table{i,"Tetrode"};
+    
+    accuracies_per_channel = cell(length(curr_comp_ch),1);
+    tables_per_channel = cell(length(curr_comp_ch),1);
+    for j=1:length(current_comparison_peaks)
+        overall_title_string = sprintf("Z Score %s Tetrode %s Cluster %s Compared to channel %i",blind_pass_table{i,["Z Score","Tetrode","Cluster"]},curr_comp_ch(j));
+        current_clustering_data = current_comparison_peaks{j};
+        %current_clustering_data = zscore(current_clustering_data,1,1);
+        current_clustering_data = rescale(current_clustering_data);
+        current_clustering_data(:,2) = current_clustering_data(:,2)*2;
+        % sihlouette_before = evalclusters(current_clustering_data,ones(size(current_clustering_data,1),1),"silhouette");
+        % [epsilon,min_num_dpts,res_x] =find_epsilon_for_db_scan_using_k_distance(current_clustering_data,false,true);
+        % new_clusters = dbscan(current_clustering_data,epsilon,min_num_dpts);
+        % new_clusters = new_clusters+2; %we do this so the unclustered data is treated as a cluster and we can eval clusters
+        sihlouette_after = evalclusters(current_clustering_data,'gmdistribution',"silhouette","KList",2:5,"ClusterPriors","equal");
+        new_clusters = sihlouette_after.OptimalY;
+        
+
+        fprintf("Silhouette with k = %i %.2f\n",sihlouette_after.OptimalK,max(sihlouette_after.CriterionValues));
+        unique_clusters = unique(new_clusters);
+        new_cluster_idx = cell(length(unique_clusters),1);
+        new_cluster_ts = cell(length(unique_clusters),1);
+        for k=1:length(unique_clusters)
+            old_cluster_ts = blind_pass_table{i,"timestamps"}{1};
+            old_cluster_idx = blind_pass_table{i,"cluster_idx"}{1};
+            new_cluster_ts{k} = old_cluster_ts(new_clusters==unique_clusters(k));
+            new_cluster_idx{k} = old_cluster_idx(new_clusters==unique_clusters(k));
+            cluster_addition = cluster_addition+1;
+        end
+
+        new_table = table(repelem(current_z_score,length(unique_clusters),1), ...
+            repelem(current_tetrode,length(unique_clusters),1), ...
+            unique_clusters,...
+            new_cluster_ts,...
+            new_cluster_idx,...
+            'VariableNames', ...
+            ["Z Score","Tetrode","Cluster","timestamps","cluster_idx"]);
+
+        new_table_with_accuracy = add_overlap_percentage_col_and_max_overlap_unit_optimized(new_table,config,timestamps);
+        new_table_with_accuracy = add_accuracy_col(config,new_table_with_accuracy);
+        accuracies_per_channel{j} = new_table_with_accuracy.accuracy;
+        tables_per_channel{j} = new_table_with_accuracy;
+        % disp("old");
+        % disp(blind_pass_table(i,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","Max_Overlap_perc_With_Unit","accuracy","cluster_idx",]))
+        % disp("___________________________________________________")
+        % disp("new");
+        % disp(new_table_with_accuracy(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","Max_Overlap_perc_With_Unit","accuracy","cluster_idx",]))
+        % % current_row = cell2table(blind_pass_table{i,"Z Score"},blind_pass_table{i,"Tetrode"},cluster_addition,'VariableNames',["Z Score","Tetrode","Cluster","timestamps","cluster_idx"]); 
+        % disp("############################################################################")
+        if plot_old_vs_new
+            f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
+            tiledlayout("flow");
+            nexttile;
+            scatter(current_clustering_data(:,1),current_clustering_data(:,2),3,"black","filled","DisplayName","All Of OG Cluster");
+            legend();
+            % title(sprintf("Silhouette before %.2f",sihlouette_before.CriterionValues))
+            
+            nexttile();
+            new_cluster_idxs = unique(new_clusters);
+            for k=1:length(new_cluster_idxs)
+                if new_cluster_idxs(k)==-1
+                    label = "Unclustered";
+                else
+                    label = "cluster " +string(new_cluster_idxs(k));
+                end
+                scatter(current_clustering_data(new_clusters==new_cluster_idxs(k),1),current_clustering_data(new_clusters==new_cluster_idxs(k),2),3,"filled","DisplayName",label);
+                hold on;
+            end
+            legend
+            title(sprintf("Silhouette after %.2f",max(sihlouette_after.CriterionValues)))
+
+            sgtitle(overall_title_string);
+            save_plots_in_all_formats(f,fullfile(reclustered_plots,overall_title_string));
+            close(f);
+            
+        end
+
+        fprintf("Finished %i / %i for bp row %i\n",j,length(current_comparison_peaks),i);
+    end
+    cell_array_of_new_accuracies{i} = accuracies_per_channel;
+    cell_array_of_new_tables{i} = tables_per_channel;
+
+end
+
+
+%% compare old accuracies to new accuracies
+for i=1:length(cell_array_of_new_accuracies)
+    f = figure();
+    % tiledlayout("flow");
+    % nexttile()
+    % bar(categorical("old accuracy"),blind_pass_table{i,"accuracy"})
+    % ylim([0,100]);
+
+    current_accuracies = cell_array_of_new_accuracies{i};
+    max_size = max(cellfun(@length,current_accuracies));
+
+    padded_accuracies = [];
+    current_accuracies = [{blind_pass_table{i,"accuracy"}};current_accuracies];
+    for j=1:length(current_accuracies)
+       local_accuracies = current_accuracies{j};
+       if size(local_accuracies,1) > size(local_accuracies,2)
+           local_accuracies = local_accuracies.';
+       end
+       if length(local_accuracies) < max_size
+           local_accuracies = [local_accuracies,zeros(1,max_size-length(local_accuracies))];
+       end
+       padded_accuracies = [padded_accuracies;local_accuracies];
+    end
+
+    
+    % nexttile();
+    comp_ch= cell_array_of_compare_channels{i};
+    labels = categorical(["original accuracy";strcat("Channel ",string(comp_ch))]);
+    labels = reordercats(labels,["original accuracy";strcat("Channel ",string(comp_ch))]);
+    bar(labels,padded_accuracies,'grouped');
+    hold on;
+    yline(blind_pass_table{i,"accuracy"},"LineWidth",2,"Color",'red','Label',"Original cluster accuracy");
+    ylim([0,100])
+    title("Cluster "+string(i))
+end
 
