@@ -1,8 +1,9 @@
-function [accuracy_array,raw_tp_count,raw_fn_count] = calculate_accuracy(gt_ts,cell_array_of_all_cluster_ts,config)
+function [accuracy_array,raw_tp_count,raw_fn_count,raw_fp_count] = calculate_accuracy(gt_ts,cell_array_of_all_cluster_ts,config)
 %returns accuracy as a value between 0-1 
 accuracy_array = nan(1,size(cell_array_of_all_cluster_ts,2));
 raw_tp_count = nan(1,size(cell_array_of_all_cluster_ts,2));
 raw_fn_count = nan(1,size(cell_array_of_all_cluster_ts,2));
+raw_fp_count = nan(1,size(cell_array_of_all_cluster_ts,2));
 for i=1:size(cell_array_of_all_cluster_ts,2)
     cluster_ts = cell_array_of_all_cluster_ts{i};
     % OG LINEtp = find_number_of_true_positives_given_a_time_delta_hpc(gt_ts,cluster_ts.',config.TIME_DELTA); % a spike that is in both the cluster and the unit with some time delta specified in seconds
@@ -16,7 +17,7 @@ for i=1:size(cell_array_of_all_cluster_ts,2)
     %but not assigned to this cluster
     %we set this equal to 0 because it is not a helpful metric and costly to compute
     fp = length(cluster_ts) - tp; % aspike that is in the cluster, but does not have a correlative spike in the unit
-
+    raw_fp_count(i) = fp;
     accuracy_array(i) = ((tp +tn)/(tp+fn+tn+fp));
     if accuracy_array(i) >100
         print("Something is wrong");

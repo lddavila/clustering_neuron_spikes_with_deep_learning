@@ -16,6 +16,8 @@ print_status_bar(num_iterations,"add_accuracy_col.m")
 timestamps = parallel.pool.Constant(timestamps);
 ground_truth = parallel.pool.Constant(ground_truth);
 raw_tp_count = nan(size(table_of_clusters,1),1);
+raw_fn_count = nan(size(table_of_clusters,1),1);
+raw_fp_count = nan(size(table_of_clusters,1),1);
 for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     %blind_pass_table.("Max_Overlap_perc_With_Unit") = max_overlap_percentages;
@@ -45,13 +47,14 @@ for i=1:size(sliced_bp_table,1)
     
    cluster_spike_ts = current_data{1,"timestamps"}{1};
 
-    [accuracy_array(i),raw_tp_count(i)] = calculate_accuracy(gt_ts,{cluster_spike_ts},config);
+    [accuracy_array(i),raw_tp_count(i),raw_fn_count(i),raw_fp_count(i)] = calculate_accuracy(gt_ts,{cluster_spike_ts},config);
     accuracy_array(i) = accuracy_array(i) * 100;
     send(q,[]);
    
 end
 table_of_clusters.accuracy = accuracy_array;
 table_of_clusters.tp = raw_tp_count;
-
+table_of_clusters.fn = raw_fn_count;
+table_of_clusters.fp = raw_fp_count;
 % table_of_clusters.accuracy_category = accuracy_category;
 end

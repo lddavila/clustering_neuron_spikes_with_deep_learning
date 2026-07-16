@@ -352,6 +352,7 @@ par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_tabl
 
 
 %enter the tinkering around phase
+% blind_pass_table = split_clusters_with_alt_dimensions(blind_pass_table);
 
 
 end
