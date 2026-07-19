@@ -19,7 +19,7 @@ if ~isempty(varargin) && isempty(currentPool)
     num_workers = max(1, floor(cluster.NumWorkers / 8));
     fprintf("Have %i workers\n",num_workers);
     time_start = tic();
-    poolobj = parpool(cluster, 8);
+    poolobj = parpool(cluster, 4);
     time_end = toc(time_start);
     fprintf("Starting the parallel pool took %.2f seconds\n",time_end)
 end
