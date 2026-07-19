@@ -24,6 +24,12 @@ if plot_figs
 end
 %eliminate any row that doesn't have a certainty close to 0
 %these rows seem to be a result of unstable MUA 
+
+figure; 
+histogram(true_accuracy,'BinEdges',1:1:100);
+xlabel("accuracy");
+ylabel("Frequency");
+title("Blind Pass Table Accuracy")
 all_positive =all(unscaled_certainties>0,2) | sum(unscaled_certainties>0,2)>80 ;
 all_negative = all(unscaled_certainties<0,2) | sum(unscaled_certainties<0,2)>80;
 to_eliminate = all_positive | all_negative;
@@ -31,6 +37,11 @@ true_accuracy(to_eliminate) = [];
 unscaled_certainties(to_eliminate,:) = [];
 [~,idx_of_lowest] = min(abs(unscaled_certainties),[],2);
 distance_from_min_uncertainty = abs(idx_of_lowest-true_accuracy);
+
+figure;
+histogram(true_accuracy,'BinEdges',1:1:100);
+xlabel("accuracy");ylabel("Frequency");
+title("Accuracy of Blind Pass Table After Filtering")
 
 
 disp("Median Distance uncertainty midpoint: "+string(median(distance_from_min_uncertainty)))

@@ -31,100 +31,97 @@ beginning = which_recording;
 the_end = which_recording+0.5;
 number_of_channels_to_use = 4;
 
-for k=1:length(number_of_channels_to_use)
-    current_number_of_channels = number_of_channels_to_use(k);
-    for i=beginning:the_end
-        try
-            config = spikesort_config();
-            config.run_full_clustering = true;
-            config.percentiles_to_use = [1];
-            config.spikesort.NUM_ITERATIONS = 5;
-            config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
-            config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(197,:);
-            if which_cutting=="ic"
+i=10;
+current_number_of_channels = 4;
+try
+    config = spikesort_config();
+    config.run_full_clustering = true;
+    config.percentiles_to_use = [1];
+    config.spikesort.NUM_ITERATIONS = 5;
+    config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
+    config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(197,:);
+    if which_cutting=="ic"
+        %overwrite the z scores
+        config.DEFAULT_CLUSTERING_Z_SCORES = [1,3];
+        config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"date_test_05_27_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
+    else
+        config.use_new_spike_detection = false;
+        config.DEFAULT_CLUSTERING_Z_SCORES = [3,4];
+        config.use_bandpass = false;
+        config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"f1_clustering_tests_"+config.RECORDING_NAME);
 
-                %overwrite the z scores
-                config.DEFAULT_CLUSTERING_Z_SCORES = [1];
-                config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"date_test_05_27_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch");
-            else
-                config.use_new_spike_detection = false;
-                config.DEFAULT_CLUSTERING_Z_SCORES = [3];
-                config.use_bandpass = false;
-                config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"f1_clustering_tests_"+config.RECORDING_NAME);
-
-            end
-
-
-
-            %
-            disp("Recording Name");
-            disp(config.RECORDING_NAME)
-            % config.prc_tile
-            startup;
-            %get a new art_tetrode_array and set it in the config
-            % new_tetrode_array = build_channel_configs(current_number_of_channels,config);
-            % config.ART_TETR_ARRAY = new_tetrode_array;
-            if contains(pwd,"10595")
-                config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
-                config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
-                config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
-            elseif contains(pwd,"C:\Users\ldd77\")
-                % ext_drive_fp = "F:";
-                config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
-                config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
-                config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
-            elseif contains(pwd,"E:\clustering_neuron_spikes_with_deep_learning")%running on inscopix
-                ext_drive_fp = "E:";
-                config.GT_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"ground_truth","ground_truth.mat");
-                config.TIMESTAMP_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"timestamps","timestamps.mat");
-                config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,config.RECORDING_NAME,"recordings_by_channel");
-            else
-
-                config.GT_FP = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
-                config.TIMESTAMP_FP = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
-                config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"recordings_by_channel");
-            end
-            % (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
-
-            disp("Finished Setting directories")
-
-            % Step 3: Download Necessary Data
-            %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
-            disp("Finished Downloading Data");
-            % Step 4: run the blind pass with a various min_z_score (cut threshold)
-            very_beginning_time = tic;
-            config.ground_truth_cell_array = importdata(config.GT_FP);
-            config.debug_with_ground_truth = true;
-
-            [blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
-
-
-            end_time = toc(very_beginning_time);
-            fprintf("Finished running blind pass it took %f seconds\n",end_time)
-            % (OPTIONAL STEP 5 CONTINUED) Get max overlap unit and accuracy cols for the neurons
-            % This is only possible if your recording is simulated and the ground truth
-            % is provided
-            % in this example the data is simulated and the ground truth is available
-            beginning_time = tic;
-            config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
-            timestamps = importdata(config.TIMESTAMP_FP);
-            if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
-                blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
-                blind_pass_table= add_accuracy_col(config,blind_pass_table);
-                par_save(fp_to_bp_table,blind_pass_table);
-            else
-                disp("Overlap are already in your table.")
-                disp("To recompute delete finished_adding_overlap_and_accuracy.txt");
-            end
-            disp("Finished Saving Accuracy");
-            end_time = toc(beginning_time);
-            fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
-
-        catch ME
-            disp(ME.getReport);
-        end
     end
+
+
+
+    %
+    disp("Recording Name");
+    disp(config.RECORDING_NAME)
+    % config.prc_tile
+    startup;
+    %get a new art_tetrode_array and set it in the config
+    % new_tetrode_array = build_channel_configs(current_number_of_channels,config);
+    % config.ART_TETR_ARRAY = new_tetrode_array;
+    if contains(pwd,"10595")
+        config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
+        config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
+        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
+    elseif contains(pwd,"C:\Users\ldd77\")
+        % ext_drive_fp = "F:";
+        config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
+        config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
+        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
+    elseif contains(pwd,"E:\clustering_neuron_spikes_with_deep_learning")%running on inscopix
+        ext_drive_fp = "E:";
+        config.GT_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"ground_truth","ground_truth.mat");
+        config.TIMESTAMP_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"timestamps","timestamps.mat");
+        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(ext_drive_fp,config.RECORDING_NAME,"recordings_by_channel");
+    else
+
+        config.GT_FP = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
+        config.TIMESTAMP_FP = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
+        config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(strrep(strrep(config.base_file_path,"cnheaton","afriedman"),"lddavila","afriedman"),"Data",config.RECORDING_NAME,"recordings_by_channel");
+    end
+    % (OPTIONAL STEP 2 CONTINUED) SET THE filepath of the ground truth files if your recording is simulated and they are available
+
+    disp("Finished Setting directories")
+
+    % Step 3: Download Necessary Data
+    %run_me_to_download_data("10.7910/DVN/JWATDZ",config,true,config.RECORDING_NAME);
+    disp("Finished Downloading Data");
+    % Step 4: run the blind pass with a various min_z_score (cut threshold)
+    very_beginning_time = tic;
+    config.ground_truth_cell_array = importdata(config.GT_FP);
+    config.debug_with_ground_truth = true;
+
+    [blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
+
+
+    end_time = toc(very_beginning_time);
+    fprintf("Finished running blind pass it took %f seconds\n",end_time)
+    % (OPTIONAL STEP 5 CONTINUED) Get max overlap unit and accuracy cols for the neurons
+    % This is only possible if your recording is simulated and the ground truth
+    % is provided
+    % in this example the data is simulated and the ground truth is available
+    beginning_time = tic;
+    config.TIME_DELTA = 0.0002; %changing time delta to match kilosort4 delta used when computing matching score
+    timestamps = importdata(config.TIMESTAMP_FP);
+    if ~isfile(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt"))
+        blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
+        blind_pass_table= add_accuracy_col(config,blind_pass_table);
+        par_save(fp_to_bp_table,blind_pass_table);
+    else
+        disp("Overlap are already in your table.")
+        disp("To recompute delete finished_adding_overlap_and_accuracy.txt");
+    end
+    disp("Finished Saving Accuracy");
+    end_time = toc(beginning_time);
+    fprintf("Finished adding overlap and accuracy columns it took %.2f seconds\n",end_time)
+
+catch ME
+    disp(ME.getReport);
 end
+
 %% get the spike windows for the test set
 spike_windows = load("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\f1_clustering_tests_10_600Neuron300SecondRecordingWithLevel10Noise\aligned_spike_windows\t1 sorted_spike_windows_after_purges.mat");
 spike_windows = spike_windows.data_to_save;
@@ -241,7 +238,7 @@ for p=1:length(plot_type)
             eva_dav = evalclusters(peaks([blind_pass_table{i,"rep_wire_1"},blind_pass_table{i,"rep_wire_2"}],:).',cluster_labels,"DaviesBouldin");
 
 
-            
+
             peaks_data_for_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove),:) = []; %filter out the fp of the cluster
             cluster_labels_only_unit(intersect(1:og_peaks_data_size,idxs_of_cluster_data_we_aim_to_remove)) = []; %filter out the labels of the fp
 
@@ -254,7 +251,7 @@ for p=1:length(plot_type)
 
 
         cell_array_of_other_channel_peaks = cell(length(rearragned_channel_data),1);
-        
+
 
 
 
@@ -396,7 +393,7 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table)
     current_rows = cell2table(cell(0,5),'VariableNames',["Z Score","Tetrode","Cluster","timestamps","cluster_idx"]);
     current_z_score = blind_pass_table{i,"Z Score"};
     current_tetrode = blind_pass_table{i,"Tetrode"};
-    
+
     accuracies_per_channel = cell(length(curr_comp_ch),1);
     tables_per_channel = cell(length(curr_comp_ch),1);
     for j=1:length(current_comparison_peaks)
@@ -411,7 +408,7 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table)
         % new_clusters = new_clusters+2; %we do this so the unclustered data is treated as a cluster and we can eval clusters
         sihlouette_after = evalclusters(current_clustering_data,'gmdistribution',"silhouette","KList",2:5,"ClusterPriors","equal");
         new_clusters = sihlouette_after.OptimalY;
-        
+
 
         fprintf("Silhouette with k = %i %.2f\n",sihlouette_after.OptimalK,max(sihlouette_after.CriterionValues));
         unique_clusters = unique(new_clusters);
@@ -444,7 +441,7 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table)
         % disp("___________________________________________________")
         % disp("new");
         % disp(new_table_with_accuracy(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","Max_Overlap_perc_With_Unit","accuracy","cluster_idx",]))
-        % % current_row = cell2table(blind_pass_table{i,"Z Score"},blind_pass_table{i,"Tetrode"},cluster_addition,'VariableNames',["Z Score","Tetrode","Cluster","timestamps","cluster_idx"]); 
+        % % current_row = cell2table(blind_pass_table{i,"Z Score"},blind_pass_table{i,"Tetrode"},cluster_addition,'VariableNames',["Z Score","Tetrode","Cluster","timestamps","cluster_idx"]);
         % disp("############################################################################")
         if plot_old_vs_new
             f = figure('units','normalized','outerposition',[0 0 1 1],'Visible','off');
@@ -453,7 +450,7 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table)
             scatter(current_clustering_data(:,1),current_clustering_data(:,2),3,"black","filled","DisplayName","All Of OG Cluster");
             legend();
             % title(sprintf("Silhouette before %.2f",sihlouette_before.CriterionValues))
-            
+
             nexttile();
             new_cluster_idxs = unique(new_clusters);
             for k=1:length(new_cluster_idxs)
@@ -471,7 +468,7 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table)
             sgtitle(overall_title_string);
             save_plots_in_all_formats(f,fullfile(reclustered_plots,overall_title_string));
             close(f);
-            
+
         end
 
         fprintf("Finished %i / %i for bp row %i\n",j,length(current_comparison_peaks),i);
@@ -496,17 +493,17 @@ for i=1:length(cell_array_of_new_accuracies)
     padded_accuracies = [];
     current_accuracies = [{blind_pass_table{i,"accuracy"}};current_accuracies];
     for j=1:length(current_accuracies)
-       local_accuracies = current_accuracies{j};
-       if size(local_accuracies,1) > size(local_accuracies,2)
-           local_accuracies = local_accuracies.';
-       end
-       if length(local_accuracies) < max_size
-           local_accuracies = [local_accuracies,zeros(1,max_size-length(local_accuracies))];
-       end
-       padded_accuracies = [padded_accuracies;local_accuracies];
+        local_accuracies = current_accuracies{j};
+        if size(local_accuracies,1) > size(local_accuracies,2)
+            local_accuracies = local_accuracies.';
+        end
+        if length(local_accuracies) < max_size
+            local_accuracies = [local_accuracies,zeros(1,max_size-length(local_accuracies))];
+        end
+        padded_accuracies = [padded_accuracies;local_accuracies];
     end
 
-    
+
     % nexttile();
     comp_ch= cell_array_of_compare_channels{i};
     labels = categorical(["original accuracy";strcat("Channel ",string(comp_ch))]);

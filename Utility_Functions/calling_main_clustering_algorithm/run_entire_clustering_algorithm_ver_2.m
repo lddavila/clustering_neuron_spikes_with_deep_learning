@@ -223,7 +223,7 @@ if config.has_ground_truth && config.debug_with_ground_truth
 end
 
 % channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
-base_sw_dir = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows");
+base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
 config.base_sw_dir = base_sw_dir;
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
     % Step 9e: Run Clustering Algorithm

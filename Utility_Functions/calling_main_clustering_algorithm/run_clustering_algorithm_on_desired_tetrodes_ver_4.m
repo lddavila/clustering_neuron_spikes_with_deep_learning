@@ -77,6 +77,7 @@ num_iterations = height(every_permutation_of_both);
 print_status_bar(num_iterations,"run_clustering_algorithm_on_desired_tetrodes_ver_4");
 
 base_aligned_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"aligned_wf_files"));
+base_interp_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"interp_wf_files"));
 % base_raw_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.Value.BLIND_PASS_DIR_PRECOMPUTED,"filtered_raw_wf_files"));
 
 
@@ -126,24 +127,44 @@ parfor i=1:length(sliced_every_permutation_of_both)
 
 
 
-    
+
 
     spike_tetrode_dictionary_samples_format =load(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictionary_samples_format.mat"));
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.data_to_save;
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
+
+    %set the names for where we will create these base files (files that
+    %all the output files will reference)
     aligned_file_name = fullfile(base_aligned_files_dir,current_tetrode+" aligned_to_peak_wf.mat");
     base_aligned_sw_name = fullfile(base_sw_dir,current_tetrode+" sorted_spike_windows_after_purges.mat");
+    base_interp_raw_file_name = fullfile(base_interp_files_dir,current_tetrode+" unaligned_interp_wf.mat");
+
+
+
     % raw_file_name = fullfile(base_raw_files_dir,current_tetrode+" raw_wf.mat");
     if isfile(aligned_file_name)
         base_aligned = load(aligned_file_name);
         base_aligned = base_aligned.data_to_save;
-        base_aligned_idxs = 1:1:size(base_aligned,2);
-    end
+        % base_aligned_idxs = 1:1:size(base_aligned,2);
+        %TESTING FEATURE
+        base_interp_raw = load(base_interp_raw_file_name);
+        base_interp_raw = base_interp_raw.data_to_save;
+        %END TESTING FEATURE
+    else
+        %TESTING FEATURE
+        base_interp_raw = interpolate_spikes(raw, config.Value);
+        base_aligned = align_to_peak_ver_2(base_interp_raw);
 
+        par_save(aligned_file_name,base_aligned)
+        par_save(base_interp_raw_file_name,base_interp_raw);
+        par_save(base_aligned_sw_name,sorted_spike_windows);
+        %END TESTING FEATURE
+    end
+    base_aligned_idxs = 1:1:size(base_aligned,2);
     for j=1:height(current_data)
         even_more_local_config = local_config;
-        
+
         even_more_local_config.tetrode = current_tetrode;
 
         even_more_local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
@@ -167,7 +188,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
             local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min z_score"+ current_data{j,"number_of_thresholds_to_run"});
         end
         %NO LONGER USE CAUSE REDUNDANToutput_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" output.mat");
-        
+
         %NO LONGER USE CAUSE REDUNDANTreg_ts_file_name= fullfile(local_initial_tetrodes_results_dir,current_tetrode+" reg_timestamps.mat");
         reg_ts_of_spikes_file_name =fullfile(local_initial_tetrodes_results_dir,current_tetrode+ " reg_timestamps_of_the_spikes.mat");
         peak_pcs_file_name = fullfile(local_initial_tetrodes_results_dir,current_tetrode+" peak_pcs.mat");
@@ -186,7 +207,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
             continue;
         end
 
-        
+
 
         %record raw's size before cutting
         raw_size_before = size(raw);
@@ -223,8 +244,10 @@ parfor i=1:length(sliced_every_permutation_of_both)
             filter_1 = abs(sorted_spike_windows(:,5)) > current_data.number_of_thresholds_to_run(j); % a comparison in z score
         end
 
-        mutated_raw = raw(:,filter_1,:);
-        
+        % mutated_raw = raw(:,filter_1,:);
+        mutated_interp_spikes = base_interp_raw(:,filter_1,:);
+        mutated_base_idxs = base_aligned_idxs(filter_1);
+
 
         %filter the spike windows for debugging in clustering process
         mutated_spike_windows = sorted_spike_windows(filter_1,:);
@@ -246,7 +269,8 @@ parfor i=1:length(sliced_every_permutation_of_both)
 
 
         %get the new size of raw after the filter
-        new_raw_size = size(mutated_raw);
+        %old new_raw_size = size(mutated_raw);
+        new_raw_size = size(mutated_interp_spikes);
 
         %we will continue if the new filter didn't affect the size because that
         %means the filter did not filter anything out and thus running it will
@@ -257,7 +281,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
             send(q,[]);
             continue;
         end
-        if isempty(mutated_raw)
+        if isempty(mutated_interp_spikes)
             send(q,[]);
             continue
         end
@@ -307,14 +331,14 @@ parfor i=1:length(sliced_every_permutation_of_both)
             even_more_local_config.base_aligned_sw_name = base_aligned_sw_name;
             even_more_local_config.base_aligned_name = aligned_file_name;
             if ~isfile(even_more_local_config.base_aligned_name)
-                [~,~,~,reg_timestamps_of_the_spikes,~,~,base_aligned_idxs] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode);
+                [~,~,~,reg_timestamps_of_the_spikes,~,~,base_aligned_idxs] = run_spikesort_ntt_core_ver4(mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,mutated_interp_spikes,mutated_base_idxs);
             else
-                if even_more_local_config.use_new_spike_detection
-                    modded_base_aligned_idxs = base_aligned_idxs(filter_1);
-                else
-                    modded_base_aligned_idxs = base_aligned_idxs(abs(mutated_spike_windows(:,5)) > even_more_local_config.which_thresh);
-                end
-                [~,~,~,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(mutated_raw,mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,local_tetrode_results_dir,current_tetrode,modded_base_aligned_idxs);
+                % if even_more_local_config.use_new_spike_detection
+                %     modded_base_aligned_idxs = base_aligned_idxs(filter_1);
+                % else
+                %     modded_base_aligned_idxs = base_aligned_idxs(abs(mutated_spike_windows(:,5)) > even_more_local_config.which_thresh);
+                % end
+                [~,~,~,reg_timestamps_of_the_spikes] = run_spikesort_ntt_core_ver4(mutated_ts_for_current_tetrode,good_spike_idx,ir,tvals,current_filename,even_more_local_config,channels_in_current_tetrode,mutated_spike_windows,mutated_interp_spikes,mutated_base_idxs);
             end
             if  ~isempty(reg_timestamps_of_the_spikes)
                 reg_timestamps_of_the_spikes = struct("reg_timestamps_of_the_spikes",reg_timestamps_of_the_spikes);

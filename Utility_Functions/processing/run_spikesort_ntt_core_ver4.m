@@ -1,4 +1,4 @@
-function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,cleaned_clusters,base_aligned_idxs] = run_spikesort_ntt_core_ver4(raw, timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,dir_to_save_spike_windows_to,current_tetrode,varargin)
+function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,cleaned_clusters,base_aligned_idxs] = run_spikesort_ntt_core_ver4(timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,interp_raw,varargin)
 %OG: [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes]
 %RUN_SPIKESORT_NTT_CORE Runs spike sorter on data extracted from the
 %tetrode.
@@ -36,7 +36,7 @@ function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,
 % plot_the_spikes(raw,"Beginning",1,channels)
 % plot_the_spikes_ver_2(raw,"Beginning",1,channels,timestamps)
 % disp("Got inside of run_spikesort_ntt_core_ver4.m")
-interp_raw = interpolate_spikes(raw, config);
+% interp_raw = interpolate_spikes(raw, config);
 % disp("Finished interpolating spikes")
 % Fix interpolated spikes that hit threshhold
 %     for w = 1:size(interp_raw, 1)
@@ -85,14 +85,17 @@ else
     % save(fullfile(dir_to_save_spike_windows_to,current_tetrode+" sorted_spike_windows_after_purges.mat"),"reg_sorted_spike_windows");
 end
 
-if ~isfile(config.base_aligned_name)
-    base_aligned = align_to_peak_ver_2(reg_interp_raw,tvals,ir);
-    par_save(config.base_aligned_name,base_aligned);
-    base_aligned_idxs = 1:1:size(base_aligned,2);
-    par_save(config.base_aligned_sw_name,reg_sorted_spike_windows)
-else
-    base_aligned_idxs = varargin{1};
-end
+%TEST REMOVAL
+% if ~isfile(config.base_aligned_name)
+%     base_aligned = align_to_peak_ver_2(reg_interp_raw,tvals,ir);
+%     par_save(config.base_aligned_name,base_aligned);
+%     base_aligned_idxs = 1:1:size(base_aligned,2);
+%     par_save(config.base_aligned_sw_name,reg_sorted_spike_windows)
+% else
+%     base_aligned_idxs = varargin{1};
+% end
+%TEST REMOVAL END
+
 
 if ~isempty(varargin)
     modded_base_aligned_idxs = modded_base_aligned_idxs(filter_3);

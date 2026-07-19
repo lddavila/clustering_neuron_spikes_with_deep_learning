@@ -36,7 +36,7 @@ for k=1:length(number_of_channels_to_use)
             config.percentiles_to_use = [1];
             config.spikesort.NUM_ITERATIONS = 5;
             config.RECORDING_NAME = string(i)+default_dir_parts(1)+string(i)+default_dir_parts(2);
-            config.DEFAULT_CLUSTERING_Z_SCORES = [3];
+            config.DEFAULT_CLUSTERING_Z_SCORES = [3,4,5,6,7,8,9];
 
             if ~isempty(varargin)
                 if varargin{2} == "ic"
@@ -46,7 +46,7 @@ for k=1:length(number_of_channels_to_use)
                 else
                     config.use_new_spike_detection = false;
                     config.use_bandpass = false;
-                    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"pos_z_sc_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch_07_13_2026");
+                    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"all_pmv_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch_07_19_2026");
                 end
             end
 

@@ -285,7 +285,7 @@ end
 if ~isempty(varargin)
     new_cluster_idxs = cell(length(cleaned_clusters),1);
     for i=1:length(cleaned_clusters)
-        new_cluster_idxs{i} = local_idxs(cleaned_clusters{i}); %gets you where the
+        new_cluster_idxs{i} = local_idxs(cleaned_clusters{i}); %gets you where the peaks were in the base aligned file not the local aligned file
     end
     cleaned_clusters = new_cluster_idxs;
 end

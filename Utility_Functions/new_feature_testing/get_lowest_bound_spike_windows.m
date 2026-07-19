@@ -17,7 +17,7 @@ print_status_bar(number_of_iterations,"get_lowest_bound_spike_windows.m")
 already_done = config.ALREADY_DONE_FILES;
 use_new_spike_detection = config.use_new_spike_detection;
 config = parallel.pool.Constant(config);
-for i=1:length(ordered_list_of_channels)
+parfor i=1:length(ordered_list_of_channels)
     current_channel = ordered_list_of_channels(i);
     current_channel_number = str2double(strrep(strrep(current_channel,".mat",""),"c",""));
 
@@ -29,16 +29,16 @@ for i=1:length(ordered_list_of_channels)
     end
 
     channel_wise_z_score = importdata(fullfile(dir_with_channel_z_scores,current_channel));
-    disp("successfully loaded z score")
-    disp(fullfile(dir_with_channel_z_scores,current_channel));
+    % disp("successfully loaded z score")
+    % disp(fullfile(dir_with_channel_z_scores,current_channel));
     channel_data = importdata(fullfile(config.Value.DIR_WITH_OG_CHANNEL_RECORDINGS,current_channel));
-    disp("successfully loaded channel data");
-    disp(fullfile(config.Value.DIR_WITH_OG_CHANNEL_RECORDINGS,current_channel));
-    disp("Trying to load spikes per channel")
-    disp(fullfile(spikes_per_channel_dir,current_channel))
+    % disp("successfully loaded channel data");
+    % disp(fullfile(config.Value.DIR_WITH_OG_CHANNEL_RECORDINGS,current_channel));
+    % disp("Trying to load spikes per channel")
+    % disp(fullfile(spikes_per_channel_dir,current_channel))
     spikes_for_current_channel = importdata(fullfile(spikes_per_channel_dir,current_channel));
-    disp("successfuly loaded spikes per channel")
-    disp(fullfile(spikes_per_channel_dir,current_channel));
+    % disp("successfuly loaded spikes per channel")
+    % disp(fullfile(spikes_per_channel_dir,current_channel));
     spike_windows = zeros(length(spikes_for_current_channel),5);
     for j=1:length(spikes_for_current_channel)
         channel_i_peak_j = spikes_for_current_channel(j); %get the current peak
