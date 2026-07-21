@@ -80,12 +80,12 @@ parfor i=1:size(sliced_blind_pass_table,1)
             continue;
         end
 
-        base_spike_windows_fp = fullfile(config.Value.dictionaries_dir,current_tetrode + " sorted_spike_windows.mat");
+        base_spike_windows_fp =current_data{1,"fp_to_sorted_spike_windows_after_purges"};
         base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
-        base_spike_windows_dict = base_spike_windows_struct.data_to_save.sorted_spike_windows_for_current_tetrode_dictionary;
-        the_dict_key = string(keys(base_spike_windows_dict));
-        base_spike_windows = base_spike_windows_dict(the_dict_key);
+        base_spike_windows = base_spike_windows_struct.data_to_save;
+
         timestamps = timestamps_array(base_spike_windows(:,4));
+       
 
         try
             aligned_struct = load(aligned_fp,"data_to_save");
