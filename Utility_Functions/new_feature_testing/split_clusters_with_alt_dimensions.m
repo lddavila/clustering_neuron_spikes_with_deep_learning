@@ -1,7 +1,10 @@
-function [blind_pass_table] = split_clusters_with_alt_dimensions(blind_pass_table,config,varargin)
+function [bp_table_after_splitting] = split_clusters_with_alt_dimensions(blind_pass_table,config,varargin)
 % get timestamps to use
 timestamps = importdata(config.TIMESTAMP_FP);
 locs_of_channels = get_probe_xy(); %get the x-y locations of the probe channels
+
+%add a reference id before slicing so we can rack
+blind_pass_table.ref_id = (1:height(blind_pass_table)).';
 
 
 %slice the blind pass table by their unique aligned files to minimize
@@ -47,7 +50,9 @@ afterEach(q,@print_status_bar)
 num_iterations = length(sliced_bp_table);
 print_status_bar(num_iterations,"split_clusters_with_alt_dimensions: getting split data");
 
-
+% if ~isempty(varargin)
+%     cell_array_of_split_counts = cell(length(sliced_bp_table),1);
+% end
 parfor i=1:length(sliced_bp_table)
 
     %get current table
@@ -63,13 +68,16 @@ parfor i=1:length(sliced_bp_table)
 
     peaks = get_peaks(aligned,true);
 
-    all_sil_scores = cell(height(current_bp_table),1);
+    % all_sil_scores = cell(height(current_bp_table),1);
     all_davies_scores = nan(height(current_bp_table),1);
     all_calinski_scores = nan(height(current_bp_table),1);
 
     warning('off', 'stats:pdist2:DataConversion'); %known warning which will not affect result
     cell_array_of_new_peaks_for_current_rows = cell(height(current_bp_table),1);
     cell_array_of_compare_channels_for_current_rows = cell(height(current_bp_table),1);
+    % if ~isempty(varargin)
+    %     splits_for_current_bp_table = zeros(height(current_bp_table),1);
+    % end
     for j=1:height(current_bp_table)
 
         rep_channel_1 =current_bp_table{j,"rep_channel_1"}; %get the channel where the neuron appears clearest
@@ -107,14 +115,20 @@ parfor i=1:length(sliced_bp_table)
 
 
         cell_array_of_other_channel_peaks = cell(length(rearragned_channel_data),1);
+        % if ~isempty(varargin)
+        %     splits_for_current_bp_table(j) = length(rearragned_channel_data);
+        % end
         for k=1:length(rearragned_channel_data)
             compare_channel_data = rearragned_channel_data{k};
             other_tetrode_peaks_on_compare_channel = compare_channel_data(spike_windows(:,4)); %the same times of the peaks that we found on the other tetrode, but on this channel
             compare_channel_cluster_peaks = other_tetrode_peaks_on_compare_channel(cluster_peaks_idx); %get the cluster's appearence on this channel
-            cell_array_of_other_channel_peaks{k} = [peaks(blind_pass_table{i,"rep_wire_1"},cluster_peaks_idx).',compare_channel_cluster_peaks];
+            cell_array_of_other_channel_peaks{k} = [peaks(current_bp_table{j,"rep_wire_1"},cluster_peaks_idx).',compare_channel_cluster_peaks];
         end
         cell_array_of_new_peaks_for_current_rows{j} = cell_array_of_other_channel_peaks;
     end
+    % if ~isempty(varargin)
+    %     cell_array_of_split_counts{i} = sum(splits_for_current_bp_table);
+    % end
     cell_array_of_new_peak_vals_for_each_bp_table_aligned_row{i} = cell_array_of_new_peaks_for_current_rows;
     cell_array_of_compare_channels_for_each_bp_table_aligned_row{i} = cell_array_of_compare_channels_for_current_rows;
     current_bp_table.calinski_score = all_calinski_scores;
@@ -124,50 +138,80 @@ parfor i=1:length(sliced_bp_table)
     send(q,[])
 end
 
+% if ~isempty(varargin)
+%     possible_number_of_splits = sum(cell2mat(cell_array_of_split_counts));
+% end
+
 %with new peaks aquired we can now try and identify when/if a splitting a
 %cluster will result in better separation
 
 
 % extended_blind_pass_table = cell(height(blind_pass_table),1);
-cluster_addition = max(blind_pass_table.Cluster)+1;
-cell_array_of_new_tables_for_each_al_file = cell(length(sliced_bp_table),1);
+% cluster_addition = max(blind_pass_table.Cluster)+1;
+cell_array_of_new_tables = cell(length(sliced_bp_table),1);
 % cell_array_of_original_reference_cluster = cell(height(blind_pass_table),1);
-warning('off', 'stats:pdist2:DataConversion'); %known warning which will not affect result
+
+%set up a dataqueue which will keep track of progress for us
+q = parallel.pool.DataQueue;
+afterEach(q,@print_status_bar)
+% num_iterations = length(cell_array_of_new_tables_for_each_clust);
+num_iterations = length(cell_array_of_new_peak_vals_for_each_bp_table_aligned_row);%sum(cellfun(@length,cell_array_of_new_peak_vals_for_each_bp_table_aligned_row{:})) * length(cell_array_of_new_peak_vals_for_each_bp_table_aligned_row); %provides upper bound of completeness
+print_status_bar(num_iterations,"split_clusters_with_alt_dimensions: reclustering");
+
 
 for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table_aligned_row) %this outer for loop cycling through the table in such a way that very group is dedicated to 1 aligned file
     current_bp_table = sliced_bp_table{i};
+
     current_comparison_peaks_for_current_aligned = cell_array_of_new_peak_vals_for_each_bp_table_aligned_row{i};
     curr_comp_ch_for_current_aligned = cell_array_of_compare_channels_for_each_bp_table_aligned_row{i};
 
-    current_z_score = blind_pass_table{i,"Z Score"};
-    current_tetrode = blind_pass_table{i,"Tetrode"};
+
 
     % accuracies_per_channel = cell(length(curr_comp_ch_for_current_aligned),1);
     tables_per_channel = cell(length(curr_comp_ch_for_current_aligned),1);
     cell_array_of_new_tables_for_each_clust = cell(length(current_comparison_peaks_for_current_aligned),1);
-    parfor j=1:length(current_comparison_peaks_for_current_aligned) %this for loop cycles through each cluster that comes from the aligned file specified inside
+
+
+
+    for j=1:length(current_comparison_peaks_for_current_aligned) %this for loop cycles through each cluster that comes from the aligned file specified inside
+        current_z_score = current_bp_table{j,"Z Score"};
+        current_tetrode = current_bp_table{j,"Tetrode"};
         current_cluster_alternate_dimension_peaks = current_comparison_peaks_for_current_aligned{j};
         current_alternate_channel_peaks = curr_comp_ch_for_current_aligned{j};
         cell_array_of_new_tables_for_each_channel = cell(length(current_cluster_alternate_dimension_peaks),1);
-        for c=1:length(current_cluster_alternate_dimension_peaks) %this for loop cycles through every channel that the cluster might be split by
-            fprintf("i:%i j:%i c:%i\n",i,j,c);
+        local_ref_id = current_bp_table{j,"ref_id"};
+        parfor c=1:length(current_cluster_alternate_dimension_peaks) %this for loop cycles through every channel that the cluster might be split by
+
+            warning_state = warning("off", "stats:gmdistribution:FailedToConvergeReps"); %known warning which will not affect results
+            restore_warning = onCleanup(@() warning(warning_state));
+            warning_state_2 = warning('off', 'stats:pdist2:DataConversion'); %known warning which will not affect result
+            restore_warning_2 = onCleanup(@() warning(warning_state_2));
+            % fprintf("i:%i j:%i c:%i\n",i,j,c);
             %current_clustering_data = zscore(current_clustering_data,1,1);
             current_clustering_data = current_cluster_alternate_dimension_peaks{c};
+            %because things like sihloutette,davies,and calinski are all
+            %expensive computationally we'll sample the data rows randomly
+            %to speed up their computation
+            %we'll sample the clustering data as to have 99% certainty
+            % curent_clustering_data = get_a_subsample_of_clustering_data(current_clustering_data);
+            colmin = min(current_clustering_data)
+            colmax = max(current_clustering_data)
             current_alternate_channel = current_alternate_channel_peaks(c);
-            current_clustering_data = rescale(current_clustering_data);
+            current_clustering_data = rescale(current_clustering_data,'InputMax',colmax,'InputMin',colmin);
             current_clustering_data(:,2) = current_clustering_data(:,2)*2; %I multiply by 2 here because we want to allow the new clustering to give more weight to the second dimension in order to maximize it's splitting potential
-            sihlouette_before = evalclusters(current_clustering_data,[ones(size(current_clustering_data,1)-1,1);2],"silhouette"); %since the original cluster is just
+            % sihlouette_before = evalclusters(current_clustering_data,[ones(size(current_clustering_data,1)-1,1);2],"silhouette"); %since the original cluster is just
             % [epsilon,min_num_dpts,res_x] =find_epsilon_for_db_scan_using_k_distance(current_clustering_data,false,true);
             % new_clusters = dbscan(current_clustering_data,epsilon,min_num_dpts);
             % new_clusters = new_clusters+2; %we do this so the unclustered data is treated as a cluster and we can eval clusters
-            sihlouette_after = evalclusters(current_clustering_data,'gmdistribution',"silhouette","KList",2:5,"ClusterPriors","equal");
-            
-            new_clusters = sihlouette_after.OptimalY;
-            davies_after = evalclusters(current_clustering_data,new_clusters,"DaviesBouldin");
-            calinski_after = evalclusters(current_clustering_data,new_clusters,"CalinskiHarabasz");
-           
+            % sihlouette_after = evalclusters(current_clustering_data,'gmdistribution',"silhouette","KList",2:5,"ClusterPriors","equal");
 
-            fprintf("Silhouette with k = %i %.2f\n",sihlouette_after.OptimalK,max(sihlouette_after.CriterionValues));
+            % new_clusters = sihlouette_after.OptimalY;
+            davies_after = evalclusters(current_clustering_data,'gmdistribution',"DaviesBouldin","KList",2:5);
+            new_clusters = davies_after.OptimalY;
+            % calinski_after = evalclusters(current_clustering_data,new_clusters,"CalinskiHarabasz");
+
+
+            % fprintf("Silhouette with k = %i %.2f\n",sihlouette_after.OptimalK,max(sihlouette_after.CriterionValues));
             unique_clusters = unique(new_clusters);
             new_cluster_idx = cell(length(unique_clusters),1);
             new_cluster_ts = cell(length(unique_clusters),1);
@@ -175,30 +219,40 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table_aligned_row) %this 
                 old_cluster_ts = current_bp_table{j,"timestamps"}{1};
                 old_cluster_idx = current_bp_table{j,"cluster_idx"}{1};
                 new_cluster_ts{k} = old_cluster_ts(new_clusters==unique_clusters(k));
-                new_cluster_idx{k} = old_cluster_idx(new_clusters==unique_clusters(k));
-                cluster_addition = cluster_addition+1;
+                new_cluster_idx{k} = old_cluster_idx(new_clusters==unique_clusters(k)).';
+                % cluster_addition = cluster_addition+1;
             end
 
-            new_sil = repelem(max(sihlouette_after.CriterionValues),length(unique_clusters),1);
-            new_dav = repelem(davies_after.CriterionValues,length(unique_clusters),1);
-            new_cal = repelem(calinski_after.CriterionValues,length(unique_clusters),1);
+            % new_sil = repelem(max(sihlouette_after.CriterionValues),length(unique_clusters),1);
+            new_dav = repelem(min(davies_after.CriterionValues),length(unique_clusters),1);
+            % new_cal = repelem(calinski_after.CriterionValues,length(unique_clusters),1);
             local_channels = repmat({[blind_pass_table{i,"rep_channel_1"},current_alternate_channel]},length(unique_clusters),1);
+            % new_table = table(repelem(current_z_score,length(unique_clusters),1), ...
+            %     repelem(current_tetrode,length(unique_clusters),1), ...
+            %     unique_clusters,...
+            %     new_cluster_ts,...
+            %     new_cluster_idx,...
+            %     local_channels,...
+            %     new_sil,...
+            %     new_dav,...
+            %     new_cal,...
+            %     'VariableNames', ...
+            %     ["Z Score","Tetrode","Cluster","timestamps","cluster_idx","channels","sil_score","davies_score","calinski_score"]);
+
             new_table = table(repelem(current_z_score,length(unique_clusters),1), ...
                 repelem(current_tetrode,length(unique_clusters),1), ...
-                unique_clusters,...
+                repelem(local_ref_id,length(unique_clusters),1),...
                 new_cluster_ts,...
                 new_cluster_idx,...
                 local_channels,...
-                new_sil,...
                 new_dav,...
-                new_cal,...
                 'VariableNames', ...
-                ["Z Score","Tetrode","Cluster","timestamps","cluster_idx","channels","sil_score","davies_score","calinski_score"]);
+                ["Z Score","Tetrode","Cluster","timestamps","cluster_idx","channels","davies_score"]);
 
             if config.has_ground_truth && config.debug_with_ground_truth
 
-                new_table_with_accuracy = add_overlap_percentage_col_and_max_overlap_unit_optimized(new_table,config,timestamps);
-                new_table_with_accuracy = add_accuracy_col(config,new_table_with_accuracy);
+                new_table_with_accuracy = add_overlap_percentage_col_and_max_overlap_unit_optimized(new_table,config,timestamps,false);
+                new_table_with_accuracy = add_accuracy_col(config,new_table_with_accuracy,false);
                 cell_array_of_new_tables_for_each_channel{c} = new_table_with_accuracy;
             else
                 cell_array_of_new_tables_for_each_channel{c} = new_table;
@@ -206,12 +260,97 @@ for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table_aligned_row) %this 
 
 
             % fprintf("Finished %i / %i for bp row %i\n",j,length(current_comparison_peaks_for_current_aligned),i);
+            
+
         end
-        cell_array_of_new_tables_for_each_clust{j} = vertcat(cell_array_of_new_tables_for_each_channel);
+        clear restore_warning  % Restores the previous warning state
+        clear restore_warning_2
+        % send(q,[]);
+        local_table = vertcat(cell_array_of_new_tables_for_each_channel{:});
+        lowest_davies_score = min(local_table.davies_score);
+
+        cell_array_of_new_tables_for_each_clust{j} = local_table(local_table{:,"davies_score"}==lowest_davies_score,:);
     end
 
-    cell_array_of_new_tables{i} = cell_array_of_new_tables_for_each_clust;
 
+
+    cell_array_of_new_tables{i} = vertcat(cell_array_of_new_tables_for_each_clust{:});
+    send(q,[]);
+end
+bp_table_after_splitting = vertcat(cell_array_of_new_tables{:});
+if ~isempty(varargin)
+    existingPool = gcp('nocreate');
+    if ~isempty(existingPool)
+        delete(existingPool);
+    end
+
+    % compare old accuracies to new accuracies
+    results_of_splitting = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"resplitting_population_whole_table"));
+    q = parallel.pool.DataQueue;
+    afterEach(q,@print_status_bar)
+    num_iterations = height(blind_pass_table);
+    print_status_bar(num_iterations,"split_clusters_with_alt_dimensions: getting old vs new accuracies");
+    sliced_new_bp_table = slice_table_for_parallel_processing(bp_table_after_splitting,"Cluster");
+    sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
+    data_to_turn_into_cdf_aka_avg_change = [];
+    parfor i=1:length(sliced_bp_table)
+        f = figure('Visible','off');
+
+        current_accuracies = sliced_new_bp_table{i};
+        current_accuracies = current_accuracies{:,"accuracy"};
+        current_bp_table = sliced_bp_table{i};
+
+        if any(current_accuracies >= current_bp_table{1,"accuracy"})
+            value_to_append = mean(current_accuracies(current_accuracies >= current_bp_table{1,"accuracy"}));
+           
+        elseif any(abs(current_accuracies - current_bp_table{1,"accuracy"})<1)
+            value_to_append = mean(current_accuracies(abs(current_accuracies - current_bp_table{1,"accuracy"})<1))
+            
+        else
+            value_to_append = mean(current_accuracies);
+        end
+        data_to_turn_into_cdf_aka_avg_change = [data_to_turn_into_cdf_aka_avg_change;value_to_append-current_bp_table{1,"accuracy"}];
+        max_size = length(current_accuracies);
+        
+
+        padded_accuracies = [];
+        current_accuracies = [{current_bp_table{1,"accuracy"}};{current_accuracies}];
+        for j=1:length(current_accuracies)
+            local_accuracies = current_accuracies{j};
+            if size(local_accuracies,1) > size(local_accuracies,2)
+                local_accuracies = local_accuracies.';
+            end
+            if length(local_accuracies) < max_size
+                local_accuracies = [local_accuracies,zeros(1,max_size-length(local_accuracies))];
+            end
+            padded_accuracies = [padded_accuracies;local_accuracies];
+        end
+
+
+        % nexttile();
+        % comp_ch= cell_array_of_compare_channels{i};
+        % labels = categorical(["original accuracy";strcat("Channel ",string(comp_ch))]);
+        % labels = reordercats(labels,["original accuracy";strcat("Channel ",string(comp_ch))]);
+        bar(["original clustering","new clustering"],padded_accuracies,'grouped');
+        hold on;
+        yline(current_bp_table{1,"accuracy"},"LineWidth",2,"Color",'red','Label',"Original cluster accuracy");
+        ylim([0,100])
+        title("Cluster "+string(i))
+        save_plots_in_all_formats(f,fullfile(results_of_splitting,"cluster_"+string(i)));
+        close(f);
+        send(q,[]);
+    end
+
+    f = figure();
+    [the_y,the_x] = ecdf(data_to_turn_into_cdf_aka_avg_change);
+    plot(the_x,the_y,'LineWidth',2,'Color','k')
+    hold on;
+    legend;
+    title("CDF of accuracy change when splitting")
+    ylabel("cumulative probability")
+    xlabel("accuracy split");
+    grid on;
+    save_plots_in_all_formats(f,fullfile(results_of_splitting,"population of accuracies after splitting cdf"));
 end
 
 end
