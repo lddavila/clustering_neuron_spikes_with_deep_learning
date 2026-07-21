@@ -175,6 +175,9 @@ if isempty(options.bp_table_after_splitting)
             current_alternate_channel_peaks = curr_comp_ch_for_current_aligned{j};
             cell_array_of_new_tables_for_each_channel = cell(length(current_cluster_alternate_dimension_peaks),1);
             local_ref_id = current_bp_table{j,"ref_id"};
+            local_aligned_fp = current_bp_table{j,"fp_to_aligned"};
+            local_ts_and_r_vals_fp = current_bp_table{j,"fp_to_timestamps_rtvals"};
+            local_base_spike_windows_fp =current_bp_table{j,"fp_to_sorted_spike_windows_after_purges"};
             parfor c=1:length(current_cluster_alternate_dimension_peaks) %this for loop cycles through every channel that the cluster might be split by
 
                 warning_state = warning("off", "stats:gmdistribution:FailedToConvergeReps"); %known warning which will not affect results
@@ -234,15 +237,14 @@ if isempty(options.bp_table_after_splitting)
                 %     'VariableNames', ...
                 %     ["Z Score","Tetrode","Cluster","timestamps","cluster_idx","channels","sil_score","davies_score","calinski_score"]);
 
-                new_table = table(repelem(current_z_score,length(unique_clusters),1), ...
-                    repelem(current_tetrode,length(unique_clusters),1), ...
+                new_table = table((1:length(unique_clusters)).' ,...
                     repelem(local_ref_id,length(unique_clusters),1),...
                     new_cluster_ts,...
                     new_cluster_idx,...
                     local_channels,...
                     new_dav,...
                     'VariableNames', ...
-                    ["Z Score","Tetrode","Cluster","timestamps","cluster_idx","channels","davies_score"]);
+                    ["Cluster","ref_id","timestamps","cluster_idx","channels","davies_score"]);
 
                 if config.has_ground_truth && config.debug_with_ground_truth
 
@@ -273,7 +275,13 @@ if isempty(options.bp_table_after_splitting)
         send(q,[]);
     end
     bp_table_after_splitting = vertcat(cell_array_of_new_tables{:});
+    %before performing a join we set the list of columns from the blind
+    %pass table which we do which to be carried over to
+    %bp_table_after_splitting
+    
+    vars_to_include = setdiff(string(blind_pass_table.Properties.VariableNames),["grades","timestamps","cluster_idx","channels","Cluster","mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","overlap_perc_with_all_units","rep_wire_2","tp","fp","fn"]);
 
+    bp_table_after_splitting = join(bp_table_after_splitting,blind_pass_table(:,vars_to_include),"Keys","ref_id");
     if options.plot_the_debug
         existingPool = gcp('nocreate');
         if ~isempty(existingPool)

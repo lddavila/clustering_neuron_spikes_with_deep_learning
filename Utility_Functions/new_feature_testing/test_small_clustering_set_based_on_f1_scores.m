@@ -1,6 +1,5 @@
 % function [] = test_small_clustering_set_based_on_f1_scores(which_recording,varargin)
-which_recording = 10;
-which_cutting = "z score";
+
 %meant to run on TACC and only TACC, not modified for anything else
 %this function is meant to run the same examples, but uses the new spike
 %detection method copied from ironclust
@@ -14,8 +13,7 @@ addpath(genpath(fullfile(pwd,"Grading_scripts")));
 % addpath(fullfile(pwd,"startup.m"))
 cd(home_dir);
 disp("Finished Adding path")
-default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
-currentPool = gcp('nocreate');
+
 % if isempty(currentPool)
 %     cluster = parcluster("Processes");
 %     num_workers = max(1, floor(cluster.NumWorkers / 8));
@@ -27,6 +25,10 @@ currentPool = gcp('nocreate');
 % end
 
 %%
+default_dir_parts = ["_600Neuron300SecondRecordingWithLevel","Noise"];
+currentPool = gcp('nocreate');
+which_recording = 10;
+which_cutting = "z score";
 beginning = which_recording;
 the_end = which_recording+0.5;
 number_of_channels_to_use = 4;

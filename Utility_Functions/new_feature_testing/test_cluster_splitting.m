@@ -10,6 +10,7 @@ cd(home_dir);
 
 %get a config file
 config = spikesort_config();
+config.RECORDING_NAME = "10_600Neuron300SecondRecordingWithLevel10Noise";
 
 % set config parameters given the system
 if contains(pwd,"10595")
@@ -29,8 +30,10 @@ config.ground_truth_cell_array = importdata(config.GT_FP);
 config.debug_with_ground_truth = true;
 config.use_new_spike_detection = false;
 
-bp_table_after_splitting_save_place = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"testing_cluster_splitting_population"));
-bp_table_after_splitting_save_name = fullfile(bp_table_after_splitting_save_place,"bp_table_after_splitting.mat");
+config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"testing_cluster_splitting_population"));
+
+config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
+bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting.mat");
 
 if ~isfile(bp_table_after_splitting_save_name)
     bp_table_after_splitting = split_clusters_with_alt_dimensions(blind_pass_table,config);
@@ -38,8 +41,18 @@ if ~isfile(bp_table_after_splitting_save_name)
 else
     bp_table_after_splitting = importdata(bp_table_after_splitting_save_name);
 end
+existingPool = gcp('nocreate');
+if ~isempty(existingPool)
+    delete(existingPool);
+end
+%get grades for the new table
 
+bp_table_after_splitting_vars = string(bp_table_after_splitting_save_name.Properties.VariableNames);
+if ismember("grades",bp_table_after_splitting_vars)
+    bp_table_after_splitting = get_grades_for_nth_pass_of_clustering_ver_2(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
 
-
-
+    par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
+else
+    bp_table_after_splitting = importdata(bp_table_after_splitting_save_name);
+end
 end

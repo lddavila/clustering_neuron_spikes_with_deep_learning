@@ -1,4 +1,9 @@
-function [blind_pass_table] = get_grades_for_nth_pass_of_clustering_ver_2(blind_pass_table,config)
+function [blind_pass_table] = get_grades_for_nth_pass_of_clustering_ver_2(blind_pass_table,config,options)
+arguments
+    blind_pass_table table                 %required
+    config struct               %required
+    options.optional_alternate_grade_path string = "" % Optional named argument
+end
 % run_grading_script_on_blind_pass
 if ~all(isfile(config.TEMPLATE_CLUSTER_FP))
     draw_elipse_templates(config);
@@ -41,9 +46,9 @@ parfor i=1:size(sliced_blind_pass_table,1)
     current_z_score = current_data{1,"Z Score"};
     % fprintf("Currently grading %s with z score %i\n",current_tetrode,current_z_score);
     if ~config.Value.use_new_spike_detection
-        dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"));
+        dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min z_score "+string(current_z_score)+" grades"+options.optional_alternate_grade_path));
     else
-        dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier "+string(current_z_score)+" grades"));
+        dir_to_save_grades_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(precomputed_dir,"initial_pass min multiplier "+string(current_z_score)+" grades"+options.optional_alternate_grade_path));
     end
     grades_file_name =fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
 
