@@ -47,12 +47,45 @@ if ~isempty(existingPool)
 end
 %get grades for the new table
 
-bp_table_after_splitting_vars = string(bp_table_after_splitting_save_name.Properties.VariableNames);
-if ismember("grades",bp_table_after_splitting_vars)
+bp_table_after_splitting_vars = string(bp_table_after_splitting.Properties.VariableNames);
+if ~ismember("grades",bp_table_after_splitting_vars)
     bp_table_after_splitting = get_grades_for_nth_pass_of_clustering_ver_2(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
-
     par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
-else
-    bp_table_after_splitting = importdata(bp_table_after_splitting_save_name);
 end
+
+
+%extract grades from bp_table_after_splitting
+list_of_features_to_add = ["grades 3"];
+grades_array = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,bp_table_after_splitting,config))];
+table_of_nets = struct2table(dir(fullfile(config.dir_of_prob_dist_nets,"*.mat")));
+net_names = string(table_of_nets.name);
+split_net_names = split(net_names,"_");
+[~,where_below_ends ]= find(split_net_names=="below");
+net_nums = arrayfun(@(i) split_net_names(i, where_below_ends(i)+1), ...
+    (1:size(split_net_names,1))');
+
+table_of_nets.threshold = str2double(net_nums);
+table_of_nets = sortrows(table_of_nets,"threshold","ascend");
+
+dir_to_nn_sets = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling";
+true_accuracy = bp_table_after_splitting{:,"accuracy"};
+f = figure;
+tiledlayout('flow');
+nexttile();
+histogram(true_accuracy,'BinEdges',1:1:100);
+ylabel("Frequency")
+xlabel("Accuracy")
+
+
+[~,unscaled_certainties ]= get_certainties_of_all_previous_nets(string(table_of_nets.name),dir_to_nn_sets,grades_array);
+all_positive =all(unscaled_certainties>0,2) | sum(unscaled_certainties>0,2)>80 ;
+all_negative = all(unscaled_certainties<0,2) | sum(unscaled_certainties<0,2)>80;
+to_eliminate = all_positive | all_negative;
+true_accuracy(to_eliminate) = [];
+unscaled_certainties(to_eliminate,:) = [];
+
+nexttile();
+histogram(true_accuracy,'BinEdges',1:1:100)
+ylabel("Frequency")
+xlabel("Accuracy")
 end

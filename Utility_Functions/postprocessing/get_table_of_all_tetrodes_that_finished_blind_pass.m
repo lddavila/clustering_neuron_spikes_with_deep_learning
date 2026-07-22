@@ -21,6 +21,7 @@ else
 end
 all_files_in_precomputed_dir = all_files_in_precomputed_dir(~all_files_in_precomputed_dir{:,"isdir"},:);
 only_files_with_output = all_files_in_precomputed_dir(contains(string(all_files_in_precomputed_dir{:,"name"}),"reg_timestamps_of_the_spikes"),:);
+
 output_table = table(nan(size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),repelem("",size(only_files_with_output,1),1),...
     'VariableNames', ...
     ["Z Score","Tetrode","fp_to_aligned","fp_to_cleaned_clusters","fp_to_reg_timestamps_of_the_spikes","fp_to_reg_timestamps","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"]);

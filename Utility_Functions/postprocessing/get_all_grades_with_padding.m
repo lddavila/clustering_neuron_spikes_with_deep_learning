@@ -50,7 +50,7 @@ for i=1:length(grade_idxs_to_be_used)
     if i==7
         cell_array{i} = double(vertcat(all_grades{:,grade_idxs_to_be_used(i)}));
     else
-        cell_array{i} = cell2mat(all_grades(:,grade_idxs_to_be_used(i)));
+        cell_array{i} = cell2mat( cellfun(@double, all_grades(:,grade_idxs_to_be_used(i)), 'UniformOutput', false));
     end
     
 end

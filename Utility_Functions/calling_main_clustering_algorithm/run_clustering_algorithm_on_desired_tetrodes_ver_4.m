@@ -82,7 +82,7 @@ base_interp_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfi
 
 
 %there should be a parfor on the line immediately following this one when not testing
-parfor i=1:length(sliced_every_permutation_of_both)
+for i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
@@ -90,6 +90,12 @@ parfor i=1:length(sliced_every_permutation_of_both)
     % beginning_time = tic;
 
     current_tetrode = "t"+current_data{1,"number_of_tetrodes_to_run"};
+
+    %set the names for where we will create these base files (files that
+    %all the output files will reference)
+    aligned_file_name = fullfile(base_aligned_files_dir,current_tetrode+" aligned_to_peak_wf.mat");
+    base_aligned_sw_name = fullfile(base_sw_dir,current_tetrode+" sorted_spike_windows_after_purges.mat");
+    base_interp_raw_file_name = fullfile(base_interp_files_dir,current_tetrode+" unaligned_interp_wf.mat");
 
     if local_config.has_ground_truth && local_config.debug_with_ground_truth
         local_config.table_of_best_rep = local_config.table_of_best_rep(local_config.table_of_best_rep{:,"tetrode"}==current_tetrode,:);
@@ -102,8 +108,11 @@ parfor i=1:length(sliced_every_permutation_of_both)
     c6 = isfile(fullfile(dictionaries_dir,current_tetrode+" spike_tetrode_dictonary.mat"));
     c7 = isfile(fullfile(dictionaries_dir,current_tetrode+" timing_tetrode_dictionary.mat"));
     c8 = isfile(fullfile(dictionaries_dir,current_tetrode+" sorted_spike_windows.mat"));
+    c9 = isfile(base_aligned_sw_name);
+    c10 = isfile(base_interp_raw_file_name);
+    c11 = isfile(base_aligned_sw_name);
 
-    if ~all([c5,c6,c7,c8])
+    if ~all([c5,c6,c7,c8,c9,c10,c11])
         send(q,[]);
         continue;
     end
@@ -134,11 +143,7 @@ parfor i=1:length(sliced_every_permutation_of_both)
     spike_tetrode_dictionary_samples_format = spike_tetrode_dictionary_samples_format.spike_tetrode_dictionary_samples_format;
     raw = spike_tetrode_dictionary(current_tetrode);
 
-    %set the names for where we will create these base files (files that
-    %all the output files will reference)
-    aligned_file_name = fullfile(base_aligned_files_dir,current_tetrode+" aligned_to_peak_wf.mat");
-    base_aligned_sw_name = fullfile(base_sw_dir,current_tetrode+" sorted_spike_windows_after_purges.mat");
-    base_interp_raw_file_name = fullfile(base_interp_files_dir,current_tetrode+" unaligned_interp_wf.mat");
+    
 
 
 
@@ -155,12 +160,11 @@ parfor i=1:length(sliced_every_permutation_of_both)
         %TESTING FEATURE
         base_interp_raw = interpolate_spikes(raw, config.Value);
         base_aligned = align_to_peak_ver_2(base_interp_raw);
-
         par_save(aligned_file_name,base_aligned)
         par_save(base_interp_raw_file_name,base_interp_raw);
-        par_save(base_aligned_sw_name,sorted_spike_windows);
         %END TESTING FEATURE
     end
+    par_save(base_aligned_sw_name,sorted_spike_windows);
     base_aligned_idxs = 1:1:size(base_aligned,2);
     for j=1:height(current_data)
         even_more_local_config = local_config;
