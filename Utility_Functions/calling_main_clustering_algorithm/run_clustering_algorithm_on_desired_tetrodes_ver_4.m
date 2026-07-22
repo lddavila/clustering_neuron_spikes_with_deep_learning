@@ -164,7 +164,10 @@ for i=1:length(sliced_every_permutation_of_both)
         par_save(base_interp_raw_file_name,base_interp_raw);
         %END TESTING FEATURE
     end
+    disp("about to save base aligned spike windows")
+    disp(base_aligned_sw_name)
     par_save(base_aligned_sw_name,sorted_spike_windows);
+    disp("Finished saving")
     base_aligned_idxs = 1:1:size(base_aligned,2);
     for j=1:height(current_data)
         even_more_local_config = local_config;
