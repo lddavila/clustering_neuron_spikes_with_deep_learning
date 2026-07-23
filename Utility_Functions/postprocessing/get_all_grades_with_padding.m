@@ -43,6 +43,10 @@ for i=1:length(grade_idxs_to_be_used)
         all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)} = [all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)}, zeros(1,how_many_to_pad)];
     end
 
+    if grade_idxs_to_be_used(i) == 30 && 0==(max_grade_length(grade_idxs_to_be_used(i))) %hot fix because the grade is no longer computed, but we need it for compatibility
+        all_grades(:,grade_idxs_to_be_used(i)) = repmat({0},size(all_grades,1),1);
+        max_grade_length(grade_idxs_to_be_used(i)) = 1;
+    end
     
     old_to_new_cell_array{i,1} = grade_idxs_to_be_used(i);
     old_to_new_cell_array{i,2} = i;
@@ -51,7 +55,7 @@ for i=1:length(grade_idxs_to_be_used)
     new_idx_tracker = new_idx_tracker+max_grade_length(grade_idxs_to_be_used(i));
 
 
-
+    
     cell_array{i} = cell2mat( cellfun(@double, all_grades(:,grade_idxs_to_be_used(i)), 'UniformOutput', false));
 
 
