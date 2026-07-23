@@ -1,7 +1,13 @@
-function [padded_grades] = get_all_grades_with_padding(blind_pass_table,config)
+function [padded_grades,old_to_new_cell_array] = get_all_grades_with_padding(blind_pass_table,config)
 %this function will be used to ensure that regardless of how many channels
 %might be used in a blind pass table we can get a single array that will
 %pad any missing values with 0s so that neural network training doesnt fail
+
+%old_to_new_cell_array
+%nx3 cell array
+    %col 1 = original grade idx
+    %col 2 = which for loop assigned the data
+    %col 3 = the index where the original grade will appear in padded_grades
 
 all_grades = vertcat(blind_pass_table{:,"grades"}{:});
 %first we must get the grades for all the members of the blind pass table
@@ -11,7 +17,8 @@ for i=1:size(all_grades,2)
     sizes_of_all_grades = cell2mat(cellfun(@size,all_grades(:,i),'UniformOutput',false));
     grades_to_transpose = find(sizes_of_all_grades(:,1) > sizes_of_all_grades(:,2));
     for j=1:length(grades_to_transpose)
-        all_grades{j,i} = all_grades{j,i}.';
+        row_idx = grades_to_transpose(j);
+        all_grades{row_idx,i} = all_grades{row_idx,i}.';
     end
 end
 
@@ -24,35 +31,30 @@ max_grade_length = max(all_lengths,[],1);
 grade_idxs_to_be_used = config.expanded_grade_idxs;
 
 cell_array = cell(1,length(grade_idxs_to_be_used));
+old_to_new_cell_array = cell(length(grade_idxs_to_be_used),3);
+new_idx_tracker = 1;
 for i=1:length(grade_idxs_to_be_used)
     non_padded_length = cellfun(@length,all_grades(:,grade_idxs_to_be_used(i)));
 
     %pad any data that doesn't have the max grade size
     arrays_to_pad = find(non_padded_length < max_grade_length(grade_idxs_to_be_used(i)));
     for j=1:length(arrays_to_pad)
-        % fprintf("i:%i j:%i\n",i,j);
-       
         how_many_to_pad =abs( max_grade_length(grade_idxs_to_be_used(i))-non_padded_length(arrays_to_pad(j)));
-
-        
-        % disp("How many to pad")
-        % disp(how_many_to_pad)
-        % disp("data to be padded")
-        % disp(all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)});
-        % disp("Padding array")
-        % disp(zeros(1,how_many_to_pad))
         all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)} = [all_grades{arrays_to_pad(j),grade_idxs_to_be_used(i)}, zeros(1,how_many_to_pad)];
-        
     end
-    %the conditional below is to account for a strange edge case where when
-    %the values are only 0-1 and strangely matlab cast some of those as
-    %logical and some as doubles so we cast them all as doubles manually
-    if i==7
-        cell_array{i} = double(vertcat(all_grades{:,grade_idxs_to_be_used(i)}));
-    else
-        cell_array{i} = cell2mat( cellfun(@double, all_grades(:,grade_idxs_to_be_used(i)), 'UniformOutput', false));
-    end
+
     
+    old_to_new_cell_array{i,1} = grade_idxs_to_be_used(i);
+    old_to_new_cell_array{i,2} = i;
+    old_to_new_cell_array{i,3} = new_idx_tracker:1:(new_idx_tracker+(max_grade_length(grade_idxs_to_be_used(i)))-1);
+
+    new_idx_tracker = new_idx_tracker+max_grade_length(grade_idxs_to_be_used(i));
+
+
+
+    cell_array{i} = cell2mat( cellfun(@double, all_grades(:,grade_idxs_to_be_used(i)), 'UniformOutput', false));
+
+
 end
 padded_grades = horzcat(cell_array{:});
 end
