@@ -19,7 +19,7 @@ if ~isempty(varargin) && isempty(currentPool)
     num_workers = max(1, floor(cluster.NumWorkers / 8));
     fprintf("Have %i workers\n",num_workers);
     time_start = tic();
-    poolobj = parpool(cluster, 4);
+    poolobj = parpool(cluster, 5);
     time_end = toc(time_start);
     fprintf("Starting the parallel pool took %.2f seconds\n",time_end)
 end
@@ -46,7 +46,9 @@ for k=1:length(number_of_channels_to_use)
                 else
                     config.use_new_spike_detection = false;
                     config.use_bandpass = false;
-                    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"all_pmv_"+config.RECORDING_NAME+"_"+string(current_number_of_channels)+"_ch_07_19_2026");
+                    config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"std_20_all_pmv_"+config.RECORDING_NAME+"_"+string(current_number_of_channels));
+                    %testing feature
+                    config.NUM_OF_STD_ABOVE_MEAN = 20;
                 end
             end
 
