@@ -297,6 +297,8 @@ if isempty(options.bp_table_after_splitting)
         sliced_new_bp_table = slice_table_for_parallel_processing(bp_table_after_splitting,"Cluster");
         sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
         data_to_turn_into_cdf_aka_avg_change = [];
+        parent_save_dir =config.parent_save_dir;
+        split_cluster_plots = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(parent_save_dir,"population_split_cluster_plots_07_24_2026"));
         parfor i=1:length(sliced_bp_table)
             f = figure('Visible','off');
 
@@ -342,6 +344,15 @@ if isempty(options.bp_table_after_splitting)
             title("Cluster "+string(i))
             save_plots_in_all_formats(f,fullfile(results_of_splitting,"cluster_"+string(i)));
             close(f);
+
+
+            save_name = "ref_id "+string(current_bp_table{1,"ref_id"});
+            general_peak_plotting_function(sliced_bp_table{i},true,split_cluster_plots,save_name,'blind_pass_table')
+
+            current_sliced = sliced_new_bp_table{i};
+            save_name = "ref_id_"+string(current_sliced{1,"ref_id"})+"_split";
+            general_peak_plotting_function(current_sliced{i},true,split_cluster_plots,save_name,'blind_pass_table')
+
             send(q,[]);
         end
 
@@ -355,6 +366,10 @@ if isempty(options.bp_table_after_splitting)
         xlabel("accuracy split");
         grid on;
         save_plots_in_all_formats(f,fullfile(results_of_splitting,"population of accuracies after splitting cdf"));
+
+        
+        
+
     end
 end
 
