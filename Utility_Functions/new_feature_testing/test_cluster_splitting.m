@@ -29,6 +29,7 @@ end
 config.ground_truth_cell_array = importdata(config.GT_FP);
 config.debug_with_ground_truth = true;
 config.use_new_spike_detection = false;
+config.has_ground_truth = true;
 
 config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"testing_cluster_splitting_population_attempt_2"));
 
