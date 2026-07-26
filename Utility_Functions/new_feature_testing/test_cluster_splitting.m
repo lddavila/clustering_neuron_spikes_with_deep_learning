@@ -68,9 +68,28 @@ else
 end
 disp("Finished grading")
 
+
+%plot any clusters that produced imaginary grades
+place_to_save_imaginary_plots = create_a_file_if_it_doesnt_exist_and_ret_abs_path(config.BLIND_PASS_DIR_PRECOMPUTED,"clusters_that_created_imaginary_grades");
+
+number_of_plots_saved = 0;
+disp("About to create imaginary plots")
+for i=1:height(bp_table_after_splitting)
+    if number_of_plots_saved > 100
+        break;
+    end
+    current_grades =  get_all_grades_with_padding(bp_table_after_splitting(i,:),config);
+    save_name ="row"+string(i)+"of_bp_table_after_splitting.mat";
+    if ~isreal(current_grades)
+        general_peak_plotting_function(bp_table_after_splitting(i,:),false,place_to_save_imaginary_plots,save_name,"blind_pass_table")
+        number_of_plots_saved = number_of_plots_saved+1;
+    end
+    fprintf("%i/%i\n",i,height(bp_table_after_splitting));
+end
+disp("finished creating imaginary plots")
 grouped_clusters_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting_and_grouping.mat");
 grouped_clusters = simple_grouping_parallel_ensemble(bp_table_after_splitting,config,false,'use_true_accuracy_instead_of_nn_filter',true);
-
+par_save(grouped_clusters_save_name,grouped_clusters);
 %extract grades from bp_table_after_splitting
 % list_of_features_to_add = ["grades 3"];
 % grades_array = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,bp_table_after_splitting,config))];
