@@ -42,8 +42,8 @@ else
     what_kind_of_data = varargin{1};
 end
 
-if ~isfile(where_to_save)
-    where_to_save = create_a_file_if_it_doesnt_exist_and_ret_abs_path(config.parent_save_dir,where_to_save);
+if ~isdir(where_to_save)
+    where_to_save = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,where_to_save));
 end
 
 if what_kind_of_data=="blind_pass_table"
