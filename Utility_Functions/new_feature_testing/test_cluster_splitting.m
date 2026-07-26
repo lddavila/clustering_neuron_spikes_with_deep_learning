@@ -52,8 +52,10 @@ bp_table_after_splitting_vars = string(bp_table_after_splitting.Properties.Varia
 if ~ismember("grades",bp_table_after_splitting_vars)
     bp_table_after_splitting = get_grades_for_nth_pass_of_clustering_ver_2(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
     par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
+else
+    bp_table_after_splitting = importdata(bp_table_after_splitting_save_name);
 end
-
+disp("Finished grading")
 
 %extract grades from bp_table_after_splitting
 % list_of_features_to_add = ["grades 3"];
