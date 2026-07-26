@@ -7,7 +7,7 @@ function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_sa
         cluster_colors = distinguishable_colors(length(cluster_idx));
         legend_string = repelem("",length(cluster_idx),1);
         if ~isempty(varargin)
-            current_channels = varargin{1}{1};
+            current_channels = varargin{1};
         end
 
         for k=1:size(perms_of_dimensions,1)
