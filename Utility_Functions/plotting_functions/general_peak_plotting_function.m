@@ -23,6 +23,7 @@ function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_sa
                 legend();
             end
             if ~isempty(varargin)
+                disp(perms_of_dimensions)
                 xlabel("Channel "+string(current_channels(perms_of_dimensions(k,1))) +" (in \muV)")
                 ylabel("Channel "+string(current_channels(perms_of_dimensions(k,2))) +" (in \muV)")
             end
@@ -54,7 +55,7 @@ if what_kind_of_data=="blind_pass_table"
         aligned = load(current_data{1,"fp_to_aligned"});
         aligned = aligned.data_to_save;
         peaks = get_peaks(aligned,true);
-        plot_peaks(peaks,current_data.cluster_idx,save_plots,where_to_save,save_name,current_data{1,"channels"});
+        plot_peaks(peaks,current_data.cluster_idx,save_plots,where_to_save,save_name,current_data{1,"channels"}{1});
     end
 elseif what_kind_of_data=="peaks"
     plot_peaks(data_to_plot,save_plots,where_to_save,save_name);
