@@ -31,10 +31,10 @@ config.debug_with_ground_truth = true;
 config.use_new_spike_detection = false;
 config.has_ground_truth = true;
 
-config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"testing_cluster_splitting_population_attempt_2"));
+config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"testing_cluster_splitting_population"));
 
 config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
-bp_table_after_splitting_save_name = fullfile("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/temp_dir","bp_table_after_splitting.mat");
+bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting.mat");
 disp(bp_table_after_splitting_save_name);
 if ~isfile(bp_table_after_splitting_save_name)
     bp_table_after_splitting = split_clusters_with_alt_dimensions(blind_pass_table,config,'plot_the_debug',true);
