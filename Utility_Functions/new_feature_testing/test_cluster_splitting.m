@@ -52,6 +52,14 @@ end
 
 bp_table_after_splitting_vars = string(bp_table_after_splitting.Properties.VariableNames);
 disp("about to begin grading")
+
+cluster = parcluster("Processes");
+num_workers = max(1, floor(cluster.NumWorkers / 8));
+fprintf("Have %i workers\n",num_workers);
+time_start = tic();
+poolobj = parpool(cluster, 5);
+time_end = toc(time_start);
+fprintf("Starting the parallel pool took %.2f seconds\n",time_end)
 if ~ismember("grades",bp_table_after_splitting_vars)
     bp_table_after_splitting = get_grades_for_nth_pass_of_clustering_ver_2(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
     par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
