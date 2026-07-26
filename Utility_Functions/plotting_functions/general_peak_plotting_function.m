@@ -1,4 +1,4 @@
-function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_save,save_name,varargin)
+function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_save,save_name,config,varargin)
 
     function [f] = plot_peaks(peaks,cluster_idx,save_plots,where_to_save,save_name,varargin)
         f = figure();
