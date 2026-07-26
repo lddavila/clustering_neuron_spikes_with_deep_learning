@@ -8,6 +8,7 @@ function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_sa
         legend_string = repelem("",length(cluster_idx),1);
         if ~isempty(varargin)
             current_channels = varargin{1};
+            perms_of_dimensions = nchoosek(1:length(current_channels),2);
         end
 
         for k=1:size(perms_of_dimensions,1)
