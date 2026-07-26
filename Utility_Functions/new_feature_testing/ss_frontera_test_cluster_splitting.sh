@@ -2,8 +2,8 @@
 #SBATCH -N 1
 #SBATCH -p small
 #SBATCH -J full_pass
-#SBATCH -o output.txt 
-#SBATCH -e output.txt 
+#SBATCH -o output_2.txt 
+#SBATCH -e output_2.txt 
 #SBATCH -t 48:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu
