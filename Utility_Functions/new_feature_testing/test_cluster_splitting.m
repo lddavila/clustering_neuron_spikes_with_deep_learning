@@ -88,6 +88,15 @@ for i=1:height(bp_table_after_splitting)
     fprintf("%i/%i\n",i,height(bp_table_after_splitting));
 end
 disp("finished creating imaginary plots")
+
+%add the mean waveform to the blind pass table
+
+if ~ismember("mean_waveform_rep_wire_1",bp_table_after_splitting_vars)
+    bp_table_after_splitting = get_template_spike_idx_and_ts_for_clusters(bp_table_after_splitting,config);
+    par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
+end
+disp("Finished getting mean waveform");
+
 grouped_clusters_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting_and_grouping.mat");
 grouped_clusters = simple_grouping_parallel_ensemble(bp_table_after_splitting,config,false,'use_true_accuracy_instead_of_nn_filter',true);
 par_save(grouped_clusters_save_name,grouped_clusters);
