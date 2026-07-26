@@ -82,7 +82,7 @@ for i=1:height(bp_table_after_splitting)
     current_grades =  get_all_grades_with_padding(bp_table_after_splitting(i,:),config);
     save_name ="row"+string(i)+"of_bp_table_after_splitting.mat";
     if ~isreal(current_grades)
-        general_peak_plotting_function(bp_table_after_splitting(i,:),false,place_to_save_imaginary_plots,save_name,config,"blind_pass_table")
+        general_peak_plotting_function(bp_table_after_splitting(i,:),true,place_to_save_imaginary_plots,save_name,config,"blind_pass_table")
         number_of_plots_saved = number_of_plots_saved+1;
     end
     fprintf("%i/%i\n",i,height(bp_table_after_splitting));
