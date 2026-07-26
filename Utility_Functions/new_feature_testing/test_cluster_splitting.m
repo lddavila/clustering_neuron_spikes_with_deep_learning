@@ -70,7 +70,7 @@ disp("Finished grading")
 
 
 %plot any clusters that produced imaginary grades
-place_to_save_imaginary_plots = create_a_file_if_it_doesnt_exist_and_ret_abs_path(config.BLIND_PASS_DIR_PRECOMPUTED,"clusters_that_created_imaginary_grades");
+place_to_save_imaginary_plots = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"clusters_that_created_imaginary_grades"));
 
 number_of_plots_saved = 0;
 disp("About to create imaginary plots")
