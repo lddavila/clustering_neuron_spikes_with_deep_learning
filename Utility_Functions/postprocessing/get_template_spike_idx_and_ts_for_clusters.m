@@ -1,11 +1,8 @@
 function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config,varargin)
 % blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"get_template_spike_idx_and_ts_for_clusters_errors"));
-% if ~config.use_new_spike_detection
 sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
-% else
-%     sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Multiplier","Tetrode"]);
-% end
+
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(sliced_blind_pass_table,1);
@@ -15,66 +12,52 @@ if isempty(varargin)
 else
     timestamps_array = varargin{4};
 end
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};
+
+        current_data_vars = string(current_data.Properties.VariableNames);
         if isempty(varargin)
             num_of_channels = size(current_data{:,"grades"}{1}{49},2);
         else
             num_of_channels = varargin{5};
         end
         if isempty(varargin)
-            try
-                cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
-                cleaned_clusters = cleaned_clusters.cleaned_clusters;
-            catch
-                disp("Failed to load cleaned clusters file")
-                disp(current_data{1,"fp_to_cleaned_clusters"})
-                send(q,[]);
-                continue;
+            if ~ismember("cluster_idx",current_data_vars)
+                try
+
+                    cleaned_clusters =load(current_data{1,"fp_to_cleaned_clusters"},"cleaned_clusters");
+                    cleaned_clusters = cleaned_clusters.cleaned_clusters;
+                catch
+                    disp("Failed to load cleaned clusters file")
+                    disp(current_data{1,"fp_to_cleaned_clusters"})
+                    send(q,[]);
+                    continue;
+                end
+            else
+                cleaned_clusters = current_data.cluster_idx;
             end
 
             try
                 aligned_struct = load(current_data{1,"fp_to_aligned"},"data_to_save");
                 aligned = aligned_struct.data_to_save;
             catch ME
-                %disp("Failed to load aligned file")
-                %disp(current_data{1,"fp_to_aligned"})
                 disp(ME.getReport);
                 send(q,[]);
                 continue;
             end
-
-
-
-
             base_spike_windows_fp =current_data{1,"fp_to_sorted_spike_windows_after_purges"};
             base_spike_windows_struct = load(base_spike_windows_fp,"data_to_save");
             base_spike_windows = base_spike_windows_struct.data_to_save;
-            
             timestamps = timestamps_array(base_spike_windows(:,4));
-            % else
-            %     try
-            %         timestamps = importdata(current_data{1,"fp_to_reg_timestamps_of_the_spikes"});
-            %         timestamps = timestamps.reg_timestamps_of_the_spikes;
-            %     catch
-            %         disp("Failed to load timestamps of spikes");
-            %         disp(current_data{1,"fp_to_reg_timestamps_of_spikes"});
-            %         send(q,[]);
-            %         continue;
-            %     end
-            % end
+
+
         else
             cleaned_clusters = varargin{1};
             aligned = varargin{2};
             timestamps = varargin{3};
         end
-
-        % disp("Faliure tetrode")
-        % disp(current_data{1,"Tetrode"})
-        % disp("Faliure z score");
-        % disp(current_data{1,"Z Score"})
 
 
         all_peaks = get_peaks(aligned, true);
@@ -128,7 +111,7 @@ for i=1:size(sliced_blind_pass_table,1)
             meta_data_text = sprintf("error when i = %i\n tetrode: %s \n Multiplier or Z score: %i\n",i,current_data{1,"Tetrode"},current_data{1,"Z Score"});
             f_id = fopen(fullfile(local_error_dir,sprintf("tetrode %s Multiplier or Z score %i",current_data{1,"Tetrode"},current_data{1,"Z Score"})+".txt"),"w");
         end
-        
+
         if f_id == -1
             error('File could not be opened.');
         end

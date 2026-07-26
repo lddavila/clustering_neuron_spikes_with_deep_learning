@@ -10,7 +10,7 @@ if ~all(isfile(config.TEMPLATE_CLUSTER_FP))
 end
 %update paths on the blind pass table
 % blind_pass_table = update_fpths(blind_pass_table,config);
-sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[]);
+sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["fp_to_aligned"]);
 debug = 0;
 
 grading_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"grading_errors"));
