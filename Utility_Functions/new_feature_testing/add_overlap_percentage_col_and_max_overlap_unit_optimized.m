@@ -21,7 +21,7 @@ end
 parallel_constant_ts = parallel.pool.Constant(timestamps);
 parallel_constant_gt = parallel.pool.Constant(ground_truth);
 
-parfor i=1:size(sliced_bp_table,1)
+for i=1:size(sliced_bp_table,1)
     current_data = sliced_bp_table{i};
     timestamp_of_cluster = current_data{1,"timestamps"}{1};
     [overlap_percentages{i},max_overlap_unit(i),max_overlap_percentages(i)] =get_overlap_between_units_and_cluster_2_ptr_method(timestamp_of_cluster,parallel_constant_gt.Value,parallel_constant_ts.Value,time_delta);
