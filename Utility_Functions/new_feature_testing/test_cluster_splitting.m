@@ -68,6 +68,9 @@ else
 end
 disp("Finished grading")
 
+grouped_clusters_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting_and_grouping.mat");
+grouped_clusters = simple_grouping_parallel_ensemble(bp_table_after_splitting,config,false);
+
 %extract grades from bp_table_after_splitting
 % list_of_features_to_add = ["grades 3"];
 % grades_array = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,bp_table_after_splitting,config))];
