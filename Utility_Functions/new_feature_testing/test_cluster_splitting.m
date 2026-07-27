@@ -38,7 +38,7 @@ config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(co
 bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting.mat");
 disp(bp_table_after_splitting_save_name);
 if ~isfile(bp_table_after_splitting_save_name)
-    bp_table_after_splitting = split_clusters_with_alt_dimensions(blind_pass_table,config,'plot_the_debug',true);
+    bp_table_after_splitting = split_clusters_with_alt_dimensions(blind_pass_table,config,'plot_the_debug',false);
     par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
     disp("Successfully obtained the split table")
 else

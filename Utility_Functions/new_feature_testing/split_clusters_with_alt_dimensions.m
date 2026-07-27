@@ -59,7 +59,7 @@ if isempty(options.bp_table_after_splitting)
     print_status_bar(num_iterations,"split_clusters_with_alt_dimensions: getting split data");
 
 
-    parfor i=1:length(sliced_bp_table)
+    for i=1:length(sliced_bp_table)
 
         %get current table
         current_bp_table = sliced_bp_table{i};
@@ -81,7 +81,7 @@ if isempty(options.bp_table_after_splitting)
         warning('off', 'stats:pdist2:DataConversion'); %known warning which will not affect result
         cell_array_of_new_peaks_for_current_rows = cell(height(current_bp_table),1);
         cell_array_of_compare_channels_for_current_rows = cell(height(current_bp_table),1);
-        for j=1:height(current_bp_table)
+        parfor j=1:height(current_bp_table)
 
             rep_channel_1 =current_bp_table{j,"rep_channel_1"}; %get the channel where the neuron appears clearest
             rep_channel_2 = current_bp_table{j,"rep_channel_2"};
