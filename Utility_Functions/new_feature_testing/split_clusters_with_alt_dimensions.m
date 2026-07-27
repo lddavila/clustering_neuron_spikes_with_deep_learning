@@ -299,7 +299,7 @@ if isempty(options.bp_table_after_splitting)
         data_to_turn_into_cdf_aka_avg_change = [];
         parent_save_dir =config.parent_save_dir;
         split_cluster_plots = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(parent_save_dir,"population_split_cluster_plots_07_24_2026"));
-        parfor i=1:length(sliced_bp_table)
+        for i=1:length(sliced_bp_table)
             f = figure('Visible','off');
 
             current_accuracies = sliced_new_bp_table{i};
@@ -310,7 +310,7 @@ if isempty(options.bp_table_after_splitting)
                 value_to_append = mean(current_accuracies(current_accuracies >= current_bp_table{1,"accuracy"}));
 
             elseif any(abs(current_accuracies - current_bp_table{1,"accuracy"})<1)
-                value_to_append = mean(current_accuracies(abs(current_accuracies - current_bp_table{1,"accuracy"})<1))
+                value_to_append = mean(current_accuracies(abs(current_accuracies - current_bp_table{1,"accuracy"})<1));
 
             else
                 value_to_append = mean(current_accuracies);
