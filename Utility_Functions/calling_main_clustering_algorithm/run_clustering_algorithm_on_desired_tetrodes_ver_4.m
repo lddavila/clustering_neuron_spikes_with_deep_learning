@@ -82,7 +82,7 @@ base_interp_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfi
 
 
 %there should be a parfor on the line immediately following this one when not testing
-for i=1:length(sliced_every_permutation_of_both)
+parfor i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
@@ -166,7 +166,7 @@ for i=1:length(sliced_every_permutation_of_both)
     end
     % disp("about to save base aligned spike windows")
     % disp(base_aligned_sw_name)
-    % par_save(base_aligned_sw_name,sorted_spike_windows);
+    par_save(base_aligned_sw_name,sorted_spike_windows);
     % disp("Finished saving")
     base_aligned_idxs = 1:1:size(base_aligned,2);
     for j=1:height(current_data)

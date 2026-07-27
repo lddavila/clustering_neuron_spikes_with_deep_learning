@@ -11,11 +11,11 @@ function cluster_core_idx = extract_core(features, cluster_idx, config)
 %
 %   See also REFINE_CLUSTER, NAIVE_EXPAND_CLUSTER, SMART_EXPAND_CLUSTER.
 
-    cluster_features = features(cluster_idx, :);
-    data_filt = find_singular_cols(cluster_features);
-    cluster_features = cluster_features(:, data_filt);
+    cluster_features = features(cluster_idx, :); %get the features for the cluster which include the peaks of each spike and the pcs from calculated from the waveforms all zscore scaled
+    data_filt = find_singular_cols(cluster_features); %filter the features
+    cluster_features = cluster_features(:, data_filt); %get the features specific to the current cluster
     % cluster_features = cluster_features * 100;
-    num_spikes = length(cluster_idx);
+    num_spikes = length(cluster_idx); %get the number of spikes that are in the current cluster
     
     % Calculates Euclidean distance from each point to the center of the
     % cluster.
