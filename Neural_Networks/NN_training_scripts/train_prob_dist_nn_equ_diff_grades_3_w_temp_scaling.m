@@ -30,7 +30,7 @@ config = spikesort_config();
 disp("Finished getting config");
 
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
-    fullfile(config.parent_save_dir,"probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling"));
+    fullfile(config.parent_save_dir,"probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling_07_27_2026"));
 % --- Load blind pass table ---
 if nargin < 1
     blind_pass_table = importdata(config.FP_TO_EVEN_NUMBERED_RECORDINGS);

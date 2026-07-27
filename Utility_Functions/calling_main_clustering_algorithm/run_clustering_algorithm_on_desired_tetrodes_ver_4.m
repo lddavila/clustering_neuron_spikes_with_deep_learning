@@ -112,7 +112,7 @@ for i=1:length(sliced_every_permutation_of_both)
     c10 = isfile(base_interp_raw_file_name);
     c11 = isfile(base_aligned_sw_name);
 
-    if ~all([c5,c6,c7,c8,c9,c10,c11])
+    if ~all([c5,c6,c7,c8])
         send(q,[]);
         continue;
     end
