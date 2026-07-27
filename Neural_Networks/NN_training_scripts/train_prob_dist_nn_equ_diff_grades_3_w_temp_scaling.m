@@ -22,7 +22,10 @@ function [] = train_prob_dist_nn_equ_diff_grades_3_w_temp_scaling(varargin)
 cd(dir);
 home_dir = cd("..");
 cd("..");
-addpath(genpath(pwd))
+addpath(genpath(fullfile(pwd,"Utility_Functions")));
+addpath(genpath(fullfile(pwd,"clustering-master")));
+addpath(genpath(fullfile(pwd,"Grading_scripts")));
+addpath(genpath(fullfile(pwd,"Neural_Networks")));
 cd(home_dir)
 disp("Finished adding path");
 
