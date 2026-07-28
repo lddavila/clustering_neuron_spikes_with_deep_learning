@@ -93,7 +93,7 @@ disp("finished creating imaginary plots")
 %add the mean waveform to the blind pass table
 
 % if ~ismember("mean_waveform_rep_wire_1",bp_table_after_splitting_vars)
-bp_table_after_splitting = get_template_spike_idx_and_ts_for_clusters(bp_table_after_splitting,config);
+bp_table_after_splitting = get_template_spike_for_split_clusters(bp_table_after_splitting,config);
 par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_graded_with_mean_wf.mat"),bp_table_after_splitting);
 % end
 disp("Finished getting mean waveform");
