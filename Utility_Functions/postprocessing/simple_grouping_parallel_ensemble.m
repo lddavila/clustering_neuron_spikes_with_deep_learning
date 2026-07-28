@@ -179,15 +179,19 @@ for i=1:size(blind_pass_table,1)
         % very low overlap <1% indicates some of these cases
         if overlap < 0.1
             send(q,[])
-            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"} && track_faliures
-                false_skip_count = false_skip_count+1;
+            if track_faliures
+                if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"} && track_faliures
+                    false_skip_count = false_skip_count+1;
+                end
             end
             continue;
         end
         if euc_distance_between_rep_wfs > 220
             send(q,[])
-            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"} && track_faliures  
-                false_skip_count = false_skip_count+1;
+            if track_faliures
+                if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"} && track_faliures
+                    false_skip_count = false_skip_count+1;
+                end
             end
             continue;
         end
