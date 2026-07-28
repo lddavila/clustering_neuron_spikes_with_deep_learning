@@ -1,15 +1,23 @@
-function [padded_grades,old_to_new_cell_array] = get_all_grades_with_padding(blind_pass_table,config)
+function [padded_grades,old_to_new_cell_array] = get_all_grades_with_padding(blind_pass_table,config,options)
 %this function will be used to ensure that regardless of how many channels
 %might be used in a blind pass table we can get a single array that will
 %pad any missing values with 0s so that neural network training doesnt fail
-
+arguments
+    blind_pass_table table                 %required
+    config struct               %required
+    options.is_split logical = false % Optional named argument
+end
 %old_to_new_cell_array
 %nx3 cell array
-    %col 1 = original grade idx
-    %col 2 = which for loop assigned the data
-    %col 3 = the index where the original grade will appear in padded_grades
+%col 1 = original grade idx
+%col 2 = which for loop assigned the data
+%col 3 = the index where the original grade will appear in padded_grades
 
-all_grades = vertcat(blind_pass_table{:,"grades"}{:});
+if options.is_split
+    all_grades = vertcat(blind_pass_table{:,"grades"});
+else
+    all_grades = vertcat(blind_pass_table{:,"grades"}{:});
+end
 %first we must get the grades for all the members of the blind pass table
 
 %transpose any grades that are nx1 and not 1xn
@@ -47,7 +55,7 @@ for i=1:length(grade_idxs_to_be_used)
         all_grades(:,grade_idxs_to_be_used(i)) = repmat({0},size(all_grades,1),1);
         max_grade_length(grade_idxs_to_be_used(i)) = 1;
     end
-    
+
     old_to_new_cell_array{i,1} = grade_idxs_to_be_used(i);
     old_to_new_cell_array{i,2} = i;
     old_to_new_cell_array{i,3} = new_idx_tracker:1:(new_idx_tracker+(max_grade_length(grade_idxs_to_be_used(i)))-1);
@@ -55,7 +63,7 @@ for i=1:length(grade_idxs_to_be_used)
     new_idx_tracker = new_idx_tracker+max_grade_length(grade_idxs_to_be_used(i));
 
 
-    
+
     cell_array{i} = cell2mat( cellfun(@double, all_grades(:,grade_idxs_to_be_used(i)), 'UniformOutput', false));
 
 

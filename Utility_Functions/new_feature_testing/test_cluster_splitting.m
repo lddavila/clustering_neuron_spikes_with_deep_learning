@@ -58,11 +58,11 @@ cluster = parcluster("Processes");
 num_workers = max(1, floor(cluster.NumWorkers / 8));
 fprintf("Have %i workers\n",num_workers);
 time_start = tic();
-poolobj = parpool(cluster, 10);
+poolobj = parpool(cluster, 4);
 time_end = toc(time_start);
 fprintf("Starting the parallel pool took %.2f seconds\n",time_end)
 if ~ismember("grades",bp_table_after_splitting_vars)
-    bp_table_after_splitting = get_grades_for_nth_pass_of_clustering_ver_2(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
+    bp_table_after_splitting = get_grades_for_split_cluster(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"),bp_table_after_splitting);
 else
     bp_table_after_splitting = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"));
@@ -79,7 +79,7 @@ for i=1:height(bp_table_after_splitting)
     if number_of_plots_saved > 100
         break;
     end
-    current_grades =  get_all_grades_with_padding(bp_table_after_splitting(i,:),config);
+    current_grades =  get_all_grades_with_padding(bp_table_after_splitting(i,:),config,'is_split',true);
     save_name ="row"+string(i)+"of_bp_table_after_splitting.mat";
     if ~isreal(current_grades)
         general_peak_plotting_function(bp_table_after_splitting(i,:),true,place_to_save_imaginary_plots,save_name,config,"blind_pass_table")

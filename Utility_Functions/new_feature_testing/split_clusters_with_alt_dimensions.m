@@ -279,7 +279,7 @@ if isempty(options.bp_table_after_splitting)
     %pass table which we do which to be carried over to
     %bp_table_after_splitting
     
-    vars_to_include = setdiff(string(blind_pass_table.Properties.VariableNames),["grades","timestamps","cluster_idx","channels","Cluster","mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","overlap_perc_with_all_units","rep_wire_2","tp","fp","fn","accuracy"]);
+    vars_to_include = setdiff(string(blind_pass_table.Properties.VariableNames),["grades","timestamps","cluster_idx","channels","Cluster","mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","overlap_perc_with_all_units","rep_wire_2","tp","fp","fn","accuracy","Max_Overlap_perc_With_Unit","Max_Overlap_Unit"]);
 
     bp_table_after_splitting = join(bp_table_after_splitting,blind_pass_table(:,vars_to_include),"Keys","ref_id");
     if options.plot_the_debug

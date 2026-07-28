@@ -134,7 +134,7 @@ for i=1:size(blind_pass_table,1)
         cluster_2_ts = cluster_2{1,"timestamps"}{1};
         [overlap,~,~]=find_number_of_true_positives_given_a_time_delta_hpc_using_ptrs(cluster_1_ts,cluster_2_ts,config.TIME_DELTA);
         overlap = overlap * 100;
-        if overlap <=5
+        if overlap <=5 && track_faliures
             send(q,[]);
             if (cluster_2{1,"Max_Overlap_Unit"} == cluster_1{1,"Max_Overlap_Unit"})
                 % disp("false skip")
@@ -179,14 +179,14 @@ for i=1:size(blind_pass_table,1)
         % very low overlap <1% indicates some of these cases
         if overlap < 0.1
             send(q,[])
-            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"} && track_faliures
                 false_skip_count = false_skip_count+1;
             end
             continue;
         end
         if euc_distance_between_rep_wfs > 220
             send(q,[])
-            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"}
+            if cluster_1{1,"Max_Overlap_Unit"} ==cluster_2{1,"Max_Overlap_Unit"} && track_faliures  
                 false_skip_count = false_skip_count+1;
             end
             continue;
