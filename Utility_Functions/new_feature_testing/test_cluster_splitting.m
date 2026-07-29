@@ -61,13 +61,13 @@ time_start = tic();
 poolobj = parpool(cluster, 16);
 time_end = toc(time_start);
 fprintf("Starting the parallel pool took %.2f seconds\n",time_end)
-bp_table_after_splitting =add_grades_col_to_bp_from_dir(bp_table_after_splitting,"/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/testing_cluster_splitting_population/initial_pass min z_score 3 grades_after_splitting");
-% if ~ismember("grades",bp_table_after_splitting_vars)
-%     bp_table_after_splitting = get_grades_for_split_cluster(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
-%     par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"),bp_table_after_splitting);
-% else
-%     bp_table_after_splitting = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"));
-% end
+% bp_table_after_splitting =add_grades_col_to_bp_from_dir(bp_table_after_splitting,"/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/testing_cluster_splitting_population/initial_pass min z_score 3 grades_after_splitting");
+if ~ismember("grades",bp_table_after_splitting_vars)
+    bp_table_after_splitting = get_grades_for_split_cluster(bp_table_after_splitting,config,'optional_alternate_grade_path',"_after_splitting");
+    par_save(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"),bp_table_after_splitting);
+else
+    bp_table_after_splitting = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"));
+end
 disp("Finished grading")
 
 
