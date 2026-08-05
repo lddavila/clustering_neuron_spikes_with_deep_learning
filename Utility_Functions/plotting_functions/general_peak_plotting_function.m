@@ -1,7 +1,20 @@
-function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_save,save_name,config,varargin)
+function [] = general_peak_plotting_function(data_to_plot,config,options)
+arguments
+    data_to_plot ;
+    config struct;
+    options.save_plots logical = false;
+    options.optional_alternate_grade_path string = "";
+    options.where_to_save string = ""
+    options.save_name string = ""
+    options.what_kind_of_data string = "";
+    options.cluster_idx cell = {};
+    options.channels cell = {[]};
+    options.pause_on_each_plot logical = false;
+    options.make_new_plot logical = true;
+end
 
-    function [f] = plot_peaks(peaks,cluster_idx,save_plots,where_to_save,save_name,varargin)
-        f = figure();
+    function [f] = plot_peaks(peaks,cluster_idx,save_plots,where_to_save,save_name,pause_on_each_plot,varargin)
+        f = figure('units','normalized','outerposition',[0 0 1 1]);
         perms_of_dimensions = nchoosek(1:min([size(peaks)]),2);
         tiledlayout('flow');
         cluster_colors = distinguishable_colors(length(cluster_idx));
@@ -24,7 +37,7 @@ function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_sa
                 legend();
             end
             if ~isempty(varargin)
-                disp(perms_of_dimensions)
+                % disp(perms_of_dimensions)
                 xlabel("Channel "+string(current_channels(perms_of_dimensions(k,1))) +" (in \muV)")
                 ylabel("Channel "+string(current_channels(perms_of_dimensions(k,2))) +" (in \muV)")
             end
@@ -33,22 +46,19 @@ function [] = general_peak_plotting_function(data_to_plot,save_plots,where_to_sa
         if save_plots
             save_plots_in_all_formats(f,fullfile(where_to_save,save_name));
         end
+        if pause_on_each_plot
+            disp("Hit any key to go to next plot")
+            pause;
+        end
         close(f)
     end
 
-if isempty(varargin)
-    %insert some kind of logic to determine whether we have a blind pass
-    %table/peaks/aligned and we'll take actions as appropriate
-    what_kind_of_data = "";
-else
-    what_kind_of_data = varargin{1};
-end
 
-if ~isdir(where_to_save)
+if ~isfolder(options.where_to_save) && options.where_to_save ~= ""
     where_to_save = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,where_to_save));
 end
 
-if what_kind_of_data=="blind_pass_table"
+if options.what_kind_of_data=="blind_pass_table"
     %split the blind pass table by its aligned files
     split_table = slice_table_for_parallel_processing(data_to_plot,"fp_to_aligned");
     for i=1:length(split_table)
@@ -56,11 +66,11 @@ if what_kind_of_data=="blind_pass_table"
         aligned = load(current_data{1,"fp_to_aligned"});
         aligned = aligned.data_to_save;
         peaks = get_peaks(aligned,true);
-        plot_peaks(peaks,current_data.cluster_idx,save_plots,where_to_save,save_name,current_data{1,"channels"}{1});
+        plot_peaks(peaks,current_data.cluster_idx,options.save_plots,options.where_to_save,options.save_name,options.pause_on_each_plot,current_data{1,"channels"}{1});
     end
-elseif what_kind_of_data=="peaks"
-    plot_peaks(data_to_plot,save_plots,where_to_save,save_name);
-elseif what_kind_of_data == "aligned"
+elseif options.what_kind_of_data=="peaks"
+    plot_peaks(data_to_plot,options.cluster_idx,options.save_plots,options.where_to_save,options.save_name,options.pause_on_each_plot,options.channels{1});
+elseif options.what_kind_of_data == "aligned"
     peaks = get_peaks(data_to_plot,true);
     plot_peaks(peaks,where_to_save,save_name);
 end

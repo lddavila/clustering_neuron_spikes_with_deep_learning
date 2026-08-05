@@ -1,4 +1,4 @@
-function [] = test_cluster_splitting()
+function [] = test_finding_new_dim_candidates()
 %format the path
 home_dir = cd("..");
 cd("..");
@@ -47,16 +47,27 @@ end
 blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table);
 blind_pass_table = add_amplitude_per_channel_col(blind_pass_table);
 config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
-bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_table_after_splitting.mat");
+disp(config.BLIND_PASS_DIR_PRECOMPUTED);
+bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"tetrode_peaks_with_new_dims.mat");
 disp(bp_table_after_splitting_save_name);
 if ~isfile(bp_table_after_splitting_save_name)
-    bp_table_after_splitting = split_clusters_with_alt_dimensions(blind_pass_table,config,'plot_the_debug',false);
-    par_save(bp_table_after_splitting_save_name,bp_table_after_splitting);
+    [new_data,new_pot_dims,cell_arr_of_sw] = find_new_dimension_candidates(blind_pass_table,config,'plot_the_debug',false);
+    data_struct = struct();
+    data_struct.new_peaks = new_data;
+    data_struct.new_dims = new_pot_dims;
+    data_struct.sw = cell_arr_of_sw;
+    par_save(bp_table_after_splitting_save_name,data_struct);
     disp("Successfully obtained the split table")
 else
-    bp_table_after_splitting = importdata(bp_table_after_splitting_save_name);
+    data_struct = load(bp_table_after_splitting_save_name);
+    data_struct = data_struct.data_to_save;
+    new_data = data_struct.new_peaks;
+    new_pot_dims = data_struct.new_dims;
+    cell_arr_of_sw = data_struct.sw;
     disp("Successfully loaded the split table")
 end
+new_clustering_data = assemble_new_tetrode_peaks_and_pcs(blind_pass_table,new_data,new_pot_dims);
+try_multiple_clustering_algos(blind_pass_table,new_data,cell_arr_of_sw,config,true)
 existingPool = gcp('nocreate');
 if ~isempty(existingPool)
     delete(existingPool);
@@ -81,6 +92,8 @@ else
     bp_table_after_splitting = importdata(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"bp_split_after_grading.mat"));
 end
 disp("Finished grading")
+
+
 
 
 %plot any clusters that produced imaginary grades
