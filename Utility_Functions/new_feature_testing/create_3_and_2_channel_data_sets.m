@@ -90,7 +90,7 @@ for k=1:length(number_of_channels_to_use)
             % Step 4: run the blind pass with a various min_z_score (cut threshold)
             very_beginning_time = tic;
             config.ground_truth_cell_array = importdata(config.GT_FP);
-            config.debug_with_ground_truth = true;
+            config.debug_with_ground_truth = false;
             config.run_full_clustering = true;
 
             [blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
