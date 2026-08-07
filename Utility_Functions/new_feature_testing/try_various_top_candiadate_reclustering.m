@@ -29,6 +29,9 @@ for k=1:length(how_many_top_candidates_to_use)
     if ~isempty(pool)
         delete(pool);
     end
+    if contains(pwd,"10595")
+        parpool(20)
+    end
     parfor i=1:length(new_clustering_data)
         curr_means = [means_per_dimensions{i,1},means_per_dimensions{i,2}];
 
