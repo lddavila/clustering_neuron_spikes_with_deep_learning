@@ -21,12 +21,14 @@ if contains(pwd,"10595")
     config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
     config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
     blind_pass_table = importdata("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch/blind_pass_table.mat");
+    load("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch/mean_and_std/mean_and_std.mat","channel_wise_means","channel_wise_std")
 elseif contains(pwd,"C:\Users\ldd77\")
     % ext_drive_fp = "F:";
     config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
     config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
     config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
     blind_pass_table = importdata("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Data\3_and_4_sample.mat");
+    load("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch\mean_and_std\mean_and_std.mat","channel_wise_means","channel_wise_std")
 end
 
 config.ground_truth_cell_array = importdata(config.GT_FP);
@@ -43,7 +45,8 @@ if only_sample
     c1 = ismember(blind_pass_table{:,"Tetrode"},tetrode_list);
     blind_pass_table = blind_pass_table(c1,:);
 end
-load("C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch\mean_and_std\mean_and_std.mat","channel_wise_means","channel_wise_std")
+
+
 blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table);
 blind_pass_table = add_amplitude_per_channel_col(blind_pass_table);
 config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
