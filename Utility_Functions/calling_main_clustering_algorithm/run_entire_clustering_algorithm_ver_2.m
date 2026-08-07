@@ -325,6 +325,9 @@ blind_pass_table.rep_wire_1 = rep_wire_1;
 rep_wire_2 = cellfun(@(x) x{43}, grades,'UniformOutput',false);
 blind_pass_table.rep_wire_2 = rep_wire_2;
 
+%sometimes rep wires cannot be created so we remove those rows
+blind_pass_table(isnan(cell2mat(blind_pass_table.rep_wire_1)) | isnan(cell2mat(blind_pass_table.rep_wire_2)),:) = [];
+
 %add the rep channel_1
 blind_pass_table.rep_channel_1 = cellfun(@(x,y) x(y), blind_pass_table.channels,blind_pass_table.rep_wire_1);
 

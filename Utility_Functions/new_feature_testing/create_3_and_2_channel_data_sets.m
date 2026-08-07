@@ -26,7 +26,7 @@ end
 
 beginning = which_recording;
 the_end = which_recording+0.5;
-number_of_channels_to_use = [2,3];
+number_of_channels_to_use = [3];
 rng(0);
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);

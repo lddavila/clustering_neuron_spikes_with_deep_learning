@@ -1,4 +1,4 @@
-function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,cleaned_clusters,base_aligned_idxs] = run_spikesort_ntt_core_ver4(timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,interp_raw,varargin)
+function [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes,peak_pcs,cleaned_clusters] = run_spikesort_ntt_core_ver4(timestamps, good_spikes_idx_inj, ir, tvals, filenames, config,channels,sorted_spike_windows,interp_raw,varargin)
 %OG: [output, aligned, reg_timestamps,reg_timestamps_of_the_spikes]
 %RUN_SPIKESORT_NTT_CORE Runs spike sorter on data extracted from the
 %tetrode.
