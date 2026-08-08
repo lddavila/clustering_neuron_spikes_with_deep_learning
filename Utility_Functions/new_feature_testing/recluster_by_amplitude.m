@@ -77,7 +77,7 @@ end
 config.run_full_clustering = true;
 config.debug_with_ground_truth = false;
 
-new_clusters_fn = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_clusters.mat"));
+new_clusters_fn = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_clusters.mat");
 if ~isfile(new_clusters_fn)
     new_clusters = try_various_top_candiadate_reclustering([old_peaks,only_new_peaks],blind_pass_table,config,cell_arr_of_sw,new_pot_dims,channel_wise_means,channel_wise_std);
     par_save(new_clusters_fn,new_clusters);
