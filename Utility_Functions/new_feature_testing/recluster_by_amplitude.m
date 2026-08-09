@@ -20,7 +20,8 @@ if contains(pwd,"10595")
     config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
     config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
     config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
-    blind_pass_table = importdata("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch/blind_pass_table.mat");
+    % blind_pass_table = importdata("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch/blind_pass_table.mat");
+    blind_pass_table = importdata("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/subset_10_600Neuron300SecondRecordingWithLevel10Noise_3_ch/blind_pass_table.mat");
     load("/scratch2/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir/subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch/mean_and_std/mean_and_std.mat","channel_wise_means","channel_wise_std")
 elseif contains(pwd,"C:\Users\ldd77\")
     % ext_drive_fp = "F:";
@@ -51,7 +52,7 @@ blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table);
 blind_pass_table = add_amplitude_per_channel_col(blind_pass_table);
 config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
 disp(config.BLIND_PASS_DIR_PRECOMPUTED);
-bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"tetrode_peaks_with_new_dims.mat");
+bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"tetrode_peaks_with_new_dims_3_ch.mat");
 disp(bp_table_after_splitting_save_name);
 if ~isfile(bp_table_after_splitting_save_name)
     [new_data,new_pot_dims,cell_arr_of_sw] = find_new_dimension_candidates(blind_pass_table,config,'plot_the_debug',false);
@@ -77,7 +78,7 @@ end
 config.run_full_clustering = true;
 config.debug_with_ground_truth = false;
 
-new_clusters_fn = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_clusters.mat");
+new_clusters_fn = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_clusters_3_ch.mat");
 if ~isfile(new_clusters_fn)
     new_clusters = try_various_top_candiadate_reclustering([old_peaks,only_new_peaks],blind_pass_table,config,cell_arr_of_sw,new_pot_dims,channel_wise_means,channel_wise_std);
     par_save(new_clusters_fn,new_clusters);
