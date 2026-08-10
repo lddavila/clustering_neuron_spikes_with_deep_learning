@@ -1,4 +1,4 @@
-function [] = recluster_by_amplitude()
+function [] = recluster_by_amplitude(varargin)
 %format the path
 home_dir = cd("..");
 cd("..");
@@ -47,44 +47,48 @@ if only_sample
     blind_pass_table = blind_pass_table(c1,:);
 end
 
+if isempty(varargin)
+    blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table);
+    blind_pass_table = add_amplitude_per_channel_col(blind_pass_table);
+    config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
+    disp(config.BLIND_PASS_DIR_PRECOMPUTED);
+    bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"tetrode_peaks_with_new_dims_3_ch.mat");
+    disp(bp_table_after_splitting_save_name);
+    if ~isfile(bp_table_after_splitting_save_name)
+        [new_data,new_pot_dims,cell_arr_of_sw] = find_new_dimension_candidates(blind_pass_table,config,'plot_the_debug',false);
+        data_struct = struct();
+        data_struct.new_peaks = new_data;
+        data_struct.new_dims = new_pot_dims;
+        data_struct.sw = cell_arr_of_sw;
+        par_save(bp_table_after_splitting_save_name,data_struct);
+        disp("Successfully obtained the split table")
+    else
+        data_struct = load(bp_table_after_splitting_save_name);
+        data_struct = data_struct.data_to_save;
+        new_data = data_struct.new_peaks;
+        new_pot_dims = data_struct.new_dims;
+        cell_arr_of_sw = data_struct.sw;
+        disp("Successfully loaded the split table")
+    end
+    [old_peaks,only_new_peaks] = assemble_new_tetrode_peaks_and_pcs(blind_pass_table,new_data,new_pot_dims);
+    % try_multiple_clustering_algos(blind_pass_table,new_data,cell_arr_of_sw,config,true)
 
-blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table);
-blind_pass_table = add_amplitude_per_channel_col(blind_pass_table);
-config.error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"error_reports"));
-disp(config.BLIND_PASS_DIR_PRECOMPUTED);
-bp_table_after_splitting_save_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"tetrode_peaks_with_new_dims_3_ch.mat");
-disp(bp_table_after_splitting_save_name);
-if ~isfile(bp_table_after_splitting_save_name)
-    [new_data,new_pot_dims,cell_arr_of_sw] = find_new_dimension_candidates(blind_pass_table,config,'plot_the_debug',false);
-    data_struct = struct();
-    data_struct.new_peaks = new_data;
-    data_struct.new_dims = new_pot_dims;
-    data_struct.sw = cell_arr_of_sw;
-    par_save(bp_table_after_splitting_save_name,data_struct);
-    disp("Successfully obtained the split table")
+    %rerun clustering
+
+    config.run_full_clustering = true;
+    config.debug_with_ground_truth = false;
+
+    new_clusters_fn = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_clusters_3_ch.mat");
+    if ~isfile(new_clusters_fn)
+        new_clusters = try_various_top_candiadate_reclustering([old_peaks,only_new_peaks],blind_pass_table,config,cell_arr_of_sw,new_pot_dims,channel_wise_means,channel_wise_std);
+        par_save(new_clusters_fn,new_clusters);
+    else
+        new_clusters = importdata(new_clusters_fn);
+    end
 else
-    data_struct = load(bp_table_after_splitting_save_name);
-    data_struct = data_struct.data_to_save;
-    new_data = data_struct.new_peaks;
-    new_pot_dims = data_struct.new_dims;
-    cell_arr_of_sw = data_struct.sw;
-    disp("Successfully loaded the split table")
+    blind_pass_table = varargin{1};
+    new_clusters = varargin{2};
+    
 end
-[old_peaks,only_new_peaks] = assemble_new_tetrode_peaks_and_pcs(blind_pass_table,new_data,new_pot_dims);
-% try_multiple_clustering_algos(blind_pass_table,new_data,cell_arr_of_sw,config,true)
-
-%rerun clustering
-
-config.run_full_clustering = true;
-config.debug_with_ground_truth = false;
-
-new_clusters_fn = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_clusters_3_ch.mat");
-if ~isfile(new_clusters_fn)
-    new_clusters = try_various_top_candiadate_reclustering([old_peaks,only_new_peaks],blind_pass_table,config,cell_arr_of_sw,new_pot_dims,channel_wise_means,channel_wise_std);
-    par_save(new_clusters_fn,new_clusters);
-else
-    new_clusters = importdata(new_clusters_fn);
-end
-
-
+map_bp_table_to_reclustered_rows(blind_pass_table,new_clusters)
 end
