@@ -1,9 +1,9 @@
-function [table_of_all_new_clusters] = try_various_top_candiadate_reclustering(new_clustering_data,blind_pass_table,config,cell_arr_of_sw,cell_array_of_channels,channel_wise_means,channel_wise_std)
+function [table_of_all_new_clusters] = try_various_top_candiadate_reclustering(new_clustering_data,blind_pass_table,config,cell_arr_of_sw,cell_array_of_channels,channel_wise_means,channel_wise_std,stage_dir)
 
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 means_per_dimensions = cellfun(@mean, new_clustering_data,'UniformOutput',false);
 
-how_many_top_candidates_to_use = [2,3,4,5,6,7,8];
+how_many_top_candidates_to_use = [2,3,4,5,6];
 bp_split_by_aligned = slice_table_for_parallel_processing(blind_pass_table,"fp_to_aligned");
 %unique_aligned = unique(blind_pass_table{:,"fp_to_aligned"});
 sw_map = containers.Map('KeyType','char','ValueType','any');
@@ -32,7 +32,13 @@ for k=1:length(how_many_top_candidates_to_use)
     if contains(pwd,"10595")
         parpool(20)
     end
-    parfor i=1:length(new_clustering_data)
+    parfor i=1:height(blind_pass_table)
+        file_save_name = fullfile(stage_dir,sprintf("i_%i_k_%i.mat",i,k));
+        if isfile(file_save_name)
+            cell_array_of_new_clusters_created_using_old_as_guide{i} = importdata(file_save_name);
+            send(q,[]);
+            continue;
+        end
         curr_means = [means_per_dimensions{i,1},means_per_dimensions{i,2}];
 
         if all(isnan(curr_means)) || length(curr_means) < curr_num_of_top_candidates_to_cluster_with
@@ -43,11 +49,9 @@ for k=1:length(how_many_top_candidates_to_use)
         [~,sorted_idxs] = sort(curr_means,"descend");
 
         sw = sw_map(blind_pass_table{i,"fp_to_aligned"});
-        if blind_pass_table{i,"fp_to_aligned"}=="C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\subset_10_600Neuron300SecondRecordingWithLevel10Noise_3_ch\aligned_wf_files\t1 aligned_to_peak_wf.mat"
-            new_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"3_ch"));
-        else
-            new_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"2_ch"));
-        end
+
+        new_results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,string(length(blind_pass_table{i,"channels"}{1}))+"_ch"));
+
         % pk_locs = sw(blind_pass_table{i,"cluster_idx"}{1},4);
         pk_locs = sw(:,4);
         channels = [blind_pass_table{i,"channels"}{1},cell_array_of_channels{i}.'];
@@ -95,15 +99,9 @@ for k=1:length(how_many_top_candidates_to_use)
             local_config.mutated_spike_windows = all_sw;
             local_config.current_channels = channels;
             [~, ~, ~,~,~,cleaned_clusters] = run_spikesort_ntt_core_ver4(curr_ts,good_spike_idx,ir,tvals,current_filename,local_config,channels,all_sw,base_interp_raw,base_idxs);
-        catch ME
+        catch
             send(q,[]);
             continue;
-            % disp(ME.getReport);
-            % disp("accuracy of the cluster core is")
-            % b = table({timestamps(pk_locs)},'VariableNames',["timestamps"]);
-            % c = add_overlap_percentage_col_and_max_overlap_unit_optimized(b,config,timestamps);
-            % d = add_accuracy_col_modified(config,c);
-            % disp(d(:,["Max_Overlap_perc_With_Unit","Max_Overlap_Unit","accuracy"]));
         end
         timestamps_for_clusters = cell(length(cleaned_clusters),1);
         old_key = strcat(strjoin(blind_pass_table{i,["Z Score","Tetrode","Cluster"]}," "));
@@ -111,19 +109,19 @@ for k=1:length(how_many_top_candidates_to_use)
         for p=1:length(timestamps_for_clusters)
             timestamps_for_clusters{p} = tetr_ts(cleaned_clusters{p});
         end
-        % disp("accuracy of the cluster core is")
-        b = table(timestamps_for_clusters,'VariableNames',["timestamps"]);
-        c =  add_overlap_percentage_col_and_max_overlap_unit_optimized(b,config,timestamps,false);
-        d = add_accuracy_col(config,c,false);
-        % disp(d(:,["Max_Overlap_perc_With_Unit","Max_Overlap_Unit","accuracy","tp","fp","fn"]));
-        d.ref_id = repelem(i,height(d),1);
-        d.ref_string = repelem(old_key,height(d),1);
-        d.channels = repmat({channels},height(d),1);
-        d.num_of_candidates = repmat(curr_num_of_top_candidates_to_cluster_with,height(d),1);
-        cell_array_of_new_clusters_created_using_old_as_guide{i} = d;
+        new_bp_table = table(timestamps_for_clusters,cleaned_clusters,'VariableNames',["timestamps","cluster_idx"]);
+        if config.has_ground_truth 
+            new_bp_table =  add_overlap_percentage_col_and_max_overlap_unit_optimized(new_bp_table,config,timestamps,false);
+            new_bp_table = add_accuracy_col(config,new_bp_table,false);
+        end
+        new_bp_table.ref_id = repelem(i,height(new_bp_table),1);
+        new_bp_table.ref_string = repelem(old_key,height(new_bp_table),1);
+        new_bp_table.channels = repmat({channels},height(new_bp_table),1);
+        new_bp_table.num_of_candidates = repmat(curr_num_of_top_candidates_to_cluster_with,height(new_bp_table),1);
+        cell_array_of_new_clusters_created_using_old_as_guide{i} = new_bp_table;
+        par_save(file_save_name,new_bp_table);
         send(q,[]);
     end
-
     which_ones_to_concat = ~(cellfun(@isempty,cell_array_of_new_clusters_created_using_old_as_guide));
     cell_array_of_new_clusters_with_var_top_candidates{k} = vertcat(cell_array_of_new_clusters_created_using_old_as_guide{which_ones_to_concat});
 end

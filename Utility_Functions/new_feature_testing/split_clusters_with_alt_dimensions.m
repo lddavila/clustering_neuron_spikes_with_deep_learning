@@ -5,6 +5,7 @@ arguments
     config struct               %required
     options.bp_table_after_splitting cell = {} % Optional named argument
     options.plot_the_debug logical = false
+    options.ran_amp_split_first = false;
 end
 if isempty(options.bp_table_after_splitting)
     % get timestamps to use
@@ -59,7 +60,7 @@ if isempty(options.bp_table_after_splitting)
     print_status_bar(num_iterations,"split_clusters_with_alt_dimensions: getting split data");
 
 
-    for i=1:length(sliced_bp_table)
+    parfor i=1:length(sliced_bp_table)
 
         %get current table
         current_bp_table = sliced_bp_table{i};
@@ -81,11 +82,15 @@ if isempty(options.bp_table_after_splitting)
         warning('off', 'stats:pdist2:DataConversion'); %known warning which will not affect result
         cell_array_of_new_peaks_for_current_rows = cell(height(current_bp_table),1);
         cell_array_of_compare_channels_for_current_rows = cell(height(current_bp_table),1);
-        parfor j=1:height(current_bp_table)
+        for j=1:height(current_bp_table)
 
-            rep_channel_1 =current_bp_table{j,"rep_channel_1"}; %get the channel where the neuron appears clearest
-            rep_channel_2 = current_bp_table{j,"rep_channel_2"};
-
+            if ~options.ran_amp_split_first
+                rep_channel_1 =current_bp_table{j,"rep_channel_1"}; %get the channel where the neuron appears clearest
+                rep_channel_2 = current_bp_table{j,"rep_channel_2"};
+            else
+                rep_channel_1 = current_bp_table{j,"ch_with_largest_pk_amp"};
+                rep_channel_2 = current_bp_table{j,"ch_with_largest_pk_amp_2"};
+            end
             %get list of all channels within certain distance of current rep wire
             current_rep_wire_loc = locs_of_channels(rep_channel_1,:);
             distance_to_other_rep_wires = vecnorm(current_rep_wire_loc - locs_of_channels, 2, 2);
@@ -101,8 +106,13 @@ if isempty(options.bp_table_after_splitting)
 
             rearragned_channel_data = cell_array_of_channel_data(non_rep_wire_channels_nums); %index the channel data so that we can run it in parallel while maintaining the channel labeling
 
-            peaks_data_for_cluster = single(peaks([current_bp_table{j,"rep_wire_1"},current_bp_table{j,"rep_wire_2"}],:).');
-
+             if ~options.ran_amp_split_first
+                peaks_data_for_cluster = single(peaks([current_bp_table{j,"rep_wire_1"},current_bp_table{j,"rep_wire_2"}],:).');
+             else
+                 loc_1 = find(current_bp_table{j,"channels"}{1} == current_bp_table{j,"ch_with_largest_pk_amp"});
+                 loc_2 = find(current_bp_table{j,"channels"}{1} == current_bp_table{j,"ch_with_largest_pk_amp_2"});
+                 peaks_data_for_cluster = single(peaks([loc_1,loc_2],:).');
+             end
 
 
             %get the silhouette score assuming the full cluster
@@ -157,6 +167,10 @@ if isempty(options.bp_table_after_splitting)
     for i=1:length(cell_array_of_new_peak_vals_for_each_bp_table_aligned_row) %this outer for loop cycling through the table in such a way that very group is dedicated to 1 aligned file
         current_bp_table = sliced_bp_table{i};
 
+        curr_features = string(current_bp_table.Properties.VariableNames);
+
+        
+
         current_comparison_peaks_for_current_aligned = cell_array_of_new_peak_vals_for_each_bp_table_aligned_row{i};
         curr_comp_ch_for_current_aligned = cell_array_of_compare_channels_for_each_bp_table_aligned_row{i};
 
@@ -169,6 +183,12 @@ if isempty(options.bp_table_after_splitting)
 
 
         for j=1:length(current_comparison_peaks_for_current_aligned) %this for loop cycles through each cluster that comes from the aligned file specified inside
+            if ismember("accuracy",curr_features) %this will never be available in a real situation, but we put it here to limit compute time
+                if current_bp_table{j,"accuracy"} < 20
+                    fprintf("Finished %i \n",j);
+                    continue;
+                end
+            end
             current_z_score = current_bp_table{j,"Z Score"};
             current_tetrode = current_bp_table{j,"Tetrode"};
             current_cluster_alternate_dimension_peaks = current_comparison_peaks_for_current_aligned{j};
@@ -178,7 +198,7 @@ if isempty(options.bp_table_after_splitting)
             local_aligned_fp = current_bp_table{j,"fp_to_aligned"};
             local_ts_and_r_vals_fp = current_bp_table{j,"fp_to_timestamps_rtvals"};
             local_base_spike_windows_fp =current_bp_table{j,"fp_to_sorted_spike_windows_after_purges"};
-            parfor c=1:length(current_cluster_alternate_dimension_peaks) %this for loop cycles through every channel that the cluster might be split by
+            for c=1:length(current_cluster_alternate_dimension_peaks) %this for loop cycles through every channel that the cluster might be split by
 
                 warning_state = warning("off", "stats:gmdistribution:FailedToConvergeReps"); %known warning which will not affect results
                 restore_warning = onCleanup(@() warning(warning_state));
@@ -192,8 +212,8 @@ if isempty(options.bp_table_after_splitting)
                 %to speed up their computation
                 %we'll sample the clustering data as to have 99% certainty
                 % curent_clustering_data = get_a_subsample_of_clustering_data(current_clustering_data);
-                colmin = min(current_clustering_data)
-                colmax = max(current_clustering_data)
+                colmin = min(current_clustering_data);
+                colmax = max(current_clustering_data);
                 current_alternate_channel = current_alternate_channel_peaks(c);
                 current_clustering_data = rescale(current_clustering_data,'InputMax',colmax,'InputMin',colmin);
                 current_clustering_data(:,2) = current_clustering_data(:,2)*2; %I multiply by 2 here because we want to allow the new clustering to give more weight to the second dimension in order to maximize it's splitting potential
@@ -246,7 +266,7 @@ if isempty(options.bp_table_after_splitting)
                     'VariableNames', ...
                     ["Cluster","ref_id","timestamps","cluster_idx","channels","davies_score"]);
 
-                if config.has_ground_truth && config.debug_with_ground_truth
+                if config.has_ground_truth
 
                     new_table_with_accuracy = add_overlap_percentage_col_and_max_overlap_unit_optimized(new_table,config,timestamps,false);
                     new_table_with_accuracy = add_accuracy_col(config,new_table_with_accuracy,false);
@@ -256,14 +276,15 @@ if isempty(options.bp_table_after_splitting)
                 end
 
 
-                % fprintf("Finished %i / %i for bp row %i\n",j,length(current_comparison_peaks_for_current_aligned),i);
+                fprintf("Finished %i / %i for aligned row %i\n",c,length(current_cluster_alternate_dimension_peaks),i);
 
 
             end
             clear restore_warning  % Restores the previous warning state
             clear restore_warning_2
             % send(q,[]);
-            local_table = vertcat(cell_array_of_new_tables_for_each_channel{:});
+            non_empty = ~cellfun(@isempty, cell_array_of_new_tables_for_each_channel);
+            local_table = vertcat(cell_array_of_new_tables_for_each_channel{non_empty});
             lowest_davies_score = min(local_table.davies_score);
 
             cell_array_of_new_tables_for_each_clust{j} = local_table(local_table{:,"davies_score"}==lowest_davies_score,:);
@@ -278,7 +299,7 @@ if isempty(options.bp_table_after_splitting)
     %before performing a join we set the list of columns from the blind
     %pass table which we do which to be carried over to
     %bp_table_after_splitting
-    
+
     vars_to_include = setdiff(string(blind_pass_table.Properties.VariableNames),["grades","timestamps","cluster_idx","channels","Cluster","mean_waveform_rep_wire_1","mean_waveform_rep_wire_2","mean_waveform_rep_wire_3","mean_waveform_rep_wire_4","overlap_perc_with_all_units","rep_wire_2","tp","fp","fn","accuracy","Max_Overlap_perc_With_Unit","Max_Overlap_Unit"]);
 
     bp_table_after_splitting = join(bp_table_after_splitting,blind_pass_table(:,vars_to_include),"Keys","ref_id");
@@ -367,8 +388,8 @@ if isempty(options.bp_table_after_splitting)
         grid on;
         save_plots_in_all_formats(f,fullfile(results_of_splitting,"population of accuracies after splitting cdf"));
 
-        
-        
+
+
 
     end
 end

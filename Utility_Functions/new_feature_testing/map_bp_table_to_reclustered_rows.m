@@ -55,7 +55,7 @@ for i=1:length(all_found_units)
     c1 = blind_pass_table{:,"Max_Overlap_Unit"} == all_found_units(i);
     avg_for_new_units = [avg_for_new_units;mean(blind_pass_table{c1,"accuracy"})];
 end
-disp("average accuracy for the new found units")
+disp("average accuracy for the new found units");
 disp([all_found_units,avg_for_new_units]);
 
 end
