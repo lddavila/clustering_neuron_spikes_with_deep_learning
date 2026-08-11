@@ -4,6 +4,7 @@
 #SBATCH -J sample_set
 #SBATCH -o output_2.txt 
 #SBATCH -e output_2.txt 
-#SBATCH -t 48:00:00
+#SBATCH -t 3:00:00
+#SBATCH -A CCR26037
 module load matlab/2023b
 matlab -batch "create_3_and_2_channel_data_sets(10,1,'z');exit;"
