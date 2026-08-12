@@ -223,6 +223,10 @@ if config.has_ground_truth && config.debug_with_ground_truth
 end
 
 % channels_without_formatting = str2double(strrep(strrep(ordered_list_of_channels,"c",""),".mat",""));
+if config.use_new_features  %for experimentation to prevent to much redundancy
+    config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.which_new_feature));
+    precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
+end
 base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
 config.base_sw_dir = base_sw_dir;
 if ~isfile(fullfile(precomputed_dir,"blind_pass.txt"))
@@ -252,9 +256,36 @@ else
     disp("A Blind Pass Table Has Been Found in your precomputed directory and will be loaded.")
     disp("If you wish to recreate the blind pass table please specficy different directory or delete existing blind pass table.")
 end
-disp(string(height(blind_pass_table)) + " Tetrodes created clusters")
-%disp(size(blind_pass_table));
-% step 12: Grade the blind pass results
+disp(string(height(blind_pass_table)) + " Tetrodes created clusters");
+
+if ~isfile(fullfile(precomputed_dir,"finished_adding_cluster_idx_and_ts.txt"))
+    blind_pass_table = add_cluster_idx_and_ts_for_clusters(blind_pass_table,config);
+    %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")
+    par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
+    file_name = fullfile(precomputed_dir,"finished_adding_cluster_idx_and_ts.txt");
+    file_id = fopen(file_name,'w');
+    fclose(file_id);
+else
+    disp("blind pass table already contains cluster idxs and timestamps")
+end
+
+file_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt");
+if config.has_ground_truth
+    blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
+    blind_pass_table= add_accuracy_col(config,blind_pass_table);
+    par_save(fp_to_blind_pass_table,blind_pass_table);
+    file_id = fopen(file_name,'w');
+    fclose(file_id);
+else
+    disp("blind pass table already contains ground truth analysis");
+end
+
+
+if config.stop_before_grading
+    return;
+end
+
+
 beginning_time = tic;
 disp("Beginning Grading")
 if ~isfile(fullfile(precomputed_dir,"finished_grading.txt"))
@@ -271,7 +302,7 @@ end
 end_time = toc(beginning_time);
 fprintf("Finished grading, it took %.2f seconds\n",end_time);
 
-%step 13: Add The Mean Waveform, idx, and timestamps of the spikes col
+%step 13: Add The Mean Waveform
 if ~isfile(fullfile(precomputed_dir,"finished_adding_mw.txt"))
     blind_pass_table = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config);
     %save(fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat"),"blind_pass_table")

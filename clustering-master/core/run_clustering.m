@@ -55,9 +55,11 @@ if full_config.debug_with_ground_truth
     full_config.secondary_spike_windows = full_config.mutated_spike_windows(true_spike_idx,:);
 end
 
-
-[raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name,full_config);
-
+if ~full_config.use_new_features
+    [raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features, config,peak_pcs_file_name,full_config);
+else
+    [raw_clusters,full_config] = core_cluster_loop(spike_aligned, @extract_cluster_features_with_valley, config,peak_pcs_file_name,full_config);
+end
 
 %raw_clusters contains idxs which relate to spike_aligned
 % `refine_cluster_inj` maps each position in `spike_aligned` to the

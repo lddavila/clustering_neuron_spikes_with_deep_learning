@@ -10,6 +10,10 @@ config.data_dir = fullfile(config.base_file_path,"Data");
 
 config.RECORDING_NAME = ""; % by default this is empty, if you add a name then it will create a nested file path
 
+config.use_new_features = false;
+config.which_new_feature = "";
+config.stop_before_grading = false;
+
 %THESE PARAMETERS WILL CHECK IF YOU have a gpu available and if you have the parallel computing toolbox available
 config.IS_PARALLEL_AVAILABLE =license('test', 'Distrib_Computing_Toolbox') && exist('parpool', 'file') ;
 config.IS_GPU_AVAILABLE = canUseGPU;

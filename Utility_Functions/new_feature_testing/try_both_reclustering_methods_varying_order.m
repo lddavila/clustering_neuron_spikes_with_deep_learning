@@ -1,7 +1,7 @@
 function [] = try_both_reclustering_methods_varying_order(blind_pass_table,config,channel_wise_means,channel_wise_std)
 
 orders = {["split_by_amp","split_by_davies"],["split_by_davies","split_by_amp"],["split_by_davies"],["split_by_amp"]};
-only_sample = true;
+only_sample = false;
 if only_sample
     tetrode_list = strcat("t",string(1:15:285));
     c1 = ismember(blind_pass_table{:,"Tetrode"},tetrode_list);

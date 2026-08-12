@@ -1,7 +1,7 @@
-function [blind_pass_table] = get_template_spike_idx_and_ts_for_clusters(blind_pass_table,config,varargin)
+function [blind_pass_table] = add_cluster_idx_and_ts_for_clusters(blind_pass_table,config,varargin)
 % blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
-local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"get_template_spike_idx_and_ts_for_clusters_errors"));
-sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
+local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"add_cluster_idx_and_ts_for_clusters"));
+sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["fp_to_aligned"]);
 
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
@@ -12,17 +12,13 @@ if isempty(varargin)
 else
     timestamps_array = varargin{4};
 end
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};
 
         current_data_vars = string(current_data.Properties.VariableNames);
-        if isempty(varargin)
-            num_of_channels = size(current_data{:,"grades"}{1}{49},2);
-        else
-            num_of_channels = varargin{5};
-        end
+  
         if isempty(varargin)
             if ~ismember("cluster_idx",current_data_vars)
                 try
@@ -42,6 +38,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
             try
                 aligned_struct = load(current_data{1,"fp_to_aligned"},"data_to_save");
                 aligned = aligned_struct.data_to_save;
+                num_of_channels = size(aligned,1);
             catch ME
                 disp(ME.getReport);
                 send(q,[]);
@@ -60,46 +57,15 @@ parfor i=1:size(sliced_blind_pass_table,1)
         end
 
 
-        all_peaks = get_peaks(aligned, true);
         idx_cell_array = cell(size(current_data,1),1);
-        mean_waveform_cell_array = cell(size(current_data,1),num_of_channels);
         timestamp_cell_array = cell(size(current_data,1),1);
-        for j=1:height(current_data)
-            %disp(j)
+        for j=1:length(cleaned_clusters)
             cluster_filter = cleaned_clusters{j};
-            spikes = aligned(:, cluster_filter, :);
-            peaks = all_peaks(:, cluster_filter);
-            % disp(size(peaks));
-            % Set up the representative wire for the cluster
-            for k=1:num_of_channels
-                % Set up the representative wire for the cluster
-                [~, max_wire] = max(peaks, [], 1);
-                poss_wires = unique(max_wire);
-                n = histc(max_wire, poss_wires);
-                [~, max_n] = max(n);
-                compare_wire = poss_wires(max_n);
-                peaks(compare_wire,:) = nan;
-                the_wf  =shiftdim(spikes(compare_wire, :, :));
-                if size(the_wf,2) ~= size(aligned,3) && size(the_wf,1) == size(aligned,3)
-                    the_wf = the_wf.';
-                end
-                mean_waveform = mean(the_wf, 1);
-                % disp(size(mean_waveform))
-                mean_waveform = mean_waveform - mean(mean_waveform);
-                % disp(size(mean_waveform))
-                mean_waveform_cell_array{j,k} = mean_waveform;
-            end
             idx_cell_array{j} = cluster_filter;
             timestamp_cell_array{j} = timestamps(cluster_filter);
         end
-        % current_data.("cluster_idx") = idx_cell_array;
-        % current_data.("timestamps") = timestamp_cell_array;
-        for k=1:num_of_channels
-            % non_empty_locs = cellfun(@length, mean_waveform_cell_array(:,k))>1;
-            % temp_table = current_data(non_empty_locs,:);
-            % temp_table.
-            current_data.("mean_waveform_rep_wire_"+string(k)) = mean_waveform_cell_array(:,k);
-        end
+        current_data.("cluster_idx") = idx_cell_array;
+        current_data.("timestamps") = timestamp_cell_array;
         sliced_blind_pass_table{i} = current_data;
 
     catch ME
