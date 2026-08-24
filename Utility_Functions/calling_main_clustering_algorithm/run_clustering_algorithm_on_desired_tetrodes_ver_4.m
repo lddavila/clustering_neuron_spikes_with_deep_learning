@@ -82,7 +82,7 @@ base_interp_files_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfi
 
 
 %there should be a parfor on the line immediately following this one when not testing
-for i=1:length(sliced_every_permutation_of_both)
+parfor i=1:length(sliced_every_permutation_of_both)
 
     current_data = sliced_every_permutation_of_both{i};
     %get a local copy of config
@@ -167,12 +167,14 @@ for i=1:length(sliced_every_permutation_of_both)
     % disp("about to save base aligned spike windows")
     % disp(base_aligned_sw_name)
     par_save(base_aligned_sw_name,sorted_spike_windows);
+    
     % disp("Finished saving")
     base_aligned_idxs = 1:1:size(base_aligned,2);
     for j=1:height(current_data)
         even_more_local_config = local_config;
-
+        even_more_local_config.spikesort.sw_fp = base_aligned_sw_name;
         even_more_local_config.tetrode = current_tetrode;
+        even_more_local_config.spikesort.which_thresh = current_data{j,"number_of_thresholds_to_run"};
 
         even_more_local_config.which_thresh = current_data{j,"number_of_thresholds_to_run"};
         if even_more_local_config.has_ground_truth && even_more_local_config.debug_with_ground_truth
@@ -188,6 +190,7 @@ for i=1:length(sliced_every_permutation_of_both)
             continue;
         end
         even_more_local_config.current_channels = channels_in_current_tetrode;
+        even_more_local_config.spikesort.current_channels = channels_in_current_tetrode;
 
         if config.Value.use_new_spike_detection
             local_initial_tetrodes_results_dir = fullfile(local_config.BLIND_PASS_DIR_PRECOMPUTED,"initial_pass_results min multiplier "+ current_data{j,"number_of_thresholds_to_run"});

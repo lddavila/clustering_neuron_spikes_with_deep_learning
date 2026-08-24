@@ -20,7 +20,13 @@ function [the_final_clusters,full_config ]= core_cluster_loop(the_spike_aligned,
             cl = clusters{k}; %take cluster k from the data set
             if cl.subclust %check if cl should be sub clustered again 
                 done = false; %make sure the algorithm doesn't stop because the current cluster needs to be subclustered again
-                [subclusters,full_config]= core_cluster(the_spike_aligned(:, cl.idx, :), cluster_ns, cl.idx, the_extract_features_fn, the_new_config,the_peak_pcs_file_name,full_config); %get back subclusters from initial clutster
+                local_mut_sw = the_new_config.mutated_sw(cl.idx,:);
+                % the_new_config.mutated_sw = the_new_config.mutated_sw(cl.idx,:);
+                the_new_local_config = the_new_config;
+                the_new_local_config.mutated_sw = local_mut_sw;
+                the_local_full_config = full_config;
+                the_local_full_config.mutated_sw = local_mut_sw;
+                [subclusters,full_config]= core_cluster(the_spike_aligned(:, cl.idx, :), cluster_ns, cl.idx, the_extract_features_fn, the_new_local_config,the_peak_pcs_file_name,the_local_full_config); %get back subclusters from initial clutster
                 next_clusters = [next_clusters subclusters]; %add new subclusters to the list of clusters
 
             else

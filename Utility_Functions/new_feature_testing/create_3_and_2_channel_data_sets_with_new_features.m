@@ -48,7 +48,10 @@ for k=1:length(number_of_channels_to_use)
             end
             config.use_new_features = true;
             config.stop_before_grading = true;
-            config.which_new_feature = "valley_auc";
+            config.which_new_feature = "prominance_and_peak_width_width_over_height";
+            % config.which_new_feature = "default";
+            % config.which_new_feature = "troughs";
+            config.spikesort.which_new_feature = config.which_new_feature;
 
             
             
@@ -63,6 +66,7 @@ for k=1:length(number_of_channels_to_use)
             %randomly pick 10 tetrodes from this
             rand_idxs = randperm(size(new_tetrode_array,1),10);
             config.ART_TETR_ARRAY = new_tetrode_array(rand_idxs,:);
+            config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1:5,:);
             if contains(pwd,"10595")
                 config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
                 config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
@@ -93,9 +97,11 @@ for k=1:length(number_of_channels_to_use)
             % Step 4: run the blind pass with a various min_z_score (cut threshold)
             very_beginning_time = tic;
             config.ground_truth_cell_array = importdata(config.GT_FP);
-            config.debug_with_ground_truth = false;
+            config.spikesort.ground_truth_cell_array = importdata(config.GT_FP);
+            config.debug_with_ground_truth = true;
             config.run_full_clustering = true;
-
+            config.percentiles_to_use = [80:-20:20];
+            config.spikesort.fp_to_ch_to_units = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\new_features_subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch\DEBUG\table_of_best_rep.mat";
             [blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
 
 

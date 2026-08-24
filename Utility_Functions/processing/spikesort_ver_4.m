@@ -229,6 +229,7 @@ if ~full_config.run_full_clustering
     peak_pcs = NaN;
     return;
 end
+config.mutated_sw = full_config.mutated_spike_windows;
 while did_error && ~isempty(preproc_idx)
     % disp("entered the while loop")
     try

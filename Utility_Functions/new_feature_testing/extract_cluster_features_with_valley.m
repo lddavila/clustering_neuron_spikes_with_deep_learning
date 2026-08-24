@@ -1,4 +1,4 @@
-%this file has been edited by Luis D. Davila and Alexander Friedman 
+%this file has been edited by Luis D. Davila and Alexander Friedman
 function [the_cluster_data, supp_data] = extract_cluster_features_with_valley(the_raw_waveform_data,the_new_config,peak_pcs_file_name)
 %EXTRACT_CLUSTER_FEATURES Extracts features from the spike waveforms.
 %   [cluster_data, supp_data] = EXTRACT_CLUSTER_FEATURES(raw) returns two
@@ -30,30 +30,100 @@ function [the_cluster_data, supp_data] = extract_cluster_features_with_valley(th
 %   making each feature comparable in the clustering algorithm.
 %
 %   See also GET_PEAKS, PCA, GET_NEW_PCS.
+
+new_features = [];
+
+
 peaks = get_peaks(the_raw_waveform_data, true);
 
-valleys = get_peaks(the_raw_waveform_data*-1,true);
-% plot_peaks(peaks.',"in extract cluster features.m",[])
-num_peaks = size(peaks, 1);
-[~, peakpcs] = pca(peaks');
-%plot_pca_results(peakpcs);
-pcs = get_new_pcs(the_raw_waveform_data);
-pc1 = pcs(:, :, 1);
-pc2 = pcs(:, :, 2);
-%     pcs = get_new_pcs(raw, true);
-%     pc1 = pcs(:, :, 1);
-% peak_pcs = struct("pc1",pc1,"pc2",pc2);
-% par_save(peak_pcs_file_name,peak_pcs)
-x = 1:1:size(the_raw_waveform_data,3);
-y1 = zeros(1,size(the_raw_waveform_data,3));
-% y2 = reshape(the_raw_waveform_data,size(peaks,2),[]]);
-the_cluster_data = zscore([peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)';valleys]');
-% the_cluster_data = [peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)']'; % OG LINE
-if the_new_config.use_pc2
-    the_cluster_data = [peaks ; pc1 ; pc2;peakpcs(:, 1:num_peaks-1)']'; % OG LINE
+
+if contains(the_new_config.which_new_feature,"valley_auc")
+    valleys = get_peaks(the_raw_waveform_data*-1,true);
+    new_features = [new_features;valleys];
+
 end
-% cluster_data = zscore(peaks); %new line with pcs remsoved
-%     supp_data = zscore(pc2');
+if contains(the_new_config.which_new_feature, "velocity_based_features")
+    smoothed_wf = smoothdata(the_raw_waveform_data,3,"movmedian",10,"omitmissing");
+    % smoothed_wf = smoothdata(smoothed_wf,3);
+    % the_velocities = diff(smoothed_wf,1,3);
+    the_velocities = get_derivative_of_nonzero_parts_of_wf(smoothed_wf);
+    aligned_velocities = align_to_peak(the_velocities * -1);
+    the_velocity_peaks = get_peaks(aligned_velocities,true);
+    new_features = [new_features;the_velocity_peaks];
+end
+
+if contains(the_new_config.which_new_feature,"prominance_and_peak_width")
+    [peakProminence,peakWidthSeconds,peak_width_over_height] = get_peak_prominance_and_peak_width(the_raw_waveform_data,30:75);
+    new_features = [peakProminence;peakWidthSeconds];
+
+    if contains(the_new_config.which_new_feature,"width_over_height")
+        new_features = [new_features;peak_width_over_height];
+    end
+end
+
+if contains(the_new_config.which_new_feature,"trough")
+    troughs = get_trough(the_raw_waveform_data);
+    new_features = [new_features;troughs.'];
+end
+
+if contains(the_new_config.which_new_feature,"valley")
+    valley_levels = get_valley(the_raw_waveform_data);
+    new_features = [new_features;valley_levels];
+end
+
+if contains(the_new_config.which_new_feature,"first_valley")
+    [peakProminence,peakWidthSeconds] = get_first_or_second_valley_features(the_raw_waveform_data*-1,1:46);
+    new_features = [new_features;peakProminence;peakWidthSeconds];
+end
+
+if contains(the_new_config.which_new_feature,"second_valley")
+    [peakProminence,peakWidthSeconds] = get_first_or_second_valley_features(the_raw_waveform_data*-1,48:size(the_raw_waveform_data,3));
+    new_features = [new_features;peakProminence;peakWidthSeconds];
+end
+
+if contains(the_new_config.which_new_feature,"auc")
+    [area_under_curve,area_over_curve ]= get_area_under_zero_line(the_raw_waveform_data,1:30);
+    new_features = [new_features;area_under_curve];
+    if contains(the_new_config.which_new_feature,"aoc")
+        new_features = [new_features;area_over_curve];
+    end
+end
+
+
+% plot_peaks(peaks.',"in extract cluster features.m",[])
+if ~contains(the_new_config.which_new_feature,"without_pcs")
+    num_peaks = size(peaks, 1);
+    [~, peakpcs] = pca(peaks');
+    %plot_pca_results(peakpcs);
+    pcs = get_new_pcs(the_raw_waveform_data);
+    pc1 = pcs(:, :, 1);
+    pc2 = pcs(:, :, 2);
+
+    the_cluster_data = [peaks ; pc1 ; peakpcs(:, 1:num_peaks-1)';new_features]';
+else
+    the_cluster_data = [peaks ;new_features]';
+end
+% y2 = reshape(the_raw_waveform_data,size(peaks,2),[]]);
+
+if contains(the_new_config.which_new_feature,"peak_minus_valley")
+    [~,~,valley_volt] = get_first_or_second_valley_features(the_raw_waveform_data*-1,48:size(the_raw_waveform_data,3));
+    new_features = [new_features;peaks - valley_volt];
+end
+
+if contains(the_new_config.which_new_feature,"pca_only")
+    [~,scores] = pca(the_cluster_data);
+    the_cluster_data = scores;
+end
+if contains(the_new_config.which_new_feature,"pc_as_feature")
+    [~,scores] = pca(the_cluster_data);
+    the_cluster_data = [the_cluster_data,scores(size(the_raw_waveform_data,2):end)];
+end
+
+if contains(the_new_config.which_new_feature,"z_score")
+    the_cluster_data = zscore(the_cluster_data);
+end
+
 supp_data = [];
+
 
 end

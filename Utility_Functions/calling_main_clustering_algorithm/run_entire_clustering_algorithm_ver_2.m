@@ -6,6 +6,7 @@ function [blind_pass_table,fp_to_blind_pass_table,config] = run_entire_clusterin
 %"ordered_list_of_channels": string array in the format ["c1.mat","c2.mat","c3.mat"]
 scale_factor = config.SCALE_FACTOR;
 dir_with_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
+config.spikesort.dir_with_og_channel_recordings = config.DIR_WITH_OG_CHANNEL_RECORDINGS;
 num_dps = config.NUM_DPTS_TO_SLICE;
 
 %create a directory to log errors
@@ -266,6 +267,7 @@ if ~isfile(fullfile(precomputed_dir,"finished_adding_cluster_idx_and_ts.txt"))
     file_id = fopen(file_name,'w');
     fclose(file_id);
 else
+    blind_pass_table = importdata(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"));
     disp("blind pass table already contains cluster idxs and timestamps")
 end
 
@@ -279,6 +281,9 @@ if config.has_ground_truth
 else
     disp("blind pass table already contains ground truth analysis");
 end
+
+%add an indicator as to which new features are being used for clustering
+blind_pass_table.which_new_clustering_features = repelem(config.which_new_feature,height(blind_pass_table),1);  
 
 
 if config.stop_before_grading

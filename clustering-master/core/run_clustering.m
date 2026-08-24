@@ -46,6 +46,7 @@ function [final_clusters, bad_clusters,full_config,is_bad_cluster] = run_cluster
 % what raw_clusters returned by core_cluster_loop actually refer to 
 spike_aligned = aligned(:, true_spike_idx, :);
 
+config.mutated_sw = config.mutated_sw(true_spike_idx,:);
 %it is  important to keep in mind that the clusters that come back
 %currently do not align with refine_spike_idx NOR spike_idx they align with
 %the indexes shared between them 

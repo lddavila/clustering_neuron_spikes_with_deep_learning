@@ -1,7 +1,7 @@
 function [blind_pass_table] = add_cluster_idx_and_ts_for_clusters(blind_pass_table,config,varargin)
 % blind_pass_table = update_fpths(blind_pass_table,spikesort_config);
 local_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"add_cluster_idx_and_ts_for_clusters"));
-sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["fp_to_aligned"]);
+sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Z Score","Tetrode"]);
 
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
@@ -64,9 +64,12 @@ for i=1:size(sliced_blind_pass_table,1)
             idx_cell_array{j} = cluster_filter;
             timestamp_cell_array{j} = timestamps(cluster_filter);
         end
-        current_data.("cluster_idx") = idx_cell_array;
-        current_data.("timestamps") = timestamp_cell_array;
-        sliced_blind_pass_table{i} = current_data;
+       
+        new_table = current_data(repelem(1,length(idx_cell_array),1),:);
+        new_table.cluster_idx = idx_cell_array.';
+        new_table.cluster = (1:1:length(idx_cell_array)).';
+        new_table.timestamps = timestamp_cell_array.';
+        sliced_blind_pass_table{i} = new_table;
 
     catch ME
         report = ME.getReport;
