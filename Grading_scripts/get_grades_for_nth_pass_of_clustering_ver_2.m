@@ -9,8 +9,8 @@ if ~all(isfile(config.TEMPLATE_CLUSTER_FP))
     draw_elipse_templates(config);
 end
 %update paths on the blind pass table
-% blind_pass_table = update_fpths(blind_pass_table,config);
-sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["fp_to_aligned"]);
+blind_pass_table = update_fpths(blind_pass_table,config);
+sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,["Tetrode","Z Score"]);
 debug = 0;
 
 grading_error_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.error_dir,"grading_errors"));
@@ -33,7 +33,7 @@ q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 print_status_bar(num_iterations,"get_grades_for_nth_pass_of_clustering_ver_2.m")
 timestamps_array = importdata(config.Value.TIMESTAMP_FP);
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
 
     %disp("Starting grading")
     current_data = sliced_blind_pass_table{i};

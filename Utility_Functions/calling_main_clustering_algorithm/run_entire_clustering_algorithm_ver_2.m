@@ -227,6 +227,8 @@ end
 if config.use_new_features  %for experimentation to prevent to much redundancy
     config.BLIND_PASS_DIR_PRECOMPUTED = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,config.which_new_feature));
     precomputed_dir = config.BLIND_PASS_DIR_PRECOMPUTED;
+    split_fp = split(config.BLIND_PASS_DIR_PRECOMPUTED,filesep);
+    config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END = split_fp(end);
 end
 base_sw_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"aligned_spike_windows"));
 config.base_sw_dir = base_sw_dir;
@@ -272,9 +274,9 @@ else
 end
 
 file_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt");
-if config.has_ground_truth
+if config.has_ground_truth && ~isfile(file_name)
     blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
-    blind_pass_table= add_accuracy_col(config,blind_pass_table);
+    blind_pass_table= add_accuracy_col(config,blind _pass_table);
     par_save(fp_to_blind_pass_table,blind_pass_table);
     file_id = fopen(file_name,'w');
     fclose(file_id);

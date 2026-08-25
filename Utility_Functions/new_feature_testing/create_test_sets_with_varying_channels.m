@@ -38,8 +38,14 @@ for i=beginning:the_end
 
         config.use_new_spike_detection = false;
         config.use_bandpass = false;
+        if isempty(varargin)
         config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
-
+        else
+            ext_drive_path = "F:\cluster_data";
+            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(ext_drive_path,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
+        end
+        split_fp = split(config.BLIND_PASS_DIR_PRECOMPUTED,filesep);
+        config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END = split_fp(end);
         config.use_new_features = true;
         config.stop_before_grading = false;
         config.which_new_feature = "prominance_and_peak_width_width_over_height";
@@ -61,11 +67,12 @@ for i=beginning:the_end
             config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
             config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
             config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
-        elseif contains(pwd,"C:\Users\ldd77\")
+        elseif contains(pwd,"C:\Users\ldd77\") && isempty(varargin)
             % ext_drive_fp = "F:";
             config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
             config.TIMESTAMP_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"timestamps","timestamps.mat");
             config.DIR_WITH_OG_CHANNEL_RECORDINGS = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"recordings_by_channel");
+            
         elseif contains(pwd,"E:\clustering_neuron_spikes_with_deep_learning")%running on inscopix
             ext_drive_fp = "E:";
             config.GT_FP = fullfile(ext_drive_fp,config.RECORDING_NAME,"ground_truth","ground_truth.mat");

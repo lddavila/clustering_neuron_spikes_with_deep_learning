@@ -1,67 +1,106 @@
-function [blind_pass_table] = update_fpths(blind_pass_table,config)
-%this function is used to update any element in the blind pass table which
-%has a fp
-%this allows for most functions to still work provided that they have the
-%same datasets on their machine 
+function blind_pass_table = update_fpths(blind_pass_table, config)
+%UPDATE_FPTHS Update stored paths to use the current machine's base path.
+%
+% The portion of each path through
+% config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END is replaced by
+% config.BLIND_PASS_DIR_PRECOMPUTED.
+%
+% Both Windows "\" and Unix "/" source paths are supported.
 
-%define the blind_pass_table variables with file paths
-file_path_names = ["fp_to_aligned","fp_to_cleaned_clusters","fp_to_reg_timestamps","fp_to_reg_timestamps_of_the_spikes","fp_to_sorted_spike_windows_after_purges","fp_to_timestamps_rtvals"];
+file_path_names = [
+    "fp_to_aligned"
+    "fp_to_cleaned_clusters"
+    "fp_to_reg_timestamps"
+    "fp_to_reg_timestamps_of_the_spikes"
+    "fp_to_sorted_spike_windows_after_purges"
+    "fp_to_timestamps_rtvals"
+];
 
-%find where the data storage occurs
+new_base_path = string(config.BLIND_PASS_DIR_PRECOMPUTED);
+boundary_folder = string(config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END);
 
-for i=1:length(file_path_names)
-    %take 1 example of the filepath for the current file and find the base
-    %file path
-    current_example = blind_pass_table{1,file_path_names(i)};
+% Normalize the configured base path for the current operating system.
+new_base_path = replace(new_base_path, "/", filesep);
+new_base_path = replace(new_base_path, "\", filesep);
 
-    %if the current example already hass hte base file path then we presume
-    %that it doesn't need to be replaced and continue
-    if contains(current_example,config.base_file_path,"IgnoreCase",true)
-        continue;
-    end
+% Confirm that all expected columns exist.
+table_columns = string(blind_pass_table.Properties.VariableNames);
+missing_columns = file_path_names(~ismember(file_path_names, table_columns));
 
-    og_fpth_is_linux = false;
-    starts_with_slash = false;
-    %check if the current example uses '/' (linux) or '/' windows
-    if contains(current_example,"/")
-        split_example = split(current_example,"/");
-        og_fpth_is_linux = true;
-    else
-        split_example = split(current_example,"\");
-    end
-    
-    %now navigate through the split example until you find the base file
-    %path
-    counter = 1;
-    
-    while counter <= length(split_example) && split_example(counter)~=config.BLIND_PASS_DIR_PRECOMPUTED_ONLY_END
-        if counter==1 && split_example(counter)==" "
-            starts_with_slash=true;
+if ~isempty(missing_columns)
+    error( ...
+        "update_fpths:MissingColumns", ...
+        "The following path columns are missing: %s", ...
+        char(strjoin(missing_columns, ", ")) ...
+    );
+end
+
+for column_index = 1:numel(file_path_names)
+    column_name = char(file_path_names(column_index));
+    original_column = blind_pass_table.(column_name);
+    updated_column = string(original_column);
+
+    for row_index = 1:numel(updated_column)
+        current_path = updated_column(row_index);
+
+        % Leave empty or missing paths unchanged.
+        if ismissing(current_path) || strlength(current_path) == 0
+            continue;
         end
-        counter = counter+1;
+
+        % Use "/" temporarily so paths from either OS can be processed.
+        normalized_path = replace(current_path, "\", "/");
+        path_parts = split(normalized_path, "/");
+
+        % Absolute Unix paths produce an empty first element.
+        path_parts(path_parts == "") = [];
+
+        % Match the boundary as a complete folder name.
+        boundary_index = find( ...
+            strcmpi(path_parts, boundary_folder), ...
+            1, ...
+            "first" ...
+        );
+
+        if isempty(boundary_index)
+            error( ...
+                "update_fpths:BoundaryNotFound", ...
+                ["Could not find boundary folder '%s' in row %d of " ...
+                 "column '%s'. Path: %s"], ...
+                char(boundary_folder), ...
+                row_index, ...
+                column_name, ...
+                char(current_path) ...
+            );
+        end
+
+        % Preserve everything following the boundary folder.
+        remaining_parts = path_parts(boundary_index + 1:end);
+
+        if isempty(remaining_parts)
+            updated_column(row_index) = new_base_path;
+        else
+            relative_path = strjoin(remaining_parts, filesep);
+            updated_column(row_index) = fullfile( ...
+                new_base_path, ...
+                relative_path ...
+            );
+        end
     end
 
-    %now you can combine everything before the split split_example and
-    %replace this in the current variable 
-    if og_fpth_is_linux && starts_with_slash
-        part_to_replace = strjoin(split_example(1:counter),"/");
-        part_to_replace = strjoin("/",part_to_replace);
-    elseif og_fpth_is_linux
-        part_to_replace = strjoin(split_example(1:counter),"/");
-    elseif starts_with_slash
-        part_to_replace = strjoin(split_example(1:counter),"\");
-        part_to_replace = strjoin("\",part_to_replace);
+    % Preserve the original table column's common data type.
+    if iscell(original_column)
+        blind_pass_table.(column_name) = cellstr(updated_column);
+    elseif isstring(original_column)
+        blind_pass_table.(column_name) = updated_column;
+    elseif ischar(original_column)
+        blind_pass_table.(column_name) = char(updated_column);
     else
-        part_to_replace = strjoin(split_example(1:counter),"\");
-    end
-
-    % after_base = strjoin(split_example(counter:end),filesep);
-
-    %now replace what's in the blind pass_table
-    if og_fpth_is_linux
-        blind_pass_table.(file_path_names(i)) = strrep(strrep(blind_pass_table{:,file_path_names(i)},part_to_replace,config.BLIND_PASS_DIR_PRECOMPUTED),"/",filesep);
-    else
-        blind_pass_table.(file_path_names(i)) = strrep(blind_pass_table{:,file_path_names(i)},part_to_replace,config.BLIND_PASS_DIR_PRECOMPUTED);
+        error( ...
+            "update_fpths:UnsupportedColumnType", ...
+            "Column '%s' must contain character vectors or strings.", ...
+            column_name ...
+        );
     end
 end
 
