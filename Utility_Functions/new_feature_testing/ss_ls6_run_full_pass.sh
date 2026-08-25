@@ -7,4 +7,4 @@
 #SBATCH -t 10:00:00
 #SBATCH -A CCR26037
 module load matlab/2023b
-matlab -batch "run_full_pass(10,2);exit;"
+matlab -batch "run_full_pass(10,2,20);exit;"

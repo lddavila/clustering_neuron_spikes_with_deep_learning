@@ -1,4 +1,4 @@
-function [] = run_full_pass(which_recording,number_of_channels,varargin)
+function [] = run_full_pass(which_recording,number_of_channels,num_workers,varargin)
 %meant to run on TACC and only TACC, not modified for anything else
 %this function is meant to run the same examples, but uses the new spike
 %detection method copied from ironclust
@@ -18,7 +18,7 @@ if isempty(currentPool)
     cluster = parcluster("Processes");
     time_start = tic();
     if contains(pwd,"10595")
-        poolobj = parpool(cluster, 4);
+        poolobj = parpool(cluster, num_workers);
     else
         poolobj = parpool(cluster, 8);
     end
