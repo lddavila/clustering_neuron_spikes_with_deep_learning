@@ -143,10 +143,7 @@ parfor i=1:size(sliced_blind_pass_table,1)
         grades_and_grades_fp_table{k,"grades"} = {grades(k,:)};
         grades_and_grades_fp_table{k,"fp_to_grades"} = fullfile(dir_to_save_grades_to,current_tetrode+" Grades.mat");
     end
-    variables_from_original_data = setdiff(string(current_data.Properties.VariableNames),"grades");
-    for k=1:size(variables_from_original_data,2)
-        grades_and_grades_fp_table.(variables_from_original_data(k)) = repelem(current_data{1, variables_from_original_data(k)},size(grades_and_grades_fp_table,1),1);
-    end
+    grades_and_grades_fp_table = join(grades_and_grades_fp_table,current_data,"Keys","Cluster");
     grades_table{i} = grades_and_grades_fp_table;
     %disp(grades_and_grades_fp_table{:,"grades"});
     % disp("################################################")

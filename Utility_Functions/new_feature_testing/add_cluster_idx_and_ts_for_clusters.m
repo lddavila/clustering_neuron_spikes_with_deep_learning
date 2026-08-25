@@ -6,13 +6,13 @@ sliced_blind_pass_table = slice_table_for_parallel_processing(blind_pass_table,[
 q = parallel.pool.DataQueue;
 afterEach(q,@print_status_bar)
 num_iterations = size(sliced_blind_pass_table,1);
-print_status_bar(num_iterations,"get_template_spike_idx_and_ts_for_clusters.m")
+print_status_bar(num_iterations,"add_cluster_idx_and_ts_for_clusters.m")
 if isempty(varargin)
     timestamps_array = importdata(config.TIMESTAMP_FP);
 else
     timestamps_array = varargin{4};
 end
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};
@@ -67,7 +67,7 @@ for i=1:size(sliced_blind_pass_table,1)
        
         new_table = current_data(repelem(1,length(idx_cell_array),1),:);
         new_table.cluster_idx = idx_cell_array.';
-        new_table.cluster = (1:1:length(idx_cell_array)).';
+        new_table.Cluster = (1:1:length(idx_cell_array)).';
         new_table.timestamps = timestamp_cell_array.';
         sliced_blind_pass_table{i} = new_table;
 

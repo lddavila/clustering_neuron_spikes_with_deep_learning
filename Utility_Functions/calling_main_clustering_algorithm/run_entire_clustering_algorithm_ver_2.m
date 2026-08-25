@@ -276,7 +276,7 @@ end
 file_name = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"finished_adding_overlap_and_accuracy.txt");
 if config.has_ground_truth && ~isfile(file_name)
     blind_pass_table = add_overlap_percentage_col_and_max_overlap_unit_optimized(blind_pass_table,config,timestamps);
-    blind_pass_table= add_accuracy_col(config,blind _pass_table);
+    blind_pass_table= add_accuracy_col(config,blind_pass_table);
     par_save(fp_to_blind_pass_table,blind_pass_table);
     file_id = fopen(file_name,'w');
     fclose(file_id);
