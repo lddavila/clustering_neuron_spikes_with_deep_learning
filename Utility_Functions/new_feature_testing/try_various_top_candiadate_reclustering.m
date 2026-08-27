@@ -32,7 +32,7 @@ for k=1:length(how_many_top_candidates_to_use)
     if contains(pwd,"10595")
         parpool(20)
     end
-    parfor i=1:height(blind_pass_table)
+    for i=1:height(blind_pass_table)
         file_save_name = fullfile(stage_dir,sprintf("i_%i_k_%i.mat",i,k));
         if isfile(file_save_name)
             cell_array_of_new_clusters_created_using_old_as_guide{i} = importdata(file_save_name);
@@ -111,7 +111,7 @@ for k=1:length(how_many_top_candidates_to_use)
         end
         new_bp_table = table(timestamps_for_clusters,cleaned_clusters,'VariableNames',["timestamps","cluster_idx"]);
         if config.has_ground_truth 
-            new_bp_table =  add_overlap_percentage_col_and_max_overlap_unit_optimized(new_bp_table,config,timestamps,false);
+            new_bp_table =  add_overlap_percentage_col_and_max_overlap_unit_optimized(new_bp_table,config,timestamps,false,false);
             new_bp_table = add_accuracy_col(config,new_bp_table,false);
         end
         new_bp_table.ref_id = repelem(i,height(new_bp_table),1);

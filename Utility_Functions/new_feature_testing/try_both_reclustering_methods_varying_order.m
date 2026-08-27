@@ -7,8 +7,13 @@ if only_sample
     c1 = ismember(blind_pass_table{:,"Tetrode"},tetrode_list);
     blind_pass_table = blind_pass_table(c1,:);
 end
-
+table_vars = string(blind_pass_table.Properties.VariableNames);
+if ismember("accuracy",table_vars) % a shortcut we do to save computation done, will never be available in real life
+    blind_pass_table(blind_pass_table{:,"accuracy"}<10,:) = [];
+end
 results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"reclustering_methods_results"));
+
+
 for i=1:length(orders)
     curr_order = orders{i};
     which_already_run = zeros(length(curr_order),1);
