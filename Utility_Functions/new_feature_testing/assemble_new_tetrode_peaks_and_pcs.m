@@ -10,10 +10,10 @@ for i=1:length(new_peaks)
     new_assembled_peaks = [];
     new_channels = new_pot_dims{i}.';
     for j = 1:length(current_candidate_peaks)
-        fprintf("i: %i j: %i\n",i,j)
-        if i==373 && j==4
-            disp("Case where it errors")
-        end
+        % fprintf("i: %i j: %i\n",i,j)
+        % if i==373 && j==4
+        %     disp("Case where it errors")
+        % end
         if isempty(current_candidate_peaks{j})
             continue;
         end
