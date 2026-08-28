@@ -23,7 +23,9 @@ for k=1:length(how_many_top_candidates_to_use)
     afterEach(q,@print_status_bar)
     num_iterations = height(blind_pass_table);
     disp("Trying "+string(curr_num_of_top_candidates_to_cluster_with)+" dimensions")
-    print_status_bar(num_iterations,sprintf("%i / %i finished",k,length(how_many_top_candidates_to_use)));
+    disp("new_line")
+    disp("new_line")
+    print_status_bar(num_iterations,sprintf("%i / %i try_various_top_candidate_reclustering.m",k,length(how_many_top_candidates_to_use)));
     pool = gcp('nocreate');
 
     if ~isempty(pool)
@@ -32,7 +34,7 @@ for k=1:length(how_many_top_candidates_to_use)
     if contains(pwd,"10595")
         parpool(20)
     end
-    for i=1:height(blind_pass_table)
+    parfor i=1:height(blind_pass_table)
         file_save_name = fullfile(stage_dir,sprintf("i_%i_k_%i.mat",i,k));
         if isfile(file_save_name)
             cell_array_of_new_clusters_created_using_old_as_guide{i} = importdata(file_save_name);
