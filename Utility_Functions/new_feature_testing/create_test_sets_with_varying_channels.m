@@ -39,7 +39,7 @@ for i=beginning:the_end
         config.use_new_spike_detection = false;
         config.use_bandpass = false;
         if isempty(varargin)
-        config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
+            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
         else
             ext_drive_path = "F:\cluster_data";
             config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(ext_drive_path,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");

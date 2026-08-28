@@ -5,7 +5,7 @@ if ~isempty(varargin)
 else
     stage_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"splitting_cluster_by_amp"));
 end
-blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table);
+blind_pass_table = add_highest_amplitude_channel_col(blind_pass_table,config);
 blind_pass_table = add_amplitude_per_channel_col(blind_pass_table);
 blind_pass_table.ref_id = (1:height(blind_pass_table)).';
 disp(stage_dir);

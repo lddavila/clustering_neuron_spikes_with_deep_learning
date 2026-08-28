@@ -1,14 +1,21 @@
 function [old_peaks,only_new_peaks] = assemble_new_tetrode_peaks_and_pcs(blind_pass_table,new_peaks,new_pot_dims)
 old_peaks = cell(height(blind_pass_table),1);
 only_new_peaks = cell(height(blind_pass_table),1);
+
+
+
 for i=1:length(new_peaks)
     current_candidate_peaks = new_peaks{i};
     ones_that_are_empty = cellfun(@isempty,current_candidate_peaks);
     new_assembled_peaks = [];
     new_channels = new_pot_dims{i}.';
     for j = 1:length(current_candidate_peaks)
+        fprintf("i: %i j: %i\n",i,j)
+        if i==373 && j==4
+            disp("Case where it errors")
+        end
         if isempty(current_candidate_peaks{j})
-            continue
+            continue;
         end
 
         un_edited = abs(current_candidate_peaks{j});

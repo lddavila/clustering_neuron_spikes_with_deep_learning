@@ -1,6 +1,8 @@
-function [blind_pass_table] = add_highest_amplitude_channel_col(blind_pass_table)
+function [blind_pass_table] = add_highest_amplitude_channel_col(blind_pass_table,config)
+blind_pass_table = update_fpths(blind_pass_table,config);
 split_bp_table = slice_table_for_parallel_processing(blind_pass_table,"fp_to_aligned");
-parfor i=1:length(split_bp_table)
+
+for i=1:length(split_bp_table)
     current_data = split_bp_table{i};
     aligned = load(current_data{1,"fp_to_aligned"});
     aligned = aligned.data_to_save;
@@ -14,7 +16,7 @@ parfor i=1:length(split_bp_table)
     for j=1:height(current_data)
         cluster_peaks = peaks(:,current_data{j,"cluster_idx"}{1});
         cluster_valleys = valleys(:,current_data{j,"cluster_idx"}{1});
-        spike_amp = abs(cluster_peaks)%- cluster_valleys);
+        spike_amp = abs(cluster_peaks);%- cluster_valleys);
         mean_spike_amp = mean(spike_amp,2);
         channels = current_data{j,"channels"}{1};
         [m_v,m_i] = max(mean_spike_amp);

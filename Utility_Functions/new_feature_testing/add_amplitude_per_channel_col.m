@@ -1,6 +1,6 @@
 function [blind_pass_table] = add_amplitude_per_channel_col(blind_pass_table)
 split_bp_table = slice_table_for_parallel_processing(blind_pass_table,"fp_to_aligned");
-parfor i=1:length(split_bp_table)
+for i=1:length(split_bp_table)
     current_data = split_bp_table{i};
     aligned = load(current_data{1,"fp_to_aligned"});
     aligned = aligned.data_to_save;
