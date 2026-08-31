@@ -44,6 +44,6 @@ vars_to_include = setdiff(string(blind_pass_table.Properties.VariableNames),["gr
 
 new_clusters = join(new_clusters,blind_pass_table(:,vars_to_include),"Keys","ref_id");
 
-new_clusters = add_highest_amplitude_channel_col(new_clusters);
+new_clusters = add_highest_amplitude_channel_col(new_clusters,config);
 % map_bp_table_to_reclustered_rows(blind_pass_table,new_clusters)
 end
