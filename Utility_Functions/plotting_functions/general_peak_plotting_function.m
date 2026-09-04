@@ -12,9 +12,10 @@ arguments
     options.pause_on_each_plot logical = false;
     options.make_new_plot logical = true;
     options.color_by_unit = false;
+    options.close_plot = true;
 end
 
-    function [f] = plot_peaks(peaks,cluster_idx,save_plots,where_to_save,save_name,pause_on_each_plot,color_by_unit,config,varargin)
+    function [f] = plot_peaks(peaks,cluster_idx,save_plots,where_to_save,save_name,pause_on_each_plot,color_by_unit,config,options)
         f = figure('units','normalized','outerposition',[0 0 1 1]);
         perms_of_dimensions = nchoosek(1:min([size(peaks)]),2);
         tiledlayout('flow');
@@ -22,8 +23,8 @@ end
         legend_string = repelem("",length(cluster_idx),1);
         unit_or_cluster = "cluster";
         unit_or_cluster_number = 1:1:length(cluster_idx);
-        if ~isempty(varargin)
-            current_channels = varargin{1};
+        if ~isempty(options.channels{1})
+            current_channels = options.channels{1};
             perms_of_dimensions = nchoosek(1:length(current_channels),2);
         end
         if color_by_unit
@@ -45,7 +46,7 @@ end
             if k==1
                 legend();
             end
-            if ~isempty(varargin)
+            if ~isempty(options.channels{1})
                 % disp(perms_of_dimensions)
                 xlabel("Channel "+string(current_channels(perms_of_dimensions(k,1))) +" (in \muV)")
                 ylabel("Channel "+string(current_channels(perms_of_dimensions(k,2))) +" (in \muV)")
@@ -59,7 +60,9 @@ end
             disp("Hit any key to go to next plot")
             pause;
         end
-        close(f)
+        if options.close_plot
+            close(f)
+        end
     end
 
 
@@ -75,10 +78,10 @@ if options.what_kind_of_data=="blind_pass_table"
         aligned = load(current_data{1,"fp_to_aligned"});
         aligned = aligned.data_to_save;
         peaks = get_peaks(aligned,true);
-        plot_peaks(peaks,current_data.cluster_idx,options.save_plots,options.where_to_save,options.save_name,options.pause_on_each_plot,options.color_by_unit,config,current_data{1,"channels"}{1});
+        plot_peaks(peaks,current_data.cluster_idx,options.save_plots,options.where_to_save,options.save_name,options.pause_on_each_plot,options.color_by_unit,config,options);
     end
 elseif options.what_kind_of_data=="peaks"
-    plot_peaks(data_to_plot,options.cluster_idx,options.save_plots,options.where_to_save,options.save_name,options.pause_on_each_plot,options.color_by_unit,config,options.channels{1});
+    plot_peaks(data_to_plot,options.cluster_idx,options.save_plots,options.where_to_save,options.save_name,options.pause_on_each_plot,options.color_by_unit,config,options);
 elseif options.what_kind_of_data == "aligned"
     peaks = get_peaks(data_to_plot,true);
     plot_peaks(peaks,where_to_save,save_name);

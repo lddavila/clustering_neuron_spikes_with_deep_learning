@@ -31,8 +31,10 @@ for i=1:length(channels)
     end
 end
 [b,i] = sort(just_detection,"descend");
-unit_idx = unit_idx(i(1:10));
-new_colors = new_colors(i(1:10),:);
-unit_list = unit_list(i(1:10));
+
+the_end = min([length(i),10]);
+unit_idx = unit_idx(i(1:the_end));
+new_colors = new_colors(i(1:the_end),:);
+unit_list = unit_list(i(1:the_end));
 
 end
