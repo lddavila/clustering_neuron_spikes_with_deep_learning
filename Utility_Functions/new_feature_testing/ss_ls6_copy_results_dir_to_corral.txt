@@ -1,0 +1,10 @@
+#!/bin/bash 
+#SBATCH -N 1
+#SBATCH -p normal
+#SBATCH -J copying
+#SBATCH -o output.txt 
+#SBATCH -e output.txt 
+#SBATCH -t 1:00:00
+#SBATCH -A CCR26037
+module load matlab/2023b
+matlab -batch "copy_results_dir_to_corral('/scratch/10595/lddavila/clustering_neuron_spikes_with_deep_learning/Default_Results_Dir','/corral/utep/CCR26037/');exit;"
