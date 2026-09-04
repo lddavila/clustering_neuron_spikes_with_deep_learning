@@ -1,7 +1,7 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -p normal
-#SBATCH -J 4_ch
+#SBATCH -J 4_ch_sub
 #SBATCH -o output_4_sub.txt 
 #SBATCH -e output_4_sub.txt 
 #SBATCH -t 2:00:00
