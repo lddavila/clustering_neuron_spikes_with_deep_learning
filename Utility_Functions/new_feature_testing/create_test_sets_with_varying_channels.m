@@ -39,7 +39,7 @@ for i=beginning:the_end
         config.use_new_spike_detection = false;
         config.use_bandpass = false;
         if isempty(varargin)
-            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
+            config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"big_sub_new_features_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
         else
             ext_drive_path = "F:\cluster_data";
             config.BLIND_PASS_DIR_PRECOMPUTED = fullfile(ext_drive_path,"new_features_subset_"+config.RECORDING_NAME+"_"+string(number_of_channels)+"_ch");
@@ -61,7 +61,7 @@ for i=beginning:the_end
         new_tetrode_array = build_channel_configs(number_of_channels,config);
 
         %randomly pick 20 tetrodes from this
-        rand_idxs = randperm(size(new_tetrode_array,1),20);
+        rand_idxs = randperm(size(new_tetrode_array,1),200);
         config.ART_TETR_ARRAY = new_tetrode_array(rand_idxs,:);
         if contains(pwd,"10595")
             config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");

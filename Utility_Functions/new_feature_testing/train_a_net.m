@@ -1,4 +1,4 @@
-function [accuracy,net] = test_nn_on_incremental_challenging(training_data,validation_data,layers,batch_size)
+function [net] = train_a_net(training_data,validation_data,layers,batch_size)
 
 
 if class(training_data)~= "table"
@@ -17,26 +17,9 @@ end
 data_to_put_into_neural_network = convertvars(data_to_put_into_neural_network,data_to_put_into_neural_network.Properties.VariableNames(end),"categorical");
 validation_data_to_put_into_neural_network = convertvars(validation_data_to_put_into_neural_network,validation_data_to_put_into_neural_network.Properties.VariableNames(end),"categorical");
 
-label_name = validation_data_to_put_into_neural_network.Properties.VariableNames(end);
-
-
-
-
-
-number_of_validation_observations = floor(0.5* size(validation_data_to_put_into_neural_network,1));
-number_of_test_observations = size(validation_data_to_put_into_neural_network,1) - number_of_validation_observations;
-
-
-idx_of_testing_data = randperm(size(validation_data_to_put_into_neural_network,1),number_of_test_observations);
-idx_of_validation_data = setdiff(1:size(validation_data_to_put_into_neural_network,1),idx_of_testing_data);
-
 
 training_data =data_to_put_into_neural_network;
-validation_data = validation_data_to_put_into_neural_network(idx_of_validation_data,:);
-testing_data = validation_data_to_put_into_neural_network(idx_of_testing_data,:);
-
-
-
+validation_data = validation_data_to_put_into_neural_network;
 
 
 mini_batch_size = batch_size;
@@ -55,14 +38,7 @@ options = trainingOptions("adam", ...
 %disp(training_data);
 net = trainnet(table2array(training_data(:,1:end-1)),table2array(training_data(:,end)),layers,"crossentropy",options);
 
-scores = predict(net,table2array(testing_data(:,1:end-1)));
 
-[~,YPred] = max(scores,[],2); 
-YPred = YPred-1;
 
-YTest = testing_data{:,label_name};
-accuracy = sum(categorical(YPred)== YTest)/numel(YTest);
-disp("accuracy on test")
-disp(accuracy)
 
 end
