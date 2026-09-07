@@ -3,6 +3,9 @@ arguments
     options.unscaled_certainties double = []
     options.distance_from_min_uncertainty double = []
     options.filtered_bp_table table = []
+    options.smooth_the_curve double = false;
+    options.use_grades double = false;
+    options.normalize_columns = false;
 end
 
 home_dir = cd("..");
@@ -24,7 +27,17 @@ else
     filtered_bp_table = options.filtered_bp_table;
 end
 
+if options.use_grades
+    list_of_features_to_add = ["grades 3"];
+    grades_array = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,filtered_bp_table,config))];
+    unscaled_certainties = [unscaled_certainties,grades_array];
+end
+
+if options.smooth_the_curve
+    unscaled_certainties = smoothdata(unscaled_certainties);
+end
 bin_sizes = [0,5,10,20,30,40,100];
+bin_sizes = [0,10,100];
 discretized_distance = discretize(distance_from_min_uncertainty,bin_sizes);
 
 
@@ -69,18 +82,44 @@ disp(balanced_table);
 %40 = num layers
 % = number of classes
 %4 = number of features in assembled data
-layers_of_net = dynamically_create_layers_for_nn(size(balanced_table.unscaled_certainties,2),10,20,length(unique(balanced_table.discretized_distance)));
+% layers_of_net = dynamically_create_layers_for_nn(size(balanced_table.unscaled_certainties,2),5,5,length(unique(balanced_table.discretized_distance)));
+numFeatures = size(balanced_table.unscaled_certainties,2);
+numClasses = numel(unique(balanced_table.discretized_distance));
 
+layers_of_net = [
+    featureInputLayer(numFeatures,Normalization="none")
+    fullyConnectedLayer(64)
+    reluLayer
+    fullyConnectedLayer(32)
+    reluLayer
+    fullyConnectedLayer(numClasses)
+    softmaxLayer
+];
 training_data = [balanced_table.unscaled_certainties,balanced_table.discretized_distance];
 val_data = [val_table.unscaled_certainties,val_table.discretized_distance];
 test_data = [testing_table.unscaled_certainties,testing_table.discretized_distance];
 
+if options.normalize_columns
+    col_min =min(training_data(:,1:end-1));
+    col_max = max(training_data(:,1:end-1));
+    training_data(:,1:end-1) = rescale(training_data(:,1:end-1),-1,1,'InputMax',col_max,'InputMin',col_min);
+    val_data(:,1:end-1) = rescale(val_data(:,1:end-1),-1,1,'InputMax',col_max,'InputMin',col_min);
+    test_data(:,1:end-1) = rescale(test_data(:,1:end-1),-1,1,'InputMax',col_max,'InputMin',col_min);
+end
 
+
+clc;
 [trained_net] = train_a_net(training_data,val_data,layers_of_net,32);
 
+scores = predict(trained_net,test_data(:,1:end-1));
 
+[~,YPred] = max(scores,[],2); 
+YPred = YPred-1;
 
-
+YTest = test_data(:,end);
+accuracy = sum(categorical(YPred)== categorical(YTest))/numel(YTest);
+disp("accuracy on test")
+disp(accuracy)
 
 
 
