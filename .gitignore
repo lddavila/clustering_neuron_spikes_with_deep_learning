@@ -4,6 +4,14 @@
 #ignore auto save files
 *.asv
 
+#ignore local operating-system and Office temporary files
+.DS_Store
+**/.DS_Store
+~$*
+
+#ignore local reports and presentation exports
+/outputs/
+
 #ignore pngs
 *.png
 

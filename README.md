@@ -39,6 +39,13 @@ Spike-Sorting is the method of trying to identify specific neuron activity from 
 - ***Location:** \clustering_neuron_spikes_with_deep_learning\Utility_Functions
 - **Purpose:**
 
+### Group-pair neural-network experiment
+- **Location:** `Utility_Functions/group_pair_nn_pipeline`
+- **Purpose:** Trains the nine-feature postprocessing network on simulated
+  recording 10 and evaluates the frozen network on simulated recording 6.
+- **Instructions:** See
+  [`Utility_Functions/group_pair_nn_pipeline/README.md`](Utility_Functions/group_pair_nn_pipeline/README.md).
+
 ## What should my Data Look Like?
     1. Our pipeline expects your data to be structured into a folder 
     '-' indicates a file
