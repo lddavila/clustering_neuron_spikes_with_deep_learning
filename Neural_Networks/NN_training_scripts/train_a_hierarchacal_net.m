@@ -45,8 +45,8 @@ secondary_data_table = [secondary_test_table(:,["Z Score","Tetrode","Cluster","M
 split_data = partition_bp_tables(data_table,false);
 training_data = split_data{1,1};
 testing_data = split_data{1,2};
-col_min = min(testing_data.grades);
-col_max = max(testing_data.grades);
+col_min = min(training_data.grades);
+col_max = max(training_data.grades);
 
 testing_data.grades = rescale(testing_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
 
@@ -56,7 +56,7 @@ training_data.grades = rescale(training_data.grades,-1,1,"InputMax",col_max,"Inp
 validation_data = split_again{1,2};
 validation_data.grades = rescale(validation_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
 
-secondary_data_table.grades = rescale(secondary_data_table.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
+% secondary_data_table.grades = rescale(secondary_data_table.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
 
 %create accuracy classes which will serve as our ground truth
 training_data.final_y_labels = discretize(training_data.accuracy,0:10:100);
@@ -116,8 +116,8 @@ for i=1:length(split_points)
     %this class is not to be predicted, but to ensure that accuracy does
     %not mislead us because the proportion of trivial cases typically
     %outnumber the difficult casses
-    training_data.difficulty_class = discretize(current_split_point - training_data.accuracy,-100:5:100);
-    testing_data.difficulty_class = discretize(current_split_point - testing_data.accuracy,-100:5:100);
+    training_data.difficulty_class = discretize(abs(current_split_point - training_data.accuracy),0:5:100);
+    testing_data.difficulty_class = discretize(abs(current_split_point - testing_data.accuracy),0:5:100);
 
     %add a class specific to try and categorize the true accuracy as
     %above/below the split point
@@ -195,7 +195,7 @@ for i=1:length(split_points)
     %now get a breakdown of how the success/faliure cases break down
     
     
-    bounds = -100:5:100;
+    bounds = 0:5:100;
     x_labels = strcat(string(bounds(1:end-1)), " to ",string(bounds(2:end)));
     list =1:1:length(x_labels);
     all_data = zeros(length(x_labels),2);
