@@ -6,21 +6,21 @@ end
 home_dir = cd("..");
 cd("..");
 
-%add path 
-addpath(genpath(fullfile(pwd,"Neural_Networks/"))); 
+%add path
+addpath(genpath(fullfile(pwd,"Neural_Networks/")));
 addpath(genpath(fullfile(pwd,"Grading_scripts")));
 addpath(genpath(fullfile(pwd,"clustering-master")));
 addpath(genpath(fullfile(pwd,"Utility_Functions")));
 cd(home_dir)
 config = spikesort_config();
-if size(options.blind_pass_table) == 0 
+if size(options.blind_pass_table) == 0
     blind_pass_table = importdata(config.FP_TO_EVEN_NUMBERED_RECORDINGS);
 else
     blind_pass_table = options.blind_pass_table;
 end
 
 
-if size(options.blind_pass_table) == 0 
+if size(options.blind_pass_table) == 0
     secondary_test_table = importdata(config.FP_TO_ODD_NUMBERED_RECORDINGS);
 else
     secondary_test_table = options.secondary_test_table;
@@ -100,127 +100,186 @@ split_points = [70, 60, 50];
 % that accuracy 65% accuracy is confused to be 70%+ accurate
 % or that a 75% accuracy is predicted to be <70% accurate
 
-% the truly high accuracies (>80% accuracy) should still pass without problem 
+% the truly high accuracies (>80% accuracy) should still pass without problem
 % and those who are borderline can continue down the network tree ensemble
 
-for i=1:length(split_points)
-
-    current_split_point = split_points(i);
-    net_save_name = fullfile(results_dir,sprintf("net_for_split_at_%.f",current_split_point));
-    graph_save_name = fullfile(results_dir,sprintf("chart_for_split_at_%.f",current_split_point));
-
-    if isfile(net_save_name) && isfile(graph_save_name)
-        continue;
+balance_training_or_dont = [0,1];
+for k=1:length(balance_training_or_dont)
+    if balance_training_or_dont(k)
+        to_add = "balanced_";
+    else
+        to_add = "";
     end
-    %now we'll add a difficulty class to our data
-    %this class is not to be predicted, but to ensure that accuracy does
-    %not mislead us because the proportion of trivial cases typically
-    %outnumber the difficult casses
-    training_data.difficulty_class = discretize(abs(current_split_point - training_data.accuracy),0:5:100);
-    testing_data.difficulty_class = discretize(abs(current_split_point - testing_data.accuracy),0:5:100);
+    for i=1:length(split_points)
 
-    %add a class specific to try and categorize the true accuracy as
-    %above/below the split point
-    training_data.local_class = training_data.accuracy >= current_split_point;
-    validation_data.local_class = validation_data.accuracy >= current_split_point;
-    testing_data.local_class = testing_data.accuracy >= current_split_point;
+        current_split_point = split_points(i);
+        net_save_name = fullfile(results_dir,sprintf(to_add+"net_for_split_at_%.f",current_split_point)+".mat");
+        graph_save_name = fullfile(results_dir,sprintf(to_add+"chart_for_split_at_%.f",current_split_point));
 
-    %balance the data again this time by the local class
-    %%%%%%%%%%%%%%%%%
-    difficulty_group_counts = groupcounts(training_data,"local_class");
-    min_cat = min(difficulty_group_counts.GroupCount);
+        if isfile(net_save_name) && isfile(graph_save_name+".mat")
+            continue;
+        end
+        %now we'll add a difficulty class to our data
+        %this class is not to be predicted, but to ensure that accuracy does
+        %not mislead us because the proportion of trivial cases typically
+        %outnumber the difficult casses
+        training_data.difficulty_class = discretize(abs(current_split_point - training_data.accuracy),0:5:100);
+        testing_data.difficulty_class = discretize(abs(current_split_point - testing_data.accuracy),0:5:100);
+        validation_data.difficulty_class = discretize(abs(current_split_point - validation_data.accuracy),0:5:100);
 
-    %randomly sample each category to match the min
-    % 3. Group data and apply the sampling function
-    % groupcounts converts categories into integer grouping variables (1, 2, 3...)
-    [G, ~] = findgroups(categorical(training_data.local_class));
+        %add a class specific to try and categorize the true accuracy as
+        %above/below the split point
+        training_data.local_class = training_data.accuracy >= current_split_point;
+        validation_data.local_class = validation_data.accuracy >= current_split_point;
+        testing_data.local_class = testing_data.accuracy >= current_split_point;
 
-    % 1. Create an array of row numbers (1 to total rows)
-    rowIndices = (1:height(training_data))';
+        min_group_size = 100;
 
-    % 2. Sample row indices per group (using the cell trick)
-    sampledRowsCell = splitapply(@(x) {datasample(x, min_cat, 'Replace', false)}, rowIndices, G);
+        % Distance from the current threshold
+        training_data.difficulty_class = discretize( ...
+            abs(current_split_point - training_data.accuracy), ...
+            0:5:100);
 
-    % 3. Combine indices and extract the downsampled table
-    finalRows = vertcat(sampledRowsCell{:});
-    balanced_training = training_data(finalRows, :);
-    %%%%%
+        % Remove rows with undefined difficulty classes
+        training_subset = training_data( ...
+            ~isundefined(categorical(training_data.difficulty_class)), :);
 
-    difficulty_group_counts = groupcounts(balanced_training,"difficulty_class");
-    min_cat = min(difficulty_group_counts.GroupCount);
+        % Form joint local-class/difficulty-class groups
+        [G, group_table] = findgroups( ...
+            training_subset(:,["local_class","difficulty_class"]));
 
-    %randomly sample each category to match the min
-    % 3. Group data and apply the sampling function
-    % groupcounts converts categories into integer grouping variables (1, 2, 3...)
-    [G, ~] = findgroups(categorical(training_data.difficulty_class));
+        row_indices = (1:height(training_subset))';
+        group_counts = splitapply(@numel,row_indices,G);
 
-    % 1. Create an array of row numbers (1 to total rows)
-    rowIndices = (1:height(training_data))';
+        % Identify groups large enough to retain
+        large_enough_groups = group_counts >= min_group_size;
 
-    % 2. Sample row indices per group (using the cell trick)
-    sampledRowsCell = splitapply(@(x) {datasample(x, min_cat, 'Replace', false)}, rowIndices, G);
+        % Map the group-level condition back to individual rows
+        keep_rows = large_enough_groups(G);
+        training_subset = training_subset(keep_rows,:);
 
-    % 3. Combine indices and extract the downsampled table
-    finalRows = vertcat(sampledRowsCell{:});
-    balanced_training = training_data(finalRows, :);
+        % Recompute groups after removing small ones
+        [G, group_table] = findgroups( ...
+            training_subset(:,["local_class","difficulty_class"]));
 
-    %we don't do this to the same to testing/validation data because we
-    %actually WANT to see how it performs on realistic data
-    %the proportion split we implement in training is not guaranteed
+        row_indices = (1:height(training_subset))';
+        group_counts = splitapply(@numel,row_indices,G);
 
-    %now build a net based on our needs
-    layers_of_net = dynamically_create_layers_for_nn(size(balanced_training.grades,2),5,5,length(unique(balanced_training.local_class)));
+        if isempty(group_counts)
+            error("No training groups contain at least %d observations.", ...
+                min_group_size);
+        end
 
-    % local_grades = balanced_training.grades ;
-    % local_grades(any(isnan(local_grades),2),:) = [];
-    % balanced_training.grades = local_grades;
+        % Balance retained groups to the size of the smallest retained group
+        samples_per_group = min(group_counts);
+
+        sampled_rows = splitapply( ...
+            @(rows) {datasample(rows,samples_per_group,"Replace",false)}, ...
+            row_indices,G);
+
+        sampled_rows = vertcat(sampled_rows{:});
+        balanced_training = training_subset(sampled_rows,:);
+
+        training_subset = validation_data;
+        % repeat to balance validation data
+        % Form joint local-class/difficulty-class groups
+        [G, group_table] = findgroups(training_subset(:,["local_class","difficulty_class"]));
+
+        row_indices = (1:height(training_subset))';
+        group_counts = splitapply(@numel,row_indices,G);
+
+        % Identify groups large enough to retain
+        large_enough_groups = group_counts >= min_group_size;
+
+        % Map the group-level condition back to individual rows
+        keep_rows = large_enough_groups(G);
+        training_subset = training_subset(keep_rows,:);
+
+        % Recompute groups after removing small ones
+        [G, group_table] = findgroups( ...
+            training_subset(:,["local_class","difficulty_class"]));
+
+        row_indices = (1:height(training_subset))';
+        group_counts = splitapply(@numel,row_indices,G);
+
+        if isempty(group_counts)
+            error("No training groups contain at least %d observations.", ...
+                min_group_size);
+        end
+
+        % Balance retained groups to the size of the smallest retained group
+        samples_per_group = min(group_counts);
+
+        sampled_rows = splitapply( ...
+            @(rows) {datasample(rows,samples_per_group,"Replace",false)}, ...
+            row_indices,G);
+
+        sampled_rows = vertcat(sampled_rows{:});
+        balanced_validation = training_subset(sampled_rows,:);
+
+
+        %we don't do this to the same to testing/validation data because we
+        %actually WANT to see how it performs on realistic data
+        %the proportion split we implement in training is not guaranteed
+
+        %now build a net based on our needs
+        layers_of_net = dynamically_create_layers_for_nn(size(balanced_training.grades,2),5,5,length(unique(balanced_training.local_class)));
+
+        % local_grades = balanced_training.grades ;
+        % local_grades(any(isnan(local_grades),2),:) = [];
+        % balanced_training.grades = local_grades;
 
 
 
 
-    %now train that net and get results
-    [trained_net] = train_a_net([balanced_training.grades,balanced_training.local_class],[validation_data.grades,validation_data.local_class],layers_of_net,32);
+        %now train that net and get results
+        if balance_training_or_dont(k)
+            [trained_net] = train_a_net([balanced_training.grades,balanced_training.local_class],[balanced_validation.grades,balanced_validation.local_class],layers_of_net,32);
+        else
+            [trained_net] = train_a_net([balanced_training.grades,balanced_training.local_class],[validation_data.grades,validation_data.local_class],layers_of_net,32);
+        end
 
-    scores = predict(trained_net,testing_data.grades);
+        scores = predict(trained_net,testing_data.grades);
 
-    % [~,YPred] = max(scores,[],2);
-    % YPred = YPred-1;
-    YPred = double(~(scores(:,2) < 90));
+        [~,YPred] = max(scores,[],2);
+        YPred = YPred-1;
+        % YPred = double(~(scores(:,2) < .90));
 
-    YTest = testing_data{:,"local_class"};
-    accuracy = sum(categorical(YPred)== categorical(YTest))/numel(YTest);
-    disp("accuracy on test")
-    disp(accuracy)
+        YTest = testing_data{:,"local_class"};
+        accuracy = sum(YPred== YTest)/numel(YTest);
+        disp("accuracy on test")
+        disp(accuracy)
 
-    %now get a breakdown of how the success/faliure cases break down
-    
-    
-    bounds = 0:5:100;
-    x_labels = strcat(string(bounds(1:end-1)), " to ",string(bounds(2:end)));
-    list =1:1:length(x_labels);
-    all_data = zeros(length(x_labels),2);
-    for j=1:length(list)
-        c1 = YTest==YPred;
-        c2 = testing_data{:,"difficulty_class"} == list(j);
-        all_data(j,1) = sum(c1 & c2);
-        all_data(j,2) = sum(~c1 & c2);
+        %now get a breakdown of how the success/faliure cases break down
+
+
+        bounds = 0:5:100;
+        x_labels = strcat(string(bounds(1:end-1)), " to ",string(bounds(2:end)));
+        list =1:1:length(x_labels);
+        all_data = zeros(length(x_labels),2);
+        for j=1:length(list)
+            c1 = YTest==YPred;
+            c2 = testing_data{:,"difficulty_class"} == list(j);
+            all_data(j,1) = sum(c1 & c2);
+            all_data(j,2) = sum(~c1 & c2);
+        end
+
+        f = figure;
+        bar(x_labels,all_data)
+        xlabel("Difficulty level (closest to 0 is harder) ");
+        ylabel("Frequency");
+        net_struct = struct();
+        net_struct.trained_net = trained_net;
+        net_struct.col_min = col_min;
+        net_struct.col_max = col_max;
+        net_struct.accuracy = accuracy;
+
+        net_struct.breakdown = all_data;
+        par_save(net_save_name,net_struct);
+
+        save_plots_in_all_formats(f,graph_save_name);
+
+
     end
-    
-    f = figure;
-    bar(x_labels,all_data)
-    xlabel("Difficulty level (closest to 0 is harder) "); 
-    ylabel("Frequency");
-    net_struct = struct();
-    net_struct.trained_net = trained_net;
-    net_struct.col_min = col_min;
-    net_struct.col_max = col_max;
-    net_struct.accuracy = accuracy;
-
-    net_struct.breakdown = all_data;
-    par_save(net_save_name,net_struct);
-
-    save_plots_in_all_formats(f,graph_save_name);
-
-
 end
 end
