@@ -53,10 +53,11 @@ config.ONLY_NEURONS = false; %when set to true updated_table_of_other_appearence
 config.UPDATE_GRADES = false;
 config.NUM_OF_UNITS = 100; %this tells you how many units are in the recording, it must be set if SIMULATED = true;
 config.SIMULATED = true; %when set to true, it indicates that your data is simulated and thus you MUST indicate the number of units
-config.ART_TETR_ARRAY = build_artificial_tetrode; %this is an array which tells you how to configure your channels, this should be changed when using a new probe with different channel numbers or if you want to customize the channel groupings
+%config.ART_TETR_ARRAY = [1, 2, 97, 98; 2, 3, 98, 99; 3, 4, 99, 100]; %this is an array which tells you how to configure your channels, this should be changed when using a new probe with different channel numbers or if you want to customize the channel groupings
+config.ART_TETR_ARRAY = build_artificial_tetrode(); %this is an array which tells you how to configure your channels, this should be changed when using a new probe with different channel numbers or if you want to customize the channel groupings
 config.max_channel_number = max(config.ART_TETR_ARRAY,[],"all");
 %each row should correspond a grouping of channels you want to create
-
+config.ART_TETR_ARRAY = build_artificial_tetrode;
 config.the_linspace_to_use = linspace(.1, 0, 4);
 config.percentiles_to_use = [80 60 40 20 ];
 config.percentiles_to_use = [90 85 80 75];
