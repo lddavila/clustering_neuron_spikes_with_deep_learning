@@ -8,7 +8,7 @@ function [viSpk1, vrSpk1, thresh1] = spikeDetectSingle_fast_(vrWav1, P, thresh1)
 %if not provided then it will be computed
 
 % 6/27/17 JJJ: bugfix: hard set threshold is applied
-
+vrWav1 = vrWav1(:);  % ensure column vector, add right after function signature / nargin checks
 % Determine threshold
 MAX_SAMPLE_QQ = 2^16; %300000; 
 % fSpikeRefrac_site = 0;
@@ -36,11 +36,15 @@ thresh1 = cast(thresh1, 'like', vrWav1); % JJJ 11/5/17
 
 % detect valley turning point. cannot detect bipolar
 % pick spikes crossing at least three samples
+
+
 nneigh_min = get_set_(P, 'nneigh_min_detect', 0);  %set the nneigh_min_detect to 0 in the struct p and return 0 once the param is set
-viSpk1 = find_peak_(vrWav1, min(thresh1), nneigh_min);  
-if get_set_(P, 'fDetectBipolar', 1) %if you want spikes on both sides run the detection again, but flip polarity
-   viSpk1 = [viSpk1; find_peak_(-vrWav1, min(thresh1), nneigh_min)]; %append the spikes
-   viSpk1 = sort(viSpk1); %sort the spikes
+viSpk1 = find_peak_(vrWav1, min(thresh1), nneigh_min);
+viSpk1 = viSpk1(:);  % force column vector
+if get_set_(P, 'fDetectBipolar', 1)
+   viSpk2 = find_peak_(-vrWav1, min(thresh1), nneigh_min);
+   viSpk1 = [viSpk1; viSpk2(:)];  % force column vector before concat
+   viSpk1 = sort(viSpk1);
 end
 if isempty(viSpk1)
     viSpk1 = double([]);

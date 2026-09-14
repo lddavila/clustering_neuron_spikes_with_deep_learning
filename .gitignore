@@ -34,3 +34,4 @@ kilosort4_output/
 *.log
 ./test_other_spike_sorters/**/__pycache__
 in_container_sorter_script.py
+.DS_Store

@@ -21,6 +21,8 @@ if ~ismember(fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"mean_and_std","mean_and
         current_channel = sliced_list_of_channels{i};
         if ~exist(fullfile(z_score_dir,current_channel+".mat"),"file")
             current_file = fullfile(dir_with_channel_data,current_channel);
+            disp(current_file)
+               disp(exist(current_file,"file"))
             channel_data = importdata(current_file);
             [channel_wise_z_score_data,channel_wise_mean_unmapped(i),channel_wise_std_unmapped(i)] = zscore(single(channel_data) * single(scale_factor));
             par_save(fullfile(z_score_dir,current_channel),channel_wise_z_score_data);

@@ -3,7 +3,10 @@ function [cell_array_of_parititioned_bp_tables] = partition_bp_tables(blind_pass
 %take 30% of the appreances in the bp table and separate them
 %the remaining 70% will be left in the blind pass table
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> justin_guo
 if split_by_recording
     groupcounts_by_recording = groupcounts(blind_pass_table,"recording_name");
     cell_array_of_parititioned_bp_tables = cell(size(groupcounts_by_recording,1),2);
