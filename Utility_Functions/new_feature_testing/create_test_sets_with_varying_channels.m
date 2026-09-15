@@ -18,7 +18,7 @@ if isempty(currentPool)
     cluster = parcluster("Processes");
     time_start = tic();
     if contains(pwd,"10595")
-        poolobj = parpool(cluster, 4);
+        poolobj = parpool(cluster, 16);
     else
         poolobj = parpool(cluster, 8);
     end
@@ -61,7 +61,7 @@ for i=beginning:the_end
         new_tetrode_array = build_channel_configs(number_of_channels,config);
 
         %randomly pick 20 tetrodes from this
-        rand_idxs = randperm(size(new_tetrode_array,1),200);
+        rand_idxs = randperm(size(new_tetrode_array,1),100);
         config.ART_TETR_ARRAY = new_tetrode_array(rand_idxs,:);
         if contains(pwd,"10595")
             config.GT_FP = fullfile(config.base_file_path,"Data",config.RECORDING_NAME,"ground_truth","ground_truth.mat");
