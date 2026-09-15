@@ -49,10 +49,10 @@ cd(home_dir);
 disp("Finished adding path");
 
 config = spikesort_config();
-if contains(pwd,"10595")
-    parpool("Processes", 64)
-    disp("Started parallel pool with 64 workers")
-end
+% if contains(pwd,"10595")
+%     parpool("Processes", 64)
+%     disp("Started parallel pool with 64 workers")
+% end
 
 if numel(varargin) >= 1 && ~isempty(varargin{1})
     blind_pass_table = varargin{1};
