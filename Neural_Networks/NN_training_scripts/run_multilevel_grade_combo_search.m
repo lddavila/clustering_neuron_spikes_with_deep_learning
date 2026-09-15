@@ -41,11 +41,18 @@ function results_table = run_multilevel_grade_combo_search(varargin)
 cd(dir);
 home_dir = cd("..");
 cd("..");
-addpath(genpath(pwd));
+addpath(genpath(fullfile(pwd,"Neural_Networks/"))); 
+addpath(genpath(fullfile(pwd,"Grading_scripts")));
+addpath(genpath(fullfile(pwd,"clustering-master")));
+addpath(genpath(fullfile(pwd,"Utility_Functions")));
 cd(home_dir);
 disp("Finished adding path");
 
 config = spikesort_config();
+if contains(pwd,"10595")
+    parpool("Processes", 64)
+    disp("Started parallel pool with 64 workers")
+end
 
 if numel(varargin) >= 1 && ~isempty(varargin{1})
     blind_pass_table = varargin{1};

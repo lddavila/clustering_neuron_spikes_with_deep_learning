@@ -31,6 +31,7 @@ parfor i = 1:n
         net_files_out{i} = net_file_i;
     catch ME
         fprintf(2, "Combo [%s] @ threshold %d failed: %s\n", mat2str(combo), this_threshold, ME.message);
+        disp(ME.getReport)
         scores_out(i) = NaN;
         net_files_out{i} = '';
     end
