@@ -8,7 +8,7 @@ arguments
     verbose double = 1;
    
 end
-blind_pass_table = update_fpths(blind_pass_table,config);
+% blind_pass_table = update_fpths(blind_pass_table,config);
 sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
 ground_truth = importdata(config.GT_FP);
 if string(class(ground_truth)) ~= "cell"
