@@ -20,7 +20,8 @@ q = parallel.pool.DataQueue;
 afterEach(q, @print_status_bar);
 print_status_bar(n, sprintf('train_and_score_combo_list (level %d)', level));
 
-parfor i = 1:n
+%there should be a parfor on line following this one when not debugging
+for i = 1:n
     combo = candidates{i};
     this_threshold = thresholds_vec(i);
     try
