@@ -39,9 +39,9 @@ dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
 % --- Load blind pass table ---
 if nargin < 1
     if contains(pwd,"10595")
-        blind_pass_table = load("\hierarchy_training_table.mat");
+        blind_pass_table = load(config.FP_TO_MULTICHANNEL_TABLES(1));
         blind_pass_table = blind_pass_table.hierarchy_training_table;
-        bp_4_ch = load("\from_ls6\4_ch\blind_pass_table\blind_pass_table.mat");
+        bp_4_ch = load(config.FP_TO_MULTICHANNEL_TABLES(2));
         bp_4_ch = bp_4_ch.data_to_save;
         only_cols = string(blind_pass_table.Properties.VariableNames);
         blind_pass_table = [blind_pass_table;bp_4_ch(:,only_cols)];
