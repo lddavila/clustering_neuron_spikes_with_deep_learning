@@ -1,6 +1,22 @@
-function [updated_data,unscaled_certainties]= get_certainties_of_all_previous_nets(list_of_all_previous_nets, fp_with_nets, data)
+function [updated_data,unscaled_certainties]= get_certainties_of_all_previous_nets(list_of_all_previous_nets, fp_with_nets, data,options)
+arguments
+    list_of_all_previous_nets 
+    fp_with_nets string
+    data double
+    options.use_z_score = false;
+    options.mu = [];
+    options.sigma = [];
+end
 
 n = size(data,1);
+if class(list_of_all_previous_nets)=="table"
+    names_of_files = string(list_of_all_previous_nets.name);
+    split_names = split(names_of_files,"_");
+    only_thresholds = str2double(split_names(:,3));
+    list_of_all_previous_nets.thresholds = only_thresholds;
+    sorted_rows = sortrows(list_of_all_previous_nets.name,"threshold","ascend");
+    list_of_all_previous_nets = sorted_rows.name;
+end
 m = length(list_of_all_previous_nets);
 previous_certainties = nan(n, m);
 unscaled_certainties = nan(size(data,1),length(list_of_all_previous_nets));
@@ -17,7 +33,11 @@ for i = 1:m
     end
 
     % Scale full input using this net's stored scaling
-    Xs = rescale(X, 0, 1, "InputMax", netS.InputMax, "InputMin", netS.InputMin);
+    if ~options.use_z_score
+        Xs = rescale(X, 0, 1, "InputMax", netS.InputMax, "InputMin", netS.InputMin);
+    else
+        Xs = (data - netS.mu) ./ netS.sigma;
+    end
 
     % Predict
     scores = predict(net, Xs);   % Nx2 probs

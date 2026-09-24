@@ -1,6 +1,6 @@
 function [layers] = dynamically_create_layers_for_nn(num_features,num_neurons_per_layer,num_layers,num_classes)
 
-layers = [featureInputLayer(num_features)];
+layers = [featureInputLayer(num_features,'SplitComplexInputs',true)];
 for i=1:num_layers
     layers = [layers,fullyConnectedLayer(num_neurons_per_layer),leakyReluLayer];
 end

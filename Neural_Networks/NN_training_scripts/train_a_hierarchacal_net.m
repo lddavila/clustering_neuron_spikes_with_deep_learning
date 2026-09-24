@@ -27,19 +27,28 @@ else
 end
 
 %create a directory to save nets and results to
-results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"hierarchal_nets"));
+results_dir = create_a_file_if_it_doesnt_exist_and_ret_abs_path(fullfile(config.parent_save_dir,"hierarchal_nets_fixed_nan_issue"));
+%set the seed
+rng(0)
 
+%first shuffle the blind pass table so the 4/3/2 channel examples are mixed
+%in with each other
+blind_pass_table = blind_pass_table(randperm(height(blind_pass_table),height(blind_pass_table)),:);
 
 
 %assemble the training data into simpel to handle forms
 list_of_features_to_add = ["grades 3"];
 all_grades_formatted = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config))];
-remove_condition = any(isnan(all_grades_formatted),2);
+% all_grades_formatted = zscore(all_grades_formatted,0,1,"omitnan");
+% all_grades_formatted(isnan(all_grades_formatted)) = 0;
+% remove_condition = any(isnan(all_grades_formatted),2);
 
 
 all_secondary_grades = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,secondary_test_table,config))];
 
-data_table = [blind_pass_table(~remove_condition,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(all_grades_formatted(~remove_condition,:),'VariableNames',["grades"])];
+% data_table = [blind_pass_table(~remove_condition,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(all_grades_formatted(~remove_condition,:),'VariableNames',["grades"])];
+
+data_table = [blind_pass_table(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(all_grades_formatted(:,:),'VariableNames',["grades"])];
 secondary_data_table = [secondary_test_table(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(all_secondary_grades,'VariableNames',["grades"])];
 
 split_data = partition_bp_tables(data_table,false);
@@ -48,15 +57,27 @@ testing_data = split_data{1,2};
 col_min = min(training_data.grades);
 col_max = max(training_data.grades);
 
-testing_data.grades = rescale(testing_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
+% testing_data.grades = rescale(testing_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
 
 split_again = partition_bp_tables(training_data,false);
 training_data = split_again{1,1};
-training_data.grades = rescale(training_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
+% training_data.grades = rescale(training_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
 validation_data = split_again{1,2};
-validation_data.grades = rescale(validation_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
+% validation_data.grades = rescale(validation_data.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
 
 % secondary_data_table.grades = rescale(secondary_data_table.grades,-1,1,"InputMax",col_max,"InputMin",col_min);
+
+mu = mean(training_data.grades, 1, "omitnan");
+sigma = std(training_data.grades, 0, 1, "omitnan");
+
+training_data.grades = (training_data.grades - mu)./ sigma;
+
+testing_data.grades = (testing_data.grades-mu) ./ sigma;
+validation_data.grades = (validation_data.grades - mu) ./ sigma;
+
+training_data.grades(isnan(training_data.grades)) = 0;
+testing_data.grades(isnan(testing_data.grades)) = 0;
+validation_data.grades(isnan(validation_data.grades)) = 0;
 
 %create accuracy classes which will serve as our ground truth
 training_data.final_y_labels = discretize(training_data.accuracy,0:10:100);
@@ -66,7 +87,7 @@ secondary_data_table.final_y_labels = discretize(secondary_data_table.accuracy,0
 
 
 %define where you want each tree to form
-split_points = [70, 60, 50];
+split_points = [70];
 
 %the phenomena we have observed is that when you train a nerual network to
 %identify above/below a specifc threshold (i.e. accuracy = 1, 10, 20, etc)
@@ -265,15 +286,25 @@ for k=1:length(balance_training_or_dont)
         end
 
         f = figure;
-        bar(x_labels,all_data)
+        b = bar(x_labels,all_data);
+        for p = 1:numel(b)
+            text(b(p).XEndPoints, b(p).YEndPoints, string(b(p).YData), ...
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'bottom');
+        end
         xlabel("Difficulty level (closest to 0 is harder) ");
         ylabel("Frequency");
+        legend("Successes","Faliures")
         net_struct = struct();
         net_struct.trained_net = trained_net;
         net_struct.col_min = col_min;
         net_struct.col_max = col_max;
+        net_struct.mean = mu;
+        net_struct.std = sigma;
         net_struct.accuracy = accuracy;
+        % legend("")
 
+        title("Successes and Faliures broken down by difficulty of task")
         net_struct.breakdown = all_data;
         par_save(net_save_name,net_struct);
 
@@ -282,4 +313,7 @@ for k=1:length(balance_training_or_dont)
 
     end
 end
+
+%with the first net trained we have to construct a new training set
+%untouched for the next split, so that we don't contaminate the layers
 end

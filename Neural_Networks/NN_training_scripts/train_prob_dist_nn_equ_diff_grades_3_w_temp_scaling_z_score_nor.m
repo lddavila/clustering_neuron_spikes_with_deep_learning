@@ -1,4 +1,4 @@
-function [] = train_prob_dist_nn_equ_diff_grades_3_w_temp_scaling(varargin)
+function [] = train_prob_dist_nn_equ_diff_grades_3_w_temp_scaling_z_score_nor(varargin)
 %the goal of this function is to use the neural network thresholding idea
 %at every possible accuracy
 %we know that neural networks are very successful when there is a large
@@ -18,8 +18,8 @@ function [] = train_prob_dist_nn_equ_diff_grades_3_w_temp_scaling(varargin)
 %point of uncertainty as a reasonable window which approximates the
 %accuracy of the cluster
 
-[dir,~,~] = fileparts(mfilename('fullpath'));
-cd(dir);
+[the_dir,~,~] = fileparts(mfilename('fullpath'));
+cd(the_dir);
 home_dir = cd("..");
 cd("..");
 addpath(genpath(fullfile(pwd,"Utility_Functions")));
@@ -35,10 +35,19 @@ disp("Finished getting config");
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
     fullfile(config.parent_save_dir,"probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling_07_27_2026"));
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
-    fullfile(config.parent_save_dir,"probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling_09_22_2026"));
+    fullfile(config.parent_save_dir,"probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling_09_23_2026"));
 % --- Load blind pass table ---
 if nargin < 1
-    blind_pass_table = importdata(config.FP_TO_EVEN_NUMBERED_RECORDINGS);
+    if contains(pwd,"10595")
+        blind_pass_table = load("\hierarchy_training_table.mat");
+        blind_pass_table = blind_pass_table.hierarchy_training_table;
+        bp_4_ch = load("\from_ls6\4_ch\blind_pass_table\blind_pass_table.mat");
+        bp_4_ch = bp_4_ch.data_to_save;
+        only_cols = string(blind_pass_table.Properties.VariableNames);
+        blind_pass_table = [blind_pass_table;bp_4_ch(:,only_cols)];
+    else
+        blind_pass_table = importdata(config.FP_TO_EVEN_NUMBERED_RECORDINGS);
+    end
 else
     blind_pass_table = varargin{1};
 end
@@ -48,6 +57,8 @@ disp("Finished loading blind pass table");
 
 
 list_of_features_to_add = ["grades 3"];
+formatted_grades = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config));
+blind_pass_table = [blind_pass_table(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(formatted_grades,'VariableNames',["grades"])];
 %define the increments that the neural network will function for
 thresholds = 1:1:100;
 cd(dir_to_save_results_to)
@@ -64,21 +75,37 @@ val_table = partitioned_training_table{1,2};
 
 
 last_net_names = [];
-for i=1:length(thresholds)
-    rng(0)
-    current_threshold = thresholds(i);
+%rescale the data to aid in convergence
+%this performs a z score normalization replaces invalid or missing
+%values with 0, we do this cause of the variable number of channels
+[training_table,testing_table,val_table,~,mu,sigma] = normalize_the_data(training_table,"current_test",testing_table,"current_val",val_table);
+if contains(pwd,"10595")
+    % Delete any active parallel pool
+    delete(gcp('nocreate'));
 
-    thresh_mag_diff = abs(training_table{:,"accuracy"}-current_threshold);
+    % Start a new pool with fewer workers (e.g., 4 workers)
+    parpool(40);
+end
+parfor i=1:length(thresholds)
+    already_done_nets = struct2table(dir(fullfile(dir_to_save_results_to,"*.mat")));
+    current_threshold = thresholds(i);
+    if any(contains(string(already_done_nets.name),"above_below_"+string(current_threshold)+"_"+"accuracy_"))
+        continue;
+    end
+    rng(0)
+
+    local_training_table = training_table(:,:);
+    thresh_mag_diff = abs(local_training_table{:,"accuracy"}-current_threshold);
     %set some buckets of difficulty to equalize by difficulty later
     difficulty_buckets = [0,5,10,15,20,25,Inf];
 
     training_diff_buckets = get_difficulty_buckets_array(thresh_mag_diff,difficulty_buckets,1);
-    training_table.difficulty_buckets = training_diff_buckets;
+    local_training_table.difficulty_buckets = training_diff_buckets;
 
     %remove any training table rows with NAN
-    training_table(isnan(training_table{:,"difficulty_buckets"}),:) = [];
+    local_training_table(isnan(local_training_table{:,"difficulty_buckets"}),:) = [];
 
-    equalized_training_table = equalize_classes(training_table);
+    equalized_training_table = equalize_classes(local_training_table);
 
 
     %partition the training data into above and below thresholds
@@ -115,7 +142,7 @@ for i=1:length(thresholds)
     training_data = training_data.grades;
 
     %remove any rows that have a nan
-    % nan_rows = any(isnan(training_data),2);
+    nan_rows = any(isnan(training_data),2);
     % training_data(nan_rows,:) = [];
     % training_above_below_class(nan_rows,:)= [];
 
@@ -127,15 +154,10 @@ for i=1:length(thresholds)
         %if not on the first neural network then we'll use the certainty
         %from the last net as a feature in the next net
         %this will hopefully be a usefull feature
-        training_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,training_data);
+        % training_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,training_data,"use_z_score",true);
     end
 
-    %rescale the data between 0,1 to aid in convergence
-    %preserve the col min/max in order to rescale the validation/testing
-    %data in a consistent way
-    col_min = min(training_data,[],1);
-    col_max = max(training_data,[],1);
-    training_data = rescale(training_data,0,1,"InputMax",col_max,"InputMin",col_min);
+    
 
     
 
@@ -151,10 +173,10 @@ for i=1:length(thresholds)
     training_data = [training_data,training_above_below_class];
 
     %get the validation data
-    val_data = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,val_table,config));
+    val_data = val_table.grades;
 
     %get test data
-    test_data = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,testing_table,config));
+    test_data = testing_table.grades;
 
 
     
@@ -163,18 +185,18 @@ for i=1:length(thresholds)
         %if not on the first neural network then we'll use the certainty
         %from the last net as a feature in the next net
         %this will hopefully be a usefull feature
-        val_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,val_data);
+        % val_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,val_data,"use_z_score",true);
         
-        test_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,test_data);
+        % test_data = get_certainties_of_all_previous_nets(last_net_names,dir_to_save_results_to,test_data,"use_z_score",true);
     end
 
     %rescale the validation data based on the training data
     %we don't equalize val data because there's no guarantee of
     %probability in the real scenario
-    val_data = rescale(val_data,0,1,"InputMax",col_max,"InputMin",col_min);
+    % val_data = rescale(val_data,0,1,"InputMax",col_max,"InputMin",col_min);
 
     %rescale the test data to match the training
-    test_data =rescale(test_data,0,1,"InputMax",col_max,"InputMin",col_min);
+    % test_data =rescale(test_data,0,1,"InputMax",col_max,"InputMin",col_min);
     
     %get validation data true class
     val_above_below_class = val_table{:,"accuracy"} > current_threshold;
@@ -253,14 +275,14 @@ for i=1:length(thresholds)
     %save the data into a struct to preserve the input min/max
     net_struct = struct();
     net_struct.net = net;
-    net_struct.InputMax = col_max;
-    net_struct.InputMin = col_min;
+    net_struct.mu = mu;
+    net_struct.sigma = sigma;
     net_struct.brier_score = brier_score;
     net_struct.auc = auc;
     net_struct.temperature = T;
     last_net_name = "above_below_"+string(current_threshold)+"_"+"accuracy_"+sprintf("%.2f",accuracy*100)+".mat";
     par_save(last_net_name,net_struct);
-    last_net_names = [last_net_names,last_net_name];
+    % last_net_names = [last_net_names,last_net_name];
     
 end
 

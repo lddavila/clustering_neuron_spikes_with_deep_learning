@@ -250,6 +250,7 @@ config.fp_to_lambdaMART_normalizer = fullfile(config.base_file_path,"Neural_Netw
 config.FP_TO_ALL_RECORDINGS_TABLE = fullfile(config.base_file_path,"Data","all_recordings_table.mat");
 config.FP_TO_ODD_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","odd_recordings.mat");
 config.FP_TO_EVEN_NUMBERED_RECORDINGS = fullfile(config.base_file_path,"Data","even_recordings.mat");
+config.FP_TO_MULTICHANNEL_TABLES = [fullfile(config.base_file_path,"Data","hierarchy_training_table.mat"),]
 
 config.dir_of_prob_dist_nets = fullfile(config.base_file_path,"Neural_Networks","probability_distr_nets_equalized_difficulty_grades_3_with_temp_scaling");
 
