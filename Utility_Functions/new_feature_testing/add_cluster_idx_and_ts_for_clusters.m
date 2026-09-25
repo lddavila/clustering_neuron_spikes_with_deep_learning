@@ -12,7 +12,7 @@ if isempty(varargin)
 else
     timestamps_array = varargin{4};
 end
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};
@@ -66,9 +66,9 @@ parfor i=1:size(sliced_blind_pass_table,1)
         end
        
         new_table = current_data(repelem(1,length(idx_cell_array),1),:);
-        new_table.cluster_idx = idx_cell_array.';
+        new_table.cluster_idx = idx_cell_array;
         new_table.Cluster = (1:1:length(idx_cell_array)).';
-        new_table.timestamps = timestamp_cell_array.';
+        new_table.timestamps = timestamp_cell_array;
         sliced_blind_pass_table{i} = new_table;
 
     catch ME

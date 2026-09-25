@@ -18,7 +18,11 @@ parfor i=1:size(sliced_blind_pass_table,1)
         current_data = sliced_blind_pass_table{i};
 
         current_data_vars = string(current_data.Properties.VariableNames);
-        if isempty(varargin)
+        if contains(current_data_vars,"channels")
+            channels = current_data.channels;
+            channel_sizes = cell2mat(cellfun(@size, channels, 'UniformOutput', false));
+            num_of_channels = max(cell2mat(cellfun(@size, channel_sizes, 'UniformOutput', false)),[],'all');
+        elseif isempty(varargin)
             num_of_channels = size(current_data{:,"grades"}{1}{49},2);
         else
             num_of_channels = varargin{5};
