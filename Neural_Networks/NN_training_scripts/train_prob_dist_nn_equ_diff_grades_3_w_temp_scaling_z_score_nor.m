@@ -87,6 +87,7 @@ if contains(pwd,"10595")
     parpool(40);
 end
 parfor i=1:length(thresholds)
+    try
     already_done_nets = struct2table(dir(fullfile(dir_to_save_results_to,"*.mat")));
     current_threshold = thresholds(i);
     if any(contains(string(already_done_nets.name),"above_below_"+string(current_threshold)+"_"+"accuracy_"))
@@ -283,6 +284,9 @@ parfor i=1:length(thresholds)
     last_net_name = "above_below_"+string(current_threshold)+"_"+"accuracy_"+sprintf("%.2f",accuracy*100)+".mat";
     par_save(last_net_name,net_struct);
     % last_net_names = [last_net_names,last_net_name];
+    catch ME
+        disp(ME.getReport)
+    end
     
 end
 
