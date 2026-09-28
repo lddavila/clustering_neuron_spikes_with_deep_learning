@@ -12,7 +12,7 @@ if isempty(varargin)
 else
     timestamps_array = varargin{4};
 end
-parfor i=1:size(sliced_blind_pass_table,1)
+for i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};
