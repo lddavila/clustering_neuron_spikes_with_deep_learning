@@ -56,8 +56,10 @@ disp("Finished loading blind pass table");
 
 
 
-list_of_features_to_add = ["grades 3"];
-formatted_grades = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config));
+
+[padded_grades,old_to_new_cell_array] = get_all_grades_with_padding(blind_pass_table,config);
+% formatted_grades = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config));
+formatted_grades = cell2mat(padded_grades);
 blind_pass_table = [blind_pass_table(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(formatted_grades,'VariableNames',["grades"])];
 %define the increments that the neural network will function for
 thresholds = 1:1:100;
@@ -281,6 +283,7 @@ parfor i=1:length(thresholds)
     net_struct.brier_score = brier_score;
     net_struct.auc = auc;
     net_struct.temperature = T;
+    net_struct.old_to_new_cell_array = old_to_new_cell_array;
     last_net_name = "above_below_"+string(current_threshold)+"_"+"accuracy_"+sprintf("%.2f",accuracy*100)+".mat";
     par_save(last_net_name,net_struct);
     % last_net_names = [last_net_names,last_net_name];
