@@ -14,9 +14,9 @@ new_colors = [];
 unit_list = [];
 just_detection= [];
 for i=1:length(channels)
-    only_curr_ch = sortrows(table_of_best_rep(table_of_best_rep{:,"all_channels"}==channels(i) & table_of_best_rep{:,"all_multiplier_idxs"}==config.which_thresh,:),"detection_ratio_stage_1","descend");
+    only_curr_ch = sortrows(table_of_best_rep(table_of_best_rep{:,"all_channels"}==channels(i) & table_of_best_rep{:,"all_multiplier_idxs"}==config.which_thresh,:),"detection_ratio","descend");
     % only_curr_ch = table_of_best_rep;
-    unique_units = unique(only_curr_ch{only_curr_ch.detection_ratio_stage_1>20,"unit"});
+    unique_units = unique(only_curr_ch{only_curr_ch.detection_ratio>20,"unit"});
     % sw_for_curr_channel = sw(sw(:,3)==channels(i),4);
     tol_amount = 2;
     for j=1:length(unique_units)

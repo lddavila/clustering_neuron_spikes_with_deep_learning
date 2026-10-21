@@ -39,34 +39,59 @@ end
 %need currently
 if ~isempty(options.predefined_old_to_new_cell_array)
     old_to_new_cell_array = options.predefined_old_to_new_cell_array;
-    num_cols_for_new_dataset = max(old_to_new_cell_array{end,3});
-    data_to_fill = zeros(height(blind_pass_table),num_cols_for_new_dataset);
-    sliced_bp_table = slice_table_for_parallel_processing(blind_pass_table,[]);
-    for i=1:size(old_to_new_cell_array,1)
-        current_old_idx = old_to_new_cell_array{i,1};
-        current_new_idx = old_to_new_cell_array{i,3};
-        
-        parfor p=1:height(blind_pass_table)
-            curr_data = sliced_bp_table{p};
-            current_grades = curr_data.grades{1};
+
+    num_rows = height(blind_pass_table);
+    num_mappings = size(old_to_new_cell_array, 1);
+    num_cols_for_new_dataset = max(old_to_new_cell_array{end, 3});
+
+    % Extract only the column needed by the workers.
+    grades_by_row = blind_pass_table.grades;
+
+    % Prepare mapping information once.
+    old_indices = old_to_new_cell_array(:, 1);
+    new_indices = old_to_new_cell_array(:, 3);
+    expected_lengths = cellfun(@numel, new_indices);
+
+    data_to_fill = zeros(num_rows, num_cols_for_new_dataset);
+
+    q = parallel.pool.DataQueue;
+    afterEach(q, @print_status_bar);
+    print_status_bar(num_rows, ...
+        "get_all_grades_with_padding | processing predefined mapping");
+
+    parfor p = 1:num_rows
+        current_grades = grades_by_row{p};
+        row_data = zeros(1, num_cols_for_new_dataset);
+
+        for i = 1:num_mappings
+            current_old_idx = old_indices{i};
+            current_new_idx = new_indices{i};
+            expected_num_grades = expected_lengths(i);
+
             current_grade = current_grades{current_old_idx};
-            expected_num_grades = length(current_new_idx);
-            if size(current_grade,1) > size(current_grade,2) %in the case of a col formatted grade, format it into a row
+
+            % Preserve your original orientation handling.
+            if size(current_grade, 1) > size(current_grade, 2)
                 current_grade = current_grade.';
             end
-            if isempty(current_grade) & expected_num_grades > 0
-                current_grade = zeros(1,expected_num_grades);
-            elseif length(current_grade) < expected_num_grades
-                current_grade = [current_grade,zeros(1,expected_num_grades - length(current_grade))];
 
-            elseif length(current_grade) > expected_num_grades
-                current_grade = current_grade(1:expected_num_grades);
+            % Start with zeros and copy only the available values.
+            % This handles empty, short, and long grade vectors.
+            grade_block = zeros(1, expected_num_grades);
+            num_to_copy = min(length(current_grade), expected_num_grades);
+
+            if num_to_copy > 0
+                grade_block(1:num_to_copy) = current_grade(1:num_to_copy);
             end
 
-            data_to_fill(p,current_new_idx) = current_grade;
+            row_data(current_new_idx) = grade_block;
         end
 
+        % Assign one complete output row.
+        data_to_fill(p, :) = row_data;
+        send(q, []);
     end
+
     padded_grades = data_to_fill;
     return;
 end

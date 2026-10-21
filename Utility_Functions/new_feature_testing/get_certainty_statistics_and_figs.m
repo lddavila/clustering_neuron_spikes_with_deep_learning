@@ -1,4 +1,4 @@
-function [idx_of_lowest,unscaled_certainties,filtered_bp_table,distance_from_min_uncertainty] = get_certainty_statistics_and_figs(dir_to_nn_sets,config,blind_pass_table,plot_figs,plot_worst_case)
+function [idx_of_lowest,unscaled_certainties,filtered_bp_table,distance_from_min_uncertainty] = get_certainty_statistics_and_figs(dir_to_nn_sets,config,blind_pass_table,plot_figs,plot_worst_case,varargin)
 list_of_features_to_add = ["grades 3"];
 grades_array = [cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config))];
 table_of_nets = struct2table(dir(fullfile(dir_to_nn_sets,"*.mat")));

@@ -1,4 +1,4 @@
-function accuracy_sweep_summary = run_group_pair_nn_pipeline(bp_table_file, options)
+function [accuracy_sweep_summary,config,group_cell_array]= run_group_pair_nn_pipeline(bp_table_file, config,options)
 %RUN_GROUP_PAIR_NN_PIPELINE Apply the trained group-pair NN to one recording.
 %
 % This pipeline starts from a blind-pass table. It first builds one complete
@@ -19,6 +19,7 @@ function accuracy_sweep_summary = run_group_pair_nn_pipeline(bp_table_file, opti
 
 arguments
     bp_table_file (1, 1) string
+    config struct
     options.MinimumSpikes (1, 1) double {mustBeNonnegative} = 170
     options.AccuracyCutoffs double = 0:5:100
     options.NumberOfWorkers (1, 1) double {mustBeInteger, mustBeNonnegative} = 6
@@ -27,11 +28,11 @@ arguments
     options.ProbabilityCutoff double = []
     options.SupportCutoff double = []
     options.RebuildMatrix (1, 1) logical = false
+    options.do_probability_analysis (1,1) logical = false %ADDED BY LUIS DAVID DAVILA
 end
 
 total_tic = tic;
-script_folder = fileparts(mfilename("fullpath"));
-repo_root = fileparts(fileparts(fileparts(script_folder)));
+repo_root = config.base_file_path;
 
 addpath(genpath(fullfile(repo_root, "clustering-master")), "-begin");
 addpath(genpath(fullfile(repo_root, "Utility_Functions")), "-begin");
@@ -42,7 +43,7 @@ if ~isfile(bp_table_file)
 end
 
 if options.ModelFile == ""
-    options.ModelFile = fullfile(repo_root, "Neural_Networks", ...
+    options.ModelFile = fullfile(config.base_file_path, "Neural_Networks", ...
         "group_pair_nn", "group_pair_nn_rec10_9_features.mat");
 end
 
@@ -77,8 +78,7 @@ fprintf("\nLoading and checking the blind-pass table...\n");
 input = load_pipeline_input(bp_table_file);
 
 if options.OutputFolder == ""
-    options.OutputFolder = fullfile(repo_root, "Default_Results_Dir", ...
-        input.recording_name, "group_pair_nn_pipeline");
+    options.OutputFolder = fullfile(config.BLIND_PASS_DIR_PRECOMPUTED,"grouping_results");
 end
 if ~isfolder(options.OutputFolder)
     mkdir(options.OutputFolder);
@@ -107,9 +107,9 @@ matrix_result = build_full_ensemble_matrix(input.bp, ...
 valid_bp = input.bp(input.valid_row_indices, :);
 valid_spike_count = input.spike_count(input.valid_row_indices);
 has_accuracy = ismember("accuracy", ...
-    string(valid_bp.Properties.VariableNames));
+    string(valid_bp.Properties.VariableNames)) && options.do_probability_analysis;
 has_ground_truth = ismember("Max_Overlap_Unit", ...
-    string(valid_bp.Properties.VariableNames));
+    string(valid_bp.Properties.VariableNames)) && options.do_probability_analysis;
 
 if has_accuracy
     accuracy_cutoffs = unique(options.AccuracyCutoffs(:), "stable");
@@ -214,27 +214,43 @@ for cutoff_id = 1:numel(accuracy_cutoffs)
     source_model_file = options.ModelFile;
     minimum_spikes = options.MinimumSpikes;
 
-    save(result_file, "accuracy_cutoff", "kept_row_indices", ...
-        "remove_conflicts_groups", "nn_groups", "groups_original_rows", ...
-        "group_summary", "unit_summary", "grouping_summary", ...
-        "probability_file", "probability_cutoff", "support_cutoff", ...
-        "minimum_spikes", "source_matrix_file", "source_model_file", ...
-        "-v7.3");
 
-    disp(grouping_summary);
-    accuracy_sweep_summary = [accuracy_sweep_summary; ...
-        grouping_summary]; %#ok<AGROW>
+
+    if options.do_probability_analysis
+        save(result_file, "accuracy_cutoff", "kept_row_indices", ...
+            "remove_conflicts_groups", "nn_groups", "groups_original_rows", ...
+            "group_summary", "unit_summary", "grouping_summary", ...
+            "probability_file", "probability_cutoff", "support_cutoff", ...
+            "minimum_spikes", "source_matrix_file", "source_model_file", ...
+            "-v7.3");
+
+        disp(grouping_summary);
+        accuracy_sweep_summary = [accuracy_sweep_summary; ...
+            grouping_summary]; %#ok<AGROW>
+    end
 end
 
-if isempty(accuracy_sweep_summary)
-    error("The pipeline did not produce any completed cutoff results.");
+%ADDED BY LUIS DAVID DAVILA
+
+groups_fn = fullfile(options.OutputFolder,"grouped_bp_table.mat");
+group_cell_array = cell(length(nn_groups),1);
+for i=1:length(nn_groups)
+    group_cell_array{i} = bp_filtered(nn_groups{i},:);
 end
+par_save(groups_fn,group_cell_array);
+config.grouped_clusters_fp = groups_fn;
 
-summary_file = save_pipeline_summary(accuracy_sweep_summary, ...
-    result_files, bp_table_file, matrix_file, options.ModelFile, ...
-    options.OutputFolder, toc(total_tic));
+%ADDED BY LUIS DAVID DAVILA
 
-fprintf("\nPipeline complete.\n");
-fprintf("summary: %s\n", summary_file);
+% if isempty(accuracy_sweep_summary)
+%     error("The pipeline did not produce any completed cutoff results.");
+% end
+
+% summary_file = save_pipeline_summary(accuracy_sweep_summary, ...
+%     result_files, bp_table_file, matrix_file, options.ModelFile, ...
+%     options.OutputFolder, toc(total_tic));
+
+fprintf("\n Grouping complete.\n");
+% fprintf("summary: %s\n", summary_file);
 fprintf("total time: %.1f minutes\n", toc(total_tic) / 60);
 end

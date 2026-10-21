@@ -20,9 +20,9 @@ function is_it_below_threshold = compute_incompleteness(the_waveform_peaks, the_
     % figure;
     % histogram(peaks,21)
     % title("Median:"+string(median_of_data)+" Mode:"+string(mode_of_data)+ " Mean"+string(mean_of_data)+ " Skewness:"+skewness_of_data);
-    [~, max_n] = max(n);
-    delta = xout(2) - xout(1);
-    theo_bottom_half = xout(max_n + 1:end) - (xout(end) - xout(max_n)) - delta;
+    [~, max_n] = max(n); %the bin with the highest count
+    delta = xout(2) - xout(1); %distance between the x locations of the bins
+    theo_bottom_half = xout(max_n + 1:end) - (xout(end) - xout(max_n)) - delta; 
     theo_vals = [theo_bottom_half xout(max_n) xout(max_n + 1:end)];
     half = n(max_n+1:end);
     theo_n = [half(end:-1:1) n(max_n) half];

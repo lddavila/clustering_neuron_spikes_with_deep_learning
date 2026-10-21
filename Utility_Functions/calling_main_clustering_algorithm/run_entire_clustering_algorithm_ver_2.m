@@ -388,11 +388,15 @@ if config.use_new_spike_detection
     blind_pass_table.Multiplier = blind_pass_table.("Z Score");
     blind_pass_table = blind_pass_table(:,["Multiplier",all_vars]);
 end
+
+%use my nets to filter out any clusters that can be easily classified as
+%less than 50% accurate
+
 par_save(fullfile(fp_to_blind_pass_table,"blind_pass_table.mat"),blind_pass_table);
 %fp_to_blind_pass_table = fullfile(precomputed_dir,"blind_pass_table","blind_pass_table.mat");
 
 
-try_both_reclustering_methods_varying_order(blind_pass_table,config,channel_wise_means,channel_wise_std);
+% try_both_reclustering_methods_varying_order(blind_pass_table,config,channel_wise_means,channel_wise_std);
 
 
 end

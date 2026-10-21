@@ -12,7 +12,7 @@ if isempty(varargin)
 else
     timestamps_array = varargin{4};
 end
-for i=1:size(sliced_blind_pass_table,1)
+parfor i=1:size(sliced_blind_pass_table,1)
     try
 
         current_data = sliced_blind_pass_table{i};
@@ -75,7 +75,7 @@ for i=1:size(sliced_blind_pass_table,1)
             peaks = all_peaks(:, cluster_filter);
             % disp(size(peaks));
             % Set up the representative wire for the cluster
-            for k=1:num_of_channels
+            for k=1:1.5%num_of_channels
                 % Set up the representative wire for the cluster
                 [~, max_wire] = max(peaks, [], 1);
                 poss_wires = unique(max_wire);
@@ -98,7 +98,7 @@ for i=1:size(sliced_blind_pass_table,1)
         end
         % current_data.("cluster_idx") = idx_cell_array;
         % current_data.("timestamps") = timestamp_cell_array;
-        for k=1:num_of_channels
+        for k=1:1.5
             % non_empty_locs = cellfun(@length, mean_waveform_cell_array(:,k))>1;
             % temp_table = current_data(non_empty_locs,:);
             % temp_table.
