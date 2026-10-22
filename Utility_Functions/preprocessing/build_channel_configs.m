@@ -47,5 +47,6 @@ for i=1:length(all_possible_groups)
 end
 
 all_valid_channel_groups = cell2mat(all_possible_groups);
-all_valid_channel_groups = unique(all_valid_channel_groups,'rows');
+sorted_all_valid_channel_groups = unique(sort(all_valid_channel_groups,2),"rows");
+all_valid_channel_groups = sorted_all_valid_channel_groups;
 end

@@ -1,4 +1,4 @@
-function [rows_to_keep,filter_mask] = filter_out_clusters_predicted_to_be_less_than_50_perc_acc(blind_pass_table,config,options)
+function [rows_to_keep,filter_mask,estimated_accuracy] = filter_out_clusters_predicted_to_be_less_than_50_perc_acc(blind_pass_table,config,options)
 arguments
     blind_pass_table table;
     config struct
@@ -7,8 +7,13 @@ arguments
     options.analyze_failure_cases = false;
     options.where_to_filter_by = 50;
     options.array_of_certainties = [];
+    options.create_figures_for_choose_better_poster_panel = false;
+    options.dir_to_save_panel_figures_to = "";
+    options.only_above_60 = false;
 end
-
+if options.dir_to_save_panel_figures_to == "" && options.create_figures_for_choose_better_poster_panel
+    options.create_figures_for_choose_better_poster_panel = false;
+end
 bp_var_names = string(blind_pass_table.Properties.VariableNames);
 if ~ismember("accuracy",bp_var_names)
     disp("accuracy is not already computed in your blind pass table so histograms cannot be made")
@@ -63,8 +68,6 @@ tol = 0.10;
 window = 10;   % Previously 5
 required = 3;
 
-estimated_accuracy = nan(num_clusters,1);
-reliable_mask = false(num_clusters,1);
 
 estimated_accuracy = nan(num_clusters,1);
 reliable_mask = false(num_clusters,1);
@@ -153,6 +156,35 @@ if options.analyze_failure_cases
         close(f);
     end
 
+
+end
+
+if options.create_figures_for_choose_better_poster_panel
+    clc;
+    close all;
+    if options.only_above_60
+        c1 = blind_pass_table{:,"accuracy"} > 70 & estimated_accuracy > 70;
+        blind_pass_table(~c1,:) = [];
+        estimated_accuracy(~c1) = [];
+    end
+    for i=1:height(blind_pass_table)
+        figure;
+        bar(array_of_certainties(i,:),'grouped','blue','BarWidth',1);
+        xline(blind_pass_table{i,"accuracy"},"LineWidth",5,"Color","black","Label","True accuracy "+sprintf('%.2f',blind_pass_table{i,"accuracy"}),"LabelHorizontalAlignment","right")
+        xline(estimated_accuracy(i),"LineWidth",5,"Color","red","Label","Estimated accuracy "+sprintf('%.2f',estimated_accuracy(i)),"LabelHorizontalAlignment","left")
+        xlabel("accuracy thresholds 1-100");
+        ylabel("Certainty")
+        save_it = input('save? (y/n/cancel) ', 's');
+        if save_it=='y'
+            format_poster_fig();
+            exportgraphics(gcf, fullfile(options.dir_to_save_panel_figures_to, 'certainty_plots_row_'+string(i)+'.pdf'), 'ContentType', 'vector','BackgroundColor','none')
+            close all;
+        end
+        if save_it=="cancel" || save_it == "c"
+            break;
+        end
+        close all;
+    end
 
 end
 end
