@@ -1,8 +1,16 @@
-function [equalized_nn_data] = equalize_classes(nn_data)
+function [equalized_nn_data] = equalize_classes(nn_data,options)
+arguments
+    nn_data table
+    options.class_to_use = "";
+end
 if class(nn_data)~="table"
     nn_data = array2table(nn_data);
 end
-counts_by_class = groupcounts(nn_data,string(nn_data.Properties.VariableNames(end)));
+if options.class_to_use == ""
+    counts_by_class = groupcounts(nn_data,string(nn_data.Properties.VariableNames(end)));
+else
+    counts_by_class = groupcounts(nn_data,options.class_to_use);
+end
 [min_counts,min_index] = min(counts_by_class{:,"GroupCount"});
 equalized_nn_data = cell(size(counts_by_class,1),1);
 for i=1:size(counts_by_class,1)

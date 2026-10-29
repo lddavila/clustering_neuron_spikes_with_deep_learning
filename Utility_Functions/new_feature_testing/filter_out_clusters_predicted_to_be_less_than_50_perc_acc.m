@@ -20,7 +20,7 @@ arguments
     options.required = 3;
     options.smoothness_window = 5; % Points on each side of a candidate
     options.distance_between_candidates = 5;
-    options.tol_for_mono_inc_dec = .08;
+    options.tol_for_mono_inc_dec = .05;
     options.window_for_mono_inc_dec = 5;
     options.smoothing_window_for_mono_inc_dec = 5;
     options.min_support_on_left_for_mono = 3;
@@ -213,8 +213,8 @@ end
         mon_bef_log = [];
         mon_after_log = [];
         for candidate_counter=1:length(candidates)
-            before = diff(smoothed_curve(1:candidates(candidate_counter)));
-            after = diff(smoothed_curve(candidates(candidate_counter):end));
+            before = diff(smoothed_curve(max([1,candidates(candidate_counter)-options.min_support_on_left_for_mono]):candidates(candidate_counter)));
+            after = diff(smoothed_curve(candidates(candidate_counter):min([candidates(candidate_counter)+options.min_support_on_right_for_mono,length(smoothed_curve)])));
             num_of_monotonically_dec_before = sum(before<=options.tol_for_mono_inc_dec);
             num_of_monotonically_dec_after = sum(after<=options.tol_for_mono_inc_dec);
             mon_bef_log = [mon_bef_log,num_of_monotonically_dec_before];
@@ -479,9 +479,9 @@ table_of_nets.net_num = str2double(net_names(:,3));
 table_of_nets = sortrows(table_of_nets,"net_num","ascend");
 
 %get rid of any tiny clusters since they're usually worthless
-size_of_clusters = cell2mat(cellfun(@size,blind_pass_table.cluster_idx,'UniformOutput',false));
-size_for_each_cluster = max(size_of_clusters,[],2);
-blind_pass_table(size_for_each_cluster<100,:) = [];
+% size_of_clusters = cell2mat(cellfun(@size,blind_pass_table.cluster_idx,'UniformOutput',false));
+% size_for_each_cluster = max(size_of_clusters,[],2);
+% blind_pass_table(size_for_each_cluster<100,:) = [];
 if isempty(options.array_of_certainties)
     array_of_certainties = zeros(height(blind_pass_table),height(table_of_nets));
 
@@ -597,11 +597,14 @@ end
 % filter_mask = reliable_mask & estimated_accuracy >= options.where_to_filter_by;
 
 filter_mask = estimated_accuracy >= options.uncertainty_window(2);
-rows_to_keep = blind_pass_table(filter_mask,:);
 
-refinement_rows = estimated_accuracy >= options.uncertainty_window(1) & estimated_accuracy <= options.uncertainty_window(2);
-rows_flagged_for_refinement = blind_pass_table(refinement_rows,:);
-rows_to_discard = filter_mask |  refinement_rows;
+refinement_mask =estimated_accuracy >= options.uncertainty_window(1) & estimated_accuracy < options.uncertainty_window(2);
+
+discard_mask = ~(filter_mask | refinement_mask);
+
+rows_to_keep = blind_pass_table(filter_mask,:);
+rows_flagged_for_refinement = blind_pass_table(refinement_mask,:);
+rows_to_discard = blind_pass_table(discard_mask,:);
 if options.make_after_filt_acc_hist
     figure;
     histogram(rows_to_keep.accuracy,'BinEdges',0:1:100);
