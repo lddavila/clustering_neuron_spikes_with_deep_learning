@@ -32,7 +32,7 @@ for i=1:length(grade_subset)
     end
 end
 
-config.expanded_grade_idxs = og_grade_idx;
+config.expanded_grade_idxs = unique(og_grade_idx);
 disp("Finished getting config");
 
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
