@@ -26,7 +26,7 @@ end
 
 beginning = which_recording;
 the_end = which_recording+0.5;
-number_of_channels_to_use = [2];
+number_of_channels_to_use = [2,3,4];
 rng(0);
 for k=1:length(number_of_channels_to_use)
     current_number_of_channels = number_of_channels_to_use(k);
@@ -63,8 +63,8 @@ for k=1:length(number_of_channels_to_use)
             %get a new art_tetrode_array and set it in the config
             new_tetrode_array = build_channel_configs(current_number_of_channels,config);
 
-            %randomly pick 10 tetrodes from this
-            rand_idxs = randperm(size(new_tetrode_array,1),10);
+            %randomly pick 100 tetrodes from this
+            rand_idxs = randperm(size(new_tetrode_array,1),100);
             config.ART_TETR_ARRAY = new_tetrode_array(rand_idxs,:);
             config.ART_TETR_ARRAY = config.ART_TETR_ARRAY(1:5,:);
             if contains(pwd,"10595")
@@ -101,7 +101,7 @@ for k=1:length(number_of_channels_to_use)
             config.debug_with_ground_truth = true;
             config.run_full_clustering = true;
             config.percentiles_to_use = [80:-20:20];
-            config.spikesort.fp_to_ch_to_units = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\new_features_subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch\DEBUG\table_of_best_rep.mat";
+            % config.spikesort.fp_to_ch_to_units = "C:\Users\ldd77\clustering_neuron_spikes_with_deep_learning\Default_Results_Dir\new_features_subset_10_600Neuron300SecondRecordingWithLevel10Noise_2_ch\DEBUG\table_of_best_rep.mat";
             [blind_pass_table,fp_to_bp_table,config] = run_entire_clustering_algorithm_ver_2(config);
 
 
