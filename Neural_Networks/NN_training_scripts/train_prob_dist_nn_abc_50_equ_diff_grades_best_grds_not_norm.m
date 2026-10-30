@@ -38,14 +38,10 @@ disp("Finished getting config");
 dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
     fullfile(config.parent_save_dir,"probability_distr_nets_equalized_difficulty_grades_3_above_50_not_norm"));
 % --- Load blind pass table ---
+% --- Load blind pass table ---
 if nargin < 1
     if contains(pwd,"10595")
-        blind_pass_table = load(config.FP_TO_MULTICHANNEL_TABLES(1));
-        blind_pass_table = blind_pass_table.hierarchy_training_table;
-        bp_4_ch = load(config.FP_TO_MULTICHANNEL_TABLES(2));
-        bp_4_ch = bp_4_ch.data_to_save;
-        only_cols = string(blind_pass_table.Properties.VariableNames);
-        blind_pass_table = [blind_pass_table;bp_4_ch(:,only_cols)];
+        blind_pass_table = load(fullfile(config.base_file_path,"Data","test_set_with_even_recordings_and_2_3_ch_tetetrodes.mat"));
     else
         blind_pass_table = importdata(config.FP_TO_EVEN_NUMBERED_RECORDINGS);
     end
