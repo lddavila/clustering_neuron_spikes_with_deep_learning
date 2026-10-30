@@ -269,8 +269,6 @@ parfor i=1:length(thresholds)
         %save the data into a struct to preserve the input min/max
         net_struct = struct();
         net_struct.net = net;
-        net_struct.mu = mu;
-        net_struct.sigma = sigma;
         net_struct.brier_score = brier_score;
         net_struct.auc = auc;
         net_struct.temperature = T;
