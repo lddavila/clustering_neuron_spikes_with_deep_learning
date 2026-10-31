@@ -56,6 +56,26 @@ disp("Finished loading blind pass table");
 
 [padded_grades,old_to_new_cell_array] = get_all_grades_with_padding(blind_pass_table,config);
 % formatted_grades = cell2mat(assemble_data_for_neural_net(list_of_features_to_add,blind_pass_table,config));
+
+%remove rows with infs
+padded_grades = real(padded_grades);
+c1 = sum(isinf(padded_grades),2) > 1;
+padded_grades(c1,:) = [];
+
+%apply that change to blind pass table to keep the rows even
+blind_pass_table(c1,:) = [];
+
+%drop cols that have more than 50% nans
+c2 = sum(isnan(padded_grades)) > round(.5 * height(blind_pass_table));
+padded_grades = padded_grades(:,~c2);
+
+%now drop rows where there are still nans
+c3 = sum(isnan(padded_grades),2) > 1;
+padded_grades(c3,:) = [];
+%now apply that change to the blind pass table as well
+blind_pass_table(c3,:) = [];
+
+
 formatted_grades = padded_grades;
 blind_pass_table = [blind_pass_table(:,["Z Score","Tetrode","Cluster","Max_Overlap_Unit","accuracy"]),table(formatted_grades,'VariableNames',["grades"])];
 %define the increments that the neural network will function for
