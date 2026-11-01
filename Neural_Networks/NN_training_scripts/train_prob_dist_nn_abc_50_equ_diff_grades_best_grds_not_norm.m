@@ -50,7 +50,7 @@ else
 end
 disp("Finished loading blind pass table");
 
-
+blind_pass_table(blind_pass_table.accuracy < 50,:) = [];
 
 
 
