@@ -9,4 +9,4 @@
 #SBATCH --mail-user=lddavila@miners.utep.edu
 #SBATCH -A CCR26037
 module load matlab/2023b
-matlab -batch "ss_train_prob_dist_nn_abc_50_equ_diff_grades_best_grds();exit;"
+matlab -batch "train_prob_dist_nn_abc_50_equ_diff_grades_best_grds();exit;"
