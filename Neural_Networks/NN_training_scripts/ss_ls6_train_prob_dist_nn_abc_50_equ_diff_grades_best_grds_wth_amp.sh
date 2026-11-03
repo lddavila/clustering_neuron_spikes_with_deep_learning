@@ -1,9 +1,9 @@
 #!/bin/bash 
 #SBATCH -N 1
 #SBATCH -p normal
-#SBATCH -J new_network_training
-#SBATCH -o output.txt 
-#SBATCH -e output.txt 
+#SBATCH -J grds_w_amp
+#SBATCH -o output_2.txt 
+#SBATCH -e output_2.txt 
 #SBATCH -t 6:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lddavila@miners.utep.edu
