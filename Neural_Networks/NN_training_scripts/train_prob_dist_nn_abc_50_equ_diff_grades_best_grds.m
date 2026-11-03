@@ -41,6 +41,7 @@ dir_to_save_results_to = create_a_file_if_it_doesnt_exist_and_ret_abs_path( ...
 if nargin < 1
     if contains(pwd,"10595")
         blind_pass_table = load(fullfile(config.base_file_path,"Data","test_set_with_even_recordings_and_2_3_ch_tetetrodes.mat"));
+        blind_pass_table = blind_pass_table.data_to_save;
     else
         blind_pass_table = importdata(config.FP_TO_EVEN_NUMBERED_RECORDINGS);
     end
