@@ -124,7 +124,7 @@ end
 beginning_time = tic;
 
 if ~config.use_new_spike_detection
-    [multipliers_in_mv,cell_array_of_all_spikes_per_channel,pk_vals_cell_array] = detect_spikes_ver_2(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
+    [multipliers_in_mv,cell_array_of_all_spikes_per_channel,pk_vals_cell_array] = detect_spikes_ver_3(lowest_bound_spikes_per_channel_dir,ordered_list_of_channels,dir_with_channel_recordings,z_score_dir,min(config.DEFAULT_CLUSTERING_Z_SCORES),scale_factor,config);
     end_time = toc(beginning_time);
     fprintf("Finished cutting spikes per channel for "+z_score_or_multiplier+" %.2f, it took %.2f seconds\n",min(config.DEFAULT_CLUSTERING_Z_SCORES),end_time);
 else
